@@ -1,0 +1,6 @@
+.idea/
+venv/
+.serverless/
+node_modules/
+__pycache__/
+

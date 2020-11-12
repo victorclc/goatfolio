@@ -1,0 +1,6 @@
+service: goatfolio-serverless
+
+provider:
+  name: aws
+  region: us-east-2
+  stage: ${env:STAGE, 'dev'}
