@@ -1,4 +1,4 @@
-service: portoflio-api
+service: portfolio-api
 
 provider:
   name: aws
@@ -6,7 +6,7 @@ provider:
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
   environment:
-    PYTHONPATH: "libs/"
+    PYTHONPATH: "src:libs"
 
 package:
   exclude:
@@ -24,3 +24,9 @@ custom:
     cacheLocation: '.cache/'
 
 functions:
+  postInvestment:
+    handler: src/handlers.post_investment_handler
+    events:
+      - http:
+          path: investments/
+          method: post
