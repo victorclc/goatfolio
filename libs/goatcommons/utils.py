@@ -6,7 +6,6 @@ from goatcommons.models import StockInvestment, PreFixedInvestment, PostFixedInv
 
 
 class AwsEventUtils:
-
     @staticmethod
     def get_event_subject(event):
         try:
@@ -43,10 +42,10 @@ class InvestmentUtils:
     def load_model_by_type(_type, investment):
         if _type == InvestmentsType.STOCK:
             return StockInvestment(**investment)
-        if _type == FixedIncomeSubtypes.PRE_FIXED:
+        if _type == InvestmentsType.PRE_FIXED:
             return PreFixedInvestment(**investment)
-        if _type == FixedIncomeSubtypes.POST_FIXED:
+        if _type == InvestmentsType.POST_FIXED:
             return PostFixedInvestment(**investment)
-        if _type == FixedIncomeSubtypes.CHECKING_ACCOUNT:
+        if _type == InvestmentsType.CHECKING_ACCOUNT:
             return CheckingAccountInvestment(**investment)
         raise TypeError
