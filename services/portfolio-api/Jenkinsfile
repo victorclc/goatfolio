@@ -26,7 +26,7 @@ pipeline {
         stage('Tests') {
             steps {
                 dir('services/portfolio-api') {
-                    sh 'TODO tests'
+                    //sh 'TODO tests'
                 }
             }
         }
