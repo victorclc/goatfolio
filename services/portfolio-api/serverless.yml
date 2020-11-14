@@ -7,6 +7,14 @@ provider:
   runtime: python3.8
   environment:
     PYTHONPATH: "src:libs"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+      Resource:
+        'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
 
 package:
   exclude:
@@ -24,9 +32,60 @@ custom:
     cacheLocation: '.cache/'
 
 functions:
-  postInvestment:
-    handler: src/handlers.post_investment_handler
+  getInvestments:
+    handler: src/handlers.get_investments_handler
+    events:
+      - http:
+          path: investments/
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  addInvestment:
+    handler: src/handlers.add_investment_handler
     events:
       - http:
           path: investments/
           method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  editInvestment:
+    handler: src/handlers.edit_investment_handler
+    events:
+      - http:
+          path: investments/
+          method: put
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  deleteInvestments:
+    handler: src/handlers.delete_investments_handler
+    events:
+      - http:
+          path: investments/
+          method: delete
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+resources:
+  Resources:
+    ApiGatewayAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        AuthorizerResultTtlInSeconds: 10
+        IdentitySource: method.request.header.Authorization
+        Name: GoatCognitoAuthorizer
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Type: COGNITO_USER_POOLS
+        ProviderARNs:
+          - 'Fn::ImportValue': ${self:provider.stage}-GoatfolioAppUserPoolArnOutput

@@ -25,7 +25,7 @@ def get_investments_handler(event, context):
         return {'statusCode': 404, 'body': JsonUtils.dump({"message": ex})}
 
 
-def post_investment_handler(event, context):
+def add_investment_handler(event, context):
     logger.info(f"EVENT: {event}")
     try:
         subject = AwsEventUtils.get_event_subject(event)
@@ -38,7 +38,7 @@ def post_investment_handler(event, context):
         return {'statusCode': 400, 'body': JsonUtils.dump({"message": ex})}
 
 
-def put_investment_handler(event, context):
+def edit_investment_handler(event, context):
     logger.info(f"EVENT: {event}")
     try:
         subject = AwsEventUtils.get_event_subject(event)
