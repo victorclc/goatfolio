@@ -4,3 +4,36 @@ provider:
   name: aws
   region: us-east-2
   stage: ${env:STAGE, 'dev'}
+
+resources:
+  Resources:
+    GoatfolioAppUserPool:
+      Type: 'AWS::Cognito::UserPool'
+      Properties:
+        AccountRecoverySetting:
+          RecoveryMechanisms:
+            - Name: verified_email
+              Priority: 1
+        EmailVerificationSubject: "GOATFOLIO - Código de verificação"
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireLowercase: true
+            RequireNumbers: true
+            RequireSymbols: false
+            RequireUppercase: true
+            TemporaryPasswordValidityDays: 1
+        AutoVerifiedAttributes:
+          - email
+        UsernameAttributes:
+          - email
+        UsernameConfiguration:
+          CaseSensitive: false
+        UserPoolName: "goatfolio_app"
+
+  Outputs:
+    GoatfolioAppUserPoolOutput:
+      Value:
+        Fn::GetAtt: [ GoatfolioAppUserPool, Arn ]
+      Export:
+        Name: ${self:provider.stage}-GoatfolioAppUserPoolOutput
