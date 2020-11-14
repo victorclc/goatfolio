@@ -43,14 +43,14 @@ pipeline {
         }
         stage('Common Resources Deploy') {
             steps {
-                sh 'serverless install'
+                sh 'serverless deploy'
              }
         }
         stage('Service Deploy') {
             steps {
                  dir('services/portfolio-api'){
                     sh 'npm install'
-                    sh 'serverless install'
+                    sh 'serverless deploy'
                 }
             }
 
