@@ -31,9 +31,32 @@ resources:
           CaseSensitive: false
         UserPoolName: "goatfolio_app"
 
+    InvestmentsTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: "Investments"
+        AttributeDefinitions:
+          - AttributeName: "id"
+            AttributeType: "S"
+          - AttributeName: "subject"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "subject"
+            KeyType: "HASH"
+          - AttributeName: "id"
+            KeyType: "RANGE"
+        ProvisionedThroughput:
+          ReadCapacityUnits: "5"
+          WriteCapacityUnits: "5"
+
   Outputs:
-    GoatfolioAppUserPoolOutput:
+    GoatfolioAppUserPoolArnOutput:
       Value:
         Fn::GetAtt: [ GoatfolioAppUserPool, Arn ]
       Export:
-        Name: ${self:provider.stage}-GoatfolioAppUserPoolOutput
+        Name: ${self:provider.stage}-GoatfolioAppUserPoolArnOutput
+    InvestmentsTableArnOutput:
+      Value:
+        Fn::GetAtt: [ InvestmentsTable, Arn ]
+      Export:
+        Name: ${self:provider.stage}-InvestmentsTableArnOutput
