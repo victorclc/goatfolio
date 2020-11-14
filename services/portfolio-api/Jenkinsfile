@@ -36,7 +36,7 @@ pipeline {
                     sh 'sonar-scanner \
                         -Dsonar.projectKey=api-portfolio \
                         -Dsonar.sources=. \
-                        -Dsonar.host.url=http://sonar:9000 \
+                        -Dsonar.host.url=http://192.168.0.100:9000 \
                         -Dsonar.login=25386fa84d8699fc4fc112f94d24b6a57ac0292e'
                 }
              }
