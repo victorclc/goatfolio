@@ -19,7 +19,3 @@ Contain all code that may be shared between services.
 ### /
 
 Has a serverless.yml file with all aws resources that needs to be shared between two or more services.
-
-### pipelines/
-
-All services deployment pipelines (Jenkins)
