@@ -1,0 +1,59 @@
+pipeline {
+    agent {
+        docker {
+            image 'victorclc/node-serverless'
+            args '-u 127:998 -v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+    environment {
+        HOME="."
+        SERVICE_PATH="${env.WORKSPACE}/services/portfolio-api"
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id-dev')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key-dev')
+        DOMAIN_NAME='dev.victorclc.com.br'
+        SLS_DEBUG='*'
+    }
+    stages {
+        stage('Clone') {
+            steps {
+                git(
+                    url: 'git@github.com:victorclc/goatfolio-serverless.git',
+                    credentialsId: 'github-ssh',
+                    branch: 'master'
+                )
+             }
+        }
+        stage('Tests') {
+            steps {
+                dir('services/portfolio-api') {
+                    sh 'TODO tests'
+                }
+            }
+        }
+        stage('Sonar') {
+            steps {
+                dir('services/portfolio-api'){
+                    sh 'sonar-scanner \
+                        -Dsonar.projectKey=api-portfolio \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://sonar:9000 \
+                        -Dsonar.login=25386fa84d8699fc4fc112f94d24b6a57ac0292e'
+                }
+             }
+        }
+        stage('Common Resources Deploy') {
+            steps {
+                sh 'serverless install'
+             }
+        }
+        stage('Service Deploy') {
+            steps {
+                 dir('services/portfolio-api'){
+                    sh 'npm install'
+                    sh 'serverless install'
+                }
+            }
+
+        }
+    }
+}

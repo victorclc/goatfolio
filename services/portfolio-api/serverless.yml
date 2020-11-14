@@ -25,11 +25,16 @@ package:
 
 plugins:
   - serverless-python-requirements
+  - serverless-domain-manager
 
 custom:
   pythonRequirements:
     dockerizePip: true
     cacheLocation: '.cache/'
+  customDomain:
+    domainName: ${env:DOMAIN_NAME}
+    stage: ${self:provider.stage}
+    createRoute53Record: false
 
 functions:
   getInvestments:
