@@ -5,9 +5,7 @@ import boto3
 from boto3.dynamodb.conditions import Key
 
 from exceptions import InvestmentNotFoundException
-from goatcommons.constants import InvestmentsType, FixedIncomeSubtypes
-from goatcommons.models import Investment, StockInvestment, PreFixedInvestment, PostFixedInvestment, \
-    CheckingAccountInvestment
+from goatcommons.models import Investment
 from goatcommons.utils import InvestmentUtils
 
 
