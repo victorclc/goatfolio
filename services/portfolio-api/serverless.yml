@@ -13,7 +13,7 @@ package:
     - .cache/**
     - tests/**
   include:
-    - ../../libs/awsutils/**
+    - ../../libs/goatcommons/**
 
 plugins:
   - serverless-python-requirements
