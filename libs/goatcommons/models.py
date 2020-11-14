@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from decimal import Decimal
 
-from goatcommons.constants import InvestmentsType, FixedIncomeSubtypes
+from goatcommons.constants import InvestmentsType
 
 
 @dataclass
@@ -27,8 +27,7 @@ class StockInvestment(Investment):
 
 @dataclass
 class CheckingAccountInvestment(Investment):
-    type: str = InvestmentsType.FIXED_INCOME
-    subtype: str = FixedIncomeSubtypes.CHECKING_ACCOUNT
+    type: str = InvestmentsType.CHECKING_ACCOUNT
     initial_date: str = None
     value: Decimal = None
     percent_over_cdi: Decimal = None
@@ -36,8 +35,7 @@ class CheckingAccountInvestment(Investment):
 
 @dataclass
 class PostFixedInvestment(Investment):
-    type: str = InvestmentsType.FIXED_INCOME
-    subtype: str = FixedIncomeSubtypes.POST_FIXED
+    type: str = InvestmentsType.POST_FIXED
     emitter: str = None
     paper: str = None
     indexer: str = None
@@ -49,8 +47,7 @@ class PostFixedInvestment(Investment):
 
 @dataclass
 class PreFixedInvestment(Investment):
-    type: str = InvestmentsType.FIXED_INCOME
-    subtype: str = FixedIncomeSubtypes.PRE_FIXED
+    type: str = InvestmentsType.PRE_FIXED
     emitter: str = None
     paper: str = None
     annual_tax: Decimal = None
