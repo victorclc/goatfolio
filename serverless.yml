@@ -1,4 +1,4 @@
-service: goatfolio-serverless
+service: serverless-goatfolio
 
 provider:
   name: aws
