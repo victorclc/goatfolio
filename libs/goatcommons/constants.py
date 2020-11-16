@@ -1,9 +1,12 @@
-class OperationType:
+from enum import Enum
+
+
+class OperationType(Enum):
     BUY = "BUY"
     SELL = "SELL"
 
 
-class InvestmentsType:
+class InvestmentsType(Enum):
     STOCK = "STOCK"
     US_STOCK = "US_STOCK"
     FIXED_INCOME = "FIXED_INCOME"
@@ -13,7 +16,7 @@ class InvestmentsType:
     CRYPTO = "CRYPTO"
 
 
-class StockSubType:
+class StockSubType(Enum):
     STOCK = "STOCK"
     REAL_STATE = "REAL_STATE"
     BRAZILIAN_DEPOSIT_RECEIPT = "BRAZILIAN_DEPOSIT_RECEIPT"

@@ -41,11 +41,11 @@ class InvestmentUtils:
     @staticmethod
     def load_model_by_type(_type, investment):
         if _type == InvestmentsType.STOCK:
-            return StockInvestment(**investment)
+            return StockInvestment(**investment, type=InvestmentsType.STOCK)
         if _type == InvestmentsType.PRE_FIXED:
-            return PreFixedInvestment(**investment)
+            return PreFixedInvestment(**investment, type=InvestmentsType.PRE_FIXED)
         if _type == InvestmentsType.POST_FIXED:
-            return PostFixedInvestment(**investment)
+            return PostFixedInvestment(**investment, type=InvestmentsType.POST_FIXED)
         if _type == InvestmentsType.CHECKING_ACCOUNT:
-            return CheckingAccountInvestment(**investment)
+            return CheckingAccountInvestment(**investment, type=InvestmentsType.CHECKING_ACCOUNT)
         raise TypeError
