@@ -40,6 +40,7 @@ class JsonUtils:
 class InvestmentUtils:
     @staticmethod
     def load_model_by_type(_type, investment):
+        investment.pop("type", None)
         if _type == InvestmentsType.STOCK:
             return StockInvestment(**investment, type=InvestmentsType.STOCK)
         if _type == InvestmentsType.PRE_FIXED:
