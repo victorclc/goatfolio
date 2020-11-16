@@ -8,9 +8,9 @@ from goatcommons.decorators import enforce_types
 @enforce_types
 @dataclass
 class _InvestmentsBase:
-    operation: OperationType
+    operation: str
     date: str
-    type: InvestmentsType
+    type: str
     broker: str
 
 

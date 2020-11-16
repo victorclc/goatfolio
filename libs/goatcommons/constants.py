@@ -1,12 +1,12 @@
 from enum import Enum
 
 
-class OperationType(Enum):
+class OperationType:
     BUY = "BUY"
     SELL = "SELL"
 
 
-class InvestmentsType(Enum):
+class InvestmentsType:
     STOCK = "STOCK"
     US_STOCK = "US_STOCK"
     FIXED_INCOME = "FIXED_INCOME"
