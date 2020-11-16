@@ -1,7 +1,6 @@
 from uuid import uuid4
 
 from adapters import InvestmentRepository
-from exceptions import BadRequestException
 from goatcommons.utils import InvestmentUtils
 from model import InvestmentRequest
 
@@ -11,26 +10,29 @@ class InvestmentCore:
         self.repo = InvestmentRepository()
 
     def get_all(self, subject):
+        assert subject
         return self.repo.find_by_subject(subject)
 
     def add(self, subject, request: InvestmentRequest):
-        try:
-            investment = InvestmentUtils.load_model_by_type(request.type, request.investment)
-            investment.id = str(uuid4())
-            investment.subject = subject
+        assert subject
+        investment = InvestmentUtils.load_model_by_type(request.type, request.investment)
+        investment.id = str(uuid4())
+        investment.subject = subject
 
-            self.repo.save(investment)
-        except TypeError:
-            raise BadRequestException("Invalid request")
+        self.repo.save(investment)
+        return investment
 
     def edit(self, subject, request: InvestmentRequest):
-        try:
-            investment = InvestmentUtils.load_model_by_type(request.type, request.investment)
-            investment.subject = subject
+        assert subject
+        investment = InvestmentUtils.load_model_by_type(request.type, request.investment)
+        investment.subject = subject
+        assert investment.id
 
-            self.repo.save(investment)
-        except TypeError:
-            raise BadRequestException("Invalid request")
+        self.repo.save(investment)
+        return investment
 
     def delete(self, subject, investment_id):
+        assert subject
+        assert investment_id
+
         self.repo.delete(investment_id, subject)

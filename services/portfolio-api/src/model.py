@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
+from goatcommons.constants import InvestmentsType
+
 
 @dataclass
 class InvestmentRequest:
-    type: str
+    type: InvestmentsType
     investment: dict

@@ -1,7 +1,7 @@
 from dataclasses import asdict
+from http import HTTPStatus
 
 from core import InvestmentCore
-from exceptions import InvestmentNotFoundException, BadRequestException
 from goatcommons.utils import AwsEventUtils, JsonUtils
 import logging
 
@@ -18,39 +18,38 @@ def get_investments_handler(event, context):
     logger.info(f"EVENT: {event}")
     try:
         subject = AwsEventUtils.get_event_subject(event)
-        investments = core.get_all(subject)
 
-        return {'statusCode': 200, 'body': JsonUtils.dump([asdict(i) for i in investments])}
-    except InvestmentNotFoundException as ex:
-        return {'statusCode': 404, 'body': JsonUtils.dump({"message": ex})}
+        investments = core.get_all(subject)
+        return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump([asdict(i) for i in investments])}
+    except AssertionError as ex:
+        logger.error(ex)
+        return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
 
 
 def add_investment_handler(event, context):
     logger.info(f"EVENT: {event}")
     try:
-        subject = AwsEventUtils.get_event_subject(event)
         investment = InvestmentRequest(**JsonUtils.load(event['body']))
+        subject = AwsEventUtils.get_event_subject(event)
 
         result = core.add(subject, investment)
-
-        return {'statusCode': 200, 'body': JsonUtils.dump(asdict(result))}
-    except BadRequestException as ex:
-        return {'statusCode': 400, 'body': JsonUtils.dump({"message": ex})}
+        return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(asdict(result))}
+    except (AssertionError, TypeError) as ex:
+        logger.error(ex)
+        return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
 
 
 def edit_investment_handler(event, context):
     logger.info(f"EVENT: {event}")
     try:
-        subject = AwsEventUtils.get_event_subject(event)
         investment = InvestmentRequest(**JsonUtils.load(event['body']))
+        subject = AwsEventUtils.get_event_subject(event)
 
         result = core.edit(subject, investment)
-
         return {'statusCode': 200, 'body': JsonUtils.dump(asdict(result))}
-    except InvestmentNotFoundException as ex:
-        return {'statusCode': 404, 'body': JsonUtils.dump({"message": ex})}
-    except BadRequestException as ex:
-        return {'statusCode': 400, 'body': JsonUtils.dump({"message": ex})}
+    except (AssertionError, TypeError) as ex:
+        logger.error(ex)
+        return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
 
 
 def delete_investment_handler(event, context):
@@ -61,5 +60,6 @@ def delete_investment_handler(event, context):
 
         core.delete(subject, investment_id)
         return {'statusCode': 200, 'body': JsonUtils.dump({"message": "Success"})}
-    except InvestmentNotFoundException as ex:
-        return {'statusCode': 404, 'body': JsonUtils.dump({"message": ex})}
+    except AssertionError as ex:
+        logger.error(ex)
+        return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
