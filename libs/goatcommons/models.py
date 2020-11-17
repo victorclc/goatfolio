@@ -20,6 +20,7 @@ class Investment(_InvestmentsBase):
     external_system: str = ""
     subject: str = ""
     id: str = ""
+    costs: Decimal = Decimal(0)
 
 
 @enforce_types
