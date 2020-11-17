@@ -26,13 +26,13 @@ class InvestmentCore:
         assert subject
         investment = InvestmentUtils.load_model_by_type(request.type, request.investment)
         investment.subject = subject
-        assert investment.id
+        assert investment.id, 'investment id is empty'
 
         self.repo.save(investment)
         return investment
 
     def delete(self, subject, investment_id):
         assert subject
-        assert investment_id
+        assert investment_id, 'investment id is empty'
 
         self.repo.delete(investment_id, subject)
