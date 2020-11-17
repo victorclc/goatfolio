@@ -74,7 +74,11 @@ functions:
     handler: src/handlers.delete_investments_handler
     events:
       - http:
-          path: investments/
+          path: investments/{investmentid}
+          request:
+            parameters:
+              paths:
+                investmentid: true
           method: delete
           authorizer:
             type: COGNITO_USER_POOLS
