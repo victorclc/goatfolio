@@ -71,7 +71,7 @@ functions:
               Ref: ApiGatewayAuthorizer
 
   deleteInvestments:
-    handler: src/handlers.delete_investments_handler
+    handler: src/handlers.delete_investment_handler
     events:
       - http:
           path: investments/{investmentid}
