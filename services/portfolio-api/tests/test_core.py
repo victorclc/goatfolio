@@ -85,11 +85,11 @@ class TestInvestmentCore(unittest.TestCase):
 
         self.core.repo.save.assert_not_called()
 
-    def test_delete_stock_investment_with_investment_id_not_blank_should_delete_from_database(self):
+    def test_delete_investment_with_investment_id_not_blank_should_delete_from_database(self):
         self.core.delete(subject='1111-2222-333-4444', investment_id='123456')
         self.core.repo.delete.assert_called_once()
 
-    def test_delete_stock_investment_with_investment_id_blank_should_raise_exception(self):
+    def test_delete_investment_with_investment_id_blank_should_raise_exception(self):
         with self.assertRaises(AssertionError):
             self.core.delete(subject='1111-2222-333-4444', investment_id='')
 
