@@ -7,6 +7,7 @@ from typing import List
 
 import boto3
 import requests
+from boto3.dynamodb.conditions import Key
 
 from goatcommons.models import Investment
 from goatcommons.utils import InvestmentUtils

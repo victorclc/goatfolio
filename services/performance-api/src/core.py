@@ -29,8 +29,16 @@ class PerformanceCore:
 
     def calculate_portfolio_performance(self, subject):
         performances = []
-        for _type, stock_investments in groupby(sorted(self.repo.find_by_subject(subject), key=lambda i: i.type)):
+        for _type, stock_investments in groupby(sorted(self.repo.find_by_subject(subject), key=lambda i: i.type),
+                                                key=lambda i: i.type):
             if _type == InvestmentsType.STOCK:
-                for _ticker, investments in groupby(sorted(stock_investments, key=lambda i: i.ticker)):
+                for _ticker, investments in groupby(sorted(stock_investments, key=lambda i: i.ticker),
+                                                    key=lambda i: i.ticker):
+                    investments = list(investments)
                     performance = StockPerformance(investments).performance()
                     performances.append(performance)
+
+
+if __name__ == '__main__':
+    core = PerformanceCore()
+core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274')
