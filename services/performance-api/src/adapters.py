@@ -3,8 +3,13 @@ from collections import namedtuple
 from datetime import datetime, date
 from decimal import Decimal
 from itertools import groupby
+from typing import List
 
+import boto3
 import requests
+
+from goatcommons.models import Investment
+from goatcommons.utils import InvestmentUtils
 
 IntraDayData = namedtuple('IntraDayData', 'price change')
 MonthlyData = namedtuple('MonthlyData', 'date open close change')
@@ -67,3 +72,12 @@ class MarketData:
             new_date['open'] = Decimal(data['open']).quantize(Decimal('0.01'))
             new_date['close'] = Decimal(data['close']).quantize(Decimal('0.01'))
             return new_date
+
+
+class InvestmentRepository:
+    def __init__(self):
+        self.__investments_table = boto3.resource('dynamodb').Table('Investments')
+
+    def find_by_subject(self, subject) -> List[Investment]:
+        result = self.__investments_table.query(KeyConditionExpression=Key('subject').eq(subject))
+        return list(map(lambda i: InvestmentUtils.load_model_by_type(i['type'], i), result['Items']))
