@@ -11,13 +11,18 @@ MonthlyData = namedtuple('MonthlyData', 'date open close change')
 
 
 class MarketData:
+    """
+        MarketData its responsible to join information from MarketStack and YahooFinance API's
+        market stack has a great api, but only have info until yesterday (D-1)
+        yahoo finance has both now and historical data, but the historical data for some tickers are not reliable
+    """
+    # todo update market_stack info with yahoo
     def __init__(self):
         self.yahoo = self.YahooData()
         self.market_stack = self.MarketStackData()
 
     def ticker_monthly_data(self, ticker):
-        monthly = self.market_stack.get_monthly_data(ticker)
-        intra = self.yahoo.get_intraday_data(ticker)
+        return self.market_stack.get_monthly_data(ticker)
 
     class YahooData:
         INTRA_DAY_URL = "https://query2.finance.yahoo.com/v7/finance/options/{0}.SA"
