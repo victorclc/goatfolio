@@ -16,6 +16,7 @@ class MarketData:
         market stack has a great api, but only have info until yesterday (D-1)
         yahoo finance has both now and historical data, but the historical data for some tickers are not reliable
     """
+
     # todo update market_stack info with yahoo
     def __init__(self):
         self.yahoo = self.YahooData()
@@ -66,9 +67,3 @@ class MarketData:
             new_date['open'] = Decimal(data['open']).quantize(Decimal('0.01'))
             new_date['close'] = Decimal(data['close']).quantize(Decimal('0.01'))
             return new_date
-
-
-if __name__ == '__main__':
-    stack = MarketData.YahooData()
-    res = stack.get_intraday_data('ITSA4')
-    print(res)
