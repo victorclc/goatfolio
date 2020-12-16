@@ -28,8 +28,16 @@ class MarketData:
         self.yahoo = self.YahooData()
         self.market_stack = self.MarketStackData()
 
-    def ticker_monthly_data(self, ticker):
-        return self.market_stack.get_monthly_data(ticker)
+    def ticker_monthly_data(self, ticker, date_from=None):
+        """
+          little workaround to update most current price of a stock
+        """
+        data = self.market_stack.get_monthly_data(ticker, date_from)
+        current = data[0]
+        price = self.yahoo.get_intraday_data(ticker).price
+        change = Decimal((price - current.open) * 100 / current.open).quantize(Decimal('0.01'))
+        data[0] = MonthlyData(current.date, current.open, price, change)
+        return data
 
     class YahooData:
         INTRA_DAY_URL = "https://query2.finance.yahoo.com/v7/finance/options/{0}.SA"
@@ -37,23 +45,26 @@ class MarketData:
 
         def get_intraday_data(self, ticker):
             url = self.INTRA_DAY_URL.format(ticker)
-            result = requests.get(url).json()['optionChain']['result'][0]
-            return IntraDayData(result['regularMarketPrice'], result['regularMarketChangePercent'])
+            result = requests.get(url).json()['optionChain']['result'][0]['quote']
+            return IntraDayData(Decimal(result['regularMarketPrice']).quantize(Decimal('0.01')),
+                                Decimal(result['regularMarketChangePercent']).quantize(Decimal('0.01')))
 
     class MarketStackData:
         EOD_URL = "http://api.marketstack.com/v1/eod/"
-
-        DATE_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
+        DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
+        DATE_FORMAT = "%Y-%m-%d"
 
         def __init__(self):
             self.api_key = os.getenv("MARKET_STACK_API_KEY")
 
-        def get_monthly_data(self, ticker):
+        def get_monthly_data(self, ticker, date_from=None):
             params = {
                 'access_key': self.api_key,
                 'symbols': '{}.BVMF'.format(ticker),
                 'limit': 365
             }
+            if date_from:
+                params['date_from'] = datetime.strftime(date_from, self.DATE_FORMAT)
             result = requests.get(self.EOD_URL, params).json()
             monthly_data = []
 
@@ -69,7 +80,7 @@ class MarketData:
 
         def _parse_eod_data(self, data):
             new_date = dict(data)
-            new_date['date'] = datetime.strptime(data['date'], self.DATE_FORMAT)
+            new_date['date'] = datetime.strptime(data['date'], self.DATETIME_FORMAT)
             new_date['open'] = Decimal(data['open']).quantize(Decimal('0.01'))
             new_date['close'] = Decimal(data['close']).quantize(Decimal('0.01'))
             return new_date

@@ -1,20 +1,18 @@
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import Decimal
 
-from goatcommons.constants import InvestmentsType, OperationType
 from goatcommons.decorators import enforce_types
 
 
-@enforce_types
 @dataclass
 class _InvestmentsBase:
     operation: str
-    date: str
+    date: datetime
     type: str
     broker: str
 
 
-@enforce_types
 @dataclass
 class Investment(_InvestmentsBase):
     external_system: str = ""
@@ -23,7 +21,6 @@ class Investment(_InvestmentsBase):
     costs: Decimal = Decimal(0)
 
 
-@enforce_types
 @dataclass
 class _StockInvestmentsBase:
     amount: Decimal
@@ -61,10 +58,11 @@ class _PreFixedInvestmentBase:
     value: Decimal
 
 
-@enforce_types
 @dataclass
 class StockInvestment(Investment, _StockInvestmentsBase):
-    pass
+
+    def __post_init__(self):
+        self.date = datetime.fromtimestamp(float(self.date))
 
 
 @enforce_types
