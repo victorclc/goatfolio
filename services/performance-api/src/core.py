@@ -1,3 +1,4 @@
+from dataclasses import dataclass, asdict
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
@@ -43,6 +44,9 @@ class StockPerformance:
             performance_history.append(
                 {'month_total': month_total, 'rentability': rentability, 'date': proc_date.strftime('%Y%m%d')})
 
+        return {'ticker': self.ticker, 'initial_data': self.initial_date, 'position': position.to_dict(),
+                "performance_history": performance_history}
+
     def _month_investments(self, date_inv):
         key = date_inv.strftime('%Y%m')
         if key in self.investments_by_month:
@@ -86,6 +90,10 @@ class StockPerformance:
                 self.sold_amount = self.sold_amount + investment.amount
                 self.total_sold = self.total_sold + investment.amount * investment.price
 
+        def to_dict(self):
+            return {**self.__dict__, 'amount': self.amount, 'average_price': self.average_price,
+                    'current_invested': self.current_invested}
+
 
 class PerformanceCore:
     def __init__(self):
@@ -99,10 +107,11 @@ class PerformanceCore:
                 for _ticker, investments in groupby(sorted(stock_investments, key=lambda i: i.ticker),
                                                     key=lambda i: i.ticker):
                     investments = list(investments)
-                    performance = StockPerformance(investments).performance()
-                    performances.append(performance)
+                    performances.append(StockPerformance(investments).performance())
+
+        return performances
 
 
 if __name__ == '__main__':
     core = PerformanceCore()
-    core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    print(core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
