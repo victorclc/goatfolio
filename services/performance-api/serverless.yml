@@ -41,6 +41,7 @@ functions:
     handler: src/handlers.get_performance_handler
     events:
       - http:
+          path: /
           method: get
           authorizer:
             type: COGNITO_USER_POOLS
