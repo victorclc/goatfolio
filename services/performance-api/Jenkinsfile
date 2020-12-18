@@ -50,7 +50,6 @@ pipeline {
         stage('Service Deploy') {
             steps {
                  dir('services/performance-api'){
-                    sh 'echo $MARKET_STACK_API_KEY'
                     sh 'npm install'
                     sh 'serverless deploy'
                 }
