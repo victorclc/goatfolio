@@ -33,11 +33,11 @@ pipeline {
         stage('Sonar') {
             steps {
                 dir('services/performance-api'){
-                    sh 'sonar-scanner \
-                        -Dsonar.projectKey=performance-api \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://192.168.0.100:9000 \
-                        -Dsonar.login=cee4f88b5dfceadbb50cbde9dc37ca66df3c553f'
+//                     sh 'sonar-scanner \
+//                         -Dsonar.projectKey=performance-api \
+//                         -Dsonar.sources=. \
+//                         -Dsonar.host.url=http://192.168.0.100:9000 \
+//                         -Dsonar.login=cee4f88b5dfceadbb50cbde9dc37ca66df3c553f'
                 }
              }
         }
