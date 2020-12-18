@@ -1,10 +1,10 @@
-from dataclasses import dataclass, asdict
 from datetime import datetime, date
-from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 from functools import reduce
 from itertools import groupby
 from typing import List
+
+from dateutil.relativedelta import relativedelta
 
 from adapters import InvestmentRepository, MarketData
 from goatcommons.constants import OperationType, InvestmentsType
@@ -100,6 +100,7 @@ class PerformanceCore:
         self.repo = InvestmentRepository()
 
     def calculate_portfolio_performance(self, subject):
+        assert subject
         performances = []
         for _type, stock_investments in groupby(sorted(self.repo.find_by_subject(subject), key=lambda i: i.type),
                                                 key=lambda i: i.type):
@@ -108,7 +109,6 @@ class PerformanceCore:
                                                     key=lambda i: i.ticker):
                     investments = list(investments)
                     performances.append(StockPerformance(investments).performance())
-
         return performances
 
 

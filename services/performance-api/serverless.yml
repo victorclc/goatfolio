@@ -36,7 +36,16 @@ custom:
     createRoute53Record: false
 
 functions:
-
+  getPerformance:
+    handler: src/handlers.get_performance_handler
+    events:
+      - http:
+          path: performance/
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
 resources:
   Resources:
