@@ -10,6 +10,7 @@ pipeline {
         SERVICE_PATH="${env.WORKSPACE}/services/performance-api"
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id-dev')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key-dev')
+        MARKET_STACK_API_KEY = credentials('MARKET_STACK_API_KEY')
         DOMAIN_NAME='dev.victorclc.com.br'
         SLS_DEBUG='*'
     }
