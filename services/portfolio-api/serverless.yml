@@ -32,6 +32,7 @@ custom:
     dockerizePip: true
     cacheLocation: '.cache/'
   customDomain:
+    basePath: portfolio
     domainName: ${env:DOMAIN_NAME}
     stage: ${self:provider.stage}
     createRoute53Record: false

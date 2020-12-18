@@ -31,7 +31,7 @@ custom:
     dockerizePip: true
     cacheLocation: '.cache/'
   customDomain:
-    basePath: 'performance/'
+    basePath: 'performance'
     domainName: ${env:DOMAIN_NAME}
     stage: ${self:provider.stage}
     createRoute53Record: false
@@ -41,7 +41,7 @@ functions:
     handler: src/handlers.get_performance_handler
     events:
       - http:
-          path: /
+          path: monthly
           method: get
           authorizer:
             type: COGNITO_USER_POOLS
