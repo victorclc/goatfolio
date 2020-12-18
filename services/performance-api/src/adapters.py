@@ -23,7 +23,6 @@ class MarketData:
         yahoo finance has both now and historical data, but the historical data for some tickers are not reliable
     """
 
-    # todo update market_stack info with yahoo
     def __init__(self):
         self.yahoo = self.YahooData()
         self.market_stack = self.MarketStackData()
@@ -50,7 +49,7 @@ class MarketData:
                                 Decimal(result['regularMarketChangePercent']).quantize(Decimal('0.01')))
 
     class MarketStackData:
-        EOD_URL = "http://api.marketstack.com/v1/eod/"
+        EOD_URL = "http://api.marketstack.com/v1/eod"
         DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
         DATE_FORMAT = "%Y-%m-%d"
 
