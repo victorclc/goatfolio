@@ -12,7 +12,7 @@ from boto3.dynamodb.conditions import Key
 from goatcommons.models import Investment
 from goatcommons.utils import InvestmentUtils
 
-IntraDayData = namedtuple('IntraDayData', 'price change')
+IntraDayData = namedtuple('IntraDayData', 'price prev_close_price change')
 MonthlyData = namedtuple('MonthlyData', 'date open close change')
 
 
@@ -26,6 +26,9 @@ class MarketData:
     def __init__(self):
         self.yahoo = self.YahooData()
         self.market_stack = self.MarketStackData()
+
+    def ticker_intraday_date(self, ticker):
+        return self.yahoo.get_intraday_data(ticker)
 
     def ticker_monthly_data(self, ticker, date_from=None):
         """
@@ -46,6 +49,7 @@ class MarketData:
             url = self.INTRA_DAY_URL.format(ticker)
             result = requests.get(url).json()['optionChain']['result'][0]['quote']
             return IntraDayData(Decimal(result['regularMarketPrice']).quantize(Decimal('0.01')),
+                                Decimal(result['regularMarketPreviousClose']).quantize(Decimal('0.01')),
                                 Decimal(result['regularMarketChangePercent']).quantize(Decimal('0.01')))
 
     class MarketStackData:

@@ -48,6 +48,9 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  getTodayVariation:
+    handler: src/handlers.get_today_variation_handler
+
 resources:
   Resources:
     ApiGatewayAuthorizer:

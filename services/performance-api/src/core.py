@@ -20,6 +20,22 @@ class StockPerformance:
         self.initial_date = self.investments[0].date
         self.end_date = datetime.now() if self.current_stocks_amount() > 0 else self.investments[-1].date
 
+    def today_variation(self):
+        position = self.StockPosition()
+        today = datetime.now()
+        t_invested = Decimal(0)
+        t_amount = Decimal(0)
+        for inv in self.investments:
+            if inv.date == today:
+                t_invested = t_invested + inv.amount * inv.price * 1 if inv.operation == OperationType.BUY else -1
+                t_amount = t_amount + inv.amount * 1 if inv.operation == OperationType.BUY else -1
+            position.add_investment(inv)
+        if position.amount > 0:
+            intra_data = self.market_data.ticker_intraday_date(self.ticker)
+            return position.amount * intra_data.price - t_invested - (
+                    position.amount - t_amount) * intra_data.prev_close_price
+        return Decimal(0)
+
     def performance(self):
         history = self.market_data.ticker_monthly_data(self.ticker, self.initial_date)
         position = self.StockPosition()
@@ -111,7 +127,19 @@ class PerformanceCore:
                     performances.append(StockPerformance(investments).performance())
         return performances
 
+    def calculate_today_variation(self, subject):
+        assert subject
+        variations = []
+        for _type, stock_investments in groupby(sorted(self.repo.find_by_subject(subject), key=lambda i: i.type),
+                                                key=lambda i: i.type):
+            if _type == InvestmentsType.STOCK:
+                for _ticker, investments in groupby(sorted(stock_investments, key=lambda i: i.ticker),
+                                                    key=lambda i: i.ticker):
+                    investments = list(investments)
+                    variations.append(StockPerformance(investments).today_variation())
+        return {'today_variation': sum(variations)}
+
 
 if __name__ == '__main__':
     core = PerformanceCore()
-    print(core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    print(core.calculate_today_variation('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
