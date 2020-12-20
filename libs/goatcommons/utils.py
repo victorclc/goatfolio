@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 import json
 
@@ -24,16 +25,19 @@ class AwsEventUtils:
 class JsonUtils:
     @staticmethod
     def dump(_dict):
-        return json.dumps(_dict, cls=JsonUtils.DecimalEncoder)
+        return json.dumps(_dict, cls=JsonUtils.CustomEncoder)
 
     @staticmethod
     def load(json_str):
         return json.loads(json_str, parse_float=Decimal)
 
-    class DecimalEncoder(json.JSONEncoder):
+    class CustomEncoder(json.JSONEncoder):
         def default(self, obj):
             if isinstance(obj, Decimal):
                 return float(obj)
+            if isinstance(obj, datetime):
+                return int(obj.timestamp())
+
             return json.JSONEncoder.default(self, obj)
 
 

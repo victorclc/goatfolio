@@ -41,19 +41,6 @@ class TestInvestmentCore(unittest.TestCase):
             self.core.add(subject='1111-2222-333-4444', request=request)
         self.core.repo.save.assert_not_called()
 
-    def test_add_stock_investment_with_required_fields_but_invalid_datatype_should_raise_exception(self):
-        request = InvestmentRequest(type=InvestmentsType.STOCK, investment={
-            'operation': OperationType.BUY,
-            'broker': 'INTER',
-            'date': '123456',
-            'amount': 100,
-            'price': "50.5",
-            'ticker': 'BIDI11',
-        })
-        with self.assertRaises(TypeError):
-            self.core.add(subject='1111-2222-333-4444', request=request)
-        self.core.repo.save.assert_not_called()
-
     def test_edit_stock_investment_with_all_required_fields_plus_id_should_save_in_database(self):
         request = InvestmentRequest(type=InvestmentsType.STOCK, investment={
             'operation': OperationType.BUY,
