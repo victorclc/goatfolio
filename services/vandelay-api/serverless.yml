@@ -92,11 +92,11 @@ resources:
           - AttributeName: "datetime"
             KeyType: "RANGE"
         LocalSecondaryIndexes:
-          IndexName: subjectStatusLocalIndex
-          KeySchema:
-            - AttributeName: "subject"
-              KeyType: "HASH"
-            - AttributeName: "status"
-              KeyType: "RANGE"
-          Projection:
-            ProjectionType: KEYS_ONLY
+          - IndexName: subjectStatusLocalIndex
+            KeySchema:
+              - AttributeName: "subject"
+                KeyType: "HASH"
+              - AttributeName: "status"
+                KeyType: "RANGE"
+            Projection:
+              ProjectionType: KEYS_ONLY
