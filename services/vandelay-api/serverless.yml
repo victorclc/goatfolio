@@ -22,6 +22,7 @@ package:
     - tests/**
   include:
     - ../../libs/goatcommons/**
+    - ../../libs/brutils/**
 
 plugins:
   - serverless-python-requirements
@@ -83,7 +84,7 @@ resources:
           - AttributeName: "subject"
             AttributeType: "S"
           - AttributeName: "datetime"
-            AttributeType: "S"
+            AttributeType: "N"
           - AttributeName: "status"
             AttributeType: "S"
         KeySchema:
