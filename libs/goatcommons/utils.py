@@ -6,7 +6,7 @@ from goatcommons.constants import InvestmentsType
 from goatcommons.models import StockInvestment, PreFixedInvestment, PostFixedInvestment, CheckingAccountInvestment
 
 
-class AwsEventUtils:
+class AWSEventUtils:
     @staticmethod
     def get_event_subject(event):
         try:

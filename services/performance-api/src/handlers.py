@@ -1,7 +1,7 @@
 import logging
 from http import HTTPStatus
 
-from goatcommons.utils import AwsEventUtils, JsonUtils
+from goatcommons.utils import AWSEventUtils, JsonUtils
 from core import PerformanceCore
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -14,7 +14,7 @@ core = PerformanceCore()
 def get_performance_handler(event, context):
     logger.info(f"EVENT: {event}")
     try:
-        subject = AwsEventUtils.get_event_subject(event)
+        subject = AWSEventUtils.get_event_subject(event)
         result = core.calculate_portfolio_performance(subject)
         return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(result)}
     except AssertionError as ex:
@@ -25,7 +25,7 @@ def get_performance_handler(event, context):
 def get_today_variation_handler(event, context):
     logger.info(f"EVENT: {event}")
     try:
-        subject = AwsEventUtils.get_event_subject(event)
+        subject = AWSEventUtils.get_event_subject(event)
         result = core.calculate_today_variation(subject)
         return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(result)}
     except AssertionError as ex:
