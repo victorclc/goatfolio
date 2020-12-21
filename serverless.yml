@@ -35,6 +35,7 @@ resources:
       Type: 'AWS::DynamoDB::Table'
       Properties:
         TableName: "Investments"
+        BillingMode: PAY_PER_REQUEST
         AttributeDefinitions:
           - AttributeName: "id"
             AttributeType: "S"
@@ -45,9 +46,6 @@ resources:
             KeyType: "HASH"
           - AttributeName: "id"
             KeyType: "RANGE"
-        ProvisionedThroughput:
-          ReadCapacityUnits: "5"
-          WriteCapacityUnits: "5"
 
   Outputs:
     GoatfolioAppUserPoolArnOutput:
