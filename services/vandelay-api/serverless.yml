@@ -1,0 +1,102 @@
+service: vandelay-api
+
+provider:
+  name: aws
+  region: us-east-2
+  stage: ${env:STAGE, 'dev'}
+  runtime: python3.8
+  environment:
+    PYTHONPATH: "src:libs"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource:
+        Fn::GetAtt: [ ImportsTable, Arn ]
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+  include:
+    - ../../libs/goatcommons/**
+
+plugins:
+  - serverless-python-requirements
+  - serverless-domain-manager
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    cacheLocation: '.cache/'
+  customDomain:
+    basePath: vandelay
+    domainName: ${env:DOMAIN_NAME}
+    stage: ${self:provider.stage}
+    createRoute53Record: false
+
+functions:
+  ceiImportRequest:
+    handler: src/handlers.cei_import_request_handler
+    events:
+      - http:
+          path: cei
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  ceiImportStatus:
+    handler: src/handlers.cei_import_status_handler
+    events:
+      - http:
+          path: cei/latest
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+resources:
+  Resources:
+    ApiGatewayAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        AuthorizerResultTtlInSeconds: 10
+        IdentitySource: method.request.header.Authorization
+        Name: GoatCognitoAuthorizer
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Type: COGNITO_USER_POOLS
+        ProviderARNs:
+          - 'Fn::ImportValue': ${self:provider.stage}-GoatfolioAppUserPoolArnOutput
+
+    ImportsTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: "Imports"
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: "subject"
+            AttributeType: "S"
+          - AttributeName: "datetime"
+            AttributeType: "S"
+          - AttributeName: "status"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "subject"
+            KeyType: "HASH"
+          - AttributeName: "datetime"
+            KeyType: "RANGE"
+        LocalSecondaryIndexes:
+          IndexName: subjectStatusLocalIndex
+          KeySchema:
+            - AttributeName: "subject"
+              KeyType: "HASH"
+            - AttributeName: "status"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: KEYS_ONLY
