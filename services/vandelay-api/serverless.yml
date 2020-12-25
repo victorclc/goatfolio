@@ -15,6 +15,12 @@ provider:
         - dynamodb:PutItem
       Resource:
         Fn::GetAtt: [ ImportsTable, Arn ]
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+        - sqs:GetQueueUrl
+      Resource:
+        'Fn::ImportValue': ${self:provider.stage}-CeiImportRequestQueueArn
 
 package:
   exclude:
@@ -49,6 +55,13 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
+
+  ceiImportResult:
+    handler: src/handlers.cei_import_result_handler
+    events:
+      - sqs:
+          arn:
+            'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
 
   ceiImportStatus:
     handler: src/handlers.cei_import_status_handler

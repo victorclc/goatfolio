@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass
 class CEIInboundRequest:
-    username: str
+    tax_id: str
     password: str
 
 

@@ -22,5 +22,9 @@ def cei_import_request_handler(event, context):
         return {'statusCode': HTTPStatus.UNPROCESSABLE_ENTITY.value, 'body': JsonUtils.dump({"message": str(e)})}
 
 
+def cei_import_result_handler(event, context):
+    pass
+
+
 def cei_import_status_handler(event, context):
     pass

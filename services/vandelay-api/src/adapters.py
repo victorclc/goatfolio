@@ -3,6 +3,7 @@ from dataclasses import asdict
 import boto3
 from boto3.dynamodb.conditions import Key
 
+from goatcommons.utils import JsonUtils
 from models import Import, CEIOutboundRequest
 
 
@@ -18,3 +19,13 @@ class ImportsRepository:
         if 'Items' in result and result['Items']:
             return Import(**result['Items'][0])
         return None
+
+
+class CEIImportsQueue:
+    QUEUE_NAME = 'CeiImportRequest'
+
+    def __init__(self):
+        self._queue = boto3.resource('sqs').get_queue_by_name(QueueName=self.QUEUE_NAME)
+
+    def send(self, request: CEIOutboundRequest):
+        self._queue.send_message(MessageBody=JsonUtils.dump(asdict(request)))

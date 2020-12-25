@@ -47,6 +47,40 @@ resources:
           - AttributeName: "id"
             KeyType: "RANGE"
 
+    CeiImportRequestQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        RedrivePolicy:
+          deadLetterTargetArn:
+            Fn::GetAtt:
+              - "CeiImportRequestDLQ                                   "
+              - "Arn"
+          maxReceiveCount: 5
+        QueueName: CeiImportRequest
+        VisibilityTimeout: 900
+
+    CeiImportRequestDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: CeiImportRequestDLQ
+
+    CeiImportResultQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        RedrivePolicy:
+          deadLetterTargetArn:
+            Fn::GetAtt:
+              - "CeiImportResultDLQ                                   "
+              - "Arn"
+          maxReceiveCount: 5
+        QueueName: CeiImportResult
+        VisibilityTimeout: 300
+
+    CeiImportResultDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: CeiImportResultDLQ
+
   Outputs:
     GoatfolioAppUserPoolArnOutput:
       Value:
@@ -58,3 +92,13 @@ resources:
         Fn::GetAtt: [ InvestmentsTable, Arn ]
       Export:
         Name: ${self:provider.stage}-InvestmentsTableArnOutput
+    CeiImportRequestQueueArn:
+      Value:
+        Fn::GetAtt: [ CeiImportRequestQueue, Arn ]
+      Export:
+        Name: ${self:provider.stage}-CeiImportRequestQueueArn
+    CeiImportResultQueueArn:
+      Value:
+        Fn::GetAtt: [ CeiImportResultQueue, Arn ]
+      Export:
+        Name: ${self:provider.stage}-CeiImportResultQueueArn
