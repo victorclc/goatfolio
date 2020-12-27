@@ -44,14 +44,14 @@ pipeline {
         }
         stage('Common Resources Deploy') {
             steps {
-                sh 'serverless deploy'
+                sh 'echo serverless deploy'
              }
         }
         stage('Service Deploy') {
             steps {
                  dir('services/vandelay-api'){
                     sh 'npm install'
-                    sh 'serverless deploy'
+                    sh 'serverless remove'
                 }
             }
         }
