@@ -70,7 +70,7 @@ resources:
         RedrivePolicy:
           deadLetterTargetArn:
             Fn::GetAtt:
-              - "CeiImportResultDLQ                                   "
+              - "CeiImportResultDLQ"
               - "Arn"
           maxReceiveCount: 5
         QueueName: CeiImportResult
