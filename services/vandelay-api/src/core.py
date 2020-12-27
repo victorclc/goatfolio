@@ -30,12 +30,12 @@ class CEICore:
     def _validate_request(self, subject, request):
         if self._has_open_requests(subject):
             raise UnprocessableException("Already has a pending import request")
-        if self._is_request_valid(request):
+        if not self._is_request_valid(request):
             raise UnprocessableException("Invalid Username or Password")
 
     def _has_open_requests(self, subject):
         latest = self.repo.find_latest(subject)
-        return latest and _is_status_final(latest.status)
+        return latest and not _is_status_final(latest.status)
 
     def _is_request_valid(self, request: CEIInboundRequest):
         pattern = re.compile(

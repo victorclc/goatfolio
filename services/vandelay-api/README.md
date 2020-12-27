@@ -8,7 +8,7 @@ POST vandelay/cei
   body: 
   ```json
   {
-    "username":"cei_username",
+    "tax_id":"cei_tax_id",
     "password":"cei_password",
   }
   ```
