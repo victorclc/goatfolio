@@ -26,6 +26,7 @@ package:
   exclude:
     - .cache/**
     - tests/**
+    - test-env/**
   include:
     - ../../libs/goatcommons/**
     - ../../libs/brutils/**
