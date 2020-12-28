@@ -15,9 +15,18 @@ class CEIOutboundRequest:
 
 
 @dataclass
+class CEIImportResult:
+    subject: str
+    datetime: int
+    status: str
+    payload: str
+
+
+@dataclass
 class Import:
     subject: str
     datetime: int
     username: str
     status: str
-    result: str = None
+    payload: str = None
+    error_message: str = None
