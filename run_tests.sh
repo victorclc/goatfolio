@@ -33,6 +33,7 @@ function runTests() {
 
   cd -
 }
+export AWS_REGION='us-east-2'
 
 runTests 'services/portfolio-api'
 runTests 'services/vandelay-api'
