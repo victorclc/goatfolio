@@ -26,9 +26,7 @@ pipeline {
         }
         stage('Tests') {
             steps {
-                dir('services/vandelay-api') {
-                    //sh 'TODO tests'
-                }
+                sh './run_tests.sh'
             }
         }
         stage('Sonar') {
