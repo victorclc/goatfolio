@@ -30,7 +30,6 @@ function runTests() {
     exit 1
   fi
   echo "$serviceName passed."
-  rm -rf test-env
   cd -
 }
 export AWS_DEFAULT_REGION='us-east-2'
