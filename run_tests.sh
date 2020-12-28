@@ -5,12 +5,17 @@ function runTests() {
   cd "$serviceName"
 
   echo "Creating test virtual environment..."
-  python -m venv test-env 1> /dev/null
-  source test-env/Scripts/activate
+  python3 -m venv test-env 1> /dev/null
+  if [[ "$OSTYPE" == "msys" ]]; then
+    source test-env/Scripts/activate
+  else
+    source test-env/bin/activate
+  fi
+
 
   echo "Installing dependencies..."
-  pip install -r requirements.txt &> /dev/null
-  pip install pytest &> /dev/null
+  pip3 install -r requirements.txt &> /dev/null
+  pip3 install pytest &> /dev/null
 
   echo "Setting up environment variables..."
   if [[ "$OSTYPE" == "msys" ]]; then
@@ -20,7 +25,7 @@ function runTests() {
   fi
 
   echo "Running tests"
-  if ! python -m pytest -v tests/; then
+  if ! python3 -m pytest -v tests/; then
     echo "$serviceName tests failed"
     exit 1
   fi
