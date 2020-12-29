@@ -12,7 +12,10 @@ class S3DependenciesDownloader:
                 'libgconf-2.so.4', 'libX11.so.6', 'libglib-2.0.so.0', 'libnss3.so', 'libxcb.so.1', 'libXau.so.6',
                 'libsmime3.so', 'libexpat.so.1', 'libsoftokn3.so', 'libfontconfig.so.1', 'libX11-xcb.so.1',
                 'swiftshader/libEGL.so', 'swiftshader/libEGL.so.TOC', 'swiftshader/libGLESv2.so',
-                'swiftshader/libGLESv2.so.TOC'
+                'swiftshader/libGLESv2.so.TOC', 'dejavu/.uuid', 'dejavu/DejaVuSans-Bold.ttf',
+                'dejavu/DejaVuSans-ExtraLight.ttf', 'dejavu/DejaVuSans-Oblique.ttf', 'dejavu/DejaVuSans.ttf',
+                'dejavu/DejaVuSansCondensed-Bold.ttf', 'dejavu/DejaVuSansCondensed-BoldOblique.ttf',
+                'dejavu/DejaVuSansCondensed-Oblique.ttf', 'dejavu/DejaVuSansCondensed.ttf'
                 ]
 
     def __init__(self):
@@ -28,11 +31,11 @@ class S3DependenciesDownloader:
 
     def _create_directories(self):
         os.system(f'mkdir -p /tmp/swiftshader/')
+        os.system(f'mkdir -p /tmp/dejavu/')
 
     def _download_binaries(self):
         for binary in self.BINARIES:
-            destination = f'/tmp/{binary}'
-            logger.info(f'Downloading {binary} to {destination}')
+            destination = f'{binary}'
+            print(f'Downloading {binary} to {destination}')
             self.s3.download_file(self.BUCKET_NAME, binary, destination)
             os.system(f'chmod +x {destination}')
-
