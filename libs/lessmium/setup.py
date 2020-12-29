@@ -35,7 +35,7 @@ class S3DependenciesDownloader:
 
     def _download_binaries(self):
         for binary in self.BINARIES:
-            destination = f'{binary}'
-            print(f'Downloading {binary} to {destination}')
+            destination = f'/tmp/{binary}'
+            logger.info(f'Downloading {binary} to {destination}')
             self.s3.download_file(self.BUCKET_NAME, binary, destination)
             os.system(f'chmod +x {destination}')
