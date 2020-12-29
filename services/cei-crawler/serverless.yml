@@ -41,4 +41,5 @@ functions:
     handler: src/handlers.cei_extract_handler
     events:
       - sqs:
-          'Fn::ImportValue': ${self:provider.stage}-CeiImportRequestQueueArn
+          arn:
+            'Fn::ImportValue': ${self:provider.stage}-CeiImportRequestQueueArn
