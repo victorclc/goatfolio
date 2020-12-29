@@ -62,7 +62,8 @@ class _PreFixedInvestmentBase:
 class StockInvestment(Investment, _StockInvestmentsBase):
 
     def __post_init__(self):
-        self.date = datetime.fromtimestamp(float(self.date))
+        if not isinstance(self.date, datetime):
+            self.date = datetime.fromtimestamp(float(self.date))
 
 
 @enforce_types
