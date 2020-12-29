@@ -16,7 +16,7 @@ class LoginPage(object):
     USERNAME_ELEM_ID = 'ctl00_ContentPlaceHolder1_txtLogin'
     PASSWORD_ELEM_ID = 'ctl00_ContentPlaceHolder1_txtSenha'
     SUBMIT_ELEM_ID = 'ctl00$ContentPlaceHolder1$btnLogar'
-    LOGIN_URL = "https://cei.b3.com.br/CEI_Responsivo/"
+    LOGIN_URL = "https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx"
     LOGGER = logging.getLogger()
 
     def __init__(self, driver, username, password, logger=None):
@@ -27,6 +27,7 @@ class LoginPage(object):
     def login(self):
         try:
             self.LOGGER.info('Login START')
+            self.driver.get(self.LOGIN_URL)
             self.driver.find_element_by_id(self.USERNAME_ELEM_ID).send_keys(self.username)
             self.driver.find_element_by_id(self.PASSWORD_ELEM_ID).send_keys(self.password)
             self.driver.find_element_by_name(self.SUBMIT_ELEM_ID).click()

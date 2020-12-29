@@ -14,6 +14,11 @@ provider:
         - sqs:GetQueueUrl
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
+    - Effect: Allow
+      Action:
+        - s3:ListBucket
+        - s3:GetObject
+      Resource: 'arn:aws:s3:::chromium-binarys/*'
 
 package:
   exclude:
