@@ -13,6 +13,10 @@ class CEICrawRequest:
     datetime: int
     credentials: CEICredentials
 
+    def __post_init__(self):
+        if isinstance(self.credentials, dict):
+            self.credentials = CEICredentials(**self.credentials)
+
 
 @dataclass
 class CEICrawResult:
