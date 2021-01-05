@@ -4,18 +4,9 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/tmp
 export DISPLAY=0:0
 export FONTCONFIG_PATH=/tmp/usr/share/fontconfig
 export PATH=$PATH:$FONTCONFIG_PATH
-RESOURCES=$(pwd)/libs/lessmium/resources
 
 if ! test -d /tmp/usr/share/fontconfig/; then
     mkdir -p /tmp/usr/share/fontconfig;
-fi
-
-if ! test -d /tmp/usr/share/fonts/; then
-    mkdir -p /tmp/usr/share/fonts;
-fi
-
-if ! test -d /tmp/usr/share/fonts/dejavu; then
-    cp -R "$RESOURCES/fonts/dejavu" /tmp/usr/share/fonts/;
 fi
 
 
