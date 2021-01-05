@@ -22,6 +22,7 @@ class S3DependenciesDownloader:
             self._download_binaries()
 
     def _prepare_resources(self):
+        logger.info(os.popen('pwd && ls -l').read())
         os.system('cp -r lessmium/resources/lib/* lessmium/resources/bin/* /tmp && chmod -R +x /tmp/*')
 
     def _download_binaries(self):
