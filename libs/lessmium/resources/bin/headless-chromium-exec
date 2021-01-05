@@ -1,0 +1,53 @@
+#!/bin/bash
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/tmp
+export DISPLAY=0:0
+export FONTCONFIG_PATH=/tmp/usr/share/fontconfig
+export PATH=$PATH:$FONTCONFIG_PATH
+RESOURCES=$(pwd)/lessmium/resources
+
+if ! test -d /tmp/usr/share/fontconfig/; then
+    mkdir -p /tmp/usr/share/fontconfig;
+fi
+
+if ! test -d /tmp/usr/share/fonts/; then
+    mkdir -p /tmp/usr/share/fonts;
+fi
+
+if ! test -d /tmp/usr/share/fonts/dejavu; then
+    cp -R "$RESOURCES/fonts/dejavu" /tmp/usr/share/fonts/;
+fi
+
+
+echo '<?xml version="1.0"?>' \
+     '<!DOCTYPE fontconfig SYSTEM "fonts.dtd">' \
+     '<fontconfig>' \
+       '<dir>/tmp/usr/share/fonts</dir>'\
+       '<dir>/tmp/.fonts</dir>' \
+        '<match target="pattern">' \
+                '<test qual="any" name="family">' \
+                        '<string>mono</string>' \
+                '</test>' \
+                '<edit name="family" mode="assign" binding="same">' \
+                        '<string>monospace</string>' \
+                '</edit>' \
+        '</match>' \
+        '<match target="pattern">' \
+                '<test qual="any" name="family">' \
+                        '<string>sans serif</string>' \
+                '</test>' \
+                '<edit name="family" mode="assign" binding="same">' \
+                        '<string>sans-serif</string>' \
+                '</edit>' \
+        '</match>' \
+        '<match target="pattern">' \
+                '<test qual="any" name="family">' \
+                        '<string>sans</string>' \
+                '</test>' \
+                '<edit name="family" mode="assign" binding="same">' \
+                        '<string>sans-serif</string>' \
+                '</edit>' \
+        '</match>' \
+     '</fontconfig>' > /tmp/usr/share/fontconfig/fonts.conf
+
+/tmp/headless-chromium $* >&1

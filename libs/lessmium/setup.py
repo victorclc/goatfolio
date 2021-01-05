@@ -8,15 +8,7 @@ logger = logging.getLogger()
 
 class S3DependenciesDownloader:
     BUCKET_NAME = 'chromium-binarys'
-    BINARIES = ['chromedriver-exec', 'headless-chromium-exec', 'headless-chromium', 'chromedriver', 'libORBit-2.so.0',
-                'libgconf-2.so.4', 'libX11.so.6', 'libglib-2.0.so.0', 'libnss3.so', 'libxcb.so.1', 'libXau.so.6',
-                'libsmime3.so', 'libexpat.so.1', 'libsoftokn3.so', 'libfontconfig.so.1', 'libX11-xcb.so.1',
-                'swiftshader/libEGL.so', 'swiftshader/libEGL.so.TOC', 'swiftshader/libGLESv2.so',
-                'swiftshader/libGLESv2.so.TOC', 'dejavu/.uuid', 'dejavu/DejaVuSans-Bold.ttf',
-                'dejavu/DejaVuSans-ExtraLight.ttf', 'dejavu/DejaVuSans-Oblique.ttf', 'dejavu/DejaVuSans.ttf',
-                'dejavu/DejaVuSansCondensed-Bold.ttf', 'dejavu/DejaVuSansCondensed-BoldOblique.ttf',
-                'dejavu/DejaVuSansCondensed-Oblique.ttf', 'dejavu/DejaVuSansCondensed.ttf'
-                ]
+    BINARIES = ['headless-chromium']
 
     def __init__(self):
         self.s3 = boto3.client('s3')
@@ -26,12 +18,11 @@ class S3DependenciesDownloader:
             logger.info("HOT LAMBDA")
         else:
             logger.info("COLD LAMBDA")
-            self._create_directories()
+            self._prepare_resources()
             self._download_binaries()
 
-    def _create_directories(self):
-        os.system(f'mkdir -p /tmp/swiftshader/')
-        os.system(f'mkdir -p /tmp/dejavu/')
+    def _prepare_resources(self):
+        os.system('cp -r lessmium/resources/lib/* lessmium/resources/bin/* /tmp && chmod -R +x /tmp/*')
 
     def _download_binaries(self):
         for binary in self.BINARIES:
