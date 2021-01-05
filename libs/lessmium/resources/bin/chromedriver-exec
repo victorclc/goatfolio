@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/lessmium/resources/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/tmp
 export DISPLAY=0:0
 
 /tmp/chromedriver $*
