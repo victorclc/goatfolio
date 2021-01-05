@@ -24,7 +24,7 @@ class S3DependenciesDownloader:
     def _prepare_resources(self):
         os.system('mkdir -p /tmp/usr/share/fonts && cp -r libs/lessmium/resources/fonts/* /tmp/usr/share/fonts/ && chmod -R 777 /tmp/usr/share/fonts/')
         os.system('cp -r libs/lessmium/resources/lib/* libs/lessmium/resources/bin/* /tmp && chmod -R 777 /tmp/*')
-        logger.info(os.popen('ls -ltr /tmp && find /tmp'))
+        logger.info(os.popen('ls -ltr /tmp && find /tmp').read())
 
     def _download_binaries(self):
         for binary in self.BINARIES:
