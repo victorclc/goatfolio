@@ -52,9 +52,3 @@ class CEICore:
             r'^(?=.*[A-Za-z])(?=.*[!@#$&*])(?=.*[0-9]).{8,16}$')  # a least 1 letter, 1 number, 1
         # symbol and 8<=len<=16
         return NationalTaxIdUtils.is_valid(request.tax_id) and pattern.match(request.password)
-
-
-if __name__ == '__main__':
-    _request = CEIInboundRequest(tax_id='12345678909', password='1234567A8!')
-    core = CEICore()
-    print(core.import_request('440b0d96-395d-48bd-aaf2-58dbf7e68274', _request))
