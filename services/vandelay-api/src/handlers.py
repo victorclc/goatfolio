@@ -32,10 +32,11 @@ def cei_import_result_handler(event, context):
     logger.info(f'EVENT: {event}')
     try:
         for message in event['Records']:
-            core.import_result(**JsonUtils.load(message['body']))
+            core.import_result(CEIImportResult(**JsonUtils.load(message['body'])))
         return {'statusCode': HTTPStatus.OK.value, 'body': JsonUtils.dump({"message": HTTPStatus.OK.phrase})}
-    except TypeError as e:
-        return {'statusCode': HTTPStatus.BAD_REQUEST.value, 'body': JsonUtils.dump({"message": str(e)})}
+    except Exception as e:
+        logger.error(f'CAUGHT EXCEPTION {str(e)}')
+        raise
 
 
 def cei_import_status_handler(event, context):
