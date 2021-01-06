@@ -32,7 +32,7 @@ class CEICrawlerCore:
             home_page = login_page.login()
             extract_page = home_page.go_to_extract_page()
 
-            investments = self._extract_to_investments(extract_page.get_all_brokers_extract())
+            investments = self._extract_to_investments(request.subject, extract_page.get_all_brokers_extract())
 
             response.status = ImportStatus.SUCCESS
             response.payload = investments
@@ -42,7 +42,7 @@ class CEICrawlerCore:
             response.payload = JsonUtils.dump({"error_message": str(e)})
         self.queue.send(response)
 
-    def _extract_to_investments(self, extract):
+    def _extract_to_investments(self, subject, extract):
         investments = []
         for investment in extract:
             if not investment['quantidade']:
@@ -53,7 +53,7 @@ class CEICrawlerCore:
                                 amount=Decimal(investment['quantidade']),
                                 price=Decimal(investment['preco']),
                                 date=datetime.strptime(investment['data_do_negocio'], self.EXTRACT_DATE_FORMAT),
-                                broker=investment['corretora'], external_system='CEI')
+                                broker=investment['corretora'], external_system='CEI', subject=subject)
             s.id = self._generate_id(s)
             investments.append(s)
         return investments
