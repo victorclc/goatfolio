@@ -53,7 +53,7 @@ class CEICrawlerCore:
                                 amount=Decimal(investment['quantidade']),
                                 price=Decimal(investment['preco']),
                                 date=datetime.strptime(investment['data_do_negocio'], self.EXTRACT_DATE_FORMAT),
-                                broker=investment['corretora'])
+                                broker=investment['corretora'], external_system='CEI')
             s.id = self._generate_id(s)
             investments.append(s)
         return investments
