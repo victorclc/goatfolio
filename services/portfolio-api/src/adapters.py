@@ -21,3 +21,8 @@ class InvestmentRepository:
 
     def delete(self, investment_id, subject):
         self.__investments_table.delete_item(Key={'subject': subject, 'id': investment_id})
+
+    def batch_save(self, investments: [Investment]):
+        with self.__investments_table.batch_writer() as batch:
+            for investment in investments:
+                batch.put_item(Item=asdict(investment))

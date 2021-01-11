@@ -36,3 +36,13 @@ class InvestmentCore:
         assert investment_id, 'investment id is empty'
 
         self.repo.delete(investment_id, subject)
+
+    def batch_add(self, requests: [InvestmentRequest]):
+        investments = []
+        for request in requests:
+            investment = InvestmentUtils.load_model_by_type(request.type, request.investment)
+            assert investment.subject, 'subject is empty'
+            assert investment.id, 'investment id is empty'
+
+            investments.append(investment)
+        self.repo.batch_save(investments)

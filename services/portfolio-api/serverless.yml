@@ -86,6 +86,9 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  batchAddInvestments:
+    handler: src/handlers.batch_add_investments_handler
+
 resources:
   Resources:
     ApiGatewayAuthorizer:

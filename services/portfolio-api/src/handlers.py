@@ -63,3 +63,15 @@ def delete_investment_handler(event, context):
     except AssertionError as ex:
         logger.error(ex)
         return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
+
+
+def batch_add_investments_handler(event, context):
+    logger.info(f"EVENT: {event}")
+    try:
+        investments = map(lambda i: InvestmentRequest(**i), JsonUtils.load(event['body']))
+
+        result = core.batch_add(investments)
+        return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(asdict(result))}
+    except (AssertionError, TypeError) as ex:
+        logger.error(ex)
+        return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
