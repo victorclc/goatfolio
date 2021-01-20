@@ -1,10 +1,12 @@
+import os
 from dataclasses import asdict
 
 import boto3
 from boto3.dynamodb.conditions import Key
 
+from goatcommons.constants import InvestmentsType
 from goatcommons.utils import JsonUtils
-from models import Import, CEIOutboundRequest
+from models import Import, CEIOutboundRequest, InvestmentRequest
 
 
 class ImportsRepository:
@@ -35,3 +37,16 @@ class CEIImportsQueue:
 
     def send(self, request: CEIOutboundRequest):
         self._queue.send_message(MessageBody=JsonUtils.dump(asdict(request)))
+
+
+class PortfolioClient:
+    BATCH_SAVE_ARN = os.getenv('PORTFOLIO_ARN')
+
+    def __init__(self):
+        self.lambda_client = boto3.client('lambda')
+
+    def batch_save(self, investments):
+        requests = list(map(lambda i: InvestmentRequest(type=InvestmentsType.STOCK, investment=asdict(i)), investments))
+        response = self.lambda_client.invoke(FunctionName=self.BATCH_SAVE_ARN, Payload=bytes(JsonUtils.dump(requests)),
+                                             encoding='utf8')
+        return response

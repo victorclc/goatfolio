@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from goatcommons.constants import InvestmentsType
+
 
 @dataclass
 class CEIInboundRequest:
@@ -30,3 +32,9 @@ class Import:
     status: str
     payload: str = None
     error_message: str = None
+
+
+@dataclass
+class InvestmentRequest:
+    type: InvestmentsType
+    investment: dict
