@@ -7,6 +7,7 @@ provider:
   runtime: python3.8
   environment:
     PYTHONPATH: "src:libs"
+    BATCH_SAVE_ARN: ${env:BATCH_SAVE_ARN, 'arn:aws:lambda:us-east-2:831967415635:function:portfolio-api-dev-batchAddInvestments'}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -21,6 +22,10 @@ provider:
         - sqs:GetQueueUrl
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-CeiImportRequestQueueArn
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: ${env:BATCH_SAVE_ARN, 'arn:aws:lambda:us-east-2:831967415635:function:portfolio-api-dev-batchAddInvestments'}
 
 package:
   exclude:

@@ -1,14 +1,18 @@
 import re
 from datetime import datetime
-from http import HTTPStatus
 
 from adapters import ImportsRepository, CEIImportsQueue, PortfolioClient
 from brutils.validations import NationalTaxIdUtils
 from constants import ImportStatus
-from exceptions import UnprocessableException
+from exceptions import UnprocessableException, BatchSavingException
 from goatcommons.models import StockInvestment
 from goatcommons.utils import JsonUtils
 from models import CEIInboundRequest, Import, CEIOutboundRequest, CEIImportResult
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 def _is_status_final(status):
@@ -40,13 +44,13 @@ class CEICore:
             _import.error_message = result.payload
         else:
             try:
-                payload = JsonUtils.load(result.payload)
-                investments = list(map(lambda i: StockInvestment(**i), payload))
-                response = self.portfolio.batch_save(investments)
-                if response['ResponseMetadata']['HTTPStatusCode'] != HTTPStatus.OK:
-                    _import.status = ImportStatus.ERROR
-                    _import.error_message = 'Error on batch saving the import'
-            except Exception as e:
+                investments = list(map(lambda i: StockInvestment(**i), result.payload))
+                self.portfolio.batch_save(investments)
+            except BatchSavingException:
+                _import.status = ImportStatus.ERROR
+                _import.error_message = 'Error on batch saving.'
+            except TypeError as e:
+                logger.error(f'Error on parsing payload: {str(e)}')
                 _import.status = ImportStatus.ERROR
                 _import.error_message = str(e)
         self.repo.save(_import)
