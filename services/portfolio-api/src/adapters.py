@@ -25,4 +25,4 @@ class InvestmentRepository:
     def batch_save(self, investments: [Investment]):
         with self.__investments_table.batch_writer() as batch:
             for investment in investments:
-                batch.put_item(Item=asdict(investment))
+                batch.put_item(Item=investment.to_dict())
