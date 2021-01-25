@@ -64,6 +64,15 @@ class StockInvestment(Investment, _StockInvestmentsBase):
     def __post_init__(self):
         if not isinstance(self.date, datetime):
             self.date = datetime.fromtimestamp(float(self.date))
+        if not isinstance(self.amount, Decimal):
+            self.amount = Decimal(self.amount).quantize(Decimal('0.01'))
+        if not isinstance(self.price, Decimal):
+            self.price = Decimal(self.price).quantize(Decimal('0.01'))
+        if not isinstance(self.costs, Decimal):
+            self.costs = Decimal(self.costs).quantize(Decimal('0.01'))
+
+    def to_dict(self):
+        return {**self.__dict__, 'date': int(self.date.timestamp())}
 
 
 @enforce_types
