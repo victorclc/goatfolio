@@ -1,15 +1,13 @@
 import unittest
 from dataclasses import asdict
 from decimal import Decimal
-from http import HTTPStatus
 from unittest.mock import MagicMock
 
 import core
 from constants import ImportStatus
-from exceptions import UnprocessableException
+from exceptions import UnprocessableException, BatchSavingException
 from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
-from goatcommons.utils import JsonUtils
 from models import CEIInboundRequest, Import, CEIImportResult
 
 
@@ -86,13 +84,12 @@ class TestCEICore(unittest.TestCase):
         self.core.queue.send.assert_not_called()
 
     def test_successful_import_result_should_update_the_status_and_payload_on_database_and_call_batch_save(self):
-        payload = JsonUtils.dump(list(map(lambda _: asdict(self._create_stock_investment()), range(10))))
+        payload = list(map(lambda _: asdict(self._create_stock_investment()), range(10)))
         import_result = CEIImportResult(subject='1111-2222-333-4444', datetime=123, status=ImportStatus.SUCCESS,
                                         payload=payload)
 
         self.core.repo.find.return_value = Import(subject='1111-2222-333-4444', datetime=123, username='12345678909',
                                                   status=ImportStatus.PROCESSING)
-        self.core.portfolio.batch_save.return_value = {'ResponseMetadata': {'HTTPStatusCode': HTTPStatus.OK}}
         result = self.core.import_result(result=import_result)
 
         self.core.portfolio.batch_save.assert_called_once()
@@ -116,13 +113,13 @@ class TestCEICore(unittest.TestCase):
         self.assertEqual(result.error_message, import_result.payload)
 
     def test_successful_import_result_when_error_on_call_batch_save_should_update_status_to_error_and_set_error_message(self):
-        payload = JsonUtils.dump(list(map(lambda _: asdict(self._create_stock_investment()), range(10))))
+        payload = list(map(lambda _: asdict(self._create_stock_investment()), range(10)))
         import_result = CEIImportResult(subject='1111-2222-333-4444', datetime=123, status=ImportStatus.SUCCESS,
                                         payload=payload)
 
         self.core.repo.find.return_value = Import(subject='1111-2222-333-4444', datetime=123, username='12345678909',
                                                   status=ImportStatus.PROCESSING)
-        self.core.portfolio.batch_save.return_value = {'ResponseMetadata': {'HTTPStatusCode': HTTPStatus.BAD_REQUEST}}
+        self.core.portfolio.batch_save.side_effect = BatchSavingException()
         result = self.core.import_result(result=import_result)
 
         self.core.portfolio.batch_save.assert_called_once()
