@@ -13,6 +13,7 @@ provider:
         - dynamodb:Query
         - dynamodb:PutItem
         - dynamodb:DeleteItem
+        - dynamodb:BatchWriteItem
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
 
