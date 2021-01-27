@@ -14,6 +14,7 @@ provider:
         - dynamodb:Query
         - dynamodb:GetItem
         - dynamodb:PutItem
+        - dynamodb:BatchWriteItem
       Resource:
         Fn::GetAtt: [ ImportsTable, Arn ]
     - Effect: Allow
