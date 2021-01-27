@@ -72,6 +72,6 @@ def batch_add_investments_handler(event, context):
 
         core.batch_add(investments)
         return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(HTTPStatus.OK.phrase)}
-    except (AssertionError, TypeError) as ex:
+    except Exception as ex:
         logger.error(ex)
         return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
