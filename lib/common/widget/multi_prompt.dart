@@ -256,7 +256,6 @@ class _PromptPageState extends State<PromptPage>
       } else {
         validInput = true;
       }
-      print(validInput);
     });
   }
 
