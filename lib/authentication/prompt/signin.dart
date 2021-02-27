@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/authentication/service/cognito.dart';
+import 'package:goatfolio/common/constant/regex.dart';
 import 'package:goatfolio/common/widget/multi_prompt.dart';
 
 class SignInEmailPrompt extends PromptRequest {
@@ -28,9 +30,8 @@ class SignInEmailPrompt extends PromptRequest {
             ),
             keyboardType: TextInputType.emailAddress,
             autoFillHints: [AutofillHints.email],
-            validate: (input) => RegExp(
-                    r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$")
-                .hasMatch(input));
+            validate: (input) =>
+                RegExp(RegexPatterns.VALID_EMAIL).hasMatch(input));
 }
 
 class SignInPasswordPrompt extends PromptRequest {
@@ -57,8 +58,7 @@ class SignInPasswordPrompt extends PromptRequest {
           autoFillHints: [AutofillHints.password],
           hideText: true,
           validate: (String input) =>
-              RegExp(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$") //TODO ATUALIZAR REGEX E HINT
-                  .hasMatch(input),
+              RegExp(RegexPatterns.PASSWORD_STRENGTH).hasMatch(input),
         );
 }
 
@@ -108,32 +108,30 @@ class SignInForgotPasswordPrompt extends PromptRequest {
           ),
           keyboardType: TextInputType.emailAddress,
           autoFillHints: [AutofillHints.email],
-          validate: (input) => RegExp(
-                  r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$")
-              .hasMatch(input),
+          validate: (input) =>
+              RegExp(RegexPatterns.VALID_EMAIL).hasMatch(input),
         );
 }
 
 class SignInEmailConfirmationPrompt extends PromptRequest {
   SignInEmailConfirmationPrompt(
-    Function onResendPressed,
+    BuildContext context,
+    UserService userService,
+    String email,
   ) : super(
           attrName: 'confirmationCode',
-          title: Row(
-            children: [
-              Text(
-                "Digite o ",
-                style: TextStyle(fontSize: 24),
-              ),
-              Text(
-                "código",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                "que enviamos no seu email",
-                style: TextStyle(fontSize: 24),
-              ),
-            ],
+          title: RichText(
+            text: TextSpan(
+              text: 'Digite o ',
+              style:
+                  Theme.of(context).textTheme.bodyText2.copyWith(fontSize: 24),
+              children: <TextSpan>[
+                TextSpan(
+                    text: 'código',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: ' que enviamos no seu email'),
+              ],
+            ),
           ),
           hint: Text(
             "Precisamos verificar seu e-mail, é a unica forma de recuperar sua conta caso esqueça sua senha",
@@ -142,31 +140,30 @@ class SignInEmailConfirmationPrompt extends PromptRequest {
           footer: CupertinoButton(
             padding: EdgeInsets.only(top: 16),
             child: Text("Reenviar código"),
-            onPressed: onResendPressed(),
+            onPressed: () {
+              userService.resendConfirmationCode(email);
+            },
           ),
           keyboardType: TextInputType.number,
         );
 }
 
 class SignInEmailConfirmationForPasswordChangePrompt extends PromptRequest {
-  SignInEmailConfirmationForPasswordChangePrompt()
+  SignInEmailConfirmationForPasswordChangePrompt(BuildContext context)
       : super(
           attrName: 'confirmationCode',
-          title: Row(
-            children: [
-              Text(
-                "Digite o ",
-                style: TextStyle(fontSize: 24),
-              ),
-              Text(
-                "código",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                "que enviamos no seu email",
-                style: TextStyle(fontSize: 24),
-              ),
-            ],
+          title: RichText(
+            text: TextSpan(
+              text: 'Digite o ',
+              style:
+                  Theme.of(context).textTheme.bodyText2.copyWith(fontSize: 24),
+              children: <TextSpan>[
+                TextSpan(
+                    text: 'código',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(text: ' que enviamos no seu email'),
+              ],
+            ),
           ),
           hint: Text(
             "Precisamos verificar se você é realmente você.",

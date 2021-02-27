@@ -139,6 +139,7 @@ class UserService {
       email,
       password,
     );
+    debugPrint("data returned by signUp ${data}");
 
     final user = User();
     user.username = email;

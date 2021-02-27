@@ -141,9 +141,7 @@ class LoginPage extends StatelessWidget {
       } else if (e.code == 'NetworkError') {
         message = "Sem conexão com a internet";
       } else if (e.code == 'UserNotConfirmedException') {
-        //_goToSignUpConfirmation();
-        await _confirmAccount(context, userService, username, password);
-        return _onLoginSubmit(context, userService);
+        return await _confirmAccount(context, userService, username, password);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -162,8 +160,8 @@ class LoginPage extends StatelessWidget {
             SignInPasswordPrompt(),
             SignInPasswordConfirmationPrompt()
           ],
-          onSubmit: (Map values) =>
-              onSignUpSubmit(context, userService, values),
+          onSubmit: (Map values) async =>
+              await onSignUpSubmit(context, userService, values),
         ));
   }
 
@@ -171,7 +169,9 @@ class LoginPage extends StatelessWidget {
       BuildContext context, UserService userService, Map values) async {
     try {
       User user = await userService.signUp(values['email'], values['password']);
+      print(user);
       if (user != null) {
+        print("CONFIRM ACCOUNT");
         await _confirmAccount(
             context, userService, values['email'], values['password']);
       }
@@ -191,10 +191,10 @@ class LoginPage extends StatelessWidget {
         MultiPrompt(
           keepOpenOnError: true,
           promptRequests: [
-            SignInEmailConfirmationPrompt(
-                () => userService.resendConfirmationCode(userController.text)),
+            SignInEmailConfirmationPrompt(context,
+                userService, email),
           ],
-          onSubmit: (Map values) => onConfirmAccountSubmit(
+          onSubmit: (Map values) async => await onConfirmAccountSubmit(
               context, userService, email, password, values),
         ));
   }
@@ -204,7 +204,6 @@ class LoginPage extends StatelessWidget {
     await ModalUtils.showUnDismissibleModalBottomSheet(
       context,
       MultiPrompt(
-        keepOpenOnError: true,
         promptRequests: [
           SignInForgotPasswordPrompt(),
         ],
@@ -233,24 +232,16 @@ class LoginPage extends StatelessWidget {
       context,
       MultiPrompt(
         promptRequests: [
-          SignInEmailConfirmationForPasswordChangePrompt(),
+          SignInEmailConfirmationForPasswordChangePrompt(context),
           SignInPasswordPrompt(),
           SignInPasswordConfirmationPrompt()
         ],
-        onSubmit: (Map values) async {
-          try {
-            await userService.forgotPassword(values['email']);
-            await _confirmPassword(context, userService, values['email']);
-          } on CognitoClientException catch (e) {
-            if (e.name == "LimitExceededException") {
-              await DialogUtils.showErrorDialog(context,
-                  "Você excedeu o número de tentativas, volte mais tarde.");
-            } else if (e.name == "CodeMismatchException") {
-              await DialogUtils.showErrorDialog(
-                  context, "Código de verificação inválido");
-            }
-            rethrow;
-          }
+        onSubmit: (values) async {
+          print("_confirmPassword onSubmit");
+          await userService.confirmPassword(
+              email, values['confirmationCode'], values['password']);
+          await DialogUtils.showSuccessDialog(
+              context, "Sua senha foi alterada com sucesso!");
         },
       ),
     );

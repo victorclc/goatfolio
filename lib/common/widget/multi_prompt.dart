@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:goatfolio/common/util/focus.dart';
 import 'package:goatfolio/common/widget/animated_button.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 
 class MultiPrompt extends StatefulWidget {
   final List<PromptRequest> promptRequests;
@@ -159,6 +160,8 @@ class _PromptPageState extends State<PromptPage>
   FocusNode focusNode = FocusNode();
   bool validInput;
   bool submitting = false;
+  bool isProcessing = false;
+
 
   @override
   void initState() {
@@ -232,15 +235,25 @@ class _PromptPageState extends State<PromptPage>
               top: BorderSide(color: Colors.grey),
             ),
           ),
-          child: AnimatedButton(
-            normalText: "CONTINUAR",
-            animatedText: "...",
+          child: CupertinoButton(
+            padding: EdgeInsets.all(0),
+            child: submitting
+                ? JumpingText("...")
+                : Text(
+              "CONTINUAR",
+              style: TextStyle(fontSize: 16),
+            ),
             onPressed: validInput
                 ? () {
-                    PromptPage.previousInput = controller.text;
-                    widget.onSubmitted(
-                        widget.request.attrName, controller.text);
-                  }
+              if (isProcessing) {
+                return;
+              }
+              isProcessing = true;
+              PromptPage.previousInput = controller.text;
+              widget.onSubmitted(
+                  widget.request.attrName, controller.text);
+              isProcessing = false;
+            }
                 : null,
           ),
         ),

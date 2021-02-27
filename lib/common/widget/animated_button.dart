@@ -53,16 +53,18 @@ class _AnimatedButtonState extends State<AnimatedButton> {
       child: isLoading
           ? JumpingText(widget.animatedText)
           : Text(widget.normalText),
-      onPressed: () async {
+      onPressed: widget.onPressed != null ? () async {
         if (isLoading) return;
         setState(() {
           isLoading = true;
         });
+
         await widget.onPressed();
+
         setState(() {
           isLoading = false;
         });
-      },
+      }: null,
     );
   }
 }
