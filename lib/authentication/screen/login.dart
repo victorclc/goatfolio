@@ -1,8 +1,10 @@
+import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/authentication/service/cognito.dart';
 import 'package:goatfolio/common/config/app_config.dart';
 import 'package:goatfolio/common/constant/app.dart';
+import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/focus.dart';
 import 'package:goatfolio/common/widget/animated_button.dart';
 import 'package:goatfolio/common/widget/preety_text_field.dart';
@@ -28,6 +30,7 @@ class LoginPage extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           if (snapshot.data) {
+            userService.signOut();
             //init returns if the session is valid or not
             return onLoggedOn(userService);
           } else {
@@ -74,7 +77,7 @@ class LoginPage extends StatelessWidget {
                           height: 16,
                         ),
                         AnimatedButton(
-                          onPressed: _onLoginSubmit,
+                          onPressed: () => _onLoginSubmit(context, userService),
                           animatedText: "...",
                           normalText: "ENTRAR",
                         ),
@@ -105,42 +108,37 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  void _onLoginSubmit() async {
-    // String username = userController.text;
-    // String password = passwordController.text;
-    // String message = "";
-    //
-    // try {
-    //   setState(() {
-    //     isLoading = true;
-    //   });
-    //   await _userService.login(username, password);
-    //   print("ALO");
-    //   print(await _userService.getSessionToken());
-    //   goToNavigationScreen(context, _userService);
-    //   return;
-    // } on CognitoClientException catch (e) {
-    //   if (e.code == 'InvalidParameterException' ||
-    //       e.code == 'NotAuthorizedException' ||
-    //       e.code == 'UserNotFoundException' ||
-    //       e.code == 'ResourceNotFoundException') {
-    //     message = "Usuário ou senha incorretos";
-    //     print(e);
-    //   } else if (e.code == 'NetworkError') {
-    //     message = "Sem conexão";
-    //   } else if (e.code == 'UserNotConfirmedException') {
-    //     //_goToSignUpConfirmation();
-    //     await _confirmAccount(username, password);
-    //     return _onLoginSubmit();
-    //   }
-    // } catch (e) {
-    //   print(e);
-    //   message = 'Ops. Aconteceu um erro';
-    // }
-    // await DialogUtils.showErrorDialog(context, message);
-    // setState(() {
-    //   isLoading = false;
-    // });
+  void _onLoginSubmit(BuildContext context, UserService userService) async {
+    final String username = userController.text;
+    final String password = passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) return;
+
+    String message = "";
+
+    try {
+      await userService.login(username, password);
+      print(await userService.getSessionToken());
+      return onLoggedOn();
+    } on CognitoClientException catch (e) {
+      if (e.code == 'InvalidParameterException' ||
+          e.code == 'NotAuthorizedException' ||
+          e.code == 'UserNotFoundException' ||
+          e.code == 'ResourceNotFoundException') {
+        message = "Usuário ou senha incorretos";
+        debugPrint(e.toString());
+      } else if (e.code == 'NetworkError') {
+        message = "Sem conexão com a internet";
+      } else if (e.code == 'UserNotConfirmedException') {
+        //_goToSignUpConfirmation();
+        await _confirmAccount(username, password);
+        return _onLoginSubmit(context, userService);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      message = 'Ops. Aconteceu um erro';
+    }
+    await DialogUtils.showErrorDialog(context, message);
   }
 
   void _onSigUpTap() async {
