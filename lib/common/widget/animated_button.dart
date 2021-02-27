@@ -6,9 +6,14 @@ class AnimatedButton extends StatefulWidget {
   final Function onPressed;
   final String normalText;
   final String animatedText;
+  final bool filled;
 
   const AnimatedButton(
-      {Key key, @required this.onPressed, this.normalText, this.animatedText})
+      {Key key,
+      @required this.onPressed,
+      @required this.normalText,
+      @required this.animatedText,
+      this.filled = false})
       : super(key: key);
 
   @override
@@ -20,23 +25,44 @@ class _AnimatedButtonState extends State<AnimatedButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      child: CupertinoButton.filled(
-        child: isLoading
-            ? JumpingText(widget.animatedText)
-            : Text(widget.normalText),
-        onPressed: () async {
-          if (isLoading) return;
-          setState(() {
-            isLoading = true;
-          });
-          await widget.onPressed();
-          setState(() {
-            isLoading = false;
-          });
-        },
-      ),
+    return widget.filled ? buildFilled(context) : buildNormal(context);
+  }
+
+  Widget buildNormal(BuildContext context) {
+    return CupertinoButton(
+      child: isLoading
+          ? JumpingText(widget.animatedText)
+          : Text(widget.normalText),
+      onPressed: widget.onPressed != null ? () async {
+        if (isLoading) return;
+        setState(() {
+          isLoading = true;
+        });
+
+        await widget.onPressed();
+
+        setState(() {
+          isLoading = false;
+        });
+      }: null,
+    );
+  }
+
+  Widget buildFilled(BuildContext context) {
+    return CupertinoButton.filled(
+      child: isLoading
+          ? JumpingText(widget.animatedText)
+          : Text(widget.normalText),
+      onPressed: () async {
+        if (isLoading) return;
+        setState(() {
+          isLoading = true;
+        });
+        await widget.onPressed();
+        setState(() {
+          isLoading = false;
+        });
+      },
     );
   }
 }

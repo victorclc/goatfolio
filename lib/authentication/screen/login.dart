@@ -1,12 +1,16 @@
 import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:goatfolio/authentication/model/user.dart';
+import 'package:goatfolio/authentication/prompt/signin.dart';
 import 'package:goatfolio/authentication/service/cognito.dart';
 import 'package:goatfolio/common/config/app_config.dart';
 import 'package:goatfolio/common/constant/app.dart';
 import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/focus.dart';
+import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/widget/animated_button.dart';
+import 'package:goatfolio/common/widget/multi_prompt.dart';
 import 'package:goatfolio/common/widget/preety_text_field.dart';
 
 class LoginPage extends StatelessWidget {
@@ -70,16 +74,22 @@ class LoginPage extends StatelessWidget {
                           child: CupertinoButton(
                             padding: EdgeInsets.all(0),
                             child: Text("Esqueceu sua senha?"),
-                            onPressed: () => _forgotPassword(),
+                            onPressed: () =>
+                                _forgotPassword(context, userService),
                           ),
                         ),
                         SizedBox(
                           height: 16,
                         ),
-                        AnimatedButton(
-                          onPressed: () => _onLoginSubmit(context, userService),
-                          animatedText: "...",
-                          normalText: "ENTRAR",
+                        Container(
+                          width: double.infinity,
+                          child: AnimatedButton(
+                            onPressed: () =>
+                                _onLoginSubmit(context, userService),
+                            animatedText: "...",
+                            normalText: "ENTRAR",
+                            filled: true,
+                          ),
                         ),
                         SizedBox(
                           height: 32,
@@ -91,7 +101,8 @@ class LoginPage extends StatelessWidget {
                             CupertinoButton(
                               padding: EdgeInsets.all(0),
                               child: Text("Criar conta"),
-                              onPressed: _onSigUpTap,
+                              onPressed: () =>
+                                  _onSigUpTap(context, userService),
                             ),
                           ],
                         ),
@@ -131,7 +142,7 @@ class LoginPage extends StatelessWidget {
         message = "Sem conexão com a internet";
       } else if (e.code == 'UserNotConfirmedException') {
         //_goToSignUpConfirmation();
-        await _confirmAccount(username, password);
+        await _confirmAccount(context, userService, username, password);
         return _onLoginSubmit(context, userService);
       }
     } catch (e) {
@@ -141,275 +152,127 @@ class LoginPage extends StatelessWidget {
     await DialogUtils.showErrorDialog(context, message);
   }
 
-  void _onSigUpTap() async {
-    // await showCupertinoModalBottomSheet(
-    //     duration: Duration(milliseconds: 200),
-    //     enableDrag: false,
-    //     isDismissible: false,
-    //     context: context,
-    //     builder: (context, controller) {
-    //       return GenericPromptList(
-    //         keepOpenOnError: true,
-    //         promptRequests: [
-    //           signInEmailPrompt,
-    //           signInPasswordPrompt,
-    //           signInPasswordConfirmationPrompt
-    //         ],
-    //         onSubmit: onSignUpSubmit,
-    //       );
-    //     });
+  void _onSigUpTap(BuildContext context, UserService userService) async {
+    await ModalUtils.showUnDismissibleModalBottomSheet(
+        context,
+        MultiPrompt(
+          keepOpenOnError: true,
+          promptRequests: [
+            SignInEmailPrompt(),
+            SignInPasswordPrompt(),
+            SignInPasswordConfirmationPrompt()
+          ],
+          onSubmit: (Map values) =>
+              onSignUpSubmit(context, userService, values),
+        ));
   }
 
-  Future<void> onSignUpSubmit(Map values) async {
-    // try {
-    //   User user =
-    //       await _userService.signUp(values['email'], values['password']);
-    //   if (user != null) {
-    //     await _confirmAccount(values['email'], values['password']);
-    //   }
-    // } on CognitoClientException catch (e) {
-    //   if (e.name == "UsernameExistsException") {
-    //     await DialogUtils.showErrorDialog(context, "E-mail ja cadastrado.");
-    //   } else {
-    //     print(e);
-    //   }
-    // }
+  Future<void> onSignUpSubmit(
+      BuildContext context, UserService userService, Map values) async {
+    try {
+      User user = await userService.signUp(values['email'], values['password']);
+      if (user != null) {
+        await _confirmAccount(
+            context, userService, values['email'], values['password']);
+      }
+    } on CognitoClientException catch (e) {
+      if (e.name == "UsernameExistsException") {
+        await DialogUtils.showErrorDialog(context, "E-mail ja cadastrado.");
+      } else {
+        debugPrint(e.toString());
+      }
+    }
   }
 
-  Future<void> _confirmAccount(String email, String password) async {
-    // await showCupertinoModalBottomSheet(
-    //     duration: Duration(milliseconds: 200),
-    //     enableDrag: false,
-    //     isDismissible: false,
-    //     context: context,
-    //     builder: (context, controller) {
-    //       return GenericPromptList(
-    //         promptRequests: [
-    //           _buildEmailConfirmationPrompt(),
-    //         ],
-    //         onSubmit: (values) =>
-    //             onConfirmAccountSubmit(email, password, values),
-    //       );
-    //     });
+  Future<void> _confirmAccount(BuildContext context, UserService userService,
+      String email, String password) async {
+    await ModalUtils.showUnDismissibleModalBottomSheet(
+        context,
+        MultiPrompt(
+          keepOpenOnError: true,
+          promptRequests: [
+            SignInEmailConfirmationPrompt(
+                () => userService.resendConfirmationCode(userController.text)),
+          ],
+          onSubmit: (Map values) => onConfirmAccountSubmit(
+              context, userService, email, password, values),
+        ));
   }
 
-  Future<void> _forgotPassword() async {
-    // await showCupertinoModalBottomSheet(
-    //     duration: Duration(milliseconds: 200),
-    //     enableDrag: false,
-    //     isDismissible: false,
-    //     context: context,
-    //     builder: (context, controller) {
-    //       return GenericPromptList(
-    //         promptRequests: [
-    //           forgotPasswordPrompt,
-    //         ],
-    //         onSubmit: (values) async {
-    //           try {
-    //             await _userService.forgotPassword(values['email']);
-    //             await _confirmPassword(values['email']);
-    //           } on CognitoClientException catch (e) {
-    //             if (e.name == "LimitExceededException") {
-    //               await DialogUtils.showErrorDialog(context,
-    //                   "Você excedeu o número de tentativas, volte mais tarde.");
-    //             } else if (e.name == "CodeMismatchException") {
-    //               await DialogUtils.showErrorDialog(
-    //                   context, "Código de verificação inválido");
-    //             }
-    //             rethrow;
-    //           }
-    //         },
-    //       );
-    //     });
+  Future<void> _forgotPassword(
+      BuildContext context, UserService userService) async {
+    await ModalUtils.showUnDismissibleModalBottomSheet(
+      context,
+      MultiPrompt(
+        keepOpenOnError: true,
+        promptRequests: [
+          SignInForgotPasswordPrompt(),
+        ],
+        onSubmit: (Map values) async {
+          try {
+            await userService.forgotPassword(values['email']);
+            await _confirmPassword(context, userService, values['email']);
+          } on CognitoClientException catch (e) {
+            if (e.name == "LimitExceededException") {
+              await DialogUtils.showErrorDialog(context,
+                  "Você excedeu o número de tentativas, volte mais tarde.");
+            } else if (e.name == "CodeMismatchException") {
+              await DialogUtils.showErrorDialog(
+                  context, "Código de verificação inválido");
+            }
+            rethrow;
+          }
+        },
+      ),
+    );
   }
 
-  Future<void> _confirmPassword(String email) async {
-    // await showCupertinoModalBottomSheet(
-    //     duration: Duration(milliseconds: 200),
-    //     enableDrag: false,
-    //     isDismissible: false,
-    //     context: context,
-    //     builder: (context, controller) {
-    //       return GenericPromptList(
-    //         promptRequests: [
-    //           _buildEmailConfirmationForPasswordChangePrompt(),
-    //           signInPasswordPrompt,
-    //           signInPasswordConfirmationPrompt,
-    //         ],
-    //         onSubmit: (values) async {
-    //           await _userService.confirmPassword(
-    //               email, values['confirmationCode'], values['password']);
-    //           DialogUtils.showSuccessDialog(
-    //               context, "Sua senha foi alterada com sucesso!");
-    //         },
-    //       );
-    //     });
+  Future<void> _confirmPassword(
+      BuildContext context, UserService userService, String email) async {
+    await ModalUtils.showUnDismissibleModalBottomSheet(
+      context,
+      MultiPrompt(
+        promptRequests: [
+          SignInEmailConfirmationForPasswordChangePrompt(),
+          SignInPasswordPrompt(),
+          SignInPasswordConfirmationPrompt()
+        ],
+        onSubmit: (Map values) async {
+          try {
+            await userService.forgotPassword(values['email']);
+            await _confirmPassword(context, userService, values['email']);
+          } on CognitoClientException catch (e) {
+            if (e.name == "LimitExceededException") {
+              await DialogUtils.showErrorDialog(context,
+                  "Você excedeu o número de tentativas, volte mais tarde.");
+            } else if (e.name == "CodeMismatchException") {
+              await DialogUtils.showErrorDialog(
+                  context, "Código de verificação inválido");
+            }
+            rethrow;
+          }
+        },
+      ),
+    );
   }
 
   Future<void> onConfirmAccountSubmit(
-      String email, String password, Map values) async {
-    // try {
-    //   await _userService.confirmAccount(email, values['confirmationCode']);
-    //   userController.text = email;
-    //   passwordController.text = password;
-    //   _onLoginSubmit();
-    // } on CognitoClientException catch (e) {
-    //   if (e.name == "CodeMismatchException") {
-    //     await DialogUtils.showErrorDialog(
-    //         context, "Código de verificação inválido");
-    //   }
-    //   rethrow;
-    // }
+      BuildContext context,
+      UserService userService,
+      String email,
+      String password,
+      Map values) async {
+    try {
+      await userService.confirmAccount(email, values['confirmationCode']);
+      userController.text = email;
+      passwordController.text = password;
+      _onLoginSubmit(context, userService);
+    } on CognitoClientException catch (e) {
+      if (e.name == "CodeMismatchException") {
+        await DialogUtils.showErrorDialog(
+            context, "Código de verificação inválido");
+      }
+      rethrow;
+    }
   }
-
-//   final PromptRequest signInEmailPrompt = PromptRequest(
-//     attrName: 'email',
-//     title: Row(
-//       children: [
-//         Text(
-//           "Qual seu ",
-//           style: TextStyle(fontSize: 24),
-//         ),
-//         Text(
-//           "e-mail",
-//           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-//         ),
-//         Text(
-//           "?",
-//           style: TextStyle(fontSize: 24),
-//         ),
-//       ],
-//     ),
-//     hint: Text(
-//       "Será usado como sua identificação pelo Goatfolio.",
-//       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w200),
-//     ),
-//     keyboardType: TextInputType.emailAddress,
-//     autoFillHints: [AutofillHints.email],
-//     validate: (input) => RegExp(
-//             r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$")
-//         .hasMatch(input),
-//   );
-//
-//   final PromptRequest signInPasswordPrompt = PromptRequest(
-//     attrName: 'password',
-//     title: Row(
-//       children: [
-//         Text(
-//           "Crie uma ",
-//           style: TextStyle(fontSize: 24),
-//         ),
-//         Text(
-//           "senha",
-//           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-//         ),
-//       ],
-//     ),
-//     hint: Text(
-//       "No mínimo 8 caracteres, use números, letras maiúsculas e minúsculas na composição da sua senha.",
-//       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w200),
-//     ),
-//     keyboardType: TextInputType.visiblePassword,
-//     autoFillHints: [AutofillHints.password],
-//     hideText: true,
-//     validate: (String input) =>
-//         RegExp(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$")
-//             .hasMatch(input),
-//   );
-//
-//   final PromptRequest signInPasswordConfirmationPrompt = PromptRequest(
-//     attrName: 'password',
-//     title: Row(
-//       children: [
-//         Text(
-//           "Confirme a ",
-//           style: TextStyle(fontSize: 24),
-//         ),
-//         Text(
-//           "senha",
-//           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-//         ),
-//       ],
-//     ),
-//     hint: Container(),
-//     keyboardType: TextInputType.visiblePassword,
-//     autoFillHints: [AutofillHints.password],
-//     hideText: true,
-//     validate: (input) => input == PromptPage.previousInput,
-//   );
-//
-//   final PromptRequest forgotPasswordPrompt = PromptRequest(
-//     attrName: 'email',
-//     title: Row(
-//       children: [
-//         Text(
-//           "Qual seu ",
-//           style: TextStyle(fontSize: 24),
-//         ),
-//         Text(
-//           "e-mail",
-//           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-//         ),
-//         Text(
-//           "?",
-//           style: TextStyle(fontSize: 24),
-//         ),
-//       ],
-//     ),
-//     keyboardType: TextInputType.emailAddress,
-//     autoFillHints: [AutofillHints.email],
-//     validate: (input) => RegExp(
-//             r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$")
-//         .hasMatch(input),
-//   );
-//
-//   PromptRequest _buildEmailConfirmationPrompt() {
-//     return PromptRequest(
-//       attrName: 'confirmationCode',
-//       title: RichText(
-//         text: TextSpan(
-//           text: 'Digite o ',
-//           style: GoatfolioStyles.defaultStyle.copyWith(fontSize: 24),
-//           children: <TextSpan>[
-//             TextSpan(
-//                 text: 'código', style: TextStyle(fontWeight: FontWeight.bold)),
-//             TextSpan(text: ' que enviamos no seu email'),
-//           ],
-//         ),
-//       ),
-//       hint: Text(
-//         "Precisamos verificar seu e-mail, é a unica forma de recuperar sua conta caso esqueça sua senha",
-//         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w200),
-//       ),
-//       footer: CupertinoButton(
-//         padding: EdgeInsets.only(top: 16),
-//         child: Text("Reenviar código"),
-//         onPressed: () =>
-//             _userService.resendConfirmationCode(userController.text),
-//       ),
-//       keyboardType: TextInputType.number,
-//     );
-//   }
-//
-//   PromptRequest _buildEmailConfirmationForPasswordChangePrompt() {
-//     return PromptRequest(
-//       attrName: 'confirmationCode',
-//       title: RichText(
-//         text: TextSpan(
-//           text: 'Digite o ',
-//           style: GoatfolioStyles.defaultStyle.copyWith(fontSize: 24),
-//           children: <TextSpan>[
-//             TextSpan(
-//                 text: 'código', style: TextStyle(fontWeight: FontWeight.bold)),
-//             TextSpan(text: ' que enviamos no seu email'),
-//           ],
-//         ),
-//       ),
-//       hint: Text(
-//         "Precisamos verificar se você é realmente você.",
-//         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w200),
-//       ),
-//       keyboardType: TextInputType.number,
-//     );
-//   }
 }
