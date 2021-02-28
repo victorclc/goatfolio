@@ -12,6 +12,7 @@ import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/widget/animated_button.dart';
 import 'package:goatfolio/common/widget/multi_prompt.dart';
 import 'package:goatfolio/common/widget/preety_text_field.dart';
+import 'package:goatfolio/main.dart';
 
 class LoginPage extends StatelessWidget {
   final TextEditingController userController = TextEditingController();
@@ -36,7 +37,7 @@ class LoginPage extends StatelessWidget {
           if (snapshot.data) {
             userService.signOut();
             //init returns if the session is valid or not
-            return onLoggedOn(userService);
+            return buildNavigationPage(userService);
           } else {
             return GestureDetector(
               onTap: () => FocusUtils.unfocus(context),
@@ -130,7 +131,8 @@ class LoginPage extends StatelessWidget {
     try {
       await userService.login(username, password);
       print(await userService.getSessionToken());
-      return onLoggedOn();
+      onLoggedOn(context, userService);
+      return;
     } on CognitoClientException catch (e) {
       if (e.code == 'InvalidParameterException' ||
           e.code == 'NotAuthorizedException' ||
