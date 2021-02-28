@@ -35,7 +35,7 @@ class LoginPage extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           if (snapshot.data) {
-            userService.signOut();
+            // userService.signOut();
             //init returns if the session is valid or not
             return buildNavigationPage(userService);
           } else {
