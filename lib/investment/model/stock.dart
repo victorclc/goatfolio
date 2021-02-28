@@ -1,6 +1,11 @@
-import 'investment.dart';
-
-class StockInvestment extends Investment {
+class StockInvestment {
+  final String type;
+  final String operation;
+  final DateTime date;
+  final String id;
+  final String subject;
+  final String broker;
+  final double costs;
   final String ticker;
   final int amount;
   final double price;
@@ -9,36 +14,36 @@ class StockInvestment extends Investment {
     this.ticker,
     this.amount,
     this.price,
-    type,
-    operation,
-    date,
-    id,
-    subject,
-    broker,
-  }) : super(
-          type: type,
-          operation: operation,
-          date: date,
-          id: id,
-          subject: subject,
-          broker: broker,
-        );
+    this.type,
+    this.operation,
+    this.date,
+    this.id,
+    this.subject,
+    this.broker,
+    this.costs
+  });
 
   StockInvestment.fromJson(Map<String, dynamic> json)
-      : ticker = json['ticker'],
+      : type = json['type'],
+        operation = json['operation'],
+        date = DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000),
+        broker = json['broker'],
+        id = json['id'],
+        subject = json['subject'],
+        ticker = json['ticker'],
         amount = json['amount'].toInt(),
         price = json['price'],
-        super.fromJson(json);
+        costs = json['costs'];
 
   Map<String, dynamic> toJson() => {
         'type': type,
         'operation': operation,
+        'date': date.millisecondsSinceEpoch * 1000,
+        'broker': broker,
+        'id': id,
         'ticker': ticker,
         'price': price,
         'amount': amount,
-        'date': date,
-        'broker': broker,
-        'id': id,
-        ...super.toJson()
+        'costs': costs,
       };
 }

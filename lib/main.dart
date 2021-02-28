@@ -6,7 +6,7 @@ import 'package:goatfolio/add/screen/add.dart';
 import 'package:goatfolio/authentication/screen/login.dart';
 import 'package:goatfolio/authentication/service/cognito.dart';
 import 'package:goatfolio/common/config/app_config.dart';
-import 'package:goatfolio/extract/screen/screen.dart';
+import 'package:goatfolio/extract/screen/extract.dart';
 import 'package:goatfolio/portfolio/screen/portfolio.dart';
 import 'package:goatfolio/summary/screen/summary.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
