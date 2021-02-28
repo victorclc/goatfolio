@@ -113,12 +113,19 @@ packages:
     source: sdk
     version: "0.0.0"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.12.2"
+  http_interceptor:
+    dependency: "direct main"
+    description:
+      name: http_interceptor
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.3"
   http_parser:
     dependency: transitive
     description:
