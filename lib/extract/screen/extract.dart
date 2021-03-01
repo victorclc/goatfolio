@@ -33,8 +33,8 @@ class _ExtractPageState extends State<ExtractPage> {
     client = PortfolioClient(Provider.of<UserService>(context, listen: false));
     storage = StockInvestmentStorage();
     controller = new ScrollController()..addListener(_scrollListener);
-    _future = getInvestments();
     offset = 0;
+    _future = getInvestments();
   }
 
   @override
@@ -48,18 +48,21 @@ class _ExtractPageState extends State<ExtractPage> {
       scrollLoading = true;
       print(controller.position.extentAfter);
       final data = await getInvestments();
-      await Future.delayed(Duration(seconds: 5));
+      await Future.delayed(Duration(seconds: 1)); //TODO TIRAR
+
       setState(() {
         investments.addAll(data);
       });
+
       scrollLoading = false;
     }
   }
 
   Future<List<StockInvestment>> getInvestments() async {
+    debugPrint("getInvestmentsPaginated(offset: $offset, limit: $limit");
     final data = await storage.getPaginated(offset, limit);
     if (data != null && data.isNotEmpty) {
-      offset++;
+      offset += limit;
     }
     return data;
   }
