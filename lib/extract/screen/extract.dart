@@ -18,14 +18,50 @@ class ExtractPage extends StatefulWidget {
 }
 
 class _ExtractPageState extends State<ExtractPage> {
+  ScrollController controller;
   PortfolioClient client;
   StockInvestmentStorage storage;
+  List<StockInvestment> investments;
+  Future<List<StockInvestment>> _future;
+  final int limit = 10;
+  int offset;
+  bool scrollLoading = false;
 
   @override
   void initState() {
     super.initState();
     client = PortfolioClient(Provider.of<UserService>(context, listen: false));
     storage = StockInvestmentStorage();
+    controller = new ScrollController()..addListener(_scrollListener);
+    _future = getInvestments();
+    offset = 0;
+  }
+
+  @override
+  void dispose() {
+    controller.removeListener(_scrollListener);
+    super.dispose();
+  }
+
+  void _scrollListener() async {
+    if (controller.position.extentAfter == 0 && !scrollLoading) {
+      scrollLoading = true;
+      print(controller.position.extentAfter);
+      final data = await getInvestments();
+      await Future.delayed(Duration(seconds: 5));
+      setState(() {
+        investments.addAll(data);
+      });
+      scrollLoading = false;
+    }
+  }
+
+  Future<List<StockInvestment>> getInvestments() async {
+    final data = await storage.getPaginated(offset, limit);
+    if (data != null && data.isNotEmpty) {
+      offset++;
+    }
+    return data;
   }
 
   // void testing() async {
@@ -38,6 +74,7 @@ class _ExtractPageState extends State<ExtractPage> {
 
   Widget build(BuildContext context) {
     return CustomScrollView(
+      controller: controller,
       slivers: [
         CupertinoSliverNavigationBar(
           largeTitle: Text(ExtractPage.title),
@@ -52,7 +89,7 @@ class _ExtractPageState extends State<ExtractPage> {
             sliver: SliverList(
               delegate: SliverChildListDelegate.fixed([
                 FutureBuilder(
-                  future: storage.getAll(),
+                  future: _future,
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.none:
@@ -62,9 +99,12 @@ class _ExtractPageState extends State<ExtractPage> {
                         return Text("CARREGANDO");
                       case ConnectionState.done:
                         if (snapshot.hasData) {
+                          investments = snapshot.data;
                           return Container(
-                              padding: EdgeInsets.only(left: 16, right: 16),
-                              child: _buildListView(context, snapshot.data));
+                            padding: EdgeInsets.only(left: 16, right: 16),
+                            // child: _buildListView(context, snapshot.data));
+                            child: _buildListView(context),
+                          );
                         }
                     }
                     return Text("DEU RUIM");
@@ -78,10 +118,7 @@ class _ExtractPageState extends State<ExtractPage> {
     );
   }
 
-  Widget _buildListView(
-      BuildContext context, List<StockInvestment> investments) {
-    var sortedInvestments = investments
-      ..sort((a, b) => b.date.compareTo(a.date));
+  Widget _buildListView(BuildContext context) {
     final DateFormat formatter = DateFormat('dd MMM yyyy', 'pt_BR');
     final defaultTheme = Theme.of(context).textTheme.bodyText2;
 
@@ -89,9 +126,9 @@ class _ExtractPageState extends State<ExtractPage> {
         padding: EdgeInsets.zero,
         physics: NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        itemCount: sortedInvestments.length,
+        itemCount: investments.length,
         itemBuilder: (context, index) {
-          StockInvestment item = sortedInvestments[index];
+          StockInvestment item = investments[index];
 
           return CupertinoButton(
             padding: EdgeInsets.zero,
