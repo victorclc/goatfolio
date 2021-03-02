@@ -39,6 +39,8 @@ class PortfolioClient {
         'Authorization': accessToken
       },
     );
-    //TODO validar statusCode
+    if (response.statusCode != 200) {
+      throw Exception("Delete failed");
+    }
   }
 }

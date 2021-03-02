@@ -8,6 +8,7 @@ import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
 import 'package:goatfolio/extract/screen/details.dart';
 import 'package:goatfolio/investment/client/portfolio.dart';
 import 'package:goatfolio/investment/model/stock.dart';
+import 'package:goatfolio/investment/service/stock_investment_service.dart';
 import 'package:goatfolio/investment/storage/stock_investment.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +26,7 @@ class _ExtractPageState extends State<ExtractPage> {
   ScrollController controller;
   PortfolioClient client;
   StockInvestmentStorage storage;
+  StockInvestmentService stockService;
   List<StockInvestment> investments;
   Future<List<StockInvestment>> _future;
   static const int limit = 10;
@@ -34,7 +36,9 @@ class _ExtractPageState extends State<ExtractPage> {
   @override
   void initState() {
     super.initState();
-    client = PortfolioClient(Provider.of<UserService>(context, listen: false));
+    final userService = Provider.of<UserService>(context, listen: false);
+    client = PortfolioClient(userService);
+    stockService = StockInvestmentService(userService);
     storage = StockInvestmentStorage();
     controller = new ScrollController()..addListener(_scrollListener);
     _future = getInvestments();
@@ -66,11 +70,12 @@ class _ExtractPageState extends State<ExtractPage> {
   }
 
   void onDeleteCb(StockInvestment investment) async {
+    await stockService.deleteInvestment(investment);
+
     setState(() {
       investments.remove(investment);
       offset--;
     });
-
     final data = await getStorageInvestments(limit: 1);
     if (data != null && data.isNotEmpty) {
       setState(() {

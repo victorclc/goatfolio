@@ -19,11 +19,11 @@ class DialogUtils {
       Function onNoPressed}) async {
     return _cupertinoNoYesDialog(context, title: title, message: message,
         onYesPressed: () async {
-      if (onYesPressed != null) await onYesPressed();
+      if (onYesPressed != null) onYesPressed();
       Navigator.of(context).pop();
     }, onNoPressed: () async {
       if (onNoPressed != null) {
-        await onNoPressed();
+        onNoPressed();
       }
       Navigator.pop(context);
     });
@@ -42,6 +42,7 @@ class DialogUtils {
       ),
       CupertinoDialogAction(
         isDefaultAction: true,
+        isDestructiveAction: true,
         textStyle: TextStyle(color: Colors.red),
         onPressed: onYesPressed,
         child: Text("Excluir"),
