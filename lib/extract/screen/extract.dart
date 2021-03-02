@@ -29,7 +29,7 @@ class _ExtractPageState extends State<ExtractPage> {
   StockInvestmentService stockService;
   List<StockInvestment> investments;
   Future<List<StockInvestment>> _future;
-  static const int limit = 10;
+  static const int limit = 20;
   int offset = 0;
   bool scrollLoading = false;
 
@@ -40,29 +40,34 @@ class _ExtractPageState extends State<ExtractPage> {
     client = PortfolioClient(userService);
     stockService = StockInvestmentService(userService);
     storage = StockInvestmentStorage();
-    controller = new ScrollController()..addListener(_scrollListener);
     _future = getInvestments();
   }
 
   @override
   void dispose() {
-    controller.removeListener(_scrollListener);
     super.dispose();
   }
 
-  void _scrollListener() async {
-    if (controller.position.extentAfter == 0 && !scrollLoading) {
-      setState(() {
-        scrollLoading = true;
-      });
-      print(controller.position.extentAfter);
-      final data = await getInvestments();
-
-      setState(() {
-        investments.addAll(data);
-        scrollLoading = false;
-      });
+  bool _scrollListener(ScrollNotification notification) {
+    // print(notification);
+    if (notification is ScrollEndNotification &&
+        notification.metrics.extentAfter <= 100) {
+      loadMoreInvestments();
     }
+    return false;
+  }
+
+  void loadMoreInvestments() async {
+    print("loading more investments");
+    setState(() {
+      scrollLoading = true;
+    });
+    final data = await getInvestments();
+
+    setState(() {
+      investments.addAll(data);
+      scrollLoading = false;
+    });
   }
 
   void onEditCb() {
@@ -85,7 +90,6 @@ class _ExtractPageState extends State<ExtractPage> {
   }
 
   Future<List<StockInvestment>> getInvestments() async {
-    debugPrint("getInvestmentsPaginated(offset: $offset, limit: $limit");
     // await deleteInvestmentsDatabase();
     final data = await getStorageInvestments();
     if ((data == null || data.isEmpty) &&
@@ -111,7 +115,7 @@ class _ExtractPageState extends State<ExtractPage> {
   Widget build(BuildContext context) {
     return CupertinoSliverPage(
       largeTitle: ExtractPage.title,
-      controller: controller,
+      onScrollNotification: _scrollListener,
       onRefresh: () => Future.delayed(
         Duration(seconds: 5),
       ),
