@@ -50,7 +50,6 @@ class _ExtractPageState extends State<ExtractPage> {
       });
       print(controller.position.extentAfter);
       final data = await getInvestments();
-      await Future.delayed(Duration(seconds: 1)); //TODO TIRAR
 
       setState(() {
         investments.addAll(data);
