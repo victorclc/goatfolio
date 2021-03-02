@@ -13,4 +13,16 @@ class ModalUtils {
           return child;
         });
   }
+
+  static Future<T> showDragableModalBottomSheet<T>(
+      BuildContext context, Widget child) async {
+    return await showCupertinoModalBottomSheet(
+        duration: Duration(milliseconds: 200),
+        enableDrag: true,
+        isDismissible: false,
+        context: context,
+        builder: (context, controller) {
+          return child;
+        });
+  }
 }

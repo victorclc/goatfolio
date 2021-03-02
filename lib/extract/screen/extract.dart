@@ -2,7 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/authentication/service/cognito.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
+import 'package:goatfolio/common/util/modal.dart';
+import 'package:goatfolio/common/widget/bottom_sheet_page.dart';
 import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
+import 'package:goatfolio/extract/screen/details.dart';
 import 'package:goatfolio/investment/client/portfolio.dart';
 import 'package:goatfolio/investment/model/stock.dart';
 import 'package:goatfolio/investment/storage/stock_investment.dart';
@@ -162,7 +165,9 @@ class StockExtractItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoButton(
       padding: EdgeInsets.zero,
-      onPressed: () => 1,
+      onPressed: () async {
+        await ModalUtils.showDragableModalBottomSheet(context, BottomSheetPage(child: ExtractDetails((investment))));
+      },
       // onPressed: () => showTransactionDetailsBottomSheet(context, item),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
