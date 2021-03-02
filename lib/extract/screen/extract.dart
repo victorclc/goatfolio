@@ -33,8 +33,7 @@ class _ExtractPageState extends State<ExtractPage> {
     super.initState();
     client = PortfolioClient(Provider.of<UserService>(context, listen: false));
     storage = StockInvestmentStorage();
-    controller = new ScrollController()
-      ..addListener(_scrollListener);
+    controller = new ScrollController()..addListener(_scrollListener);
     _future = getInvestments();
   }
 
@@ -46,21 +45,23 @@ class _ExtractPageState extends State<ExtractPage> {
 
   void _scrollListener() async {
     if (controller.position.extentAfter == 0 && !scrollLoading) {
-      scrollLoading = true;
+      setState(() {
+        scrollLoading = true;
+      });
       print(controller.position.extentAfter);
       final data = await getInvestments();
       await Future.delayed(Duration(seconds: 1)); //TODO TIRAR
 
       setState(() {
         investments.addAll(data);
+        scrollLoading = false;
       });
-
-      scrollLoading = false;
     }
   }
 
   Future<List<StockInvestment>> getInvestments() async {
     debugPrint("getInvestmentsPaginated(offset: $offset, limit: $limit");
+    await Future.delayed(Duration(seconds: 1)); //TODO
     final data = await storage.getPaginated(offset, limit);
     if (data != null && data.isNotEmpty) {
       offset += limit;
@@ -81,10 +82,9 @@ class _ExtractPageState extends State<ExtractPage> {
     return CupertinoSliverPage(
       largeTitle: ExtractPage.title,
       controller: controller,
-      onRefresh: () =>
-          Future.delayed(
-            Duration(seconds: 5),
-          ),
+      onRefresh: () => Future.delayed(
+        Duration(seconds: 5),
+      ),
       children: [
         FutureBuilder(
           future: _future,
@@ -94,20 +94,29 @@ class _ExtractPageState extends State<ExtractPage> {
               case ConnectionState.active:
                 break;
               case ConnectionState.waiting:
-                return Text("CARREGANDO");
+                return CupertinoActivityIndicator();
               case ConnectionState.done:
                 if (snapshot.hasData) {
                   investments = snapshot.data;
-                  return Container(
-                    padding: EdgeInsets.only(left: 16, right: 16),
-                    child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: investments.length,
-                      itemBuilder: (context, index) {
-                        return StockExtractItem(context, investments[index]);
-                      },),
+                  return Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.only(left: 16, right: 16),
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: investments.length,
+                          itemBuilder: (context, index) {
+                            return StockExtractItem(
+                                context, investments[index]);
+                          },
+                        ),
+                      ),
+                      scrollLoading
+                          ? CupertinoActivityIndicator()
+                          : Container(),
+                    ],
                   );
                 }
             }
@@ -161,8 +170,7 @@ class StockExtractItem extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           investment.operation == "BUY" ? "Compra" : "Venda",
-                          style: Theme
-                              .of(context)
+                          style: Theme.of(context)
                               .textTheme
                               .bodyText2
                               .copyWith(fontSize: 12),
@@ -172,8 +180,7 @@ class StockExtractItem extends StatelessWidget {
                         ),
                         Text(
                           investment.ticker.replaceAll('.SA', ''),
-                          style: Theme
-                              .of(context)
+                          style: Theme.of(context)
                               .textTheme
                               .bodyText2
                               .copyWith(fontWeight: FontWeight.w600),
@@ -184,8 +191,7 @@ class StockExtractItem extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           formatter.format(investment.date).capitalizeWords(),
-                          style: Theme
-                              .of(context)
+                          style: Theme.of(context)
                               .textTheme
                               .bodyText2
                               .copyWith(fontSize: 12),
@@ -194,10 +200,8 @@ class StockExtractItem extends StatelessWidget {
                           height: 8,
                         ),
                         Text(
-                          "${moneyFormatter.format(
-                              investment.price * investment.amount)}",
-                          style: Theme
-                              .of(context)
+                          "${moneyFormatter.format(investment.price * investment.amount)}",
+                          style: Theme.of(context)
                               .textTheme
                               .bodyText2
                               .copyWith(fontWeight: FontWeight.w600),
