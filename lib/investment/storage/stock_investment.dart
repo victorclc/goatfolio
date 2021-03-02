@@ -22,11 +22,18 @@ Future<Database> initDatabase() async {
   );
 }
 
+Future<void> deleteInvestmentsDatabase() async {
+  deleteDatabase(
+    join(await getDatabasesPath(), 'investments.db')
+  );
+}
+
 class StockInvestmentStorage {
   static const String TABLE_NAME = "stock_investments";
   final Future<Database> database;
 
   StockInvestmentStorage() : database = initDatabase();
+
 
   Future<void> insert(StockInvestment investment) async {
     final Database db = await database;
@@ -84,7 +91,6 @@ class StockInvestmentStorage {
 
   Future<List<StockInvestment>> getPaginated(int offset, int limit) async {
     final db = await database;
-
     final List<Map<String, dynamic>> maps = await db.query(TABLE_NAME, orderBy: 'DATE DESC', limit: limit, offset: offset);
 
     return List.generate(maps.length, (i) {

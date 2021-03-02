@@ -31,6 +31,7 @@ class _ExtractPageState extends State<ExtractPage> {
   @override
   void initState() {
     super.initState();
+
     client = PortfolioClient(Provider.of<UserService>(context, listen: false));
     storage = StockInvestmentStorage();
     controller = new ScrollController()..addListener(_scrollListener);
@@ -60,21 +61,26 @@ class _ExtractPageState extends State<ExtractPage> {
 
   Future<List<StockInvestment>> getInvestments() async {
     debugPrint("getInvestmentsPaginated(offset: $offset, limit: $limit");
-    await Future.delayed(Duration(seconds: 1)); //TODO
+    // await deleteInvestmentsDatabase();
+    final data = await getStorageInvestments();
+    if ((data == null || data.isEmpty) &&
+        (investments == null || investments.isEmpty)) {
+      debugPrint("Buscando na API");
+      List<StockInvestment> investments = await client.getInvestments();
+      investments.forEach((i) async => await storage.insert(i));
+      return getStorageInvestments();
+    }
+    return data;
+  }
+
+  Future<List<StockInvestment>> getStorageInvestments() async {
+    debugPrint("getInvestmentsPaginated(offset: $offset, limit: $limit");
     final data = await storage.getPaginated(offset, limit);
     if (data != null && data.isNotEmpty) {
       offset += limit;
     }
     return data;
   }
-
-  // void testing() async {
-  //   var storage = StockInvestmentStorage();
-  //   // List<StockInvestment> investments = await client.getInvestments();
-  //   // await investments.forEach((i) async => await storage.insert(i));
-  //   debugPrint("SQLITE INVESTMENTS");
-  //   print(await storage.getAll());
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +125,25 @@ class _ExtractPageState extends State<ExtractPage> {
                   );
                 }
             }
-            return Text("DEU RUIM");
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(height: 32,),
+                Text("Tivemos um problema ao carregar", style: Theme.of(context).textTheme.subtitle1),
+                Text(" as transações.", style: Theme.of(context).textTheme.subtitle1),
+                SizedBox(height: 8,),
+                Text("Toque para tentar novamente.", style: Theme.of(context).textTheme.subtitle1),
+                CupertinoButton(
+                  padding: EdgeInsets.all(0),
+                  child: Icon(Icons.refresh_outlined, size: 32,),
+                  onPressed: () {
+                    setState(() {
+                      _future = getInvestments();
+                    });
+                  },
+                ),
+              ],
+            );
           },
         ),
       ],
