@@ -29,4 +29,16 @@ class PortfolioClient {
     List<StockInvestment> result = new List<StockInvestment>.from(stockInvestments);
     return result;
   }
+
+  Future<void> delete(StockInvestment investment) async {
+    String accessToken = await userService.getSessionToken();
+    final response = await _client.delete(
+      baseUrl + "portfolio/investments/" + investment.id,
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': accessToken
+      },
+    );
+    //TODO validar statusCode
+  }
 }

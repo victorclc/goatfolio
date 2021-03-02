@@ -27,14 +27,13 @@ class _ExtractPageState extends State<ExtractPage> {
   StockInvestmentStorage storage;
   List<StockInvestment> investments;
   Future<List<StockInvestment>> _future;
-  final int limit = 10;
+  static const int limit = 10;
   int offset = 0;
   bool scrollLoading = false;
 
   @override
   void initState() {
     super.initState();
-
     client = PortfolioClient(Provider.of<UserService>(context, listen: false));
     storage = StockInvestmentStorage();
     controller = new ScrollController()..addListener(_scrollListener);
@@ -62,6 +61,24 @@ class _ExtractPageState extends State<ExtractPage> {
     }
   }
 
+  void onEditCb() {
+    setState(() {});
+  }
+
+  void onDeleteCb(StockInvestment investment) async {
+    setState(() {
+      investments.remove(investment);
+      offset--;
+    });
+
+    final data = await getStorageInvestments(limit: 1);
+    if (data != null && data.isNotEmpty) {
+      setState(() {
+        investments.addAll(data);
+      });
+    }
+  }
+
   Future<List<StockInvestment>> getInvestments() async {
     debugPrint("getInvestmentsPaginated(offset: $offset, limit: $limit");
     // await deleteInvestmentsDatabase();
@@ -76,11 +93,11 @@ class _ExtractPageState extends State<ExtractPage> {
     return data;
   }
 
-  Future<List<StockInvestment>> getStorageInvestments() async {
+  Future<List<StockInvestment>> getStorageInvestments({limit = limit}) async {
     debugPrint("getInvestmentsPaginated(offset: $offset, limit: $limit");
     final data = await storage.getPaginated(offset, limit);
     if (data != null && data.isNotEmpty) {
-      offset += limit;
+      this.offset += limit;
     }
     return data;
   }
@@ -116,8 +133,8 @@ class _ExtractPageState extends State<ExtractPage> {
                           shrinkWrap: true,
                           itemCount: investments.length,
                           itemBuilder: (context, index) {
-                            return StockExtractItem(
-                                context, investments[index]);
+                            return StockExtractItem(context, investments[index],
+                                onEditCb, onDeleteCb);
                           },
                         ),
                       ),
@@ -131,14 +148,24 @@ class _ExtractPageState extends State<ExtractPage> {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 32,),
-                Text("Tivemos um problema ao carregar", style: Theme.of(context).textTheme.subtitle1),
-                Text(" as transações.", style: Theme.of(context).textTheme.subtitle1),
-                SizedBox(height: 8,),
-                Text("Toque para tentar novamente.", style: Theme.of(context).textTheme.subtitle1),
+                SizedBox(
+                  height: 32,
+                ),
+                Text("Tivemos um problema ao carregar",
+                    style: Theme.of(context).textTheme.subtitle1),
+                Text(" as transações.",
+                    style: Theme.of(context).textTheme.subtitle1),
+                SizedBox(
+                  height: 8,
+                ),
+                Text("Toque para tentar novamente.",
+                    style: Theme.of(context).textTheme.subtitle1),
                 CupertinoButton(
                   padding: EdgeInsets.all(0),
-                  child: Icon(Icons.refresh_outlined, size: 32,),
+                  child: Icon(
+                    Icons.refresh_outlined,
+                    size: 32,
+                  ),
                   onPressed: () {
                     setState(() {
                       _future = getInvestments();
@@ -157,8 +184,12 @@ class _ExtractPageState extends State<ExtractPage> {
 class StockExtractItem extends StatelessWidget {
   final DateFormat formatter = DateFormat('dd MMM yyyy', 'pt_BR');
   final StockInvestment investment;
+  final Function onEdited;
+  final Function onDeleted;
 
-  StockExtractItem(BuildContext context, this.investment, {Key key})
+  StockExtractItem(
+      BuildContext context, this.investment, this.onEdited, this.onDeleted,
+      {Key key})
       : super(key: key);
 
   @override
@@ -166,9 +197,13 @@ class StockExtractItem extends StatelessWidget {
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: () async {
-        await ModalUtils.showDragableModalBottomSheet(context, BottomSheetPage(child: ExtractDetails((investment))));
+        await ModalUtils.showDragableModalBottomSheet(
+          context,
+          BottomSheetPage(
+            child: ExtractDetails(investment, onEdited, onDeleted),
+          ),
+        );
       },
-      // onPressed: () => showTransactionDetailsBottomSheet(context, item),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
