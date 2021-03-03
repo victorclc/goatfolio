@@ -70,6 +70,24 @@ class _ExtractPageState extends State<ExtractPage> {
     });
   }
 
+  Future<void> onRefresh() async {
+    print("BUSCANDO");
+    final int timestamp = investments[0].date.millisecondsSinceEpoch ~/ 1000;
+    List<StockInvestment> data = await client.getInvestments(timestamp, 'ge');
+    print(data);
+    data.forEach((i) async => await storage.insert(i));
+    setState(() {
+      investments = null;
+      resetState();
+    });
+  }
+
+  void resetState() {
+    offset = 0;
+    investments = null;
+    _future = getInvestments();
+  }
+
   void onEditCb() {
     setState(() {});
   }
@@ -116,9 +134,7 @@ class _ExtractPageState extends State<ExtractPage> {
     return CupertinoSliverPage(
       largeTitle: ExtractPage.title,
       onScrollNotification: _scrollListener,
-      onRefresh: () => Future.delayed(
-        Duration(seconds: 5),
-      ),
+      onRefresh: onRefresh,
       children: [
         FutureBuilder(
           future: _future,

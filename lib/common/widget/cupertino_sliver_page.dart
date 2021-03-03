@@ -23,7 +23,7 @@ class CupertinoSliverPage extends StatelessWidget {
             largeTitle: Text(largeTitle),
           ),
           CupertinoSliverRefreshControl(
-            onRefresh: () => Future.delayed(Duration(seconds: 5)),
+            onRefresh: onRefresh,
           ),
           SliverSafeArea(
             top: false,

@@ -16,17 +16,22 @@ class PortfolioClient {
             interceptors: [LoggingInterceptor()],
             requestTimeout: Duration(seconds: 10));
 
-  Future<List<StockInvestment>> getInvestments() async {
+  Future<List<StockInvestment>> getInvestments(
+      [int date, String operand]) async {
     String accessToken = await userService.getSessionToken();
-    final Response response = await _client.get(
-        baseUrl + "portfolio/investments/",
-        headers: {'Authorization': accessToken});
+    String url = baseUrl + "portfolio/investments";
+    if (date != null && operand != null) {
+      url += "?date=$operand.$date";
+    }
+    final Response response =
+        await _client.get(url, headers: {'Authorization': accessToken});
 
     var stockInvestments = jsonDecode(response.body)
         .map<StockInvestment>((json) => StockInvestment.fromJson(json))
         .toList();
 
-    List<StockInvestment> result = new List<StockInvestment>.from(stockInvestments);
+    List<StockInvestment> result =
+        new List<StockInvestment>.from(stockInvestments);
     return result;
   }
 
