@@ -15,7 +15,7 @@ class InvestmentCore:
             data = query_params['date'].split('.')
             assert len(data) == 2, 'invalid query param'
             operand = data[0]
-            value = data[1]
+            value = int(data[1])
             assert operand in ['gt', 'ge', 'lt', 'le', 'eq']
             return self.repo.find_by_subject_and_date(subject, operand, value)
         return self.repo.find_by_subject(subject)
