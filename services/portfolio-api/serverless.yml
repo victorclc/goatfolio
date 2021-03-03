@@ -15,10 +15,10 @@ provider:
         - dynamodb:DeleteItem
         - dynamodb:BatchWriteItem
       Resource:
-        'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
-        'Fn::Join':
-          - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
-          - 'index/*'
+        - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+        - 'Fn::Join':
+            - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+            - 'index/*'
 
 package:
   exclude:
