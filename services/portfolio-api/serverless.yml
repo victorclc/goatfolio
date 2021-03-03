@@ -45,6 +45,10 @@ functions:
       - http:
           path: investments/
           method: get
+          request:
+            parameters:
+              querystrings:
+                q: true
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
