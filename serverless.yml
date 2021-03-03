@@ -41,6 +41,8 @@ resources:
             AttributeType: "S"
           - AttributeName: "subject"
             AttributeType: "S"
+          - AttributeName: "date"
+            AttributeType: "N"
         KeySchema:
           - AttributeName: "subject"
             KeyType: "HASH"
