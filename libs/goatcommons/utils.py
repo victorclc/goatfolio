@@ -21,6 +21,13 @@ class AWSEventUtils:
         except KeyError:
             return None
 
+    @staticmethod
+    def get_query_params(event):
+        try:
+            return event['queryStringParameters']
+        except KeyError:
+            return None
+
 
 class JsonUtils:
     @staticmethod
