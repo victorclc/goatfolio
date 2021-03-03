@@ -46,6 +46,15 @@ resources:
             KeyType: "HASH"
           - AttributeName: "id"
             KeyType: "RANGE"
+        GlobalSecondaryIndexes:
+          - IndexName: subjectDateGlobalIndex
+            KeySchema:
+              - AttributeName: "subject"
+                KeyType: "HASH"
+              - AttributeName: "date"
+                KeyType: "RANGE"
+            Projection:
+              ProjectionType: ALL
 
     CeiImportRequestQueue:
       Type: AWS::SQS::Queue

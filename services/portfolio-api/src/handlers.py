@@ -18,8 +18,9 @@ def get_investments_handler(event, context):
     logger.info(f"EVENT: {event}")
     try:
         subject = AWSEventUtils.get_event_subject(event)
+        query = AWSEventUtils.get_query_params(event)
 
-        investments = core.get_all(subject)
+        investments = core.get(subject, query_params=query)
         return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump([asdict(i) for i in investments])}
     except AssertionError as ex:
         logger.error(ex)

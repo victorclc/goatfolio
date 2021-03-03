@@ -9,8 +9,15 @@ class InvestmentCore:
     def __init__(self):
         self.repo = InvestmentRepository()
 
-    def get_all(self, subject):
+    def get(self, subject, query_params):
         assert subject
+        if query_params and 'date' in query_params:
+            data = query_params['date'].split(' ')
+            assert len(data) == 2, 'invalid query param'
+            operand = data[0]
+            value = data[1]
+            assert operand in ['gt', 'ge', 'lt', 'le', 'eq']
+            return self.repo.find_by_subject_and_date(subject, operand, value)
         return self.repo.find_by_subject(subject)
 
     def add(self, subject, request: InvestmentRequest):
