@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/add/prompt/cei_authentication.dart';
+import 'package:goatfolio/add/screen/stock_list.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/widget/multi_prompt.dart';
 
@@ -30,6 +31,7 @@ class AddPage extends StatelessWidget {
                             ModalUtils.showUnDismissibleModalBottomSheet(
                                 context,
                                 MultiPrompt(
+                                  onSubmit: (Map values) async => await 1,
                                   promptRequests: [
                                     CeiTaxIdPrompt(),
                                     CeiPasswordPrompt()
@@ -42,6 +44,7 @@ class AddPage extends StatelessWidget {
                         icon: Icon(Icons.trending_up),
                         title: "Operação de compra",
                         subtitle: "Cadastre suas aplicações em Renda Variável",
+                        onPressed: () => goTInvestmentList(context),
                       ),
                     ),
                     Expanded(

@@ -14,7 +14,7 @@ class PortfolioClient {
   PortfolioClient(this.userService)
       : _client = HttpClientWithInterceptor.build(
             interceptors: [LoggingInterceptor()],
-            requestTimeout: Duration(seconds: 10));
+            requestTimeout: Duration(seconds: 30));
 
   Future<List<StockInvestment>> getInvestments(
       [int date, String operand]) async {
