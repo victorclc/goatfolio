@@ -16,6 +16,9 @@ provider:
         - dynamodb:BatchWriteItem
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+        'Fn::Join':
+          - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+          - 'index/*'
 
 package:
   exclude:
