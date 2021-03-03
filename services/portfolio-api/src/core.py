@@ -12,7 +12,7 @@ class InvestmentCore:
     def get(self, subject, query_params):
         assert subject
         if query_params and 'date' in query_params:
-            data = query_params['date'].split(' ')
+            data = query_params['date'].split('.')
             assert len(data) == 2, 'invalid query param'
             operand = data[0]
             value = data[1]
