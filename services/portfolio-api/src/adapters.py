@@ -18,8 +18,9 @@ class InvestmentRepository:
 
     def find_by_subject_and_date(self, subject, operand, value) -> List[Investment]:
         # TODO tratar operand
-        result = self.__investments_table.query(
-            KeyConditionExpression=Key('subject').eq(subject) & Key('date').gte(value))
+        result = self.__investments_table.query(IndexName='subjectDateGlobalIndex',
+                                                KeyConditionExpression=Key('subject').eq(subject) & Key('date').gte(
+                                                    value))
         return list(map(lambda i: InvestmentUtils.load_model_by_type(i['type'], i), result['Items']))
 
     def save(self, investment: Investment):
