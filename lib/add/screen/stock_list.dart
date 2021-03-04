@@ -15,9 +15,10 @@ void goTInvestmentList(BuildContext context, bool buyOperation) async {
   await Navigator.push(
     context,
     CupertinoPageRoute(
-      builder: (context) => InvestmentsList(
-        buyOperation: buyOperation,
-      ),
+      builder: (context) =>
+          InvestmentsList(
+            buyOperation: buyOperation,
+          ),
     ),
   );
 }
@@ -46,13 +47,14 @@ class _InvestmentsListState extends State<InvestmentsList> {
     _future = storage.getDistinctTickers();
   }
 
-  void onStockSubmit(Map values) async {
+  Future<void> onStockSubmit(Map values) async {
     print(values);
     final investment = StockInvestment(
       ticker: values['ticker'],
       amount: int.parse(values['amount']),
       price: double.parse(values['price']),
-      date: DateTime.now(), //values['date'],
+      date: DateTime.now(),
+      //values['date'],
       costs: double.parse(values['costs']),
       broker: values['broker'],
       type: "STOCK",
@@ -99,40 +101,41 @@ class _InvestmentsListState extends State<InvestmentsList> {
                     ),
                   ),
                   padding:
-                      EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
+                  EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
                   width: double.infinity,
                   child: widget.buyOperation
                       ? CupertinoButton(
-                          padding: EdgeInsets.all(0),
-                          onPressed: () =>
-                              ModalUtils.showUnDismissibleModalBottomSheet(
-                                  context,
-                                  MultiPrompt(
-                                    onSubmit: onStockSubmit,
-                                    promptRequests: [
-                                      StockTickerPrompt(),
-                                      StockAmountPrompt(),
-                                      StockPricePrompt(),
-                                      StockDatePrompt(),
-                                      StockBrokerPrompt(),
-                                      StockCostsPrompt(),
-                                    ],
-                                  )),
-                          child: Row(
-                            children: [
-                              Icon(Icons.add_circle_outline),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 16.0),
-                                child: Text("Adicionar novo ativo"),
-                              ),
-                              Expanded(
-                                child: Container(
-                                    alignment: Alignment.centerRight,
-                                    child: Icon(Icons.keyboard_arrow_right)),
-                              )
+                    padding: EdgeInsets.all(0),
+                    onPressed: () =>
+                        ModalUtils.showUnDismissibleModalBottomSheet(
+                          context,
+                          MultiPrompt(
+                            onSubmit: onStockSubmit,
+                            promptRequests: [
+                              StockTickerPrompt(),
+                              StockAmountPrompt(),
+                              StockPricePrompt(),
+                              StockDatePrompt(),
+                              StockBrokerPrompt(),
+                              StockCostsPrompt(),
                             ],
                           ),
+                        ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.add_circle_outline),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: Text("Adicionar novo ativo"),
+                        ),
+                        Expanded(
+                          child: Container(
+                              alignment: Alignment.centerRight,
+                              child: Icon(Icons.keyboard_arrow_right)),
                         )
+                      ],
+                    ),
+                  )
                       : Container(),
                 ),
                 FutureBuilder(
@@ -150,36 +153,54 @@ class _InvestmentsListState extends State<InvestmentsList> {
                             final List<String> tickers = snapshot.data;
                             return Expanded(
                                 child: ListView.builder(
-                              itemCount: tickers.length,
-                              itemBuilder: (context, index) {
-                                return CupertinoButton(
-                                  padding: EdgeInsets.all(0),
-                                  onPressed: () => 1,
-                                  child: Container(
-                                    padding: EdgeInsets.all(16),
+                                  itemCount: tickers.length,
+                                  itemBuilder: (context, index) {
+                                    return CupertinoButton(
+                                        padding: EdgeInsets.all(0),
+                                        onPressed: () =>
+                                            ModalUtils
+                                                .showUnDismissibleModalBottomSheet(
+                                              context,
+                                              MultiPrompt(
+                                                onSubmit: (values) async {
+                                                  values['ticker'] =
+                                                  tickers[index];
+                                                  await onStockSubmit(values);
+                                                },
+                                                promptRequests: [
+                                                  StockAmountPrompt(),
+                                                  StockPricePrompt(),
+                                                  StockDatePrompt(),
+                                                  StockBrokerPrompt(),
+                                                  StockCostsPrompt(),
+                                                ],
+                                              ),
+                                            ),
+                                        child: Container(
+                                        padding: EdgeInsets.all(16),
                                     decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(color: Colors.grey),
-                                      ),
+                                    border: Border(
+                                    bottom: BorderSide(color: Colors.grey),
+                                    ),
                                     ),
                                     child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          tickers[index],
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .subtitle1,
-                                        ),
-                                        Icon(Icons
-                                            .keyboard_arrow_right_outlined),
-                                      ],
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: [
+                                    Text(
+                                    tickers[index],
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .subtitle1,
                                     ),
-                                  ),
-                                );
-                              },
-                            ));
+                                    Icon(Icons
+                                        .keyboard_arrow_right_outlined),
+                                    ],
+                                    ),
+                                    ),
+                                    );
+                                  },
+                                ));
                           }
                       }
                       return Container();
