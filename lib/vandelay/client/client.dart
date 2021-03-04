@@ -31,7 +31,7 @@ class VandelayClient {
       body: jsonEncode(request.toJson()),
     );
 
-    if (response.statusCode != HttpStatus.ok) {
+    if (response.statusCode != HttpStatus.accepted) {
       throw Exception("Import request failed");
     }
   }
