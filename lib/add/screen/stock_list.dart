@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/add/prompt/add_stock_prompt.dart';
+import 'package:goatfolio/common/util/modal.dart';
+import 'package:goatfolio/common/widget/multi_prompt.dart';
 import 'package:goatfolio/common/widget/preety_text_field.dart';
 import 'package:goatfolio/investment/storage/stock_investment.dart';
 
@@ -61,7 +64,20 @@ class _InvestmentsListState extends State<InvestmentsList> {
                   width: double.infinity,
                   child: CupertinoButton(
                     padding: EdgeInsets.all(0),
-                    onPressed: () {},
+                    onPressed: () =>
+                        ModalUtils.showUnDismissibleModalBottomSheet(
+                            context,
+                            MultiPrompt(
+                              onSubmit: (maps) => print(maps),
+                              promptRequests: [
+                                StockTickerPrompt(),
+                                StockAmountPrompt(),
+                                StockPricePrompt(),
+                                StockDatePrompt(),
+                                StockBrokerPrompt(),
+                                StockCostsPrompt(),
+                              ],
+                            )),
                     child: Row(
                       children: [
                         Icon(Icons.add_circle_outline),
