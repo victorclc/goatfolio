@@ -44,7 +44,7 @@ class AddPage extends StatelessWidget {
                         icon: Icon(Icons.trending_up),
                         title: "Operação de compra",
                         subtitle: "Cadastre suas aplicações em Renda Variável",
-                        onPressed: () => goTInvestmentList(context),
+                        onPressed: () => goTInvestmentList(context, true),
                       ),
                     ),
                     Expanded(
@@ -54,6 +54,7 @@ class AddPage extends StatelessWidget {
                         title: "Operação de venda",
                         subtitle:
                             "Cadastre suas vendas/resgates de seus produtos cadastrados",
+                        onPressed: () => goTInvestmentList(context, false),
                       ),
                     ),
                   ],

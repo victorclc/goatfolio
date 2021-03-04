@@ -12,6 +12,14 @@ class StockInvestmentService {
       : storage = StockInvestmentStorage(),
         portfolioClient = PortfolioClient(userService);
 
+  Future<void> addInvestment(StockInvestment investment) async {
+    final newInvestment = await portfolioClient.addStockInvestment(investment);
+    await storage.insert(newInvestment);
+  }
+  Future<void> editInvestment(StockInvestment investment) async {
+    await portfolioClient.editStockInvestment(investment);
+    await storage.insert(investment);
+  }
   Future<void> deleteInvestment(StockInvestment investment) async {
     await portfolioClient.delete(investment);
     await storage.delete(investment);

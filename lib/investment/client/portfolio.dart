@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:goatfolio/authentication/service/cognito.dart';
 import 'package:goatfolio/common/http/interceptor/logging.dart';
+import 'package:goatfolio/investment/model/investment_request.dart';
 import 'package:goatfolio/investment/model/stock.dart';
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_client_with_interceptor.dart';
@@ -33,6 +35,37 @@ class PortfolioClient {
     List<StockInvestment> result =
         new List<StockInvestment>.from(stockInvestments);
     return result;
+  }
+
+  Future<StockInvestment> addStockInvestment(StockInvestment investment) async {
+    String accessToken = await userService.getSessionToken();
+    final request = InvestmentRequest(type: 'STOCK', investment: investment);
+    final response = await _client.post(
+      baseUrl + "portfolio/investments/",
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': accessToken
+      },
+      body: jsonEncode(request.toJson()),
+    );
+    print("addStockInvestmentResponse: $response");
+
+    if (response.statusCode != HttpStatus.ok) {
+      throw Exception("Add Stock Investment failed");
+    }
+    return StockInvestment.fromJson(jsonDecode(response.body));
+  }
+
+  void editStockInvestment(StockInvestment investment) async {
+    String accessToken = await userService.getSessionToken();
+    await _client.put(
+      baseUrl + "portfolio/investments/" + investment.id,
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': accessToken,
+      },
+      body: jsonEncode(investment.toJson()),
+    );
   }
 
   Future<void> delete(StockInvestment investment) async {

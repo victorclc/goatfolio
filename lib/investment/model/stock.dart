@@ -38,7 +38,7 @@ class StockInvestment {
   Map<String, dynamic> toJson() => {
         'type': type,
         'operation': operation,
-        'date': date.millisecondsSinceEpoch / 1000,
+        'date': date.millisecondsSinceEpoch ~/ 1000,
         'broker': broker,
         'id': id,
         'ticker': ticker,
