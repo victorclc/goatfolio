@@ -42,10 +42,11 @@ class StockPerformance:
         prev_month_total = Decimal(0)
         performance_history = []
 
+        end_date = datetime(self.end_date.year, self.end_date.month, 1)
         proc_date = datetime(self.initial_date.year, self.initial_date.month, 1)
-        while proc_date <= self.end_date:
+
+        while proc_date <= end_date:
             month_investments = self._month_investments(proc_date.date())
-            month_history = history.pop()
             month_invested = Decimal(0)
 
             if month_investments:
@@ -53,12 +54,16 @@ class StockPerformance:
                     position.add_investment(inv)
                     month_invested = inv.amount * inv.price
 
-            month_total = month_history.close * position.amount
-            rentability = (month_total * 100 / (prev_month_total + month_invested) - 100).quantize(Decimal('0.0'))
-            prev_month_total = month_total
+            if end_date - relativedelta(months=12) < proc_date and prev_month_total + month_invested > 0:
+                month_history = history.pop()
+                month_total = month_history.close * position.amount
+                rentability = (month_total * 100 / (prev_month_total + month_invested) - 100).quantize(Decimal('0.0'))
+                prev_month_total = month_total
+                print(self.ticker, proc_date)
+                performance_history.append(
+                    {'month_total': month_total, 'rentability': rentability, 'date': proc_date.strftime('%Y%m%d')})
+
             proc_date = proc_date + relativedelta(months=1)
-            performance_history.append(
-                {'month_total': month_total, 'rentability': rentability, 'date': proc_date.strftime('%Y%m%d')})
 
         return {'ticker': self.ticker, 'initial_data': self.initial_date, 'position': position.to_dict(),
                 "performance_history": performance_history}
@@ -92,7 +97,9 @@ class StockPerformance:
 
         @property
         def average_price(self):
-            return (self.total_spend / self.bought_amount).quantize(Decimal('0.01'))
+            if self.bought_amount > 0:
+                return (self.total_spend / self.bought_amount).quantize(Decimal('0.01'))
+            return Decimal('0.00')
 
         @property
         def current_invested(self):
@@ -124,7 +131,11 @@ class PerformanceCore:
                 for _ticker, investments in groupby(sorted(stock_investments, key=lambda i: i.ticker),
                                                     key=lambda i: i.ticker):
                     investments = list(investments)
-                    performances.append(StockPerformance(investments).performance())
+                    try:
+                        performances.append(StockPerformance(investments).performance())
+                    except Exception as e:
+                        print(e)
+                        pass
         return performances
 
     def calculate_today_variation(self, subject):
@@ -142,4 +153,4 @@ class PerformanceCore:
 
 if __name__ == '__main__':
     core = PerformanceCore()
-    print(core.calculate_today_variation('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    print(core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
