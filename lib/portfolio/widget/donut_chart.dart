@@ -19,18 +19,21 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
 
   @override
   Widget build(BuildContext context) {
-    return new charts.PieChart(
-      widget.investmentsList,
-      animate: widget.animate,
-      selectionModels: [
-        new charts.SelectionModelConfig(
-          type: charts.SelectionModelType.info,
-        ),
-      ],
-      defaultRenderer:
-      new charts.ArcRendererConfig(arcWidth: 40, arcRendererDecorators: [
-        new charts.ArcLabelDecorator(),
-      ]),
-    );
+    if (chart == null) {
+      chart = new charts.PieChart(
+        widget.investmentsList,
+        animate: widget.animate,
+        selectionModels: [
+          new charts.SelectionModelConfig(
+            type: charts.SelectionModelType.info,
+          ),
+        ],
+        defaultRenderer:
+            new charts.ArcRendererConfig(arcWidth: 40, arcRendererDecorators: [
+          new charts.ArcLabelDecorator(),
+        ]),
+      );
+    }
+    return chart;
   }
 }
