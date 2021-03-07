@@ -107,15 +107,4 @@ class StockInvestmentStorage {
       return maps[i][tickerColumn] as String;
     });
   }
-
-  Future<List<String>> getActiveInvestments() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps =
-    await db.rawQuery("SELECT ticker, sum(amount) as amount as");
-
-    // print("Maps: $maps");
-    // return List.generate(maps.length, (i) {
-    //   return maps[i][tickerColumn] as String;
-    // });
-  }
 }
