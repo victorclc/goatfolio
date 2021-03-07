@@ -65,7 +65,7 @@ class StockPerformance:
 
             proc_date = proc_date + relativedelta(months=1)
 
-        return {'ticker': self.ticker, 'initial_data': self.initial_date, 'position': position.to_dict(),
+        return {'ticker': self.ticker, 'initial_date': self.initial_date, 'position': position.to_dict(),
                 "performance_history": performance_history}
 
     def _month_investments(self, date_inv):
