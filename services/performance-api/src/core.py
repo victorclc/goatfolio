@@ -41,6 +41,7 @@ class StockPerformance:
         position = self.StockPosition()
         prev_month_total = Decimal(0)
         performance_history = []
+        current_price = None
 
         end_date = datetime(self.end_date.year, self.end_date.month, 1)
         proc_date = datetime(self.initial_date.year, self.initial_date.month, 1)
@@ -57,6 +58,7 @@ class StockPerformance:
             if end_date - relativedelta(months=12) < proc_date and prev_month_total + month_invested > 0:
                 month_history = history.pop()
                 month_total = month_history.close * position.amount
+                current_price = month_history.close
                 rentability = (month_total * 100 / (prev_month_total + month_invested) - 100).quantize(Decimal('0.0'))
                 prev_month_total = month_total
                 print(self.ticker, proc_date)
@@ -65,7 +67,8 @@ class StockPerformance:
 
             proc_date = proc_date + relativedelta(months=1)
 
-        return {'ticker': self.ticker, 'initial_date': self.initial_date, 'position': position.to_dict(),
+        return {'ticker': self.ticker, 'current_price': current_price, 'initial_date': self.initial_date,
+                'position': position.to_dict(),
                 "performance_history": performance_history}
 
     def _month_investments(self, date_inv):
