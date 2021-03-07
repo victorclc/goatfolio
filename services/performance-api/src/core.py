@@ -61,7 +61,7 @@ class StockPerformance:
                 prev_month_total = month_total
                 print(self.ticker, proc_date)
                 performance_history.append(
-                    {'month_total': month_total, 'rentability': rentability, 'date': proc_date.strftime('%Y%m%d')})
+                    {'month_total': month_total, 'rentability': rentability, 'date': int(proc_date.timestamp())})
 
             proc_date = proc_date + relativedelta(months=1)
 
