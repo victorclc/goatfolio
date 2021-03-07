@@ -53,8 +53,6 @@ class _PortfolioPageState extends State<PortfolioPage> {
             case ConnectionState.waiting:
               return CupertinoActivityIndicator();
             case ConnectionState.done:
-              print(
-                  "Snapshot: $snapshot\nSnapshot.hastData: ${snapshot.hasData}");
               if (snapshot.hasData) {
                 return Column(
                   children: [
@@ -63,8 +61,10 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       padding: EdgeInsets.only(left: 16, bottom: 16, top: 8),
                       child: Text(
                         "Alocação",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                        style: Theme.of(context).textTheme.bodyText2.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
                     ),
                     SizedBox(
@@ -89,11 +89,13 @@ class _PortfolioPageState extends State<PortfolioPage> {
                             ),
                             Text(
                               ' ' + 'Ações',
-                              style: TextStyle(//TODO CHANGE STYLE OF CONTEXT
-                                color: Colors.black,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText2
+                                  .copyWith(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                             ),
                           ],
                         ),
@@ -105,7 +107,8 @@ class _PortfolioPageState extends State<PortfolioPage> {
                                 children: <Widget>[
                                   Text(
                                     "Total em carteira",
-                                    style: Theme.of(context).textTheme.bodyText2,
+                                    style:
+                                        Theme.of(context).textTheme.bodyText2,
                                   ),
                                 ],
                               ),
@@ -122,13 +125,13 @@ class _PortfolioPageState extends State<PortfolioPage> {
                                 children: <Widget>[
                                   Text(
                                     "% do portfolio",
-                                    style: Theme.of(context).textTheme.bodyText2,
+                                    style:
+                                        Theme.of(context).textTheme.bodyText2,
                                   ),
                                 ],
                               ),
                               Text(
-                                percentFormatter
-                                    .format(10.00 / 10.00),
+                                percentFormatter.format(10.00 / 10.00),
                                 style: Theme.of(context).textTheme.bodyText2,
                               ),
                             ],
@@ -143,102 +146,13 @@ class _PortfolioPageState extends State<PortfolioPage> {
                             itemBuilder: (context, index) {
                               final item = performances[index];
                               final Rgb rgb = colors[item.ticker];
-                              var coloredStyle = Theme.of(context).textTheme.bodyText2; //TODO CHANGE COLOR green red
+                              var coloredStyle = Theme.of(context)
+                                  .textTheme
+                                  .bodyText2; //TODO CHANGE COLOR green red
                               var color = rgb.toColor();
 
-                              return CupertinoButton(
-                                padding: EdgeInsets.zero,
-                                onPressed: () {
-                                  // navigateToProductDetails(context, item, color);
-                                },
-                                child: Container(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Container(
-                                        padding: EdgeInsets.only(bottom: 8),
-                                        child: Row(
-                                          children: <Widget>[
-                                            Container(
-                                              width: 4,
-                                              height: 14,
-                                              color: color,
-                                            ),
-                                            Text(
-                                              " ${item.ticker.replaceAll('.SA', '')}",
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Row(
-                                            children: <Widget>[
-                                              Text(
-                                                "Saldo atual",
-                                                style: Theme.of(context).textTheme.bodyText2,
-                                              ),
-                                            ],
-                                          ),
-                                          Text(
-                                            moneyFormatter
-                                                .format(item.position.currentInvested), //TODO change to current value
-                                            style: Theme.of(context).textTheme.bodyText2,
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Row(
-                                            children: <Widget>[
-                                              Text(
-                                                "Resultado",
-                                                style: Theme.of(context).textTheme.bodyText2,
-                                              ),
-                                            ],
-                                          ),
-                                          Text(
-                                            moneyFormatter.format(item.position.currentInvested), //TODO FIX THIS VALUE
-                                            style: coloredStyle,
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 4,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Row(
-                                            children: <Widget>[
-                                              Text(
-                                                "% do portfolio",
-                                                style: Theme.of(context).textTheme.bodyText2,
-                                              ),
-                                            ],
-                                          ),
-                                          Text(
-                                            percentFormatter.format(
-                                                item.position.currentInvested / 100000), //FIX this
-                                            style: Theme.of(context).textTheme.bodyText2,
-                                          ),
-                                        ],
-                                      ),
-                                      Divider(
-                                        height: 16,
-                                        color: Colors.grey,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
+                              return StockInvestmentSummaryItem(
+                                  performance: item, color: color);
                             },
                             itemCount: performances.length,
                           ),
@@ -287,15 +201,15 @@ class _PortfolioPageState extends State<PortfolioPage> {
       List<StockMonthlyPerformance> performances) async {
     print("Building series");
     List<TickerTotals> data = performances.map((p) {
-      final monthTotal = p.performanceHistory.isNotEmpty
-          ? p.performanceHistory.last.monthTotal
-          : 0.0;
       final color = Rgb.random();
       colors[p.ticker] = color;
-      return TickerTotals(
-          p.ticker, monthTotal, color);
-    }).toList();
+      if (p.performanceHistory.isEmpty || p.position.currentAmount <= 0) {
+        return null;
+      }
+      return TickerTotals(p.ticker, p.performanceHistory.last.monthTotal, color);
+    }).toList()..removeWhere((element) => element == null);
     print("Builded series");
+    print(data);
     return [
       new charts.Series<TickerTotals, String>(
         id: 'investments',
@@ -336,5 +250,119 @@ class Rgb {
         (math.Random().nextDouble() * 0xFF).toInt(),
         (math.Random().nextDouble() * 0xFF).toInt(),
         (math.Random().nextDouble() * 0xFF).toInt());
+  }
+}
+
+class StockInvestmentSummaryItem extends StatelessWidget {
+  final StockMonthlyPerformance performance;
+  final Color color;
+
+  const StockInvestmentSummaryItem(
+      {Key key, @required this.performance, @required this.color})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final currentValue = performance.position.currentAmount *
+        (performance.currentPrice != null ? performance.currentPrice : 0.0);
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: () {
+        // navigateToProductDetails(context, item, color);
+      },
+      child: Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: <Widget>[
+                  Container(
+                    width: 4,
+                    height: 14,
+                    color: color,
+                  ),
+                  Text(
+                    " ${performance.ticker.replaceAll('.SA', '')}",
+                    style: Theme.of(context).textTheme.bodyText2.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Text(
+                      "Saldo atual",
+                      style: Theme.of(context).textTheme.bodyText2,
+                    ),
+                  ],
+                ),
+                Text(
+                  moneyFormatter.format(currentValue),
+                  style: Theme.of(context).textTheme.bodyText2,
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Text(
+                      "Resultado",
+                      style: Theme.of(context).textTheme.bodyText2,
+                    ),
+                  ],
+                ),
+                Text(
+                  moneyFormatter.format(
+                      currentValue - performance.position.currentInvested),
+                  style: Theme.of(context).textTheme.bodyText2.copyWith(
+                      color:
+                          currentValue - performance.position.currentInvested <
+                                  0
+                              ? Colors.red
+                              : Colors.green),
+                  // style: coloredStyle,
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 4,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Text(
+                      "% do portfolio",
+                      style: Theme.of(context).textTheme.bodyText2,
+                    ),
+                  ],
+                ),
+                Text(
+                  percentFormatter
+                      .format(performance.position.currentInvested / 100000),
+                  //TODO FIX this
+                  style: Theme.of(context).textTheme.bodyText2,
+                ),
+              ],
+            ),
+            Divider(
+              height: 16,
+              color: Colors.grey,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

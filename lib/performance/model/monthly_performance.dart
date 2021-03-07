@@ -4,6 +4,7 @@ import 'package:goatfolio/performance/model/position.dart';
 class StockMonthlyPerformance {
   String ticker;
   DateTime initialDate;
+  double currentPrice;
   StockPosition position;
   List<StockPerformanceHistory> performanceHistory;
 
@@ -12,6 +13,7 @@ class StockMonthlyPerformance {
         initialDate =
             DateTime.fromMillisecondsSinceEpoch(json['initial_date'] * 1000),
         position = StockPosition.fromJson(json['position']),
+        currentPrice = json['current_price'],
         performanceHistory = json['performance_history']
             .map<StockPerformanceHistory>(
                 (json) => StockPerformanceHistory.fromJson(json))

@@ -23,7 +23,7 @@ class StockPosition {
         totalSpend = json['total_spend'],
         totalSold = json['total_sold'],
         averagePrice = json['average_price'],
-        currentAmount = json['current_amount'],
+        currentAmount = json['amount'],
         currentInvested = json['current_invested'];
 
   @override
