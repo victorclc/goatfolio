@@ -20,18 +20,23 @@ class PortfolioPage extends StatefulWidget {
 
 class _PortfolioPageState extends State<PortfolioPage> {
   Map<String, Rgb> colors = Map();
-  Future<List<StockMonthlyPerformance>> _future;
+  Future<List<charts.Series<TickerTotals, String>>> _future;
   PerformanceClient client;
+  List<StockMonthlyPerformance> performances;
 
   @override
   void initState() {
     super.initState();
     final userService = Provider.of<UserService>(context, listen: false);
     client = PerformanceClient(userService);
-    _future = client.getPerformance();
+    _future = getPerformanceSeries();
   }
 
-  //TODO getAll
+  Future<List<charts.Series<TickerTotals, String>>>
+      getPerformanceSeries() async {
+    performances = await client.getPerformance();
+    return await buildInvestmentSeries(performances);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +51,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
             case ConnectionState.waiting:
               return CupertinoActivityIndicator();
             case ConnectionState.done:
+              print(
+                  "Snapshot: $snapshot\nSnapshot.hastData: ${snapshot.hasData}");
               if (snapshot.hasData) {
-                final List<StockMonthlyPerformance> monthlyPerformances = snapshot.data;
                 return Column(
                   children: [
                     Container(
@@ -62,16 +68,19 @@ class _PortfolioPageState extends State<PortfolioPage> {
                     SizedBox(
                       height: 240,
                       width: double.infinity,
-                      child: DonutAutoLabelChart(buidInvestmentSeries(),),),
+                      child: DonutAutoLabelChart(
+                        snapshot.data,
+                      ),
+                    ),
                     Container(
                       padding: EdgeInsets.only(left: 16, right: 16),
                       child: ListView.builder(
                         padding: EdgeInsets.zero,
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
-                        itemCount: monthlyPerformances.length,
+                        itemCount: performances.length,
                         itemBuilder: (context, index) {
-                          return Text(monthlyPerformances[index].ticker);
+                          return Text(performances[index].ticker);
                         },
                       ),
                     ),
@@ -86,23 +95,14 @@ class _PortfolioPageState extends State<PortfolioPage> {
                 height: 32,
               ),
               Text("Tivemos um problema ao carregar",
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .subtitle1),
+                  style: Theme.of(context).textTheme.subtitle1),
               Text(" as informações.",
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .subtitle1),
+                  style: Theme.of(context).textTheme.subtitle1),
               SizedBox(
                 height: 8,
               ),
               Text("Toque para tentar novamente.",
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .subtitle1),
+                  style: Theme.of(context).textTheme.subtitle1),
               CupertinoButton(
                 padding: EdgeInsets.all(0),
                 child: Icon(
@@ -111,7 +111,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    _future = client.getPerformance();
+                    _future = getPerformanceSeries();
                   });
                 },
               ),
@@ -122,25 +122,28 @@ class _PortfolioPageState extends State<PortfolioPage> {
     ]);
   }
 
-  List<charts.Series<TickerTotals, String>> buidInvestmentSeries() {
-    List<TickerTotals> data = List();
-    data.add(TickerTotals('BIDI11', 5000, Rgb.random()));
-    data.add(TickerTotals('ITSA4', 2500, Rgb.random()));
-    data.add(TickerTotals('WEGE3', 1250, Rgb.random()));
-    data.add(TickerTotals('SQIA3', 1250, Rgb.random()));
-
+  Future<List<charts.Series<TickerTotals, String>>> buildInvestmentSeries(
+      List<StockMonthlyPerformance> performances) async {
+    print("Building series");
+    List<TickerTotals> data = performances.map((p) {
+      final monthTotal = p.performanceHistory.isNotEmpty
+          ? p.performanceHistory.last.monthTotal
+          : 0.0;
+      return TickerTotals(
+          p.ticker, monthTotal, Rgb.random());
+    }).toList();
+    print("Builded series");
     return [
       new charts.Series<TickerTotals, String>(
         id: 'investments',
         domainFn: (TickerTotals totals, _) => totals.ticker,
         measureFn: (TickerTotals totals, _) => totals.total,
         data: data,
-        colorFn: (totals, _) =>
-            charts.Color(
-                r: totals.color.r, g: totals.color.g, b: totals.color.b),
+        colorFn: (totals, _) => charts.Color(
+            r: totals.color.r, g: totals.color.g, b: totals.color.b),
         // Set a label accessor to control the text of the arc label.
         labelAccessorFn: (TickerTotals totals, _) =>
-        '${totals.ticker.replaceAll('.SA', '')}',
+            '${totals.ticker.replaceAll('.SA', '')}',
       )
     ];
   }

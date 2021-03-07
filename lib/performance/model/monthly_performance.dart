@@ -16,4 +16,9 @@ class StockMonthlyPerformance {
             .map<StockPerformanceHistory>(
                 (json) => StockPerformanceHistory.fromJson(json))
             .toList();
+
+  @override
+  String toString() {
+    return 'StockMonthlyPerformance{ticker: $ticker, initialDate: $initialDate, position: $position, performanceHistory: $performanceHistory}';
+  }
 }

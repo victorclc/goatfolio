@@ -25,4 +25,9 @@ class StockPosition {
         averagePrice = json['average_price'],
         currentAmount = json['current_amount'],
         currentInvested = json['current_invested'];
+
+  @override
+  String toString() {
+    return 'StockPosition{boughtAmount: $boughtAmount, soldAmount: $soldAmount, totalSpend: $totalSpend, totalSold: $totalSold, averagePrice: $averagePrice, currentAmount: $currentAmount, currentInvested: $currentInvested}';
+  }
 }
