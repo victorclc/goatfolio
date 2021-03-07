@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/authentication/service/cognito.dart';
+import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
+import 'package:goatfolio/common/widget/expansion_tile_custom.dart';
 import 'package:goatfolio/performance/client/performance_client.dart';
 import 'package:goatfolio/performance/model/monthly_performance.dart';
 import 'package:goatfolio/portfolio/widget/donut_chart.dart';
@@ -72,16 +74,175 @@ class _PortfolioPageState extends State<PortfolioPage> {
                         snapshot.data,
                       ),
                     ),
-                    Container(
-                      padding: EdgeInsets.only(left: 16, right: 16),
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: performances.length,
-                        itemBuilder: (context, index) {
-                          return Text(performances[index].ticker);
-                        },
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ExpansionTileCustom(
+                        initiallyExpanded: true,
+                        childrenPadding: EdgeInsets.only(left: 8),
+                        tilePadding: EdgeInsets.zero,
+                        title: Row(
+                          children: [
+                            Container(
+                              width: 4,
+                              height: 14,
+                              color: Rgb.random().toColor(),
+                            ),
+                            Text(
+                              ' ' + 'Ações',
+                              style: TextStyle(//TODO CHANGE STYLE OF CONTEXT
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Row(
+                                children: <Widget>[
+                                  Text(
+                                    "Total em carteira",
+                                    style: Theme.of(context).textTheme.bodyText2,
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                moneyFormatter.format(10.00),
+                                style: Theme.of(context).textTheme.bodyText2,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Row(
+                                children: <Widget>[
+                                  Text(
+                                    "% do portfolio",
+                                    style: Theme.of(context).textTheme.bodyText2,
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                percentFormatter
+                                    .format(10.00 / 10.00),
+                                style: Theme.of(context).textTheme.bodyText2,
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 24,
+                          ),
+                          ListView.builder(
+                            padding: EdgeInsets.zero,
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              final item = performances[index];
+                              final Rgb rgb = colors[item.ticker];
+                              var coloredStyle = Theme.of(context).textTheme.bodyText2; //TODO CHANGE COLOR green red
+                              var color = rgb.toColor();
+
+                              return CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () {
+                                  // navigateToProductDetails(context, item, color);
+                                },
+                                child: Container(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Container(
+                                        padding: EdgeInsets.only(bottom: 8),
+                                        child: Row(
+                                          children: <Widget>[
+                                            Container(
+                                              width: 4,
+                                              height: 14,
+                                              color: color,
+                                            ),
+                                            Text(
+                                              " ${item.ticker.replaceAll('.SA', '')}",
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Row(
+                                            children: <Widget>[
+                                              Text(
+                                                "Saldo atual",
+                                                style: Theme.of(context).textTheme.bodyText2,
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            moneyFormatter
+                                                .format(item.position.currentInvested), //TODO change to current value
+                                            style: Theme.of(context).textTheme.bodyText2,
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Row(
+                                            children: <Widget>[
+                                              Text(
+                                                "Resultado",
+                                                style: Theme.of(context).textTheme.bodyText2,
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            moneyFormatter.format(item.position.currentInvested), //TODO FIX THIS VALUE
+                                            style: coloredStyle,
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 4,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Row(
+                                            children: <Widget>[
+                                              Text(
+                                                "% do portfolio",
+                                                style: Theme.of(context).textTheme.bodyText2,
+                                              ),
+                                            ],
+                                          ),
+                                          Text(
+                                            percentFormatter.format(
+                                                item.position.currentInvested / 100000), //FIX this
+                                            style: Theme.of(context).textTheme.bodyText2,
+                                          ),
+                                        ],
+                                      ),
+                                      Divider(
+                                        height: 16,
+                                        color: Colors.grey,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                            itemCount: performances.length,
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -129,8 +290,10 @@ class _PortfolioPageState extends State<PortfolioPage> {
       final monthTotal = p.performanceHistory.isNotEmpty
           ? p.performanceHistory.last.monthTotal
           : 0.0;
+      final color = Rgb.random();
+      colors[p.ticker] = color;
       return TickerTotals(
-          p.ticker, monthTotal, Rgb.random());
+          p.ticker, monthTotal, color);
     }).toList();
     print("Builded series");
     return [
