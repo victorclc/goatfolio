@@ -23,9 +23,7 @@ Future<Database> initDatabase() async {
 }
 
 Future<void> deleteInvestmentsDatabase() async {
-  deleteDatabase(
-      join(await getDatabasesPath(), 'investments.db')
-  );
+  deleteDatabase(join(await getDatabasesPath(), 'investments.db'));
 }
 
 class StockInvestmentStorage {
@@ -33,7 +31,6 @@ class StockInvestmentStorage {
   final Future<Database> database;
 
   StockInvestmentStorage() : database = initDatabase();
-
 
   Future<void> insert(StockInvestment investment) async {
     final Database db = await database;
@@ -91,8 +88,8 @@ class StockInvestmentStorage {
 
   Future<List<StockInvestment>> getPaginated(int offset, int limit) async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-        TABLE_NAME, orderBy: 'DATE DESC', limit: limit, offset: offset);
+    final List<Map<String, dynamic>> maps = await db.query(TABLE_NAME,
+        orderBy: 'DATE DESC', limit: limit, offset: offset);
 
     return List.generate(maps.length, (i) {
       return StockInvestment.fromJson(maps[i]);
@@ -102,13 +99,23 @@ class StockInvestmentStorage {
   Future<List<String>> getDistinctTickers() async {
     final tickerColumn = "ticker";
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-        TABLE_NAME, distinct: true, columns: [tickerColumn]);
+    final List<Map<String, dynamic>> maps =
+        await db.query(TABLE_NAME, distinct: true, columns: [tickerColumn]);
 
     print("Maps: $maps");
-    return List.generate(maps.length, (i)
-    {
-     return maps[i][tickerColumn] as String;
-    }
-  );
-}}
+    return List.generate(maps.length, (i) {
+      return maps[i][tickerColumn] as String;
+    });
+  }
+
+  Future<List<String>> getActiveInvestments() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps =
+    await db.rawQuery("SELECT ticker, sum(amount) as amount as");
+
+    // print("Maps: $maps");
+    // return List.generate(maps.length, (i) {
+    //   return maps[i][tickerColumn] as String;
+    // });
+  }
+}

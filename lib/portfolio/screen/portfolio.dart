@@ -6,6 +6,7 @@ import 'package:goatfolio/performance/client/performance_client.dart';
 import 'package:goatfolio/portfolio/widget/donut_chart.dart';
 import 'package:provider/provider.dart';
 
+import 'dart:math' as math;
 import 'package:charts_flutter/flutter.dart' as charts;
 
 class PortfolioPage extends StatefulWidget {
@@ -30,49 +31,41 @@ class _PortfolioPageState extends State<PortfolioPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoSliverPage(largeTitle: PortfolioPage.title, children: [
-      Container(
-        alignment: Alignment.centerLeft,
-        padding: EdgeInsets.only(left: 16, bottom: 16, top: 8),
-        child: Text(
-          "Alocação",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ),
-      DonutAutoLabelChart([])
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.only(left: 16, bottom: 16, top: 8),
+            child: Text(
+              "Alocação",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
+          SizedBox(
+              height: 240,
+              width: double.infinity,
+              child: DonutAutoLabelChart(buidInvestmentSeries()))
+        ],
+       ),
     ]);
   }
 
-  List<charts.Series<TickerTotals, String>> _createSubtypeSeries() {
+  List<charts.Series<TickerTotals, String>> buidInvestmentSeries() {
     List<TickerTotals> data = List();
-    TickerTotals fixedIncome = TickerTotals(typeDictionary['FIXED_INCOME'], 0);
-
-    consolidated.forEach((subtypeConsolidated) {
-      print(typeDictionary[subtypeConsolidated.subtype]);
-      if (["CHECKING_ACCOUNT", "POST_FIXED"]
-          .contains(subtypeConsolidated.subtype)) {
-        fixedIncome.total += subtypeConsolidated.currentPosition;
-      } else {
-        data.add(new TickerTotals(typeDictionary[subtypeConsolidated.subtype],
-            subtypeConsolidated.currentPosition));
-      }
-      colors[typeDictionary[subtypeConsolidated.subtype]] = createRandomColor();
-    });
-
-    if (fixedIncome.total > 0) {
-      data.add(fixedIncome);
-      colors[typeDictionary['FIXED_INCOME']] = createRandomColor();
-    }
+    data.add(TickerTotals('BIDI11', 5000, Rgb.random()));
+    data.add(TickerTotals('ITSA4', 2500, Rgb.random()));
+    data.add(TickerTotals('WEGE3', 1250, Rgb.random()));
+    data.add(TickerTotals('SQIA3', 1250, Rgb.random()));
 
     return [
       new charts.Series<TickerTotals, String>(
-        id: 'Subtypes',
+        id: 'investments',
         domainFn: (TickerTotals totals, _) => totals.ticker,
         measureFn: (TickerTotals totals, _) => totals.total,
         data: data,
         colorFn: (totals, _) => charts.Color(
-            r: colors[totals.ticker].r,
-            g: colors[totals.ticker].g,
-            b: colors[totals.ticker].b),
+            r: totals.color.r, g: totals.color.g, b: totals.color.b),
         // Set a label accessor to control the text of the arc label.
         labelAccessorFn: (TickerTotals totals, _) =>
             '${totals.ticker.replaceAll('.SA', '')}',
@@ -84,8 +77,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
 class TickerTotals {
   String ticker;
   double total;
+  Rgb color;
 
-  TickerTotals(this.ticker, this.total);
+  TickerTotals(this.ticker, this.total, this.color);
 }
 
 class Rgb {
@@ -97,5 +91,12 @@ class Rgb {
 
   Color toColor() {
     return Color.fromARGB(0xFF, this.r, this.g, this.b);
+  }
+
+  static Rgb random() {
+    return Rgb(
+        (math.Random().nextDouble() * 0xFF).toInt(),
+        (math.Random().nextDouble() * 0xFF).toInt(),
+        (math.Random().nextDouble() * 0xFF).toInt());
   }
 }
