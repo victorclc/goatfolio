@@ -12,6 +12,8 @@ import 'package:provider/provider.dart';
 import 'dart:math' as math;
 import 'package:charts_flutter/flutter.dart' as charts;
 
+import 'investment_details.dart';
+
 class PortfolioPage extends StatefulWidget {
   static const title = 'Portfolio';
   static const icon = Icon(Icons.trending_up);
@@ -206,8 +208,10 @@ class _PortfolioPageState extends State<PortfolioPage> {
       if (p.performanceHistory.isEmpty || p.position.currentAmount <= 0) {
         return null;
       }
-      return TickerTotals(p.ticker, p.performanceHistory.last.monthTotal, color);
-    }).toList()..removeWhere((element) => element == null);
+      return TickerTotals(
+          p.ticker, p.performanceHistory.last.monthTotal, color);
+    }).toList()
+      ..removeWhere((element) => element == null);
     print("Builded series");
     print(data);
     return [
@@ -268,7 +272,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: () {
-        // navigateToProductDetails(context, item, color);
+        navigateToInvestmentDetails(context, performance, color);
       },
       child: Container(
         child: Column(
