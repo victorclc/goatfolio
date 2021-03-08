@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:goatfolio/account/screen/account.dart';
 import 'package:goatfolio/add/screen/add.dart';
 import 'package:goatfolio/authentication/screen/login.dart';
 import 'package:goatfolio/authentication/service/cognito.dart';
 import 'package:goatfolio/common/config/app_config.dart';
 import 'package:goatfolio/extract/screen/extract.dart';
 import 'package:goatfolio/portfolio/screen/portfolio.dart';
+import 'package:goatfolio/settings/screen/settings_page.dart';
 import 'package:goatfolio/summary/screen/summary.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:provider/provider.dart';
@@ -152,7 +152,7 @@ class _NavigationWidgetState extends State<NavigationWidget>
                 BottomNavigationBarItem(
                     label: ExtractPage.title, icon: ExtractPage.icon),
                 BottomNavigationBarItem(
-                    label: AccountPage.title, icon: AccountPage.icon),
+                    label: SettingsPage.title, icon: SettingsPage.icon),
               ],
             ),
       tabBuilder: (context, index) {
@@ -177,8 +177,8 @@ class _NavigationWidgetState extends State<NavigationWidget>
             );
           case 4:
             return CupertinoTabView(
-              defaultTitle: AccountPage.title,
-              builder: (context) => AccountPage(),
+              defaultTitle: SettingsPage.title,
+              builder: (context) => SettingsPage(),
             );
           default:
             assert(false, 'Unexpected tab');

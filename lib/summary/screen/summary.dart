@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class SummaryPage extends StatelessWidget {
   static const title = 'Resumo';
-  static const icon = Icon(Icons.assessment);
+  static const icon = Icon(CupertinoIcons.chart_bar_square_fill);
 
   Widget build(BuildContext context) {
     //controller: ScrollController() scroll to the top

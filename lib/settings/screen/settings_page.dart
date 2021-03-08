@@ -1,0 +1,43 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:goatfolio/authentication/screen/login.dart';
+import 'package:goatfolio/authentication/service/cognito.dart';
+import 'package:goatfolio/common/util/dialog.dart';
+import 'package:goatfolio/main.dart';
+import 'package:provider/provider.dart';
+import 'package:settings_ui/settings_ui.dart';
+
+class SettingsPage extends StatelessWidget {
+  static const String title = 'Config';
+  static const Icon icon = Icon(CupertinoIcons.settings);
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text("Configurações"),
+      ),
+      child: SettingsList(
+        sections: [
+          SettingsSection(
+            tiles: [
+              SettingsTile(
+                title: 'Sair',
+                titleTextStyle:
+                    TextStyle(fontSize: 16, color: Colors.redAccent),
+                onPressed: (BuildContext context) async {
+                  await Provider.of<UserService>(context, listen: false)
+                      .signOut();
+                  Navigator.of(context, rootNavigator: true).pushReplacement(
+                      CupertinoPageRoute(
+                          builder: (context) =>
+                              LoginPage(onLoggedOn: goToNavigationPage)));
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
