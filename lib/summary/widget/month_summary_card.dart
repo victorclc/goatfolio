@@ -23,6 +23,9 @@ class _MonthSummaryCardState extends State<MonthSummaryCard> {
     return Container(
       width: double.infinity,
       child: PressableCard(
+        onPressed: () => {
+
+        },
         child: Column(
           children: [
             Container(
