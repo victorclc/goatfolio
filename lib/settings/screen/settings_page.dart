@@ -2,25 +2,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/authentication/screen/login.dart';
 import 'package:goatfolio/authentication/service/cognito.dart';
-import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/main.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class SettingsPage extends StatelessWidget {
-  static const String title = 'Config';
+  static const String title = 'Configurações';
   static const Icon icon = Icon(CupertinoIcons.settings);
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text("Configurações"),
+        middle: Text(title),
       ),
       child: SettingsList(
         sections: [
           SettingsSection(
             tiles: [
+              SettingsTile(
+                title: 'Sobre',
+              ),
               SettingsTile(
                 title: 'Sair',
                 titleTextStyle:
