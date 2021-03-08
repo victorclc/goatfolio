@@ -2,6 +2,7 @@ service: performance-api
 
 provider:
   name: aws
+  timeout: 30
   region: us-east-2
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
