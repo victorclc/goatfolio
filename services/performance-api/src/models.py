@@ -1,4 +1,7 @@
+from datetime import datetime
 from decimal import Decimal
+
+from dateutil.relativedelta import relativedelta
 
 from goatcommons.constants import OperationType, InvestmentsType
 from goatcommons.models import StockInvestment
@@ -106,9 +109,10 @@ class PortfolioStock:
 
 
 class StockMonthRentability:
-    def __init__(self, date, position: StockPosition):
+    def __init__(self, date, position: StockPosition, price=Decimal(0)):
         self.date = date
         self.position = position
+        self.price = price
 
     @staticmethod
     def from_dict(_dict):
@@ -117,7 +121,7 @@ class StockMonthRentability:
         return StockMonthRentability(**new_dict)
 
     def to_dict(self):
-        return {'date': self.date, 'position': self.position.to_dict()}
+        return {'date': self.date, 'price': self.price, 'position': self.position.to_dict()}
 
 
 class StockPerformanceHistory:
@@ -129,8 +133,41 @@ class StockPerformanceHistory:
     def add_investment(self, investment: StockInvestment):
         month_timestamp = int(DatetimeUtils.month_first_day_datetime(investment.date).timestamp())
         if month_timestamp not in self.history:
-            self.history[month_timestamp] = StockMonthRentability(date=month_timestamp, position=StockPosition())
-        self.history[month_timestamp].position.add_investment(investment)
+            from adapters import MarketData
+            candle = MarketData().ticker_month_data(investment.ticker, investment.date)
+            prev_timestamp = int(
+                DatetimeUtils.month_first_day_datetime(investment.date - relativedelta(months=1)).timestamp())
+            if prev_timestamp in self.history:
+                position = StockPosition(**self.history[prev_timestamp].position.to_dict())
+            else:
+                position = StockPosition()
+            self.history[month_timestamp] = StockMonthRentability(date=month_timestamp, position=position,
+                                                                  price=candle.close)
+        for timestamp in list(filter(lambda d: d >= month_timestamp, self.history.keys())):
+            print(f"atualizando posicao date: {timestamp}")
+            self.history[timestamp].position.add_investment(investment)
+        self.fill_gaps(investment.ticker)
+
+    def fill_gaps(self, ticker):
+        timestamps = list(self.history.keys())
+        if len(timestamps) == 1:
+            return
+        timestamps.sort()
+        print(timestamps)
+        prev = datetime.fromtimestamp(timestamps[0])
+        proc = prev + relativedelta(months=1)
+        last = datetime.fromtimestamp(timestamps[-1])
+
+        while proc < last:
+            proc_timestamp = int(proc.timestamp())
+            if proc_timestamp not in timestamps:
+                print(f'fix gap: {proc}')
+                from adapters import MarketData
+                candle = MarketData().ticker_month_data(ticker, proc)
+                position = StockPosition(**self.history[int(prev.timestamp())].position.to_dict())
+                self.history[proc_timestamp] = StockMonthRentability(date=proc_timestamp, position=position,
+                                                                     price=candle.close)
+            proc = proc + relativedelta(months=1)
 
     @staticmethod
     def from_dict(_dict):

@@ -137,8 +137,11 @@ class PerformanceCore:
 if __name__ == '__main__':
     core = PerformanceCore()
     # print(JsonUtils.dump(core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274')))
-    inv = StockInvestment(**{'amount': Decimal('10'), 'price': Decimal('61.68'), 'ticker': 'ARZZ3', 'operation': 'BUY', 'date': datetime(2020, 1, 29, 20, 0), 'type': 'STOCK', 'broker': '308 - CLEAR CORRETORA - GRUPO XP', 'external_system': 'CEI', 'subject': '440b0d96-395d-48bd-aaf2-58dbf7e68274', 'id': 'CEIARZZ315803424001061681', 'costs': Decimal('0')})
+    inv = StockInvestment(**{'amount': Decimal('10'), 'price': Decimal('61.68'), 'ticker': 'ARZZ3', 'operation': 'BUY',
+                             'date': datetime(2019, 9, 20, 20, 0), 'type': 'STOCK',
+                             'broker': '308 - CLEAR CORRETORA - GRUPO XP', 'external_system': 'CEI',
+                             'subject': '440b0d96-395d-48bd-aaf2-58dbf7e68274', 'id': 'CEIARZZ315803424001061681',
+                             'costs': Decimal('0')})
     core.consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', inv)
-
 
 # 1580342400

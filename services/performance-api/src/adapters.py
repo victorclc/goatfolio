@@ -8,6 +8,7 @@ from typing import List
 import boto3
 import requests
 from boto3.dynamodb.conditions import Key
+from dateutil.relativedelta import relativedelta
 
 from goatcommons.models import Investment
 from goatcommons.utils import InvestmentUtils
@@ -42,6 +43,15 @@ class MarketData:
         data[0] = MonthlyData(current.date, current.open, price, change)
         return data
 
+    def ticker_month_data(self, ticker, _date):
+        """
+            Gets candle(open, close) for the entire date.year/date.month
+        """
+        date_from = datetime(_date.year, _date.month, 1)
+        date_to = date_from + relativedelta(months=1)
+
+        return self.market_stack.get_monthly_data(ticker, date_from, date_to)[-1]
+
     class YahooData:
         INTRA_DAY_URL = "https://query2.finance.yahoo.com/v7/finance/options/{0}.SA"
         HISTORICAL_URL = "https://query1.finance.yahoo.com/v7/finance/chart/{0}?range={1}&interval={2}"
@@ -61,7 +71,7 @@ class MarketData:
         def __init__(self):
             self.api_key = os.getenv("MARKET_STACK_API_KEY")
 
-        def get_monthly_data(self, ticker, date_from=None):
+        def get_monthly_data(self, ticker, date_from=None, date_to=None):
             params = {
                 'access_key': self.api_key,
                 'symbols': '{}.BVMF'.format(ticker),
@@ -69,6 +79,8 @@ class MarketData:
             }
             if date_from:
                 params['date_from'] = datetime.strftime(date_from, self.DATE_FORMAT)
+            if date_to:
+                params['date_to'] = datetime.strftime(date_to, self.DATE_FORMAT)
             result = requests.get(self.EOD_URL, params).json()
             monthly_data = []
 
@@ -111,4 +123,3 @@ class PortfolioRepository:
     def save(self, portfolio: Portfolio):
         print(f'Saving portfolio: {portfolio.to_dict()}')
         self._portfolio_table.put_item(Item=portfolio.to_dict())
-
