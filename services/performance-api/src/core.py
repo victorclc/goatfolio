@@ -97,20 +97,15 @@ class PerformanceCore:
 
     def calculate_portfolio_performance(self, subject):
         assert subject
-        performances = []
-        for _type, stock_investments in groupby(
-                sorted(self.investment_repo.find_by_subject(subject), key=lambda i: i.type),
-                key=lambda i: i.type):
-            if _type == InvestmentsType.STOCK:
-                for _ticker, investments in groupby(sorted(stock_investments, key=lambda i: i.ticker),
-                                                    key=lambda i: i.ticker):
-                    investments = list(investments)
-                    try:
-                        performances.append(StockPerformance(investments).performance())
-                    except Exception as e:
-                        print(e)
-                        pass
-        return performances
+        portfolio = self.portfolio_repo.find(subject).to_dict()
+
+        for stock in portfolio['stocks']:
+            if stock['position']['amount'] > 0:
+                stock['current_price'] = MarketData().ticker_intraday_date(stock['ticker']).price
+            stock.pop('performance_history')
+        print(portfolio)
+
+        return portfolio['stocks']
 
     def calculate_today_variation(self, subject):
         assert subject
@@ -133,15 +128,24 @@ class PerformanceCore:
         portfolio.add_investment(investment=investment)
         self.portfolio_repo.save(portfolio)
 
-
+# import logging
+#
+# logging.basicConfig(level=logging.DEBUG)
 if __name__ == '__main__':
     core = PerformanceCore()
     # print(JsonUtils.dump(core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274')))
-    inv = StockInvestment(**{'amount': Decimal('10'), 'price': Decimal('61.68'), 'ticker': 'ARZZ3', 'operation': 'BUY',
-                             'date': datetime(2019, 9, 20, 20, 0), 'type': 'STOCK',
-                             'broker': '308 - CLEAR CORRETORA - GRUPO XP', 'external_system': 'CEI',
-                             'subject': '440b0d96-395d-48bd-aaf2-58dbf7e68274', 'id': 'CEIARZZ315803424001061681',
-                             'costs': Decimal('0')})
-    core.consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', inv)
+    # inv = StockInvestment(**{'amount': Decimal('10'), 'price': Decimal('61.68'), 'ticker': 'ARZZ3', 'operation': 'BUY',
+    #                          'date': datetime(2019, 9, 20, 20, 0), 'type': 'STOCK',
+    #                          'broker': '308 - CLEAR CORRETORA - GRUPO XP', 'external_system': 'CEI',
+    #                          'subject': '440b0d96-395d-48bd-aaf2-58dbf7e68274', 'id': 'CEIARZZ315803424001061681',
+    #                          'costs': Decimal('0')})
+    core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    # investments = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    # for inv in investments:
+    #     print(f"Processing inv: {inv}")
+    #     try:
+    #         core.consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', inv)
+    #     except Exception as ex:
+    #         print(f'{inv.ticker} EXCEPTION: {ex}')
 
 # 1580342400

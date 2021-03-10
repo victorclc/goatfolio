@@ -64,7 +64,7 @@ class MarketData:
                                 Decimal(result['regularMarketChangePercent']).quantize(Decimal('0.01')))
 
     class MarketStackData:
-        EOD_URL = "http://api.marketstack.com/v1/eod"
+        EOD_URL = "https://api.marketstack.com/v1/eod"
         DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
         DATE_FORMAT = "%Y-%m-%d"
 
@@ -77,12 +77,15 @@ class MarketData:
                 'symbols': '{}.BVMF'.format(ticker),
                 'limit': 365
             }
-            if date_from:
-                params['date_from'] = datetime.strftime(date_from, self.DATE_FORMAT)
             if date_to:
                 params['date_to'] = datetime.strftime(date_to, self.DATE_FORMAT)
+            if date_from:
+                params['date_from'] = datetime.strftime(date_from, self.DATE_FORMAT)
             result = requests.get(self.EOD_URL, params).json()
             monthly_data = []
+            print(f'{self.EOD_URL}')
+            print(f'Params: {params}')
+            print(f'Result: {result}')
 
             for month, candles in groupby(map(self._parse_eod_data, result['data']),
                                           key=lambda x: x['date'].month):
