@@ -10,10 +10,10 @@ provider:
     PYTHONPATH: "src:libs"
   iamRoleStatements:
     - Effect: Allow
-        Action:
-          - dynamodb:Query
-        Resource:
-          'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+      Action:
+        - dynamodb:Query
+      Resource:
+        'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
     - Effect: Allow
       Action:
         - dynamodb:Query
