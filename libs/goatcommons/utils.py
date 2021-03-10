@@ -61,3 +61,9 @@ class InvestmentUtils:
         if _type == InvestmentsType.CHECKING_ACCOUNT:
             return CheckingAccountInvestment(**investment, type=InvestmentsType.CHECKING_ACCOUNT)
         raise TypeError
+
+
+class DatetimeUtils:
+    @staticmethod
+    def month_first_day_datetime(_date: datetime):
+        return datetime(_date.year, _date.month, 1)
