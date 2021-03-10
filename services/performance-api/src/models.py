@@ -1,8 +1,8 @@
-from dataclasses import dataclass
 from decimal import Decimal
 
 from goatcommons.constants import OperationType, InvestmentsType
 from goatcommons.models import StockInvestment
+from goatcommons.utils import DatetimeUtils
 
 
 class StockPosition:
@@ -44,7 +44,7 @@ class Portfolio:
         if stocks is None:
             stocks = []
         self.subject = subject
-        self.initial_date = int(initial_date)
+        self.initial_date = initial_date
         self.stocks = {s.ticker: s for s in stocks}
 
     def add_investment(self, investment):
@@ -54,7 +54,8 @@ class Portfolio:
 
         if investment.type == InvestmentsType.STOCK:
             if investment.ticker not in self.stocks:
-                self.stocks[investment.ticker] = PortfolioStock(investment.ticker, inv_datetime, StockPosition())
+                self.stocks[investment.ticker] = PortfolioStock(investment.ticker, inv_datetime, StockPosition(),
+                                                                performance_history=StockPerformanceHistory())
             self.stocks[investment.ticker].add_investment(investment=investment)
 
     @staticmethod
@@ -70,22 +71,28 @@ class Portfolio:
 
 
 class PortfolioStock:
-    def __init__(self, ticker, initial_date, position, current_price=Decimal(0)):
+    def __init__(self, ticker, initial_date, position, performance_history, current_price=Decimal(0)):
         self.ticker = ticker
         self.initial_date = int(initial_date)
         self.position = position
         self.current_price = current_price
+        self.performance_history = performance_history
 
     def add_investment(self, investment: StockInvestment):
         inv_datetime = int(investment.date.timestamp())
         if not self.initial_date or self.initial_date > inv_datetime:
             self.initial_date = inv_datetime
         self.position.add_investment(investment=investment)
+        self.performance_history.add_investment(investment=investment)
 
     @staticmethod
     def from_dict(_dict):
         new_dict = dict(_dict)
         new_dict['position'] = StockPosition(**_dict['position'])
+        if 'performance_history' in _dict:
+            new_dict['performance_history'] = StockPerformanceHistory.from_dict(_dict['performance_history'])
+        else:
+            new_dict['performance_history'] = StockPerformanceHistory()
         return PortfolioStock(**new_dict)
 
     def to_dict(self):
@@ -93,5 +100,41 @@ class PortfolioStock:
             'ticker': self.ticker,
             'initial_date': self.initial_date,
             'current_price': self.current_price,
-            'position': self.position.to_dict()
+            'position': self.position.to_dict(),
+            'performance_history': self.performance_history.to_dict()
         }
+
+
+class StockMonthRentability:
+    def __init__(self, date, position: StockPosition):
+        self.date = date
+        self.position = position
+
+    @staticmethod
+    def from_dict(_dict):
+        new_dict = dict(_dict)
+        new_dict['position'] = StockPosition(**_dict['position'])
+        return StockMonthRentability(**new_dict)
+
+    def to_dict(self):
+        return {'date': self.date, 'position': self.position.to_dict()}
+
+
+class StockPerformanceHistory:
+    def __init__(self, history=None):
+        if history is None:
+            history = []
+        self.history = {h.date: h for h in history}
+
+    def add_investment(self, investment: StockInvestment):
+        month_timestamp = int(DatetimeUtils.month_first_day_datetime(investment.date).timestamp())
+        if month_timestamp not in self.history:
+            self.history[month_timestamp] = StockMonthRentability(date=month_timestamp, position=StockPosition())
+        self.history[month_timestamp].position.add_investment(investment)
+
+    @staticmethod
+    def from_dict(_dict):
+        return StockPerformanceHistory(list(map(lambda s: StockMonthRentability.from_dict(s), _dict)))
+
+    def to_dict(self):
+        return [s.to_dict() for s in self.history.values()]
