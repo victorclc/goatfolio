@@ -11,6 +11,7 @@ from boto3.dynamodb.conditions import Key
 
 from goatcommons.models import Investment
 from goatcommons.utils import InvestmentUtils
+from models import Portfolio
 
 IntraDayData = namedtuple('IntraDayData', 'price prev_close_price change')
 MonthlyData = namedtuple('MonthlyData', 'date open close change')
@@ -96,3 +97,18 @@ class InvestmentRepository:
     def find_by_subject(self, subject) -> List[Investment]:
         result = self.__investments_table.query(KeyConditionExpression=Key('subject').eq(subject))
         return list(map(lambda i: InvestmentUtils.load_model_by_type(i['type'], i), result['Items']))
+
+
+class PortfolioRepository:
+    def __init__(self):
+        self._portfolio_table = boto3.resource('dynamodb').Table('Portfolio')
+
+    def find(self, subject) -> Portfolio:
+        result = self._portfolio_table.query(KeyConditionExpression=Key('subject').eq(subject))
+        if result['Items']:
+            return Portfolio.from_dict(result['Items'][0])
+
+    def save(self, portfolio: Portfolio):
+        print(f'Saving portfolio: {portfolio.to_dict()}')
+        self._portfolio_table.put_item(Item=portfolio.to_dict())
+

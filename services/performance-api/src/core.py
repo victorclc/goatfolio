@@ -6,9 +6,11 @@ from typing import List
 
 from dateutil.relativedelta import relativedelta
 
-from adapters import InvestmentRepository, MarketData
+from adapters import InvestmentRepository, MarketData, PortfolioRepository
 from goatcommons.constants import OperationType, InvestmentsType
 from goatcommons.models import StockInvestment
+from goatcommons.utils import JsonUtils, DatetimeUtils
+from models import StockPosition, Portfolio, PortfolioStock
 
 
 class StockPerformance:
@@ -21,7 +23,7 @@ class StockPerformance:
         self.end_date = datetime.now() if self.current_stocks_amount() > 0 else self.investments[-1].date
 
     def today_variation(self):
-        position = self.StockPosition()
+        position = StockPosition()
         today = datetime.now()
         t_invested = Decimal(0)
         t_amount = Decimal(0)
@@ -38,7 +40,7 @@ class StockPerformance:
 
     def performance(self):
         history = self.market_data.ticker_monthly_data(self.ticker, self.initial_date)
-        position = self.StockPosition()
+        position = StockPosition()
         prev_month_total = Decimal(0)
         performance_history = []
         current_price = None
@@ -87,49 +89,18 @@ class StockPerformance:
         return reduce(lambda p, i: p + i.amount if i.operation == OperationType.BUY else p + (-1 * i.amount),
                       self.investments, 0)
 
-    class StockPosition:
-        def __init__(self):
-            self.bought_amount = Decimal(0)
-            self.sold_amount = Decimal(0)
-            self.total_spend = Decimal(0)
-            self.total_sold = Decimal(0)
-
-        @property
-        def amount(self):
-            return self.bought_amount - self.sold_amount
-
-        @property
-        def average_price(self):
-            if self.bought_amount > 0:
-                return (self.total_spend / self.bought_amount).quantize(Decimal('0.01'))
-            return Decimal('0.00')
-
-        @property
-        def current_invested(self):
-            return self.total_spend - self.total_sold
-
-        def add_investment(self, investment: StockInvestment):
-            if investment.operation == OperationType.BUY:
-                self.bought_amount = self.bought_amount + investment.amount
-                self.total_spend = self.total_spend + investment.amount * investment.price
-            else:
-                self.sold_amount = self.sold_amount + investment.amount
-                self.total_sold = self.total_sold + investment.amount * investment.price
-
-        def to_dict(self):
-            return {**self.__dict__, 'amount': self.amount, 'average_price': self.average_price,
-                    'current_invested': self.current_invested}
-
 
 class PerformanceCore:
     def __init__(self):
-        self.repo = InvestmentRepository()
+        self.investment_repo = InvestmentRepository()
+        self.portfolio_repo = PortfolioRepository()
 
     def calculate_portfolio_performance(self, subject):
         assert subject
         performances = []
-        for _type, stock_investments in groupby(sorted(self.repo.find_by_subject(subject), key=lambda i: i.type),
-                                                key=lambda i: i.type):
+        for _type, stock_investments in groupby(
+                sorted(self.investment_repo.find_by_subject(subject), key=lambda i: i.type),
+                key=lambda i: i.type):
             if _type == InvestmentsType.STOCK:
                 for _ticker, investments in groupby(sorted(stock_investments, key=lambda i: i.ticker),
                                                     key=lambda i: i.ticker):
@@ -144,8 +115,9 @@ class PerformanceCore:
     def calculate_today_variation(self, subject):
         assert subject
         variations = []
-        for _type, stock_investments in groupby(sorted(self.repo.find_by_subject(subject), key=lambda i: i.type),
-                                                key=lambda i: i.type):
+        for _type, stock_investments in groupby(
+                sorted(self.investment_repo.find_by_subject(subject), key=lambda i: i.type),
+                key=lambda i: i.type):
             if _type == InvestmentsType.STOCK:
                 for _ticker, investments in groupby(sorted(stock_investments, key=lambda i: i.ticker),
                                                     key=lambda i: i.ticker):
@@ -153,7 +125,20 @@ class PerformanceCore:
                     variations.append(StockPerformance(investments).today_variation())
         return {'today_variation': sum(variations)}
 
+    def consolidate_portfolio(self, subject, investment: StockInvestment):
+        portfolio = self.portfolio_repo.find(subject)
+        if not portfolio:
+            print("criando portfolio do 0")
+            portfolio = Portfolio(subject=subject)
+        portfolio.add_investment(investment=investment)
+        self.portfolio_repo.save(portfolio)
+
 
 if __name__ == '__main__':
     core = PerformanceCore()
-    print(core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    # print(JsonUtils.dump(core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274')))
+    inv = StockInvestment(**{'amount': Decimal('10'), 'price': Decimal('61.68'), 'ticker': 'ARZZ3', 'operation': 'BUY', 'date': datetime(2020, 1, 29, 20, 0), 'type': 'STOCK', 'broker': '308 - CLEAR CORRETORA - GRUPO XP', 'external_system': 'CEI', 'subject': '440b0d96-395d-48bd-aaf2-58dbf7e68274', 'id': 'CEIARZZ315803424001061681', 'costs': Decimal('0')})
+    core.consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', inv)
+
+
+# 1580342400
