@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 
@@ -8,7 +9,69 @@ from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
 
 
+@dataclass
+class Portfolio:
+    subject: str
+    invested_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    initial_date: datetime = datetime.max
+    stocks: list = field(default_factory=list)  # todo list type hint
+
+    def __post_init__(self):
+        if not isinstance(self.initial_date, datetime):
+            self.initial_date = datetime.fromtimestamp(float(self.initial_date))
+        self.stocks = [StockConsolidated(**s) for s in self.stocks]
+
+    def to_dict(self):
+        return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
+                'stocks': [s.to_dict() for s in self.stocks]}
+
+
+@dataclass
+class StockConsolidated:
+    ticker: str
+    initial_date: datetime = datetime.max
+    history: list = field(default_factory=list)
+    current_stock_price: Decimal = field(default_factory=lambda: Decimal(0))
+    bought_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    sold_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    total_spend: Decimal = field(default_factory=lambda: Decimal(0))
+    total_sold: Decimal = field(default_factory=lambda: Decimal(0))
+
+    def add_investment(self, investment: StockInvestment):
+        if investment.operation == OperationType.BUY:
+            self.bought_amount = self.bought_amount + investment.amount
+            self.total_spend = self.total_spend + investment.amount * investment.price
+        else:
+            self.sold_amount = self.sold_amount + investment.amount
+            self.total_sold = self.total_sold + investment.amount * investment.price
+
+    def __post_init__(self):
+        if not isinstance(self.initial_date, datetime):
+            self.initial_date = datetime.fromtimestamp(float(self.initial_date))
+        self.history = [StockPosition(**h) for h in self.history]
+
+    def to_dict(self):
+        return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
+                'history': [h.to_dict() for h in self.history]}
+
+
+@dataclass
 class StockPosition:
+    date: datetime
+    open_price: Decimal
+    close_price: Decimal
+    amount: Decimal = field(default_factory=lambda: Decimal(0))
+
+    def __post_init__(self):
+        if not isinstance(self.date, datetime):
+            self.date = datetime.fromtimestamp(float(self.date))
+
+    def to_dict(self):
+        return {**self.__dict__, 'date': int(self.date.timestamp())}
+
+
+class OLDStockPosition:
     def __init__(self, bought_amount=None, sold_amount=None, total_spend=None, total_sold=None, **kwargs):
         self.bought_amount = bought_amount if bought_amount else Decimal(0)
         self.sold_amount = sold_amount if sold_amount else Decimal(0)
@@ -42,8 +105,8 @@ class StockPosition:
                 'current_invested': self.current_invested}
 
 
-class Portfolio:
-    def __init__(self, subject, initial_date=None, stocks=None):
+class OLDPortfolio:
+    def __init__(self, subject, initial_date=datetime.max, stocks=None):
         if stocks is None:
             stocks = []
         self.subject = subject
@@ -57,7 +120,7 @@ class Portfolio:
 
         if investment.type == InvestmentsType.STOCK:
             if investment.ticker not in self.stocks:
-                self.stocks[investment.ticker] = PortfolioStock(investment.ticker, inv_datetime, StockPosition(),
+                self.stocks[investment.ticker] = PortfolioStock(investment.ticker, inv_datetime, OLDStockPosition(),
                                                                 performance_history=StockPerformanceHistory())
             self.stocks[investment.ticker].add_investment(investment=investment)
 
@@ -66,7 +129,7 @@ class Portfolio:
         tmp = list(map(lambda s: PortfolioStock.from_dict(s), _dict['stocks']))
         new_dict = dict(_dict)
         new_dict['stocks'] = tmp
-        return Portfolio(**new_dict)
+        return OLDPortfolio(**new_dict)
 
     def to_dict(self):
         return {'subject': self.subject, 'initial_date': self.initial_date,
@@ -91,7 +154,7 @@ class PortfolioStock:
     @staticmethod
     def from_dict(_dict):
         new_dict = dict(_dict)
-        new_dict['position'] = StockPosition(**_dict['position'])
+        new_dict['position'] = OLDStockPosition(**_dict['position'])
         if 'performance_history' in _dict:
             new_dict['performance_history'] = StockPerformanceHistory.from_dict(_dict['performance_history'])
         else:
@@ -109,7 +172,7 @@ class PortfolioStock:
 
 
 class StockMonthRentability:
-    def __init__(self, date, position: StockPosition, price=Decimal(0)):
+    def __init__(self, date, position: OLDStockPosition, price=Decimal(0)):
         self.date = date
         self.position = position
         self.price = price
@@ -117,7 +180,7 @@ class StockMonthRentability:
     @staticmethod
     def from_dict(_dict):
         new_dict = dict(_dict)
-        new_dict['position'] = StockPosition(**_dict['position'])
+        new_dict['position'] = OLDStockPosition(**_dict['position'])
         return StockMonthRentability(**new_dict)
 
     def to_dict(self):
@@ -138,9 +201,9 @@ class StockPerformanceHistory:
             prev_timestamp = int(
                 DatetimeUtils.month_first_day_datetime(investment.date - relativedelta(months=1)).timestamp())
             if prev_timestamp in self.history:
-                position = StockPosition(**self.history[prev_timestamp].position.to_dict())
+                position = OLDStockPosition(**self.history[prev_timestamp].position.to_dict())
             else:
-                position = StockPosition()
+                position = OLDStockPosition()
             self.history[month_timestamp] = StockMonthRentability(date=month_timestamp, position=position,
                                                                   price=candle.close)
         for timestamp in list(filter(lambda d: d >= month_timestamp, self.history.keys())):
@@ -164,7 +227,7 @@ class StockPerformanceHistory:
                 print(f'fix gap: {proc}')
                 from adapters import MarketData
                 candle = MarketData().ticker_month_data(ticker, proc)
-                position = StockPosition(**self.history[int(prev.timestamp())].position.to_dict())
+                position = OLDStockPosition(**self.history[int(prev.timestamp())].position.to_dict())
                 self.history[proc_timestamp] = StockMonthRentability(date=proc_timestamp, position=position,
                                                                      price=candle.close)
             proc = proc + relativedelta(months=1)

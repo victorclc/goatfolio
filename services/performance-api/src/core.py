@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime, date
 from decimal import Decimal
 from functools import reduce
@@ -10,7 +11,8 @@ from adapters import InvestmentRepository, MarketData, PortfolioRepository
 from goatcommons.constants import OperationType, InvestmentsType
 from goatcommons.models import StockInvestment
 from goatcommons.utils import JsonUtils, DatetimeUtils
-from models import StockPosition, Portfolio, PortfolioStock
+from models import OLDStockPosition, OLDPortfolio, PortfolioStock, StockMonthRentability, Portfolio, StockConsolidated, \
+    StockPosition
 
 
 class StockPerformance:
@@ -23,7 +25,7 @@ class StockPerformance:
         self.end_date = datetime.now() if self.current_stocks_amount() > 0 else self.investments[-1].date
 
     def today_variation(self):
-        position = StockPosition()
+        position = OLDStockPosition()
         today = datetime.now()
         t_invested = Decimal(0)
         t_amount = Decimal(0)
@@ -40,7 +42,7 @@ class StockPerformance:
 
     def performance(self):
         history = self.market_data.ticker_monthly_data(self.ticker, self.initial_date)
-        position = StockPosition()
+        position = OLDStockPosition()
         prev_month_total = Decimal(0)
         performance_history = []
         current_price = None
@@ -94,6 +96,7 @@ class PerformanceCore:
     def __init__(self):
         self.investment_repo = InvestmentRepository()
         self.portfolio_repo = PortfolioRepository()
+        self.market_data = MarketData()
 
     def calculate_portfolio_performance(self, subject):
         assert subject
@@ -120,13 +123,95 @@ class PerformanceCore:
                     variations.append(StockPerformance(investments).today_variation())
         return {'today_variation': sum(variations)}
 
-    def consolidate_portfolio(self, subject, investment: StockInvestment):
-        portfolio = self.portfolio_repo.find(subject)
-        if not portfolio:
-            print("criando portfolio do 0")
-            portfolio = Portfolio(subject=subject)
-        portfolio.add_investment(investment=investment)
+    def consolidate_portfolio_l(self, subject, investments: List[StockInvestment]):
+        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
+
+        for investment in investments:
+            print(f'Processing investment: {investment}')
+            # if investment.ticker != 'BIDI11':
+            #     continue
+            try:
+                portfolio.initial_date = min(investment.date, portfolio.initial_date)
+
+                if investment.type == InvestmentsType.STOCK:
+                    self.consolidate_stock(portfolio.stocks, investment)
+            except Exception as ex:
+                print(f'DEU RUIM {investment.ticker}')
+                print(f'CAUGHT EXCEPTION {ex}')
+                traceback.print_exc()
+
         self.portfolio_repo.save(portfolio)
+
+    def consolidate_portfolio(self, subject, investment: StockInvestment):
+        """
+            Method responsible to include a new investment or investment edit/delete and consolidate the information
+             for faster consumption on a later time
+        """
+        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
+        portfolio.initial_date = min(investment.date, portfolio.initial_date)
+
+        if investment.type == InvestmentsType.STOCK:
+            self.consolidate_stock(portfolio.stocks, investment)
+
+        self.portfolio_repo.save(portfolio)
+
+    def consolidate_stock(self, stocks: List[StockConsolidated], investment: StockInvestment):
+        stocks_dict = {s.ticker: s for s in stocks}
+        if investment.ticker in stocks_dict:
+            stock_consolidated = stocks_dict[investment.ticker]
+        else:
+            stock_consolidated = StockConsolidated(ticker=investment.ticker)
+            stocks.append(stock_consolidated)
+        stock_consolidated.initial_date = min(stock_consolidated.initial_date, investment.date)
+        stock_consolidated.add_investment(investment)
+
+        self.consolidate_stock_history(stock_consolidated.history, investment)
+
+    def consolidate_stock_history(self, history: List[StockPosition], investment: StockInvestment):
+        month_datetime = DatetimeUtils.month_first_day_datetime(investment.date)
+        month_timestamp = int(month_datetime.timestamp())
+
+        history_dict = {int(h.date.timestamp()): h for h in history}
+        amount = investment.amount if investment.operation == OperationType.BUY else -1 * investment.amount
+
+        if month_timestamp not in history_dict:
+            candle = self.market_data.ticker_month_data(investment.ticker, investment.date)
+            prev_month_timestamp = int(
+                DatetimeUtils.month_first_day_datetime(investment.date - relativedelta(months=1)).timestamp())
+
+            position = StockPosition(date=month_datetime, open_price=candle.open, close_price=candle.close)
+            history.append(position)
+            history_dict[month_timestamp] = position
+
+            self._fix_history_gap(history, history_dict, investment.ticker)
+
+            if prev_month_timestamp in history_dict:
+                position.amount = position.amount + history_dict[prev_month_timestamp].amount
+
+        for timestamp in list(filter(lambda d: d >= month_timestamp, history_dict.keys())):
+            print(f"Updating history in timestamp: {timestamp}")
+            history_dict[timestamp].amount = history_dict[timestamp].amount + amount
+
+    def _fix_history_gap(self, history, history_dict,  ticker):
+        timestamps = list(history_dict.keys())
+        if len(timestamps) > 1:
+            timestamps.sort()
+            prev = datetime.fromtimestamp(timestamps[0])
+            proc = prev + relativedelta(months=1)
+            last = datetime.fromtimestamp(timestamps[-1])
+
+            while proc <= last:
+                print(f"PROC: {proc}")
+                proc_timestamp = int(proc.timestamp())
+                if proc_timestamp not in timestamps:
+                    print(f'fix gap: {proc}')
+                    candle = self.market_data.ticker_month_data(ticker, proc)
+                    position = StockPosition(date=proc, open_price=candle.open, close_price=candle.close,
+                                             amount=history_dict[int(prev.timestamp())].amount)
+                    history.append(position)
+                    history_dict[proc_timestamp] = position
+                prev = proc
+                proc = proc + relativedelta(months=1)
 
 # import logging
 #
@@ -139,9 +224,12 @@ if __name__ == '__main__':
     #                          'broker': '308 - CLEAR CORRETORA - GRUPO XP', 'external_system': 'CEI',
     #                          'subject': '440b0d96-395d-48bd-aaf2-58dbf7e68274', 'id': 'CEIARZZ315803424001061681',
     #                          'costs': Decimal('0')})
-    core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-    # investments = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    # print(core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    investments = InvestmentRepository().find_by_subject_mocked('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    core.consolidate_portfolio_l('440b0d96-395d-48bd-aaf2-58dbf7e68274', investments)
     # for inv in investments:
+    #     if inv.ticker != 'BIDI11':
+    #         continue
     #     print(f"Processing inv: {inv}")
     #     try:
     #         core.consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', inv)
