@@ -27,7 +27,7 @@ class StockPosition:
 
     @property
     def current_invested(self):
-        return self.total_spend - self.total_sold
+        return self.amount * self.average_price
 
     def add_investment(self, investment: StockInvestment):
         if investment.operation == OperationType.BUY:
