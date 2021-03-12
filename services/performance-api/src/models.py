@@ -38,6 +38,10 @@ class StockConsolidated:
     total_spend: Decimal = field(default_factory=lambda: Decimal(0))
     total_sold: Decimal = field(default_factory=lambda: Decimal(0))
 
+    @property
+    def current_amount(self):
+        return self.bought_amount - self.sold_amount
+
     def add_investment(self, investment: StockInvestment):
         if investment.operation == OperationType.BUY:
             self.bought_amount = self.bought_amount + investment.amount

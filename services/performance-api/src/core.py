@@ -100,15 +100,15 @@ class PerformanceCore:
 
     def calculate_portfolio_performance(self, subject):
         assert subject
-        portfolio = self.portfolio_repo.find(subject).to_dict()
+        portfolio = self.portfolio_repo.find(subject)
 
-        for stock in portfolio['stocks']:
-            if stock['position']['amount'] > 0:
-                stock['current_price'] = MarketData().ticker_intraday_date(stock['ticker']).price
-            stock.pop('performance_history')
-        print(portfolio)
+        for stock in portfolio.stocks:
+            if stock.current_amount > 0:
+                price = self.market_data.ticker_intraday_date(stock.ticker).price
+                portfolio.gross_amount = portfolio.gross_amount + stock.current_amount * price
+                stock.current_stock_price = price
 
-        return portfolio['stocks']
+        return portfolio
 
     def calculate_today_variation(self, subject):
         assert subject
@@ -151,6 +151,8 @@ class PerformanceCore:
         portfolio.initial_date = min(investment.date, portfolio.initial_date)
 
         if investment.type == InvestmentsType.STOCK:
+            value = investment.amount * investment.price * -1 if investment.operation == OperationType.SELL else 1
+            portfolio.invested_amount = portfolio.invested_amount + value
             self.consolidate_stock(portfolio.stocks, investment)
 
         self.portfolio_repo.save(portfolio)
@@ -192,7 +194,7 @@ class PerformanceCore:
             print(f"Updating history in timestamp: {timestamp}")
             history_dict[timestamp].amount = history_dict[timestamp].amount + amount
 
-    def _fix_history_gap(self, history, history_dict,  ticker):
+    def _fix_history_gap(self, history, history_dict, ticker):
         timestamps = list(history_dict.keys())
         if len(timestamps) > 1:
             timestamps.sort()
@@ -213,6 +215,7 @@ class PerformanceCore:
                 prev = proc
                 proc = proc + relativedelta(months=1)
 
+
 # import logging
 #
 # logging.basicConfig(level=logging.DEBUG)
@@ -224,9 +227,9 @@ if __name__ == '__main__':
     #                          'broker': '308 - CLEAR CORRETORA - GRUPO XP', 'external_system': 'CEI',
     #                          'subject': '440b0d96-395d-48bd-aaf2-58dbf7e68274', 'id': 'CEIARZZ315803424001061681',
     #                          'costs': Decimal('0')})
-    # print(core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    print(core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     investments = InvestmentRepository().find_by_subject_mocked('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-    core.consolidate_portfolio_l('440b0d96-395d-48bd-aaf2-58dbf7e68274', investments)
+    # core.consolidate_portfolio_l('440b0d96-395d-48bd-aaf2-58dbf7e68274', investments)
     # for inv in investments:
     #     if inv.ticker != 'BIDI11':
     #         continue
