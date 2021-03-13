@@ -116,7 +116,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                                 ],
                               ),
                               Text(
-                                moneyFormatter.format(10.00),
+                                moneyFormatter.format(performance.grossAmount),
                                 style: Theme.of(context).textTheme.bodyText2,
                               ),
                             ],
