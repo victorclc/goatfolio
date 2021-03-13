@@ -16,7 +16,7 @@ def get_performance_handler(event, context):
     try:
         subject = AWSEventUtils.get_event_subject(event)
         result = core.calculate_portfolio_performance(subject)
-        return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(result)}
+        return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(result.to_dict())}
     except AssertionError as ex:
         logger.error(ex)
         return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
