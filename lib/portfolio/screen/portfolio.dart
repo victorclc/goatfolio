@@ -4,6 +4,7 @@ import 'package:goatfolio/authentication/service/cognito.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
 import 'package:goatfolio/common/widget/expansion_tile_custom.dart';
+import 'package:goatfolio/investment/model/stock.dart';
 import 'package:goatfolio/performance/client/performance_client.dart';
 import 'package:goatfolio/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/performance/model/stock_performance.dart';
@@ -25,7 +26,7 @@ class PortfolioPage extends StatefulWidget {
 
 class _PortfolioPageState extends State<PortfolioPage> {
   Map<String, Rgb> colors = Map();
-  Future<List<charts.Series<TickerTotals, String>>> _future;
+  Future<PortfolioPerformance> _future;
   PerformanceClient client;
   PortfolioPerformance performance;
 
@@ -34,13 +35,12 @@ class _PortfolioPageState extends State<PortfolioPage> {
     super.initState();
     final userService = Provider.of<UserService>(context, listen: false);
     client = PerformanceClient(userService);
-    _future = getPerformanceSeries();
+    _future = getPortfolioPerformance();
   }
 
-  Future<List<charts.Series<TickerTotals, String>>>
-      getPerformanceSeries() async {
+  Future<PortfolioPerformance> getPortfolioPerformance() async {
     performance = await client.getPortfolioPerformance();
-    return await buildInvestmentSeries(performance);
+    return performance;
   }
 
   @override
@@ -74,90 +74,24 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       height: 240,
                       width: double.infinity,
                       child: DonutAutoLabelChart(
-                        snapshot.data,
+                        typeSeries: buildSubtypeSeries(),
+                        stocksSeries: buildStockSeries(),
+                        reitsSeries: buildReitSeries(),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ExpansionTileCustom(
-                        initiallyExpanded: true,
-                        childrenPadding: EdgeInsets.only(left: 8, right: 8),
-                        tilePadding: EdgeInsets.zero,
-                        title: Row(
-                          children: [
-                            Container(
-                              width: 4,
-                              height: 14,
-                              color: Rgb.random().toColor(),
-                            ),
-                            Text(
-                              ' ' + 'Ações',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyText2
-                                  .copyWith(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                          ],
-                        ),
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Row(
-                                children: <Widget>[
-                                  Text(
-                                    "Total em carteira",
-                                    style:
-                                        Theme.of(context).textTheme.bodyText2,
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                moneyFormatter.format(performance.grossAmount),
-                                style: Theme.of(context).textTheme.bodyText2,
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Row(
-                                children: <Widget>[
-                                  Text(
-                                    "% do portfolio",
-                                    style:
-                                        Theme.of(context).textTheme.bodyText2,
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                percentFormatter.format(10.00 / 10.00),
-                                style: Theme.of(context).textTheme.bodyText2,
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 24,
-                          ),
-                          ListView.builder(
-                            padding: EdgeInsets.zero,
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemBuilder: (context, index) {
-                              final item = performance.stocks[index];
-                              final Rgb rgb = colors[item.ticker];
-                              var color = rgb.toColor();
-
-                              return StockInvestmentSummaryItem(
-                                  performance: item, color: color);
-                            },
-                            itemCount: performance.stocks.length,
-                          ),
-                        ],
-                      ),
+                    InvestmentTypeExpansionTile(
+                      title: 'Ações e ETFs',
+                      grossAmount: performance.stockGrossAmount,
+                      items: performance.stocks,
+                      colors: colors,
+                      totalAmount: performance.grossAmount,
+                    ),
+                    InvestmentTypeExpansionTile(
+                      title: 'FIIs',
+                      grossAmount: performance.reitGrossAmount,
+                      items: performance.reits,
+                      colors: colors,
+                      totalAmount: performance.grossAmount,
                     ),
                   ],
                 );
@@ -186,7 +120,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    _future = getPerformanceSeries();
+                    _future = getPortfolioPerformance();
                   });
                 },
               ),
@@ -197,9 +131,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
     ]);
   }
 
-  Future<List<charts.Series<TickerTotals, String>>> buildInvestmentSeries(
-      PortfolioPerformance performance) async {
-    List<TickerTotals> data = performance.stocks.map((p) {
+  List<charts.Series<TickerTotals, String>> buildStockSeries() {
+    final stocks = performance.stocks;
+    List<TickerTotals> data = stocks.map((p) {
       final color = Rgb.random();
       colors[p.ticker] = color;
       if (p.currentAmount <= 0) {
@@ -213,12 +147,72 @@ class _PortfolioPageState extends State<PortfolioPage> {
     print(data);
     return [
       new charts.Series<TickerTotals, String>(
-        id: 'investments',
+        id: 'stocks',
         domainFn: (TickerTotals totals, _) => totals.ticker,
         measureFn: (TickerTotals totals, _) => totals.total,
         data: data,
         colorFn: (totals, _) => charts.Color(
             r: totals.color.r, g: totals.color.g, b: totals.color.b),
+        // Set a label accessor to control the text of the arc label.
+        labelAccessorFn: (TickerTotals totals, _) =>
+            '${totals.ticker.replaceAll('.SA', '')}',
+      )
+    ];
+  }
+
+  List<charts.Series<TickerTotals, String>> buildReitSeries() {
+    final stocks = performance.reits;
+    List<TickerTotals> data = stocks.map((p) {
+      final color = Rgb.random();
+      colors[p.ticker] = color;
+      if (p.currentAmount <= 0) {
+        return null;
+      }
+      return TickerTotals(
+          p.ticker, p.currentAmount * p.currentStockPrice, color);
+    }).toList()
+      ..removeWhere((element) => element == null);
+    print("Builded series");
+    print(data);
+    return [
+      new charts.Series<TickerTotals, String>(
+        id: 'reits',
+        domainFn: (TickerTotals totals, _) => totals.ticker,
+        measureFn: (TickerTotals totals, _) => totals.total,
+        data: data,
+        colorFn: (totals, _) => charts.Color(
+            r: totals.color.r, g: totals.color.g, b: totals.color.b),
+        // Set a label accessor to control the text of the arc label.
+        labelAccessorFn: (TickerTotals totals, _) =>
+            '${totals.ticker.replaceAll('.SA', '')}',
+      )
+    ];
+  }
+
+  List<charts.Series<TickerTotals, String>> buildSubtypeSeries() {
+    List<TickerTotals> data = List();
+
+    if (performance.stockGrossAmount > 0) {
+      colors['Ações e ETFs'] = Rgb.random();
+      data.add(TickerTotals('Ações e ETFs', performance.stockGrossAmount,
+          colors['Ações e ETFs']));
+    }
+    if (performance.reitGrossAmount > 0) {
+      colors['FIIs'] = Rgb.random();
+      data.add(
+          TickerTotals('FIIs', performance.reitGrossAmount, colors['FIIs']));
+    }
+
+    return [
+      new charts.Series<TickerTotals, String>(
+        id: 'Subtypes',
+        domainFn: (TickerTotals totals, _) => totals.ticker,
+        measureFn: (TickerTotals totals, _) => totals.total,
+        data: data,
+        colorFn: (totals, _) => charts.Color(
+            r: colors[totals.ticker].r,
+            g: colors[totals.ticker].g,
+            b: colors[totals.ticker].b),
         // Set a label accessor to control the text of the arc label.
         labelAccessorFn: (TickerTotals totals, _) =>
             '${totals.ticker.replaceAll('.SA', '')}',
@@ -251,6 +245,106 @@ class Rgb {
         (math.Random().nextDouble() * 0xFF).toInt(),
         (math.Random().nextDouble() * 0xFF).toInt(),
         (math.Random().nextDouble() * 0xFF).toInt());
+  }
+}
+
+class InvestmentTypeExpansionTile extends StatelessWidget {
+  final String title;
+  final double grossAmount;
+  final double totalAmount;
+  final List<StockPerformance> items;
+  final Map<String, Rgb> colors;
+
+  InvestmentTypeExpansionTile(
+      {Key key,
+      this.title,
+      this.grossAmount,
+      this.totalAmount,
+      this.items,
+      this.colors})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, right: 8),
+      child: ExpansionTileCustom(
+        initiallyExpanded: true,
+        childrenPadding: EdgeInsets.only(left: 8, right: 8),
+        tilePadding: EdgeInsets.zero,
+        title: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 14,
+              color: Rgb.random().toColor(),
+            ),
+            Text(
+              ' ' + title,
+              style: Theme.of(context).textTheme.bodyText2.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
+        ),
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Text(
+                    "Total em carteira",
+                    style: Theme.of(context).textTheme.bodyText2,
+                  ),
+                ],
+              ),
+              Text(
+                moneyFormatter.format(grossAmount),
+                style: Theme.of(context).textTheme.bodyText2,
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Text(
+                    "% do portfolio",
+                    style: Theme.of(context).textTheme.bodyText2,
+                  ),
+                ],
+              ),
+              // 100000 100
+              // 34000   x
+              Text(
+                percentFormatter.format(grossAmount / totalAmount),
+                style: Theme.of(context).textTheme.bodyText2,
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 24,
+          ),
+          ListView.builder(
+            padding: EdgeInsets.zero,
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              final Rgb rgb = colors[item.ticker];
+              var color = rgb.toColor();
+
+              return StockInvestmentSummaryItem(
+                  performance: item, color: color);
+            },
+            itemCount: items.length,
+          ),
+        ],
+      ),
+    );
   }
 }
 
