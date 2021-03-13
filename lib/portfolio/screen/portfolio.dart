@@ -81,7 +81,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       padding: const EdgeInsets.all(8.0),
                       child: ExpansionTileCustom(
                         initiallyExpanded: true,
-                        childrenPadding: EdgeInsets.only(left: 8),
+                        childrenPadding: EdgeInsets.only(left: 8, right: 8),
                         tilePadding: EdgeInsets.zero,
                         title: Row(
                           children: [
@@ -149,9 +149,6 @@ class _PortfolioPageState extends State<PortfolioPage> {
                             itemBuilder: (context, index) {
                               final item = performance.stocks[index];
                               final Rgb rgb = colors[item.ticker];
-                              var coloredStyle = Theme.of(context)
-                                  .textTheme
-                                  .bodyText2; //TODO CHANGE COLOR green red
                               var color = rgb.toColor();
 
                               return StockInvestmentSummaryItem(
