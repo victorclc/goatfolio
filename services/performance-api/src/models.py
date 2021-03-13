@@ -13,18 +13,21 @@ from goatcommons.utils import DatetimeUtils
 class Portfolio:
     subject: str
     invested_amount: Decimal = field(default_factory=lambda: Decimal(0))
-    gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    stock_gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    reit_gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
     initial_date: datetime = datetime.max
     stocks: list = field(default_factory=list)  # todo list type hint
+    reits: list = field(default_factory=list)
 
     def __post_init__(self):
         if not isinstance(self.initial_date, datetime):
             self.initial_date = datetime.fromtimestamp(float(self.initial_date))
         self.stocks = [StockConsolidated(**s) for s in self.stocks]
+        self.reits = [StockConsolidated(**s) for s in self.reits]
 
     def to_dict(self):
         return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
-                'stocks': [s.to_dict() for s in self.stocks]}
+                'stocks': [s.to_dict() for s in self.stocks], 'reits': [s.to_dict() for s in self.reits]}
 
 
 @dataclass

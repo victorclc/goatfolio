@@ -4,6 +4,7 @@ from decimal import Decimal
 from functools import reduce
 from itertools import groupby
 from typing import List
+from uuid import uuid4
 
 from dateutil.relativedelta import relativedelta
 
@@ -103,9 +104,15 @@ class PerformanceCore:
 
         for stock in portfolio.stocks:
             if stock.current_amount > 0:
-                price = self.market_data.ticker_intraday_date(stock.ticker).price
-                portfolio.gross_amount = portfolio.gross_amount + stock.current_amount * price
-                stock.current_stock_price = price
+                data = self.market_data.ticker_intraday_date(stock.ticker)
+                portfolio.stock_gross_amount = portfolio.stock_gross_amount + stock.current_amount * data.price
+                stock.current_stock_price = data.price
+
+        for stock in portfolio.reits:
+            if stock.current_amount > 0:
+                data = self.market_data.ticker_intraday_date(stock.ticker)
+                portfolio.reit_gross_amount = portfolio.reit_gross_amount + stock.current_amount * data.price
+                stock.current_stock_price = data.price
 
         return portfolio
 
@@ -133,10 +140,11 @@ class PerformanceCore:
                 portfolio.initial_date = min(investment.date, portfolio.initial_date)
 
                 if investment.type == InvestmentsType.STOCK:
-                    value = investment.amount * investment.price * (-1 if investment.operation == OperationType.SELL else 1)
+                    value = investment.amount * investment.price * (
+                        -1 if investment.operation == OperationType.SELL else 1)
                     print(f'VALUE: {value}')
                     portfolio.invested_amount = portfolio.invested_amount + value
-                    self.consolidate_stock(portfolio.stocks, investment)
+                    self.consolidate_stock(portfolio, investment)
             except Exception as ex:
                 print(f'DEU RUIM {investment.ticker}')
                 print(f'CAUGHT EXCEPTION {ex}')
@@ -156,17 +164,23 @@ class PerformanceCore:
             value = investment.amount * investment.price * (-1 if investment.operation == OperationType.SELL else 1)
             print(f'VALUE: {value}')
             portfolio.invested_amount = portfolio.invested_amount + value
-            self.consolidate_stock(portfolio.stocks, investment)
+            self.consolidate_stock(portfolio, investment)
 
         self.portfolio_repo.save(portfolio)
 
-    def consolidate_stock(self, stocks: List[StockConsolidated], investment: StockInvestment):
-        stocks_dict = {s.ticker: s for s in stocks}
+    def consolidate_stock(self, portfolio: Portfolio, investment: StockInvestment):
+        stocks_dict = {s.ticker: s for s in portfolio.stocks + portfolio.reits}
         if investment.ticker in stocks_dict:
             stock_consolidated = stocks_dict[investment.ticker]
         else:
+            data = self.market_data.ticker_intraday_date(investment.ticker)
             stock_consolidated = StockConsolidated(ticker=investment.ticker)
-            stocks.append(stock_consolidated)
+            if data.name.startswith('FII '):
+                print(f'ADDING TO REITS: {investment.ticker}')
+                portfolio.reits.append(stock_consolidated)
+            else:
+                print(f'ADDING TO STOCKS: {investment.ticker}')
+                portfolio.stocks.append(stock_consolidated)
         stock_consolidated.initial_date = min(stock_consolidated.initial_date, investment.date)
         stock_consolidated.add_investment(investment)
 
@@ -236,7 +250,13 @@ if __name__ == '__main__':
     #                          'subject': '440b0d96-395d-48bd-aaf2-58dbf7e68274', 'id': 'CEIARZZ315803424001061681',
     #                          'costs': Decimal('0')})
     print(core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    investmentss = InvestmentRepository().find_by_subject_mocked('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    # InvestmentRepository().batch_save(
+    #     investments=[StockInvestment(ticker='FLRY3', price=Decimal('23.04'), amount=Decimal(100),
+    #                                  date=datetime(day=9, month=4, year=2019), costs=Decimal(0.0),
+    #                                  operation=OperationType.SELL, broker='Modal',
+    #                                  subject='440b0d96-395d-48bd-aaf2-58dbf7e68274', type='STOCK',
+    #                                  id=str(uuid4()))])
+    # investmentss = InvestmentRepository().find_by_subject_mocked('440b0d96-395d-48bd-aaf2-58dbf7e68274')
     # core.consolidate_portfolio_l('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss)
     # for inv in investments:
     #     if inv.ticker != 'BIDI11':
