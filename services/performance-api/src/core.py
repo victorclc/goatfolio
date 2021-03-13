@@ -10,9 +10,8 @@ from dateutil.relativedelta import relativedelta
 from adapters import InvestmentRepository, MarketData, PortfolioRepository
 from goatcommons.constants import OperationType, InvestmentsType
 from goatcommons.models import StockInvestment
-from goatcommons.utils import JsonUtils, DatetimeUtils
-from models import OLDStockPosition, OLDPortfolio, PortfolioStock, StockMonthRentability, Portfolio, StockConsolidated, \
-    StockPosition
+from goatcommons.utils import DatetimeUtils
+from models import OLDStockPosition, Portfolio, StockConsolidated, StockPosition
 
 
 class StockPerformance:
@@ -134,6 +133,9 @@ class PerformanceCore:
                 portfolio.initial_date = min(investment.date, portfolio.initial_date)
 
                 if investment.type == InvestmentsType.STOCK:
+                    value = investment.amount * investment.price * (-1 if investment.operation == OperationType.SELL else 1)
+                    print(f'VALUE: {value}')
+                    portfolio.invested_amount = portfolio.invested_amount + value
                     self.consolidate_stock(portfolio.stocks, investment)
             except Exception as ex:
                 print(f'DEU RUIM {investment.ticker}')
@@ -151,7 +153,8 @@ class PerformanceCore:
         portfolio.initial_date = min(investment.date, portfolio.initial_date)
 
         if investment.type == InvestmentsType.STOCK:
-            value = investment.amount * investment.price * -1 if investment.operation == OperationType.SELL else 1
+            value = investment.amount * investment.price * (-1 if investment.operation == OperationType.SELL else 1)
+            print(f'VALUE: {value}')
             portfolio.invested_amount = portfolio.invested_amount + value
             self.consolidate_stock(portfolio.stocks, investment)
 
@@ -185,7 +188,8 @@ class PerformanceCore:
             history.append(position)
             history_dict[month_timestamp] = position
 
-            self._fix_history_gap(history, history_dict, investment.ticker)
+            self._fix_history_gap(history, history_dict, investment.ticker,
+                                  DatetimeUtils.month_first_day_datetime(datetime.now()))
 
             if prev_month_timestamp in history_dict:
                 position.amount = position.amount + history_dict[prev_month_timestamp].amount
@@ -194,20 +198,24 @@ class PerformanceCore:
             print(f"Updating history in timestamp: {timestamp}")
             history_dict[timestamp].amount = history_dict[timestamp].amount + amount
 
-    def _fix_history_gap(self, history, history_dict, ticker):
+    def _fix_history_gap(self, history, history_dict, ticker, date_to=None):
         timestamps = list(history_dict.keys())
         if len(timestamps) > 1:
             timestamps.sort()
             prev = datetime.fromtimestamp(timestamps[0])
             proc = prev + relativedelta(months=1)
-            last = datetime.fromtimestamp(timestamps[-1])
+            last = date_to or datetime.fromtimestamp(timestamps[-1])
+
+            monthly_data = None
 
             while proc <= last:
                 print(f"PROC: {proc}")
                 proc_timestamp = int(proc.timestamp())
                 if proc_timestamp not in timestamps:
                     print(f'fix gap: {proc}')
-                    candle = self.market_data.ticker_month_data(ticker, proc)
+                    if not monthly_data:
+                        monthly_data = {d.date: d for d in self.market_data.ticker_monthly_data(ticker, proc)}
+                    candle = monthly_data[proc.date()]
                     position = StockPosition(date=proc, open_price=candle.open, close_price=candle.close,
                                              amount=history_dict[int(prev.timestamp())].amount)
                     history.append(position)
@@ -228,8 +236,8 @@ if __name__ == '__main__':
     #                          'subject': '440b0d96-395d-48bd-aaf2-58dbf7e68274', 'id': 'CEIARZZ315803424001061681',
     #                          'costs': Decimal('0')})
     print(core.calculate_portfolio_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    investments = InvestmentRepository().find_by_subject_mocked('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-    # core.consolidate_portfolio_l('440b0d96-395d-48bd-aaf2-58dbf7e68274', investments)
+    investmentss = InvestmentRepository().find_by_subject_mocked('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    # core.consolidate_portfolio_l('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss)
     # for inv in investments:
     #     if inv.ticker != 'BIDI11':
     #         continue
