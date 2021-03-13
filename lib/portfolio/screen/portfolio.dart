@@ -5,7 +5,8 @@ import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
 import 'package:goatfolio/common/widget/expansion_tile_custom.dart';
 import 'package:goatfolio/performance/client/performance_client.dart';
-import 'package:goatfolio/performance/model/monthly_performance.dart';
+import 'package:goatfolio/performance/model/portfolio_performance.dart';
+import 'package:goatfolio/performance/model/stock_performance.dart';
 import 'package:goatfolio/portfolio/widget/donut_chart.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +27,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
   Map<String, Rgb> colors = Map();
   Future<List<charts.Series<TickerTotals, String>>> _future;
   PerformanceClient client;
-  List<StockMonthlyPerformance> performances;
+  PortfolioPerformance performance;
 
   @override
   void initState() {
@@ -38,8 +39,8 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
   Future<List<charts.Series<TickerTotals, String>>>
       getPerformanceSeries() async {
-    performances = await client.getPerformance();
-    return await buildInvestmentSeries(performances);
+    performance = await client.getPortfolioPerformance();
+    return await buildInvestmentSeries(performance);
   }
 
   @override
@@ -146,7 +147,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                             physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
-                              final item = performances[index];
+                              final item = performance.stocks[index];
                               final Rgb rgb = colors[item.ticker];
                               var coloredStyle = Theme.of(context)
                                   .textTheme
@@ -156,7 +157,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                               return StockInvestmentSummaryItem(
                                   performance: item, color: color);
                             },
-                            itemCount: performances.length,
+                            itemCount: performance.stocks.length,
                           ),
                         ],
                       ),
@@ -200,16 +201,15 @@ class _PortfolioPageState extends State<PortfolioPage> {
   }
 
   Future<List<charts.Series<TickerTotals, String>>> buildInvestmentSeries(
-      List<StockMonthlyPerformance> performances) async {
-    print("Building series");
-    List<TickerTotals> data = performances.map((p) {
+      PortfolioPerformance performance) async {
+    List<TickerTotals> data = performance.stocks.map((p) {
       final color = Rgb.random();
       colors[p.ticker] = color;
-      if (p.performanceHistory.isEmpty || p.position.currentAmount <= 0) {
+      if (p.currentAmount <= 0) {
         return null;
       }
       return TickerTotals(
-          p.ticker, p.performanceHistory.last.monthTotal, color);
+          p.ticker, p.currentAmount * p.currentStockPrice, color);
     }).toList()
       ..removeWhere((element) => element == null);
     print("Builded series");
@@ -258,7 +258,7 @@ class Rgb {
 }
 
 class StockInvestmentSummaryItem extends StatelessWidget {
-  final StockMonthlyPerformance performance;
+  final StockPerformance performance;
   final Color color;
 
   const StockInvestmentSummaryItem(
@@ -267,8 +267,10 @@ class StockInvestmentSummaryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentValue = performance.position.currentAmount *
-        (performance.currentPrice != null ? performance.currentPrice : 0.0);
+    final currentValue = performance.currentAmount *
+        (performance.currentStockPrice != null
+            ? performance.currentStockPrice
+            : 0.0);
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: () {
@@ -326,14 +328,12 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  moneyFormatter.format(
-                      currentValue - performance.position.currentInvested),
+                  moneyFormatter
+                      .format(currentValue - performance.currentInvested),
                   style: Theme.of(context).textTheme.bodyText2.copyWith(
-                      color:
-                          currentValue - performance.position.currentInvested <
-                                  0
-                              ? Colors.red
-                              : Colors.green),
+                      color: currentValue - performance.currentInvested < 0
+                          ? Colors.red
+                          : Colors.green),
                   // style: coloredStyle,
                 ),
               ],
@@ -353,8 +353,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  percentFormatter
-                      .format(performance.position.currentInvested / 100000),
+                  percentFormatter.format(performance.currentInvested / 100000),
                   //TODO FIX this
                   style: Theme.of(context).textTheme.bodyText2,
                 ),

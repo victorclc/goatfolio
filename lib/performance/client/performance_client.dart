@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:goatfolio/authentication/service/cognito.dart';
 import 'package:goatfolio/common/http/interceptor/logging.dart';
-import 'package:goatfolio/performance/model/monthly_performance.dart';
+import 'package:goatfolio/performance/model/portfolio_performance.dart';
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_client_with_interceptor.dart';
 
@@ -16,18 +16,13 @@ class PerformanceClient {
             interceptors: [LoggingInterceptor()],
             requestTimeout: Duration(seconds: 30));
 
-  Future<List<StockMonthlyPerformance>> getPerformance() async {
+  Future<PortfolioPerformance> getPortfolioPerformance() async {
     String accessToken = await userService.getSessionToken();
     String url = baseUrl + "performance/monthly";
     final Response response =
         await _client.get(url, headers: {'Authorization': accessToken});
-
     final performance = jsonDecode(response.body);
-    print(performance);
 
-    return performance
-        .map<StockMonthlyPerformance>(
-            (json) => StockMonthlyPerformance.fromJson(json))
-        .toList();
+    return PortfolioPerformance.fromJson(performance);
   }
 }
