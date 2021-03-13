@@ -35,6 +35,8 @@ resources:
       Type: 'AWS::DynamoDB::Table'
       Properties:
         TableName: "Investments"
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
         BillingMode: PAY_PER_REQUEST
         AttributeDefinitions:
           - AttributeName: "id"
@@ -113,3 +115,8 @@ resources:
         Fn::GetAtt: [ CeiImportResultQueue, Arn ]
       Export:
         Name: ${self:provider.stage}-CeiImportResultQueueArn
+    InvestmentTableStreamArn:
+      Value:
+        Fn::GetAtt: [ InvestmentsTable, StreamArn ]
+      Export:
+        Name: ${self:provider.stage}-InvestmentTableStreamArn
