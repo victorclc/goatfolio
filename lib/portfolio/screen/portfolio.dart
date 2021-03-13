@@ -80,7 +80,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       ),
                     ),
                     InvestmentTypeExpansionTile(
-                      title: 'Ações e ETFs',
+                      title: 'Ações/ETFs',
                       grossAmount: performance.stockGrossAmount,
                       items: performance.stocks,
                       colors: colors,
@@ -193,9 +193,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
     List<TickerTotals> data = List();
 
     if (performance.stockGrossAmount > 0) {
-      colors['Ações e ETFs'] = Rgb.random();
-      data.add(TickerTotals('Ações e ETFs', performance.stockGrossAmount,
-          colors['Ações e ETFs']));
+      colors['Ações/ETFs'] = Rgb.random();
+      data.add(TickerTotals('Ações/ETFs', performance.stockGrossAmount,
+          colors['Ações/ETFs']));
     }
     if (performance.reitGrossAmount > 0) {
       colors['FIIs'] = Rgb.random();
@@ -277,7 +277,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
             Container(
               width: 4,
               height: 14,
-              color: Rgb.random().toColor(),
+              color: colors[title].toColor(),
             ),
             Text(
               ' ' + title,
