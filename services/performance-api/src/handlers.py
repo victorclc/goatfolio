@@ -31,3 +31,9 @@ def get_today_variation_handler(event, context):
     except AssertionError as ex:
         logger.error(ex)
         return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
+
+
+def consolidate_portfolio_handler(event, context):
+    logger.info(f"EVENT: {event}")
+    logger.info(f"CONTEXT: {context}")
+

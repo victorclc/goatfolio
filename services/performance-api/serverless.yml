@@ -58,6 +58,15 @@ functions:
   getTodayVariation:
     handler: src/handlers.get_today_variation_handler
 
+  consolidatePortfolio:
+    handler: src/handlers.consolidate_portfolio_handler
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
+
+
 resources:
   Resources:
     ApiGatewayAuthorizer:
