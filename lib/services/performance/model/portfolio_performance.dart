@@ -31,8 +31,8 @@ class PortfolioPerformance {
             .toList(),
         history = json['history']
             .map<PortfolioHistory>((json) => PortfolioHistory.fromJson(json))
-            .toList()
-              ..sort((a, b) => a.date.compareTo(b.date)),
+            .toList(),
+              // ..sort((a, b) => a.date.compareTo(b.date)),
         reits = json['reits']
             .map<StockPerformance>((json) => StockPerformance.fromJson(json))
             .toList();
