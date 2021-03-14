@@ -9,6 +9,7 @@ class StockPerformance {
   double soldAmount;
   double totalSpend;
   double totalSold;
+  double currentDayChangePercent;
   List<StockHistory> history;
 
   get currentAmount => boughtAmount - soldAmount;
@@ -24,6 +25,7 @@ class StockPerformance {
         soldAmount = json['sold_amount'],
         totalSpend = json['total_spend'],
         totalSold = json['total_sold'],
+        currentDayChangePercent = json['current_day_change_percent'],
         history = json['history']
             .map<StockHistory>((json) => StockHistory.fromJson(json))
             .toList();
