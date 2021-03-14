@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/pages/add/screen/stock_list_prototype.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 class AddPrototypePage extends StatelessWidget {
@@ -15,10 +16,12 @@ class AddPrototypePage extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 alignment: Alignment.centerLeft,
                 child: DefaultTextStyle(
-                  style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle,
+                  style: CupertinoTheme.of(context)
+                      .textTheme
+                      .navLargeTitleTextStyle,
                   child: Text(
                     title,
                   ),
@@ -39,13 +42,14 @@ class AddPrototypePage extends StatelessWidget {
                       ),
                       SettingsTile(
                         title: 'Operação de compra',
+                        onPressed: (context) =>
+                            goToInvestmentListPrototype(context, true),
                       ),
                       SettingsTile(
                         title: 'Operação de venda',
                       ),
                     ],
                   ),
-                  SettingsSection(tiles: [],),
                 ],
               ),
             ),
