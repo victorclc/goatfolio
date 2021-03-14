@@ -50,8 +50,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
         onRefresh: () async {
           _future = getPortfolioPerformance();
           await _future;
-          setState(()  {
-          });
+          setState(() {});
         },
         children: [
           FutureBuilder(
@@ -70,18 +69,14 @@ class _PortfolioPageState extends State<PortfolioPage> {
                         Container(
                           alignment: Alignment.centerLeft,
                           padding:
-                          EdgeInsets.only(left: 16, bottom: 16, top: 8),
+                              EdgeInsets.only(left: 16, bottom: 16, top: 8),
                           child: Text(
                             "Alocação",
                             style:
-                            Theme
-                                .of(context)
-                                .textTheme
-                                .bodyText2
-                                .copyWith(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                Theme.of(context).textTheme.bodyText2.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                           ),
                         ),
                         SizedBox(
@@ -118,23 +113,14 @@ class _PortfolioPageState extends State<PortfolioPage> {
                     height: 32,
                   ),
                   Text("Tivemos um problema ao carregar",
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .subtitle1),
+                      style: Theme.of(context).textTheme.subtitle1),
                   Text(" as informações.",
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .subtitle1),
+                      style: Theme.of(context).textTheme.subtitle1),
                   SizedBox(
                     height: 8,
                   ),
                   Text("Toque para tentar novamente.",
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .subtitle1),
+                      style: Theme.of(context).textTheme.subtitle1),
                   CupertinoButton(
                     padding: EdgeInsets.all(0),
                     child: Icon(
@@ -174,12 +160,11 @@ class _PortfolioPageState extends State<PortfolioPage> {
         domainFn: (TickerTotals totals, _) => totals.ticker,
         measureFn: (TickerTotals totals, _) => totals.total,
         data: data,
-        colorFn: (totals, _) =>
-            charts.Color(
-                r: totals.color.r, g: totals.color.g, b: totals.color.b),
+        colorFn: (totals, _) => charts.Color(
+            r: totals.color.r, g: totals.color.g, b: totals.color.b),
         // Set a label accessor to control the text of the arc label.
         labelAccessorFn: (TickerTotals totals, _) =>
-        '${totals.ticker.replaceAll('.SA', '')}',
+            '${totals.ticker.replaceAll('.SA', '')}',
       )
     ];
   }
@@ -204,12 +189,11 @@ class _PortfolioPageState extends State<PortfolioPage> {
         domainFn: (TickerTotals totals, _) => totals.ticker,
         measureFn: (TickerTotals totals, _) => totals.total,
         data: data,
-        colorFn: (totals, _) =>
-            charts.Color(
-                r: totals.color.r, g: totals.color.g, b: totals.color.b),
+        colorFn: (totals, _) => charts.Color(
+            r: totals.color.r, g: totals.color.g, b: totals.color.b),
         // Set a label accessor to control the text of the arc label.
         labelAccessorFn: (TickerTotals totals, _) =>
-        '${totals.ticker.replaceAll('.SA', '')}',
+            '${totals.ticker.replaceAll('.SA', '')}',
       )
     ];
   }
@@ -234,14 +218,13 @@ class _PortfolioPageState extends State<PortfolioPage> {
         domainFn: (TickerTotals totals, _) => totals.ticker,
         measureFn: (TickerTotals totals, _) => totals.total,
         data: data,
-        colorFn: (totals, _) =>
-            charts.Color(
-                r: colors[totals.ticker].r,
-                g: colors[totals.ticker].g,
-                b: colors[totals.ticker].b),
+        colorFn: (totals, _) => charts.Color(
+            r: colors[totals.ticker].r,
+            g: colors[totals.ticker].g,
+            b: colors[totals.ticker].b),
         // Set a label accessor to control the text of the arc label.
         labelAccessorFn: (TickerTotals totals, _) =>
-        '${totals.ticker.replaceAll('.SA', '')}',
+            '${totals.ticker.replaceAll('.SA', '')}',
       )
     ];
   }
@@ -281,12 +264,13 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
   final List<StockPerformance> items;
   final Map<String, Rgb> colors;
 
-  InvestmentTypeExpansionTile({Key key,
-    this.title,
-    this.grossAmount,
-    this.totalAmount,
-    this.items,
-    this.colors})
+  InvestmentTypeExpansionTile(
+      {Key key,
+      this.title,
+      this.grossAmount,
+      this.totalAmount,
+      this.items,
+      this.colors})
       : super(key: key);
 
   @override
@@ -306,14 +290,10 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
             ),
             Text(
               ' ' + title,
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .bodyText2
-                  .copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(context).textTheme.bodyText2.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
           ],
         ),
@@ -325,19 +305,13 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     "Total em carteira",
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .bodyText2,
+                    style: Theme.of(context).textTheme.bodyText2,
                   ),
                 ],
               ),
               Text(
                 moneyFormatter.format(grossAmount),
-                style: Theme
-                    .of(context)
-                    .textTheme
-                    .bodyText2,
+                style: Theme.of(context).textTheme.bodyText2,
               ),
             ],
           ),
@@ -348,10 +322,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     "% do portfolio",
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .bodyText2,
+                    style: Theme.of(context).textTheme.bodyText2,
                   ),
                 ],
               ),
@@ -359,10 +330,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
               // 34000   x
               Text(
                 percentFormatter.format(grossAmount / totalAmount),
-                style: Theme
-                    .of(context)
-                    .textTheme
-                    .bodyText2,
+                style: Theme.of(context).textTheme.bodyText2,
               ),
             ],
           ),
@@ -379,7 +347,11 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
               var color = rgb.toColor();
 
               return StockInvestmentSummaryItem(
-                  performance: item, color: color);
+                performance: item,
+                color: color,
+                portfolioTotalAmount: totalAmount,
+                typeTotalAmount: grossAmount,
+              );
             },
             itemCount: items.length,
           ),
@@ -392,9 +364,14 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
 class StockInvestmentSummaryItem extends StatelessWidget {
   final StockPerformance performance;
   final Color color;
+  final double portfolioTotalAmount;
+  final double typeTotalAmount;
 
   const StockInvestmentSummaryItem(
-      {Key key, @required this.performance, @required this.color})
+      {Key key,
+      @required this.performance,
+      this.portfolioTotalAmount,
+      @required this.color, this.typeTotalAmount})
       : super(key: key);
 
   @override
@@ -423,14 +400,10 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   ),
                   Text(
                     " ${performance.ticker.replaceAll('.SA', '')}",
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .bodyText2
-                        .copyWith(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(context).textTheme.bodyText2.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                 ],
               ),
@@ -442,19 +415,13 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       "Saldo atual",
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodyText2,
+                      style: Theme.of(context).textTheme.bodyText2,
                     ),
                   ],
                 ),
                 Text(
                   moneyFormatter.format(currentValue),
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .bodyText2,
+                  style: Theme.of(context).textTheme.bodyText2,
                 ),
               ],
             ),
@@ -465,21 +432,14 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       "Resultado",
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodyText2,
+                      style: Theme.of(context).textTheme.bodyText2,
                     ),
                   ],
                 ),
                 Text(
                   moneyFormatter
                       .format(currentValue - performance.currentInvested),
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .bodyText2
-                      .copyWith(
+                  style: Theme.of(context).textTheme.bodyText2.copyWith(
                       color: currentValue - performance.currentInvested < 0
                           ? Colors.red
                           : Colors.green),
@@ -496,21 +456,35 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                 Row(
                   children: <Widget>[
                     Text(
-                      "% do portfolio",
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .bodyText2,
+                      "% na categoria",
+                      style: Theme.of(context).textTheme.bodyText2,
                     ),
                   ],
                 ),
                 Text(
-                  percentFormatter.format(performance.currentInvested / 100000),
-                  //TODO FIX this
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .bodyText2,
+                  percentFormatter.format((performance.currentStockPrice *
+                      performance.currentAmount) /
+                      typeTotalAmount),
+                  style: Theme.of(context).textTheme.bodyText2,
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Text(
+                      "% do portfolio",
+                      style: Theme.of(context).textTheme.bodyText2,
+                    ),
+                  ],
+                ),
+                Text(
+                  percentFormatter.format((performance.currentStockPrice *
+                          performance.currentAmount) /
+                      portfolioTotalAmount),
+                  style: Theme.of(context).textTheme.bodyText2,
                 ),
               ],
             ),
