@@ -107,12 +107,16 @@ class PerformanceCore:
                 data = self.market_data.ticker_intraday_date(stock.ticker)
                 portfolio.stock_gross_amount = portfolio.stock_gross_amount + stock.current_amount * data.price
                 stock.current_stock_price = data.price
+            else:
+                portfolio.stocks.remove(stock)
 
         for stock in portfolio.reits:
             if stock.current_amount > 0:
                 data = self.market_data.ticker_intraday_date(stock.ticker)
                 portfolio.reit_gross_amount = portfolio.reit_gross_amount + stock.current_amount * data.price
                 stock.current_stock_price = data.price
+            else:
+                portfolio.reits.remove(stock)
 
         return portfolio
 
