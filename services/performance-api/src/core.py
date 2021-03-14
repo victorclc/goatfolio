@@ -101,6 +101,8 @@ class PerformanceCore:
     def calculate_portfolio_performance(self, subject):
         assert subject
         portfolio = self.portfolio_repo.find(subject)
+        stock_to_remove = []
+        reit_to_remove = []
 
         for stock in portfolio.stocks:
             if stock.current_amount > 0:
@@ -108,7 +110,9 @@ class PerformanceCore:
                 portfolio.stock_gross_amount = portfolio.stock_gross_amount + stock.current_amount * data.price
                 stock.current_stock_price = data.price
             else:
-                portfolio.stocks.remove(stock)
+                print(f"REMOVING {stock.ticker}")
+                stock_to_remove.append(stock)
+        portfolio.stocks = [stock for stock in portfolio.stocks if stock not in stock_to_remove]
 
         for stock in portfolio.reits:
             if stock.current_amount > 0:
@@ -116,7 +120,9 @@ class PerformanceCore:
                 portfolio.reit_gross_amount = portfolio.reit_gross_amount + stock.current_amount * data.price
                 stock.current_stock_price = data.price
             else:
-                portfolio.reits.remove(stock)
+                print(f"REMOVING {stock.ticker}")
+                reit_to_remove.append(stock)
+        portfolio.reits = [stock for stock in portfolio.reits if stock not in reit_to_remove]
 
         return portfolio
 
