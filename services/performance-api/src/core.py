@@ -110,6 +110,7 @@ class PerformanceCore:
                 portfolio.stock_gross_amount = portfolio.stock_gross_amount + stock.current_amount * data.price
                 portfolio.stock_prev_gross_amount = portfolio.stock_prev_gross_amount + stock.current_amount * data.prev_close_price
                 stock.current_stock_price = data.price
+                stock.current_day_change_percent = data.change
             else:
                 print(f"REMOVING {stock.ticker}")
                 stock_to_remove.append(stock)
@@ -121,6 +122,7 @@ class PerformanceCore:
                 portfolio.reit_gross_amount = portfolio.reit_gross_amount + stock.current_amount * data.price
                 portfolio.reit_prev_gross_amount = portfolio.reit_prev_gross_amount + stock.current_amount * data.prev_close_price
                 stock.current_stock_price = data.price
+                stock.current_day_change_percent = data.change
             else:
                 print(f"REMOVING {stock.ticker}")
                 reit_to_remove.append(stock)

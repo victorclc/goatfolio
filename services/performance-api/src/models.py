@@ -38,6 +38,7 @@ class StockConsolidated:
     initial_date: datetime = datetime.max
     history: list = field(default_factory=list)
     current_stock_price: Decimal = field(default_factory=lambda: Decimal(0))
+    current_day_change_percent: Decimal = field(default_factory=lambda: Decimal(0))
     bought_amount: Decimal = field(default_factory=lambda: Decimal(0))
     sold_amount: Decimal = field(default_factory=lambda: Decimal(0))
     total_spend: Decimal = field(default_factory=lambda: Decimal(0))
