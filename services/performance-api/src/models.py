@@ -20,16 +20,19 @@ class Portfolio:
     initial_date: datetime = datetime.max
     stocks: list = field(default_factory=list)  # todo list type hint
     reits: list = field(default_factory=list)
+    history: list = field(default_factory=list)
 
     def __post_init__(self):
         if not isinstance(self.initial_date, datetime):
             self.initial_date = datetime.fromtimestamp(float(self.initial_date))
         self.stocks = [StockConsolidated(**s) for s in self.stocks]
         self.reits = [StockConsolidated(**s) for s in self.reits]
+        self.history = [PortfolioPosition(**p) for p in self.history]
 
     def to_dict(self):
         return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
-                'stocks': [s.to_dict() for s in self.stocks], 'reits': [s.to_dict() for s in self.reits]}
+                'stocks': [s.to_dict() for s in self.stocks], 'reits': [s.to_dict() for s in self.reits],
+                'history': [h.to_dict() for h in self.history]}
 
 
 @dataclass
@@ -72,6 +75,20 @@ class StockPosition:
     open_price: Decimal
     close_price: Decimal
     amount: Decimal = field(default_factory=lambda: Decimal(0))
+
+    def __post_init__(self):
+        if not isinstance(self.date, datetime):
+            self.date = datetime.fromtimestamp(float(self.date))
+
+    def to_dict(self):
+        return {**self.__dict__, 'date': int(self.date.timestamp())}
+
+
+@dataclass
+class PortfolioPosition:
+    date: datetime
+    total_invested: Decimal = field(default_factory=lambda: Decimal(0))
+    gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
 
     def __post_init__(self):
         if not isinstance(self.date, datetime):

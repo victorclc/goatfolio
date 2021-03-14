@@ -4,7 +4,6 @@ from decimal import Decimal
 from functools import reduce
 from itertools import groupby
 from typing import List
-from uuid import uuid4
 
 from dateutil.relativedelta import relativedelta
 
@@ -12,7 +11,7 @@ from adapters import InvestmentRepository, MarketData, PortfolioRepository
 from goatcommons.constants import OperationType, InvestmentsType
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
-from models import OLDStockPosition, Portfolio, StockConsolidated, StockPosition
+from models import OLDStockPosition, Portfolio, StockConsolidated, StockPosition, PortfolioPosition
 
 
 class StockPerformance:
@@ -101,34 +100,43 @@ class PerformanceCore:
     def calculate_portfolio_performance(self, subject):
         assert subject
         portfolio = self.portfolio_repo.find(subject)
-        stock_to_remove = []
-        reit_to_remove = []
 
-        for stock in portfolio.stocks:
-            if stock.current_amount > 0:
-                data = self.market_data.ticker_intraday_date(stock.ticker)
-                portfolio.stock_gross_amount = portfolio.stock_gross_amount + stock.current_amount * data.price
-                portfolio.stock_prev_gross_amount = portfolio.stock_prev_gross_amount + stock.current_amount * data.prev_close_price
-                stock.current_stock_price = data.price
-                stock.current_day_change_percent = data.change
-            else:
-                print(f"REMOVING {stock.ticker}")
-                stock_to_remove.append(stock)
-        portfolio.stocks = [stock for stock in portfolio.stocks if stock not in stock_to_remove]
+        stock_performance = self._calculate_stocks_performance(portfolio.stocks)
+        reit_performance = self._calculate_stocks_performance(portfolio.reits)
 
-        for stock in portfolio.reits:
-            if stock.current_amount > 0:
-                data = self.market_data.ticker_intraday_date(stock.ticker)
-                portfolio.reit_gross_amount = portfolio.reit_gross_amount + stock.current_amount * data.price
-                portfolio.reit_prev_gross_amount = portfolio.reit_prev_gross_amount + stock.current_amount * data.prev_close_price
-                stock.current_stock_price = data.price
-                stock.current_day_change_percent = data.change
-            else:
-                print(f"REMOVING {stock.ticker}")
-                reit_to_remove.append(stock)
-        portfolio.reits = [stock for stock in portfolio.reits if stock not in reit_to_remove]
+        portfolio.stocks, portfolio.stock_gross_amount, portfolio.stock_prev_gross_amount = stock_performance
+        portfolio.reits, portfolio.reit_gross_amount, portfolio.reit_prev_gross_amount = reit_performance
+
+        h_dict = {int(h.date.timestamp()): h for h in portfolio.history}
+        s_history = [item for sublist in [s.history for s in portfolio.stocks + portfolio.reits] for item in sublist]
+
+        for s_position in s_history:
+            s_timestamp = int(s_position.date.timestamp())
+            h_dict[s_timestamp].gross_amount = h_dict[
+                                                   s_timestamp].gross_amount + s_position.amount * s_position.close_price
 
         return portfolio
+
+    def _calculate_stocks_performance(self, stocks: List[StockConsolidated]):
+        """
+            Calculate current position of all stocks, returns a list of stocks without 0 amount positions,
+            gross_amount and prev_gross_amount
+        """
+        gross_amount = Decimal(0)
+        prev_gross_amount = Decimal(0)
+        zeroed_stocks = []
+
+        for stock in stocks:
+            if stock.current_amount > 0:
+                data = self.market_data.ticker_intraday_date(stock.ticker)
+                gross_amount = gross_amount + stock.current_amount * data.price
+                prev_gross_amount = prev_gross_amount + stock.current_amount * data.prev_close_price
+                stock.current_stock_price = data.price
+                stock.current_day_change_percent = data.change
+            else:
+                print(f"REMOVING {stock.ticker}")
+                zeroed_stocks.append(stock)
+        return [stock for stock in stocks if stock not in zeroed_stocks], gross_amount, prev_gross_amount
 
     def calculate_today_variation(self, subject):
         assert subject
@@ -158,6 +166,7 @@ class PerformanceCore:
                         -1 if investment.operation == OperationType.SELL else 1)
                     print(f'VALUE: {value}')
                     portfolio.invested_amount = portfolio.invested_amount + value
+                    self.consolidate_portfolio_history(portfolio, investment)
                     self.consolidate_stock(portfolio, investment)
             except Exception as ex:
                 print(f'DEU RUIM {investment.ticker}')
@@ -178,6 +187,7 @@ class PerformanceCore:
             value = investment.amount * investment.price * (-1 if investment.operation == OperationType.SELL else 1)
             print(f'VALUE: {value}')
             portfolio.invested_amount = portfolio.invested_amount + value
+            self.consolidate_portfolio_history(portfolio, investment)
             self.consolidate_stock(portfolio, investment)
 
         self.portfolio_repo.save(portfolio)
@@ -200,6 +210,28 @@ class PerformanceCore:
 
         self.consolidate_stock_history(stock_consolidated.history, investment)
 
+    def consolidate_portfolio_history(self, portfolio, investment):
+        history_dict = {int(h.date.timestamp()): h for h in portfolio.history}
+        value = investment.amount * investment.price * (-1 if investment.operation == OperationType.SELL else 1)
+        month_date = DatetimeUtils.month_first_day_datetime(investment.date)
+        month_timestamp = int(month_date.timestamp())
+        if month_timestamp not in history_dict:
+            prev_month_timestamp = int(
+                DatetimeUtils.month_first_day_datetime(investment.date - relativedelta(months=1)).timestamp())
+            position = PortfolioPosition(date=month_date)
+            history_dict[month_timestamp] = position
+            portfolio.history.append(position)
+
+            self._fix_portfolio_history_gap(portfolio.history, history_dict, DatetimeUtils.month_first_day_datetime(
+                datetime.now()))
+
+            if prev_month_timestamp in history_dict:
+                position.total_invested = position.total_invested + history_dict[prev_month_timestamp].total_invested
+
+        for timestamp in list(filter(lambda d: d >= month_timestamp, history_dict.keys())):
+            print(f"Updating history in timestamp: {timestamp}")
+            history_dict[timestamp].total_invested = history_dict[timestamp].total_invested + value
+
     def consolidate_stock_history(self, history: List[StockPosition], investment: StockInvestment):
         month_datetime = DatetimeUtils.month_first_day_datetime(investment.date)
         month_timestamp = int(month_datetime.timestamp())
@@ -216,8 +248,8 @@ class PerformanceCore:
             history.append(position)
             history_dict[month_timestamp] = position
 
-            self._fix_history_gap(history, history_dict, investment.ticker,
-                                  DatetimeUtils.month_first_day_datetime(datetime.now()))
+            self._fix_stock_history_gap(history, history_dict, investment.ticker,
+                                        DatetimeUtils.month_first_day_datetime(datetime.now()))
 
             if prev_month_timestamp in history_dict:
                 position.amount = position.amount + history_dict[prev_month_timestamp].amount
@@ -226,7 +258,27 @@ class PerformanceCore:
             print(f"Updating history in timestamp: {timestamp}")
             history_dict[timestamp].amount = history_dict[timestamp].amount + amount
 
-    def _fix_history_gap(self, history, history_dict, ticker, date_to=None):
+    def _fix_portfolio_history_gap(self, history, history_dict, date_to=None):
+        timestamps = list(history_dict.keys())
+        if len(timestamps) > 1:
+            timestamps.sort()
+            prev = datetime.fromtimestamp(timestamps[0])
+            proc = prev + relativedelta(months=1)
+            last = date_to or datetime.fromtimestamp(timestamps[-1])
+
+            while proc <= last:
+                print(f"PROC: {proc}")
+                proc_timestamp = int(proc.timestamp())
+                if proc_timestamp not in timestamps:
+                    print(f'fix gap: {proc}')
+                    position = PortfolioPosition(date=proc,
+                                                 total_invested=history_dict[int(prev.timestamp())].total_invested)
+                    history.append(position)
+                    history_dict[proc_timestamp] = position
+                prev = proc
+                proc = proc + relativedelta(months=1)
+
+    def _fix_stock_history_gap(self, history, history_dict, ticker, date_to=None):
         timestamps = list(history_dict.keys())
         if len(timestamps) > 1:
             timestamps.sort()
@@ -270,7 +322,7 @@ if __name__ == '__main__':
     #                                  operation=OperationType.SELL, broker='Modal',
     #                                  subject='440b0d96-395d-48bd-aaf2-58dbf7e68274', type='STOCK',
     #                                  id=str(uuid4()))])
-    # investmentss = InvestmentRepository().find_by_subject_mocked('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    investmentss = InvestmentRepository().find_by_subject_mocked('440b0d96-395d-48bd-aaf2-58dbf7e68274')
     # core.consolidate_portfolio_l('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss)
     # for inv in investments:
     #     if inv.ticker != 'BIDI11':
