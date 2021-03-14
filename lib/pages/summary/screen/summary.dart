@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/pages/summary/widget/highest_highs_card.dart';
+import 'package:goatfolio/pages/summary/widget/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/widget/month_summary_card.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/client/performance_client.dart';
@@ -77,6 +78,7 @@ class _SummaryPageState extends State<SummaryPage> {
                             children: [
                               MonthSummaryCard(performance),
                               HighestHighsCard(performance),
+                              LowestLowsCard(performance),
                             ],
                           );
                         }
