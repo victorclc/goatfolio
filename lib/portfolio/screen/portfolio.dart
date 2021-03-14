@@ -45,90 +45,113 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoSliverPage(largeTitle: PortfolioPage.title, children: [
-      FutureBuilder(
-        future: _future,
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-            case ConnectionState.active:
-              break;
-            case ConnectionState.waiting:
-              return CupertinoActivityIndicator();
-            case ConnectionState.done:
-              if (snapshot.hasData) {
-                return Column(
-                  children: [
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      padding: EdgeInsets.only(left: 16, bottom: 16, top: 8),
-                      child: Text(
-                        "Alocação",
-                        style: Theme.of(context).textTheme.bodyText2.copyWith(
+    return CupertinoSliverPage(
+        largeTitle: PortfolioPage.title,
+        onRefresh: () async {
+          _future = getPortfolioPerformance();
+          await _future;
+          setState(()  {
+          });
+        },
+        children: [
+          FutureBuilder(
+            future: _future,
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                case ConnectionState.active:
+                  break;
+                case ConnectionState.waiting:
+                  return CupertinoActivityIndicator();
+                case ConnectionState.done:
+                  if (snapshot.hasData) {
+                    return Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          padding:
+                          EdgeInsets.only(left: 16, bottom: 16, top: 8),
+                          child: Text(
+                            "Alocação",
+                            style:
+                            Theme
+                                .of(context)
+                                .textTheme
+                                .bodyText2
+                                .copyWith(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 240,
-                      width: double.infinity,
-                      child: DonutAutoLabelChart(
-                        typeSeries: buildSubtypeSeries(),
-                        stocksSeries: buildStockSeries(),
-                        reitsSeries: buildReitSeries(),
-                      ),
-                    ),
-                    InvestmentTypeExpansionTile(
-                      title: 'Ações/ETFs',
-                      grossAmount: performance.stockGrossAmount,
-                      items: performance.stocks,
-                      colors: colors,
-                      totalAmount: performance.grossAmount,
-                    ),
-                    InvestmentTypeExpansionTile(
-                      title: 'FIIs',
-                      grossAmount: performance.reitGrossAmount,
-                      items: performance.reits,
-                      colors: colors,
-                      totalAmount: performance.grossAmount,
-                    ),
-                  ],
-                );
+                          ),
+                        ),
+                        SizedBox(
+                          height: 240,
+                          width: double.infinity,
+                          child: DonutAutoLabelChart(
+                            typeSeries: buildSubtypeSeries(),
+                            stocksSeries: buildStockSeries(),
+                            reitsSeries: buildReitSeries(),
+                          ),
+                        ),
+                        InvestmentTypeExpansionTile(
+                          title: 'Ações/ETFs',
+                          grossAmount: performance.stockGrossAmount,
+                          items: performance.stocks,
+                          colors: colors,
+                          totalAmount: performance.grossAmount,
+                        ),
+                        InvestmentTypeExpansionTile(
+                          title: 'FIIs',
+                          grossAmount: performance.reitGrossAmount,
+                          items: performance.reits,
+                          colors: colors,
+                          totalAmount: performance.grossAmount,
+                        ),
+                      ],
+                    );
+                  }
               }
-          }
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 32,
-              ),
-              Text("Tivemos um problema ao carregar",
-                  style: Theme.of(context).textTheme.subtitle1),
-              Text(" as informações.",
-                  style: Theme.of(context).textTheme.subtitle1),
-              SizedBox(
-                height: 8,
-              ),
-              Text("Toque para tentar novamente.",
-                  style: Theme.of(context).textTheme.subtitle1),
-              CupertinoButton(
-                padding: EdgeInsets.all(0),
-                child: Icon(
-                  Icons.refresh_outlined,
-                  size: 32,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _future = getPortfolioPerformance();
-                  });
-                },
-              ),
-            ],
-          );
-        },
-      ),
-    ]);
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 32,
+                  ),
+                  Text("Tivemos um problema ao carregar",
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .subtitle1),
+                  Text(" as informações.",
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .subtitle1),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Text("Toque para tentar novamente.",
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .subtitle1),
+                  CupertinoButton(
+                    padding: EdgeInsets.all(0),
+                    child: Icon(
+                      Icons.refresh_outlined,
+                      size: 32,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _future = getPortfolioPerformance();
+                      });
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+        ]);
   }
 
   List<charts.Series<TickerTotals, String>> buildStockSeries() {
@@ -151,11 +174,12 @@ class _PortfolioPageState extends State<PortfolioPage> {
         domainFn: (TickerTotals totals, _) => totals.ticker,
         measureFn: (TickerTotals totals, _) => totals.total,
         data: data,
-        colorFn: (totals, _) => charts.Color(
-            r: totals.color.r, g: totals.color.g, b: totals.color.b),
+        colorFn: (totals, _) =>
+            charts.Color(
+                r: totals.color.r, g: totals.color.g, b: totals.color.b),
         // Set a label accessor to control the text of the arc label.
         labelAccessorFn: (TickerTotals totals, _) =>
-            '${totals.ticker.replaceAll('.SA', '')}',
+        '${totals.ticker.replaceAll('.SA', '')}',
       )
     ];
   }
@@ -180,11 +204,12 @@ class _PortfolioPageState extends State<PortfolioPage> {
         domainFn: (TickerTotals totals, _) => totals.ticker,
         measureFn: (TickerTotals totals, _) => totals.total,
         data: data,
-        colorFn: (totals, _) => charts.Color(
-            r: totals.color.r, g: totals.color.g, b: totals.color.b),
+        colorFn: (totals, _) =>
+            charts.Color(
+                r: totals.color.r, g: totals.color.g, b: totals.color.b),
         // Set a label accessor to control the text of the arc label.
         labelAccessorFn: (TickerTotals totals, _) =>
-            '${totals.ticker.replaceAll('.SA', '')}',
+        '${totals.ticker.replaceAll('.SA', '')}',
       )
     ];
   }
@@ -194,8 +219,8 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
     if (performance.stockGrossAmount > 0) {
       colors['Ações/ETFs'] = Rgb.random();
-      data.add(TickerTotals('Ações/ETFs', performance.stockGrossAmount,
-          colors['Ações/ETFs']));
+      data.add(TickerTotals(
+          'Ações/ETFs', performance.stockGrossAmount, colors['Ações/ETFs']));
     }
     if (performance.reitGrossAmount > 0) {
       colors['FIIs'] = Rgb.random();
@@ -209,13 +234,14 @@ class _PortfolioPageState extends State<PortfolioPage> {
         domainFn: (TickerTotals totals, _) => totals.ticker,
         measureFn: (TickerTotals totals, _) => totals.total,
         data: data,
-        colorFn: (totals, _) => charts.Color(
-            r: colors[totals.ticker].r,
-            g: colors[totals.ticker].g,
-            b: colors[totals.ticker].b),
+        colorFn: (totals, _) =>
+            charts.Color(
+                r: colors[totals.ticker].r,
+                g: colors[totals.ticker].g,
+                b: colors[totals.ticker].b),
         // Set a label accessor to control the text of the arc label.
         labelAccessorFn: (TickerTotals totals, _) =>
-            '${totals.ticker.replaceAll('.SA', '')}',
+        '${totals.ticker.replaceAll('.SA', '')}',
       )
     ];
   }
@@ -255,13 +281,12 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
   final List<StockPerformance> items;
   final Map<String, Rgb> colors;
 
-  InvestmentTypeExpansionTile(
-      {Key key,
-      this.title,
-      this.grossAmount,
-      this.totalAmount,
-      this.items,
-      this.colors})
+  InvestmentTypeExpansionTile({Key key,
+    this.title,
+    this.grossAmount,
+    this.totalAmount,
+    this.items,
+    this.colors})
       : super(key: key);
 
   @override
@@ -281,10 +306,14 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
             ),
             Text(
               ' ' + title,
-              style: Theme.of(context).textTheme.bodyText2.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyText2
+                  .copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
@@ -296,13 +325,19 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     "Total em carteira",
-                    style: Theme.of(context).textTheme.bodyText2,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodyText2,
                   ),
                 ],
               ),
               Text(
                 moneyFormatter.format(grossAmount),
-                style: Theme.of(context).textTheme.bodyText2,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .bodyText2,
               ),
             ],
           ),
@@ -313,7 +348,10 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     "% do portfolio",
-                    style: Theme.of(context).textTheme.bodyText2,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodyText2,
                   ),
                 ],
               ),
@@ -321,7 +359,10 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
               // 34000   x
               Text(
                 percentFormatter.format(grossAmount / totalAmount),
-                style: Theme.of(context).textTheme.bodyText2,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .bodyText2,
               ),
             ],
           ),
@@ -382,10 +423,14 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   ),
                   Text(
                     " ${performance.ticker.replaceAll('.SA', '')}",
-                    style: Theme.of(context).textTheme.bodyText2.copyWith(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodyText2
+                        .copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
@@ -397,13 +442,19 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       "Saldo atual",
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .bodyText2,
                     ),
                   ],
                 ),
                 Text(
                   moneyFormatter.format(currentValue),
-                  style: Theme.of(context).textTheme.bodyText2,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .bodyText2,
                 ),
               ],
             ),
@@ -414,14 +465,21 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       "Resultado",
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .bodyText2,
                     ),
                   ],
                 ),
                 Text(
                   moneyFormatter
                       .format(currentValue - performance.currentInvested),
-                  style: Theme.of(context).textTheme.bodyText2.copyWith(
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .bodyText2
+                      .copyWith(
                       color: currentValue - performance.currentInvested < 0
                           ? Colors.red
                           : Colors.green),
@@ -439,14 +497,20 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       "% do portfolio",
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .bodyText2,
                     ),
                   ],
                 ),
                 Text(
                   percentFormatter.format(performance.currentInvested / 100000),
                   //TODO FIX this
-                  style: Theme.of(context).textTheme.bodyText2,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .bodyText2,
                 ),
               ],
             ),
