@@ -1,7 +1,12 @@
 import 'package:alphabet_scroll_view/alphabet_scroll_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/common/util/dialog.dart';
+import 'package:goatfolio/common/util/modal.dart';
+import 'package:goatfolio/common/widget/multi_prompt.dart';
+import 'package:goatfolio/pages/add/prompt/add_stock_prompt.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
+import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
 import 'package:goatfolio/services/investment/storage/stock_investment.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +40,31 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsListPrototype> {
   StockInvestmentService service;
   Future<List<String>> _future;
 
+  Future<void> onStockSubmit(Map values) async {
+    print(values);
+    final investment = StockInvestment(
+      ticker: values['ticker'],
+      amount: int.parse(values['amount']),
+      price: double.parse(values['price']),
+      date: DateTime.now(),
+      //values['date'],
+      costs: double.parse(values['costs']),
+      broker: values['broker'],
+      type: "STOCK",
+      operation: widget.buyOperation ? "BUY" : "SELL",
+    );
+    try {
+      print("DENTRO DO TRY");
+      await service.addInvestment(investment);
+    } catch (Exception) {
+      await DialogUtils.showErrorDialog(
+          context, "Erro ao adicionar operação, tente novamente.");
+      return;
+    }
+    await DialogUtils.showSuccessDialog(
+        context, "Operação adicionada com sucesso!");
+  }
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +79,24 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsListPrototype> {
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           previousPageTitle: "",
+          trailing: IconButton(
+            alignment: Alignment.centerRight,
+            padding: EdgeInsets.all(0),
+              icon: Icon(Icons.add),
+              onPressed: () => ModalUtils.showUnDismissibleModalBottomSheet(
+                    context,
+                    MultiPrompt(
+                      onSubmit: onStockSubmit,
+                      promptRequests: [
+                        StockTickerPrompt(),
+                        StockAmountPrompt(),
+                        StockPricePrompt(),
+                        StockDatePrompt(),
+                        StockBrokerPrompt(),
+                        StockCostsPrompt(),
+                      ],
+                    ),
+                  )),
           middle: Text(widget.buyOperation ? "Compra" : "Venda"),
         ),
         child: SafeArea(
@@ -82,23 +130,34 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsListPrototype> {
                             for (String letter in tickersByAlphabet.keys) {
                               sections.add(SettingsSection(
                                 title: letter,
-                                tiles: tickersByAlphabet[letter].map(
-                                  (e) => SettingsTile(
-                                    title: e,
-                                  ),
-                                ).toList(),
+                                tiles: tickersByAlphabet[letter]
+                                    .map((e) => SettingsTile(
+                                          onPressed: (context) => ModalUtils
+                                              .showUnDismissibleModalBottomSheet(
+                                            context,
+                                            MultiPrompt(
+                                              onSubmit: (values) async {
+                                                values['ticker'] = e;
+                                                await onStockSubmit(values);
+                                              },
+                                              promptRequests: [
+                                                StockAmountPrompt(),
+                                                StockPricePrompt(),
+                                                StockDatePrompt(),
+                                                StockBrokerPrompt(),
+                                                StockCostsPrompt(),
+                                              ],
+                                            ),
+                                          ),
+                                          title: e,
+                                        ))
+                                    .toList(),
                               ));
                             }
-                            return Expanded(child: AlphabetScrollView(
-                              list: sections.map((e) => AlphaModel(e.title)).toList(),
-                              itemExtent: 230,
-                              itemBuilder: (_, k, id) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 20),
-                                  child: sections[k],
-                                );
-                              },
-                            ),);
+                            return Expanded(
+                                child: SettingsList(
+                              sections: sections,
+                            ));
                           }
                       }
                       return Container();

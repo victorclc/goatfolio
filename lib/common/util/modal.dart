@@ -5,7 +5,7 @@ class ModalUtils {
   static Future<T> showUnDismissibleModalBottomSheet<T>(
       BuildContext context, Widget child) async {
     return await showCupertinoModalBottomSheet(
-        duration: Duration(milliseconds: 200),
+        duration: Duration(milliseconds: 400),
         enableDrag: false,
         isDismissible: false,
         context: context,
@@ -17,7 +17,7 @@ class ModalUtils {
   static Future<T> showDragableModalBottomSheet<T>(
       BuildContext context, Widget child) async {
     return await showCupertinoModalBottomSheet(
-        duration: Duration(milliseconds: 200),
+        duration: Duration(milliseconds: 400),
         enableDrag: true,
         isDismissible: false,
         context: context,
