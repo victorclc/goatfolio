@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:goatfolio/add/screen/add.dart';
-import 'package:goatfolio/authentication/screen/login.dart';
-import 'package:goatfolio/authentication/service/cognito.dart';
 import 'package:goatfolio/common/config/app_config.dart';
-import 'package:goatfolio/extract/screen/extract.dart';
-import 'package:goatfolio/portfolio/screen/portfolio.dart';
-import 'package:goatfolio/settings/screen/settings_page.dart';
-import 'package:goatfolio/summary/screen/summary.dart';
+import 'package:goatfolio/pages/add/screen/add.dart';
+import 'package:goatfolio/pages/extract/extract.dart';
+import 'package:goatfolio/pages/login/screen/login.dart';
+import 'package:goatfolio/pages/portfolio/screen/portfolio.dart';
+import 'package:goatfolio/pages/settings/screen/settings_page.dart';
+import 'package:goatfolio/pages/summary/screen/summary.dart';
+import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:provider/provider.dart';
 
