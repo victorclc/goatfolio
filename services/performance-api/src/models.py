@@ -14,7 +14,9 @@ class Portfolio:
     subject: str
     invested_amount: Decimal = field(default_factory=lambda: Decimal(0))
     stock_gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    stock_prev_gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
     reit_gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    reit_prev_gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
     initial_date: datetime = datetime.max
     stocks: list = field(default_factory=list)  # todo list type hint
     reits: list = field(default_factory=list)

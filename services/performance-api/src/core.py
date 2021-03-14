@@ -108,6 +108,7 @@ class PerformanceCore:
             if stock.current_amount > 0:
                 data = self.market_data.ticker_intraday_date(stock.ticker)
                 portfolio.stock_gross_amount = portfolio.stock_gross_amount + stock.current_amount * data.price
+                portfolio.stock_prev_gross_amount = portfolio.stock_prev_gross_amount + stock.current_amount * data.prev_close_price
                 stock.current_stock_price = data.price
             else:
                 print(f"REMOVING {stock.ticker}")
@@ -118,6 +119,7 @@ class PerformanceCore:
             if stock.current_amount > 0:
                 data = self.market_data.ticker_intraday_date(stock.ticker)
                 portfolio.reit_gross_amount = portfolio.reit_gross_amount + stock.current_amount * data.price
+                portfolio.reit_prev_gross_amount = portfolio.reit_prev_gross_amount + stock.current_amount * data.prev_close_price
                 stock.current_stock_price = data.price
             else:
                 print(f"REMOVING {stock.ticker}")
