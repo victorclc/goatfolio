@@ -23,7 +23,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
     highs = widget.performance.stocks
         .where((stock) => stock.currentDayChangePercent >= 0)
         .toList()
-          ..sort((a, b) =>
+          ..sort((b, a) =>
               a.currentDayChangePercent.compareTo(b.currentDayChangePercent));
   }
 
