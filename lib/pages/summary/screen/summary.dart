@@ -4,8 +4,8 @@ import 'package:goatfolio/pages/summary/widget/highest_highs_card.dart';
 import 'package:goatfolio/pages/summary/widget/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/widget/month_summary_card.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
-import 'package:goatfolio/services/performance/client/performance_client.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
+import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:intl/intl.dart';
 import 'package:goatfolio/common/extension/string.dart';
 import 'package:provider/provider.dart';
@@ -19,17 +19,7 @@ class SummaryPage extends StatefulWidget {
 }
 
 class _SummaryPageState extends State<SummaryPage> {
-  Future<PortfolioPerformance> _future;
   PortfolioPerformance performance;
-  PerformanceClient client;
-
-  @override
-  void initState() {
-    super.initState();
-    final userService = Provider.of<UserService>(context, listen: false);
-    client = PerformanceClient(userService);
-    _future = getPortfolioPerformance();
-  }
 
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -40,7 +30,8 @@ class _SummaryPageState extends State<SummaryPage> {
             DateFormat("MMMM yyyy", 'pt_BR')
                 .format(DateTime.now())
                 .capitalize(),
-            style: Theme.of(context)
+            style: Theme
+                .of(context)
                 .textTheme
                 .subtitle2
                 .copyWith(fontWeight: FontWeight.w400),
@@ -55,7 +46,9 @@ class _SummaryPageState extends State<SummaryPage> {
           ),
         ),
         CupertinoSliverRefreshControl(
-          onRefresh: () => Future.delayed(Duration(seconds: 5)),
+          onRefresh: () async =>
+              Provider.of<PortfolioPerformanceNotifier>(context, listen: false)
+                  .updatePerformance(),
         ),
         SliverSafeArea(
           top: false,
@@ -64,7 +57,10 @@ class _SummaryPageState extends State<SummaryPage> {
             sliver: SliverList(
               delegate: SliverChildListDelegate.fixed([
                 FutureBuilder(
-                  future: _future,
+                  future: Provider
+                      .of<PortfolioPerformanceNotifier>(context,
+                      listen: true)
+                      .future,
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.none:
@@ -74,6 +70,7 @@ class _SummaryPageState extends State<SummaryPage> {
                         return CupertinoActivityIndicator();
                       case ConnectionState.done:
                         if (snapshot.hasData) {
+                          performance = snapshot.data;
                           return Column(
                             children: [
                               MonthSummaryCard(performance),
@@ -90,14 +87,23 @@ class _SummaryPageState extends State<SummaryPage> {
                           height: 32,
                         ),
                         Text("Tivemos um problema ao carregar",
-                            style: Theme.of(context).textTheme.subtitle1),
+                            style: Theme
+                                .of(context)
+                                .textTheme
+                                .subtitle1),
                         Text(" as informações.",
-                            style: Theme.of(context).textTheme.subtitle1),
+                            style: Theme
+                                .of(context)
+                                .textTheme
+                                .subtitle1),
                         SizedBox(
                           height: 8,
                         ),
                         Text("Toque para tentar novamente.",
-                            style: Theme.of(context).textTheme.subtitle1),
+                            style: Theme
+                                .of(context)
+                                .textTheme
+                                .subtitle1),
                         CupertinoButton(
                           padding: EdgeInsets.all(0),
                           child: Icon(
@@ -105,9 +111,10 @@ class _SummaryPageState extends State<SummaryPage> {
                             size: 32,
                           ),
                           onPressed: () {
-                            setState(() {
-                              _future = getPortfolioPerformance();
-                            });
+                            Provider.of<PortfolioPerformanceNotifier>(context,
+                                listen: false)
+                                .updatePerformance();
+                            ;
                           },
                         ),
                       ],
@@ -122,8 +129,8 @@ class _SummaryPageState extends State<SummaryPage> {
     );
   }
 
-  Future<PortfolioPerformance> getPortfolioPerformance() async {
-    performance = await client.getPortfolioPerformance();
-    return performance;
-  }
+// Future<PortfolioPerformance> getPortfolioPerformance() async {
+//   performance = await client.getPortfolioPerformance();
+//   return performance;
+// }
 }

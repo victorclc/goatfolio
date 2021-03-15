@@ -10,7 +10,8 @@ class CupertinoSliverPage extends StatelessWidget {
     Key key,
     @required this.largeTitle,
     @required this.children,
-    this.onRefresh, this.onScrollNotification,
+    this.onRefresh,
+    this.onScrollNotification,
   }) : super(key: key);
 
   @override

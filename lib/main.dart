@@ -10,6 +10,7 @@ import 'package:goatfolio/pages/portfolio/screen/portfolio.dart';
 import 'package:goatfolio/pages/settings/screen/settings_page.dart';
 import 'package:goatfolio/pages/summary/screen/summary.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
+import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:provider/provider.dart';
 
@@ -60,6 +61,8 @@ Widget buildNavigationPage(UserService userService) {
       Provider(
         create: (context) => userService,
       ),
+      ChangeNotifierProvider(
+          create: (_) => PortfolioPerformanceNotifier(userService)),
     ],
   );
 }
@@ -170,7 +173,8 @@ class _NavigationWidgetState extends State<NavigationWidget>
             );
           case 2:
             return CupertinoTabView(
-                defaultTitle: AddPage.title, builder: (context) => AddPrototypePage());
+                defaultTitle: AddPage.title,
+                builder: (context) => AddPrototypePage());
           case 3:
             return CupertinoTabView(
               defaultTitle: ExtractPage.title,

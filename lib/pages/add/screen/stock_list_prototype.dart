@@ -1,4 +1,3 @@
-import 'package:alphabet_scroll_view/alphabet_scroll_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/util/dialog.dart';

@@ -8,6 +8,7 @@ import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/client/performance_client.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/services/performance/model/stock_performance.dart';
+import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:provider/provider.dart';
 
 import 'dart:math' as math;
@@ -25,35 +26,21 @@ class PortfolioPage extends StatefulWidget {
 
 class _PortfolioPageState extends State<PortfolioPage> {
   Map<String, Rgb> colors = Map();
-  Future<PortfolioPerformance> _future;
-  PerformanceClient client;
+
   PortfolioPerformance performance;
-
-  @override
-  void initState() {
-    super.initState();
-    final userService = Provider.of<UserService>(context, listen: false);
-    client = PerformanceClient(userService);
-    _future = getPortfolioPerformance();
-  }
-
-  Future<PortfolioPerformance> getPortfolioPerformance() async {
-    performance = await client.getPortfolioPerformance();
-    return performance;
-  }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoSliverPage(
         largeTitle: PortfolioPage.title,
-        onRefresh: () async {
-          _future = getPortfolioPerformance();
-          await _future;
-          setState(() {});
-        },
+        onRefresh: () async =>
+            Provider.of<PortfolioPerformanceNotifier>(context, listen: false)
+                .updatePerformance(),
         children: [
           FutureBuilder(
-            future: _future,
+            future:
+                Provider.of<PortfolioPerformanceNotifier>(context, listen: true)
+                    .future,
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.none:
@@ -63,6 +50,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                   return CupertinoActivityIndicator();
                 case ConnectionState.done:
                   if (snapshot.hasData) {
+                    performance = snapshot.data;
                     return Column(
                       children: [
                         Container(
@@ -127,9 +115,10 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       size: 32,
                     ),
                     onPressed: () {
-                      setState(() {
-                        _future = getPortfolioPerformance();
-                      });
+                      Provider.of<PortfolioPerformanceNotifier>(context,
+                              listen: false)
+                          .updatePerformance();
+                      ;
                     },
                   ),
                 ],
@@ -370,7 +359,8 @@ class StockInvestmentSummaryItem extends StatelessWidget {
       {Key key,
       @required this.performance,
       this.portfolioTotalAmount,
-      @required this.color, this.typeTotalAmount})
+      @required this.color,
+      this.typeTotalAmount})
       : super(key: key);
 
   @override
@@ -462,7 +452,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                 ),
                 Text(
                   percentFormatter.format((performance.currentStockPrice *
-                      performance.currentAmount) /
+                          performance.currentAmount) /
                       typeTotalAmount),
                   style: Theme.of(context).textTheme.bodyText2,
                 ),
