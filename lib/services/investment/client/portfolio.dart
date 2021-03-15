@@ -57,7 +57,7 @@ class PortfolioClient {
     return StockInvestment.fromJson(jsonDecode(response.body));
   }
 
-  void editStockInvestment(StockInvestment investment) async {
+  Future<void> editStockInvestment(StockInvestment investment) async {
     String accessToken = await userService.getSessionToken();
     await _client.put(
       baseUrl + "portfolio/investments/" + investment.id,

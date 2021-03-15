@@ -38,7 +38,7 @@ class PrettyTextField extends StatelessWidget {
 
   List<TextInputFormatter> _getinputFormatters() {
     if (textInputType == TextInputType.number) {
-      return [WhitelistingTextInputFormatter.digitsOnly];
+      return [FilteringTextInputFormatter.digitsOnly];
     } else if (textInputType ==
         TextInputType.numberWithOptions(decimal: true)) {
       // return [

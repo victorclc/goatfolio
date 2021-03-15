@@ -6,7 +6,6 @@ import 'package:goatfolio/services/investment/model/stock.dart';
 
 import 'package:intl/intl.dart';
 import 'package:goatfolio/common/extension/string.dart';
-import 'package:provider/provider.dart';
 
 class ExtractDetails extends StatelessWidget {
   final DateFormat formatter = DateFormat('dd MMM yyyy', 'pt_BR');

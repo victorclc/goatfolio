@@ -33,8 +33,6 @@ class InvestmentDetails extends StatefulWidget {
 }
 
 class _InvestmentDetailsState extends State<InvestmentDetails> {
-  var _dataSeries;
-
   void initState() {
     super.initState();
   }

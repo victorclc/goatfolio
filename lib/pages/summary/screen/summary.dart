@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:goatfolio/pages/summary/widget/highest_highs_card.dart';
 import 'package:goatfolio/pages/summary/widget/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/widget/month_summary_card.dart';
-import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:intl/intl.dart';
@@ -114,7 +113,6 @@ class _SummaryPageState extends State<SummaryPage> {
                             Provider.of<PortfolioPerformanceNotifier>(context,
                                 listen: false)
                                 .updatePerformance();
-                            ;
                           },
                         ),
                       ],

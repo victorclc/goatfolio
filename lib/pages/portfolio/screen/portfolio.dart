@@ -4,8 +4,6 @@ import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
 import 'package:goatfolio/common/widget/expansion_tile_custom.dart';
 import 'package:goatfolio/pages/portfolio/widget/donut_chart.dart';
-import 'package:goatfolio/services/authentication/service/cognito.dart';
-import 'package:goatfolio/services/performance/client/performance_client.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/services/performance/model/stock_performance.dart';
 import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
@@ -118,7 +116,6 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       Provider.of<PortfolioPerformanceNotifier>(context,
                               listen: false)
                           .updatePerformance();
-                      ;
                     },
                   ),
                 ],
@@ -140,8 +137,6 @@ class _PortfolioPageState extends State<PortfolioPage> {
           p.ticker, p.currentAmount * p.currentStockPrice, color);
     }).toList()
       ..removeWhere((element) => element == null);
-    print("Builded series");
-    print(data);
     return [
       new charts.Series<TickerTotals, String>(
         id: 'stocks',
@@ -169,8 +164,6 @@ class _PortfolioPageState extends State<PortfolioPage> {
           p.ticker, p.currentAmount * p.currentStockPrice, color);
     }).toList()
       ..removeWhere((element) => element == null);
-    print("Builded series");
-    print(data);
     return [
       new charts.Series<TickerTotals, String>(
         id: 'reits',

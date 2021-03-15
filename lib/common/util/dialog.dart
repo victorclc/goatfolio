@@ -61,7 +61,7 @@ class DialogUtils {
     ]);
   }
 
-  static Future<void> _androidNotifyDialog(
+  static Future<void> androidNotifyDialog(
       BuildContext context, String title, String message) async {
     await _androidDialog(context, title, message, [
       SimpleDialogOption(

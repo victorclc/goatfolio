@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:goatfolio/common/util/focus.dart';
-import 'package:goatfolio/common/widget/animated_button.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 class MultiPrompt extends StatefulWidget {
