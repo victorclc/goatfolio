@@ -1,27 +1,23 @@
-import os
+from collections import namedtuple
 from collections import namedtuple
 from dataclasses import asdict
-from datetime import datetime, date
+from datetime import date
 from decimal import Decimal
-from itertools import groupby
 from typing import List
 
 import boto3
-import requests
+import psycopg2
 from boto3.dynamodb.conditions import Key
-from dateutil.relativedelta import relativedelta
 from yahooquery import Ticker
 
 from goatcommons.models import Investment
 from goatcommons.utils import InvestmentUtils
 from models import Portfolio
 
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 IntraDayData = namedtuple('IntraDayData', 'price prev_close_price change name')
-MonthlyData = namedtuple('MonthlyData', 'date open close change')
+MonthData = namedtuple('MonthlyData', 'date open close change')
 
 
 class MarketData:
@@ -32,9 +28,10 @@ class MarketData:
     """
 
     def __init__(self):
-        self.yahoo = self.YahooData()
-        self.market_stack = self.MarketStackData()
         self.yahoo_ticker = None
+        self.history_cache = {}
+        self.con = psycopg2.connect(host='localhost', database='postgres',
+                                    user='postgres', password='postgres')
 
     def ticker_intraday_date(self, ticker: str):
         if self.yahoo_ticker is None:
@@ -48,77 +45,26 @@ class MarketData:
                             result['shortName'])
 
     def ticker_monthly_data(self, ticker, date_from=None):
-        """
-          little workaround to update most current price of a stock
-        """
-        data = self.market_stack.get_monthly_data(ticker, date_from)
-        current = data[0]
-        price = self.yahoo.get_intraday_data(ticker).price
-        change = Decimal((price - current.open) * 100 / current.open).quantize(Decimal('0.01'))
-        data[0] = MonthlyData(current.date, current.open, price, change)
-        return data
+        if ticker in self.history_cache:
+            return self.history_cache[ticker]
+
+        cursor = self.con.cursor()
+        cursor.execute(
+            f'SELECT candle_date, open_price, close_price from b3_monthly_chart where ticker = \'{ticker}\' order by candle_date')
+        result = [MonthData(*c, 0.0) for c in cursor.fetchall()]
+        # print(result)
+        self.history_cache[ticker] = result
+
+        return result
 
     def ticker_month_data(self, ticker, _date):
         """
             Gets candle(open, close) for the entire date.year/date.month
         """
-        date_from = datetime(_date.year, _date.month, 1)
-        date_to = date_from + relativedelta(months=1)
+        data = self.ticker_monthly_data(ticker)
+        date_from = date(_date.year, _date.month, 1)
 
-        return self.market_stack.get_monthly_data(ticker, date_from, date_to)[-1]
-
-    class YahooData:
-        INTRA_DAY_URL = "https://query2.finance.yahoo.com/v7/finance/options/{0}.SA"
-        HISTORICAL_URL = "https://query1.finance.yahoo.com/v7/finance/chart/{0}?range={1}&interval={2}"
-
-        def get_intraday_data(self, ticker):
-            url = self.INTRA_DAY_URL.format(ticker)
-            result = requests.get(url).json()['optionChain']['result'][0]['quote']
-            return IntraDayData(Decimal(result['regularMarketPrice']).quantize(Decimal('0.01')),
-                                Decimal(result['regularMarketPreviousClose']).quantize(Decimal('0.01')),
-                                Decimal(result['regularMarketChangePercent']).quantize(Decimal('0.01')),
-                                result['shortName'])
-
-    class MarketStackData:
-        EOD_URL = "https://api.marketstack.com/v1/eod"
-        DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
-        DATE_FORMAT = "%Y-%m-%d"
-
-        def __init__(self):
-            self.api_key = os.getenv("MARKET_STACK_API_KEY")
-
-        def get_monthly_data(self, ticker, date_from=None, date_to=None):
-            params = {
-                'access_key': self.api_key,
-                'symbols': '{}.BVMF'.format(ticker),
-                'limit': 365
-            }
-            if date_to:
-                params['date_to'] = datetime.strftime(date_to, self.DATE_FORMAT)
-            if date_from:
-                params['date_from'] = datetime.strftime(date_from, self.DATE_FORMAT)
-            result = requests.get(self.EOD_URL, params).json()
-            monthly_data = []
-            print(f'{self.EOD_URL}')
-            print(f'Params: {params}')
-            print(f'Result: {result}')
-
-            for month, candles in groupby(map(self._parse_eod_data, result['data']),
-                                          key=lambda x: x['date'].month):
-                candles = list(candles)
-                _open = candles[-1]['open']
-                close = candles[0]['close']
-                monthly_data.append(MonthlyData(date=date(candles[0]['date'].year, month, 1), open=_open, close=close,
-                                                change=Decimal(((close - _open) * 100) / _open).quantize(
-                                                    Decimal('0.01'))))
-            return monthly_data
-
-        def _parse_eod_data(self, data):
-            new_date = dict(data)
-            new_date['date'] = datetime.strptime(data['date'], self.DATETIME_FORMAT)
-            new_date['open'] = Decimal(data['open']).quantize(Decimal('0.01'))
-            new_date['close'] = Decimal(data['close']).quantize(Decimal('0.01'))
-            return new_date
+        return list(filter(lambda m: m.date == date_from, data))[0]
 
 
 class InvestmentRepository:
@@ -959,13 +905,13 @@ class InvestmentRepository:
              'operation': 'BUY', 'ticker': 'TIET11', 'costs': Decimal('0'), 'amount': Decimal('30'),
              'price': Decimal('12.7'), 'external_system': '', 'id': 'fc12f7b3-a4bd-49b5-a73f-5bf26b224b83',
              'type': 'STOCK'}], 'Count': 207, 'ScannedCount': 207,
-                  'ResponseMetadata': {'RequestId': '0S7O066SM74N1HI7USGH1EBL3FVV4KQNSO5AEMVJF66Q9ASUAAJG',
-                                       'HTTPStatusCode': 200,
-                                       'HTTPHeaders': {'server': 'Server', 'date': 'Sat, 13 Mar 2021 22:36:43 GMT',
-                                                       'content-type': 'application/x-amz-json-1.0',
-                                                       'content-length': '66785', 'connection': 'keep-alive',
-                                                       'x-amzn-requestid': '0S7O066SM74N1HI7USGH1EBL3FVV4KQNSO5AEMVJF66Q9ASUAAJG',
-                                                       'x-amz-crc32': '2818540416'}, 'RetryAttempts': 0}}
+            'ResponseMetadata': {'RequestId': '0S7O066SM74N1HI7USGH1EBL3FVV4KQNSO5AEMVJF66Q9ASUAAJG',
+                                 'HTTPStatusCode': 200,
+                                 'HTTPHeaders': {'server': 'Server', 'date': 'Sat, 13 Mar 2021 22:36:43 GMT',
+                                                 'content-type': 'application/x-amz-json-1.0',
+                                                 'content-length': '66785', 'connection': 'keep-alive',
+                                                 'x-amzn-requestid': '0S7O066SM74N1HI7USGH1EBL3FVV4KQNSO5AEMVJF66Q9ASUAAJG',
+                                                 'x-amz-crc32': '2818540416'}, 'RetryAttempts': 0}}
         return list(map(lambda i: InvestmentUtils.load_model_by_type(i['type'], i), result['Items']))
 
     def batch_save(self, investments: [Investment]):
@@ -982,6 +928,7 @@ class PortfolioRepository:
         result = self._portfolio_table.query(KeyConditionExpression=Key('subject').eq(subject))
         if result['Items']:
             return Portfolio(**result['Items'][0])
+        print(f"No Portfolio yet for subject: {subject}")
 
     def save(self, portfolio: Portfolio):
         print(f'Saving portfolio: {asdict(portfolio)}')
