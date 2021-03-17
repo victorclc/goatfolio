@@ -138,8 +138,3 @@ resources:
         Fn::GetAtt: [ InvestmentsTable, StreamArn ]
       Export:
         Name: ${self:provider.stage}-InvestmentTableStreamArn
-    MarketDataRDSClusterArn:
-      Value:
-        Fn::GetAtt: [ MarketDataRDSCluster, Arn ]
-      Export:
-        Name: ${self:provider.stage}-MarketDataRDSClusterArn
