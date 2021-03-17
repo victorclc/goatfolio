@@ -6,5 +6,5 @@ s3transfer==0.3.3
 six==1.15.0
 urllib3==1.26.2
 requests==2.25.0
-
 yahooquery~=2.2.15
+psycopg2==2.8.6
