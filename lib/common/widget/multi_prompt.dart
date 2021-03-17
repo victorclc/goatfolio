@@ -54,7 +54,6 @@ class _MultiPromptState extends State<MultiPrompt> {
       width: double.infinity,
       child: Scaffold(
         resizeToAvoidBottomInset: true,
-        resizeToAvoidBottomPadding: true,
         body: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
