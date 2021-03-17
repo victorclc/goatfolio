@@ -4,6 +4,9 @@ provider:
   name: aws
   region: us-east-2
   stage: ${env:STAGE, 'dev'}
+  dbmasteruser: ${env:MARKETDATA_DB_MASTER_USER, 'postgres'}
+  dbmasterpassword: ${env:MARKETDATA_DB_MASTER_USER, 'postgres'}
+
 
 resources:
   Resources:
@@ -94,6 +97,21 @@ resources:
       Properties:
         QueueName: CeiImportResultDLQ
 
+    MarketDataRDSCluster:
+      Type: AWS::RDS::DBCluster
+      Properties:
+        MasterUsername: ${self:provider.dbmasteruser}
+        MasterUserPassword: ${self:provider.dbmasterpassword}
+        EnableHttpEndpoint: true
+        DatabaseName: marketdata
+        Engine: aurora-postgresql
+        EngineMode: serverless
+        ScalingConfiguration:
+          AutoPause: true
+          MaxCapacity: 4
+          MinCapacity: 2
+          SecondsUntilAutoPause: 900
+
   Outputs:
     GoatfolioAppUserPoolArnOutput:
       Value:
@@ -120,3 +138,8 @@ resources:
         Fn::GetAtt: [ InvestmentsTable, StreamArn ]
       Export:
         Name: ${self:provider.stage}-InvestmentTableStreamArn
+    MarketDataRDSClusterArn:
+      Value:
+        Fn::GetAtt: [ MarketDataRDSCluster, Arn ]
+      Export:
+        Name: ${self:provider.stage}-MarketDataRDSClusterArn
