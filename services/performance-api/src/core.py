@@ -25,40 +25,41 @@ class PerformanceCore:
 
             new investments will be added to the portfolio and old investments will be subtracted from the portfolio
         """
-        new_invest_map = groupby(sorted(new_investments, key=lambda i: i.ticker), key=lambda i: i.ticker)
-        # old_invest_map = groupby(sorted(old_investments, key=lambda i: i.ticker), key=lambda i: i.ticker)
-
-        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
-        for ticker, investments in new_invest_map:
-            stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
-            if not stock_consolidated:
-                stock_consolidated = StockConsolidated(ticker=ticker)
-                portfolio.stocks = stock_consolidated
-
-            investments = sorted(list(investments), key=lambda i: i.date)
-            for i in investments:
-                self.consolidate_stock_new(stock_consolidated, i)
-            self._fix_stock_history_gap(stock_consolidated.history, ticker)
-
-        all_stocks_history = [item for sublist in [s.history for s in portfolio.stocks] for item in sublist]
-        portfolio_history_map = {}
-        portfolio.invested_amount = Decimal(0)
-
-        for stock_position in all_stocks_history:
-            if stock_position.date not in portfolio_history_map:
-                p_position = PortfolioPosition(stock_position.date)
-                portfolio_history_map[stock_position.date] = p_position
-            else:
-                p_position = portfolio_history_map[stock_position.date]
-
-            portfolio.invested_amount = portfolio.invested_amount + stock_position.invested_amount
-
-            p_position.total_invested = p_position.total_invested + stock_position.invested_amount
-            if stock_position.amount > 0:
-                p_position.gross_amount = p_position.gross_amount + stock_position.amount * stock_position.close_price
-        portfolio.history = list(portfolio_history_map.values())
-
-        self.portfolio_repo.save(portfolio)
+        return
+        # new_invest_map = groupby(sorted(new_investments, key=lambda i: i.ticker), key=lambda i: i.ticker)
+        # # old_invest_map = groupby(sorted(old_investments, key=lambda i: i.ticker), key=lambda i: i.ticker)
+        #
+        # portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
+        # for ticker, investments in new_invest_map:
+        #     stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
+        #     if not stock_consolidated:
+        #         stock_consolidated = StockConsolidated(ticker=ticker)
+        #         portfolio.stocks = stock_consolidated
+        #
+        #     investments = sorted(list(investments), key=lambda i: i.date)
+        #     for i in investments:
+        #         self.consolidate_stock_new(stock_consolidated, i)
+        #     self._fix_stock_history_gap(stock_consolidated.history, ticker)
+        #
+        # all_stocks_history = [item for sublist in [s.history for s in portfolio.stocks] for item in sublist]
+        # portfolio_history_map = {}
+        # portfolio.invested_amount = Decimal(0)
+        #
+        # for stock_position in all_stocks_history:
+        #     if stock_position.date not in portfolio_history_map:
+        #         p_position = PortfolioPosition(stock_position.date)
+        #         portfolio_history_map[stock_position.date] = p_position
+        #     else:
+        #         p_position = portfolio_history_map[stock_position.date]
+        #
+        #     portfolio.invested_amount = portfolio.invested_amount + stock_position.invested_amount
+        #
+        #     p_position.total_invested = p_position.total_invested + stock_position.invested_amount
+        #     if stock_position.amount > 0:
+        #         p_position.gross_amount = p_position.gross_amount + stock_position.amount * stock_position.close_price
+        # portfolio.history = list(portfolio_history_map.values())
+        #
+        # self.portfolio_repo.save(portfolio)
 
     def consolidate_stock_new(self, stock_consolidated: StockConsolidated, inv: StockInvestment):
         stock_consolidated.initial_date = min(stock_consolidated.initial_date, inv.date)

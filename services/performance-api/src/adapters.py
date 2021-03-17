@@ -6,7 +6,7 @@ from decimal import Decimal
 from typing import List
 
 import boto3
-import psycopg2
+# import psycopg2
 from boto3.dynamodb.conditions import Key
 from yahooquery import Ticker
 
@@ -30,8 +30,8 @@ class MarketData:
     def __init__(self):
         self.yahoo_ticker = None
         self.history_cache = {}
-        self.con = psycopg2.connect(host='localhost', database='postgres',
-                                    user='postgres', password='postgres')
+        # self.con = psycopg2.connect(host='localhost', database='postgres',
+        #                             user='postgres', password='postgres')
 
     def ticker_intraday_date(self, ticker: str):
         if self.yahoo_ticker is None:
