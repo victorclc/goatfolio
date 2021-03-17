@@ -40,6 +40,26 @@ class PerformanceCore:
                 self.consolidate_stock_new(stock_consolidated, i)
             self._fix_stock_history_gap(stock_consolidated.history, ticker)
 
+        all_stocks_history = [item for sublist in [s.history for s in portfolio.stocks] for item in sublist]
+        portfolio_history_map = {}
+        portfolio.invested_amount = Decimal(0)
+
+        for stock_position in all_stocks_history:
+            if stock_position.date not in portfolio_history_map:
+                p_position = PortfolioPosition(stock_position.date)
+                portfolio_history_map[stock_position.date] = p_position
+            else:
+                p_position = portfolio_history_map[stock_position.date]
+
+            portfolio.invested_amount = portfolio.invested_amount + stock_position.invested_amount
+
+            p_position.total_invested = p_position.total_invested + stock_position.invested_amount
+            if stock_position.amount > 0:
+                p_position.gross_amount = p_position.gross_amount + stock_position.amount * stock_position.close_price
+        portfolio.history = list(portfolio_history_map.values())
+
+        self.portfolio_repo.save(portfolio)
+
     def consolidate_stock_new(self, stock_consolidated: StockConsolidated, inv: StockInvestment):
         stock_consolidated.initial_date = min(stock_consolidated.initial_date, inv.date)
         stock_consolidated.add_investment(inv)
@@ -53,11 +73,12 @@ class PerformanceCore:
                                     key=lambda p: p.date)
             amount = prev_positions[-1].amount if prev_positions else Decimal(0)
 
-            h_position = StockPosition(month_date, candle.open, candle.close, amount)
+            h_position = StockPosition(month_date, candle.open, candle.close, amount, invested_amount=Decimal(0))
             stock_consolidated.history.append(h_position)
 
         inv_amount = (inv.amount if inv.operation == OperationType.BUY else - inv.amount)
         h_position.amount = h_position.amount + inv_amount
+        h_position.invested_amount = h_position.invested_amount + inv_amount
 
         for position in [position for position in stock_consolidated.history if position.date > month_date]:
             position.amount = position.amount + inv_amount

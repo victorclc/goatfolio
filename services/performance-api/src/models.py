@@ -72,6 +72,7 @@ class StockPosition:
     open_price: Decimal
     close_price: Decimal
     amount: Decimal = field(default_factory=lambda: Decimal(0))
+    invested_amount: Decimal = field(default_factory=lambda: Decimal(0))
 
     def __post_init__(self):
         if not isinstance(self.date, datetime):
