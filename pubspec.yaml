@@ -46,8 +46,13 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: "^0.8.0"
+#  flutter_launcher_icons: "^0.8.0"
+#  flutter_native_splash: ^1.1.2
 
+flutter_native_splash:
+#  color: "#42a5f5"
+#  image: "images/splash/splash-screen3.png"
+  background_image: "images/splash/splash-screen3.png"
 
 flutter_icons:
   android: true
@@ -65,6 +70,7 @@ flutter:
   uses-material-design: true
   assets:
     - images/app_logo.png
+    - images/splash/splash-screen3.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
