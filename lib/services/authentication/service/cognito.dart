@@ -157,6 +157,7 @@ class UserService {
       await credentials.resetAwsCredentials();
     }
     if (_cognitoUser != null) {
+      await _userPool.storage.removeItem('CognitoIdentityServiceProvider.$cognitoClientId.LastAuthUser');
       return _cognitoUser.signOut();
     }
   }
