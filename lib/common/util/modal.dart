@@ -17,10 +17,11 @@ class ModalUtils {
   static Future<T> showDragableModalBottomSheet<T>(
       BuildContext context, Widget child) async {
     return await showCupertinoModalBottomSheet(
-        // duration: Duration(milliseconds: 400),
         enableDrag: true,
+
         isDismissible: false,
         useRootNavigator: true,
+        expand: true,
         context: context,
         builder: (context) {
           return child;
