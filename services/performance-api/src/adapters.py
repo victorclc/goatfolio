@@ -36,7 +36,7 @@ class MarketData:
         result = self.yahoo_ticker.price[f'{ticker}.SA']
         return IntraDayData(Decimal(result['regularMarketPrice']).quantize(Decimal('0.01')),
                             Decimal(result['regularMarketPreviousClose']).quantize(Decimal('0.01')),
-                            Decimal(result['regularMarketChangePercent']).quantize(Decimal('0.01')) * 100,
+                            Decimal((result['regularMarketChangePercent']) * 100).quantize(Decimal('0.01')),
                             result['shortName'])
 
     def ticker_monthly_data(self, ticker, date_from=None):
