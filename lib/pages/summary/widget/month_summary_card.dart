@@ -16,9 +16,12 @@ class MonthSummaryCard extends StatefulWidget {
 }
 
 class _MonthSummaryCardState extends State<MonthSummaryCard> {
-  @override
+  var sortedHistory;
+
   void initState() {
     super.initState();
+    sortedHistory = widget.performance.history
+      ..sort((a, b) => a.date.compareTo(b.date));
   }
 
   @override
@@ -111,13 +114,15 @@ class _MonthSummaryCardState extends State<MonthSummaryCard> {
                             children: [
                               Text("Carteira: "),
                               Text(
-                                percentFormatter.format(widget
-                                        .performance
-                                        .history[
-                                            widget.performance.history.length -
-                                                2]
-                                        .grossAmount /
-                                    widget.performance.grossAmount),
+                                percentFormatter.format(
+                                    (widget.performance.grossAmount /
+                                            widget
+                                                .performance
+                                                .history[widget.performance
+                                                        .history.length -
+                                                    2]
+                                                .grossAmount -
+                                        1)),
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyText2
@@ -149,11 +154,10 @@ class _MonthSummaryCardState extends State<MonthSummaryCard> {
                           Text("IBOV: "),
                           Text(
                             percentFormatter.format(widget
-                                .performance
-                                .history[
-                            widget.performance.history.length -
-                                2]
-                                .grossAmount /
+                                    .performance
+                                    .history[
+                                        widget.performance.history.length - 2]
+                                    .grossAmount /
                                 widget.performance.grossAmount),
                             style: Theme.of(context)
                                 .textTheme
@@ -164,7 +168,6 @@ class _MonthSummaryCardState extends State<MonthSummaryCard> {
                       ),
                     ],
                   ),
-
                 ],
               ),
             ),
