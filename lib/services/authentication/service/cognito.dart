@@ -33,6 +33,7 @@ class UserService {
       return false;
     }
     _session = await _cognitoUser.getSession();
+    print(_session);
 
     return _session.isValid();
   }
@@ -81,6 +82,9 @@ class UserService {
 
     final attributes = await _cognitoUser.getUserAttributes();
     final user = User.fromUserAttributes(attributes);
+
+    _userPool.storage.setItem('CognitoIdentityServiceProvider.$cognitoClientId.LastAuthUser', user.email);
+
     user.confirmed = true;
     user.hasAccess = true;
 
