@@ -18,6 +18,8 @@ class PerformanceCore:
         self.portfolio_repo = PortfolioRepository()
         self.market_data = MarketData()
 
+
+
     def consolidate_port_new_and_old_change_name(self, subject, new_investments, old_investments):
         """
             new_investments is a new or a newer version of the investment
@@ -127,13 +129,13 @@ class PerformanceCore:
         portfolio.stocks, portfolio.stock_gross_amount, portfolio.stock_prev_gross_amount = stock_performance
         portfolio.reits, portfolio.reit_gross_amount, portfolio.reit_prev_gross_amount = reit_performance
 
-        h_dict = {int(h.date.timestamp()): h for h in portfolio.history}
-        s_history = [item for sublist in [s.history for s in portfolio.stocks + portfolio.reits] for item in sublist]
-
-        for s_position in s_history:
-            s_timestamp = int(s_position.date.timestamp())
-            h_dict[s_timestamp].gross_amount = h_dict[
-                                                   s_timestamp].gross_amount + s_position.amount * s_position.close_price
+        # h_dict = {int(h.date.timestamp()): h for h in portfolio.history}
+        # s_history = [item for sublist in [s.history for s in portfolio.stocks + portfolio.reits] for item in sublist]
+        #
+        # for s_position in s_history:
+        #     s_timestamp = int(s_position.date.timestamp())
+        #     h_dict[s_timestamp].gross_amount = h_dict[
+        #                                            s_timestamp].gross_amount + s_position.amount * s_position.close_price
 
         return portfolio
 
