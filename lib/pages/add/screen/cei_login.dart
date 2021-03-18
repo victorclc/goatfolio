@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CeiLoginPage extends StatelessWidget {
   @override
@@ -38,8 +39,8 @@ class CeiLoginPage extends StatelessWidget {
         ),
         child: SafeArea(
             child: SingleChildScrollView(
-              child: Column(
-          children: [
+          child: Column(
+            children: [
               Container(
                 alignment: Alignment.center,
                 padding: EdgeInsets.only(top: 16, bottom: 16),
@@ -60,32 +61,35 @@ class CeiLoginPage extends StatelessWidget {
                 height: 48,
               ),
               CupertinoTextField(
+                autofillHints: [AutofillHints.username],
                 prefix: Container(
                   width: 100,
                   padding: EdgeInsets.all(16),
                   child: Text(
                     'CPF  ',
-                    style:
-                        textTheme.textStyle.copyWith(fontWeight: FontWeight.w400),
+                    style: textTheme.textStyle
+                        .copyWith(fontWeight: FontWeight.w400),
                   ),
                 ),
                 placeholder: "Obrigatório",
               ),
               CupertinoTextField(
+                autofillHints: [AutofillHints.password],
+                obscureText: true,
                 prefix: Container(
                   padding: EdgeInsets.all(16),
                   width: 100,
                   child: Text(
                     'Senha',
-                    style:
-                        textTheme.textStyle.copyWith(fontWeight: FontWeight.w400),
+                    style: textTheme.textStyle
+                        .copyWith(fontWeight: FontWeight.w400),
                   ),
                 ),
                 placeholder: "Obrigatório",
               ),
               CupertinoButton(
                 child: Text("Esqueceu sua senha?"),
-                onPressed: () => 1,
+                onPressed: () async => await launch('https://cei.b3.com.br/CEI_Responsivo/recuperar-senha.aspx'),
               ),
               SizedBox(
                 height: 48,
@@ -99,20 +103,25 @@ class CeiLoginPage extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: 16,),
+              SizedBox(
+                height: 16,
+              ),
               Icon(Icons.info_outline),
-              SizedBox(height: 8,),
+              SizedBox(
+                height: 8,
+              ),
               Container(
                 alignment: Alignment.center,
                 padding: EdgeInsets.only(left: 16, right: 16),
                 child: Text(
-                  'O CEI disponibiliza apenas as movimentações dos ultimos 18 meses. Caso você tenha movimentações anterior a esse período, será necessario inclui-las manualmente, para que voce tenha os valores corretos da rentabilidade da sua carteira',
-                  style: textTheme.textStyle.copyWith(fontSize: 12, fontWeight: FontWeight.w200),
+                  'O CEI disponibiliza apenas as movimentações dos ultimos 18 meses. Caso você tenha movimentações anteriores a esse período, será necessario inclui-las manualmente, para que voce tenha os valores corretos da rentabilidade da sua carteira',
+                  style: textTheme.textStyle
+                      .copyWith(fontSize: 12, fontWeight: FontWeight.w200),
                   textAlign: TextAlign.center,
                 ),
               ),
-          ],
-        ),
-            )));
+            ],
+          ),
+        )));
   }
 }
