@@ -70,7 +70,7 @@ class _MonthSummaryCardState extends State<MonthSummaryCard> {
                         children: [
                           Text(
                             'Variação no mês: ',
-                            style: textTheme.tabLabelTextStyle
+                            style: textTheme.textStyle
                                 .copyWith(fontSize: 16),
                           ),
                           Text(
@@ -108,7 +108,7 @@ class _MonthSummaryCardState extends State<MonthSummaryCard> {
                         children: [
                           Text(
                             'Variação no dia: ',
-                            style: textTheme.tabLabelTextStyle
+                            style: textTheme.textStyle
                                 .copyWith(fontSize: 16),
                           ),
                           Text(
