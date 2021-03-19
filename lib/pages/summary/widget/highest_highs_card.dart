@@ -90,7 +90,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
     return Container(
       width: double.infinity,
       child: PressableCard(
-        cardPadding: EdgeInsets.only(left: 16, right: 8, top: 16, bottom: 16),
+        cardPadding: EdgeInsets.only(left: 16, right: 4, top: 16, bottom: 16),
         onPressed: () => {},
         child: Padding(
           padding: const EdgeInsets.all(16.0),

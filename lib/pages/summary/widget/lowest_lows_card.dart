@@ -90,7 +90,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
     return Container(
       width: double.infinity,
       child: PressableCard(
-        cardPadding: EdgeInsets.only(left: 8, right: 16, top: 16, bottom: 16),
+        cardPadding: EdgeInsets.only(left: 4, right: 16, top: 16, bottom: 16),
         onPressed: () => {},
         child: Padding(
           padding: const EdgeInsets.all(16.0),
