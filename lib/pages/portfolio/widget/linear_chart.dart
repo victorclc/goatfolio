@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-class LinearChart extends StatefulWidget {
+class LinearChartChart extends StatefulWidget {
   final List<charts.Series> seriesList;
   final bool animate;
+  final Function onSelectionChanged;
 
-  LinearChart(this.seriesList,
-      {this.animate});
+  LinearChartChart(this.seriesList, {this.onSelectionChanged, this.animate});
 
   @override
-  _LinearChartState createState() => _LinearChartState();
+  _LinearChartChartState createState() => _LinearChartChartState();
 }
 
-class _LinearChartState extends State<LinearChart> {
+class _LinearChartChartState extends State<LinearChartChart> {
   Widget _chart;
 
   @override
@@ -21,7 +21,6 @@ class _LinearChartState extends State<LinearChart> {
       _chart = _buildChart();
     }
     return _chart;
-
   }
 
   Widget _buildChart() {
@@ -32,13 +31,14 @@ class _LinearChartState extends State<LinearChart> {
             widget.seriesList,
             animate: widget.animate,
             customSeriesRenderers: [
+              // new charts.LineRendererConfig(includeArea: true, stacked: true),
               new charts.SymbolAnnotationRendererConfig(
                   customRendererId: 'customSymbolAnnotation')
             ],
             dateTimeFactory: const charts.LocalDateTimeFactory(),
             primaryMeasureAxis: new charts.NumericAxisSpec(
-              renderSpec: new charts.NoneRenderSpec(),
-            ),
+                // renderSpec: new charts.NoneRenderSpec(),
+                ),
             domainAxis: new charts.DateTimeAxisSpec(
               showAxisLine: true,
               renderSpec: new charts.NoneRenderSpec(),
@@ -50,7 +50,13 @@ class _LinearChartState extends State<LinearChart> {
             selectionModels: [
               new charts.SelectionModelConfig(
                 type: charts.SelectionModelType.info,
-                changedListener: (model) => 1,
+                changedListener: (model) {
+                  if (model.selectedDatum.isNotEmpty) {
+                    final selectedDatum = model.selectedDatum.first.series.data;
+                    final index = model.selectedDatum.first.index;
+                    widget.onSelectionChanged(selectedDatum[index]);
+                  }
+                },
               ),
             ],
           ),
