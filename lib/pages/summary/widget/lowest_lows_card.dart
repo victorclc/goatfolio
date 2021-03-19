@@ -99,7 +99,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Maiores Baixas",
-                  style: Theme.of(context).textTheme.headline6,
+                  style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
                 ),
               ),
               SizedBox(

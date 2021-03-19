@@ -99,7 +99,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Maiores Altas",
-                  style: Theme.of(context).textTheme.headline6,
+                  style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
                 ),
               ),
               SizedBox(

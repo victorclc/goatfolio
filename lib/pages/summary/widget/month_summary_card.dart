@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/pressable_card.dart';
@@ -26,6 +27,7 @@ class _MonthSummaryCardState extends State<MonthSummaryCard> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = CupertinoTheme.of(context).textTheme;
     return Container(
       width: double.infinity,
       child: PressableCard(
@@ -34,139 +36,130 @@ class _MonthSummaryCardState extends State<MonthSummaryCard> {
           children: [
             Container(
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
               child: Text(
                 'Rentabilidade',
-                style: Theme.of(context).textTheme.bodyText2.copyWith(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0, left: 16, right: 16),
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Total bruto'),
-                      Text(
-                        moneyFormatter.format(widget.performance.grossAmount),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyText2
-                            .copyWith(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 4,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Variação no dia'),
-                      Text(
-                        moneyFormatter.format(widget.performance.dayVariation),
-                        style: Theme.of(context).textTheme.bodyText2.copyWith(
-                            color: widget.performance.dayVariation >= 0
-                                ? Colors.green
-                                : Colors.red,
-                            fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Variação no mês'),
-                      Text(
-                        moneyFormatter.format(widget.performance.grossAmount -
-                            widget
-                                .performance
-                                .history[widget.performance.history.length - 2]
-                                .grossAmount),
-                        style: Theme.of(context).textTheme.bodyText2.copyWith(
-                            color: widget.performance.grossAmount -
-                                        widget
-                                            .performance
-                                            .history[widget.performance.history
-                                                    .length -
-                                                2]
-                                            .grossAmount >=
-                                    0
-                                ? Colors.green
-                                : Colors.red,
-                            fontSize: 16),
-                      ),
-                    ],
+                  Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text('Saldo bruto',
+                          style: textTheme.tabLabelTextStyle
+                              .copyWith(fontSize: 16))),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      moneyFormatter.format(widget.performance.grossAmount),
+                      style: textTheme.textStyle
+                          .copyWith(fontSize: 24, fontWeight: FontWeight.w500),
+                    ),
                   ),
                   SizedBox(
                     height: 8,
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Row(
-                            children: [
-                              Text("Carteira: "),
-                              Text(
-                                percentFormatter.format(
-                                    (widget.performance.grossAmount /
-                                            widget
-                                                .performance
-                                                .history[widget.performance
-                                                        .history.length -
-                                                    2]
-                                                .grossAmount -
-                                        1)),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyText2
-                                    .copyWith(color: Colors.lightBlue),
-                              ),
-                            ],
-                          ),
-                        ],
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Variação',
+                          style: textTheme.tabLabelTextStyle
+                              .copyWith(fontSize: 16),
+                        ),
                       ),
-                      Row(
-                        children: [
-                          Text("CDI: "),
-                          Text(
-                            percentFormatter.format(widget
-                                    .performance
-                                    .history[
-                                        widget.performance.history.length - 2]
-                                    .grossAmount /
-                                widget.performance.grossAmount),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                .copyWith(color: Colors.deepPurple),
-                          )
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text("IBOV: "),
-                          Text(
-                            percentFormatter.format(widget
-                                    .performance
-                                    .history[
-                                        widget.performance.history.length - 2]
-                                    .grossAmount /
-                                widget.performance.grossAmount),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                .copyWith(color: Colors.orange),
-                          )
-                        ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  ' mês: ',
+                                  style: textTheme.tabLabelTextStyle
+                                      .copyWith(fontSize: 16),
+                                ),
+                                Text(
+                                  moneyFormatter.format(
+                                      widget.performance.grossAmount -
+                                          widget
+                                              .performance
+                                              .history[widget.performance
+                                                      .history.length -
+                                                  2]
+                                              .grossAmount),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyText2
+                                      .copyWith(
+                                          color: widget.performance
+                                                          .grossAmount -
+                                                      widget
+                                                          .performance
+                                                          .history[widget
+                                                                  .performance
+                                                                  .history
+                                                                  .length -
+                                                              2]
+                                                          .grossAmount >=
+                                                  0
+                                              ? Colors.green
+                                              : Colors.red,
+                                          fontSize: 16),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  ' dia: ',
+                                  style: textTheme.tabLabelTextStyle
+                                      .copyWith(fontSize: 16),
+                                ),
+                                Text(
+                                  moneyFormatter
+                                      .format(widget.performance.dayVariation),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyText2
+                                      .copyWith(
+                                          color:
+                                              widget.performance.dayVariation >=
+                                                      0
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                          fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
+                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     Text('Variação no dia'),
+                  //     Text(
+                  //       moneyFormatter.format(widget.performance.dayVariation),
+                  //       style: Theme.of(context).textTheme.bodyText2.copyWith(
+                  //           color: widget.performance.dayVariation >= 0
+                  //               ? Colors.green
+                  //               : Colors.red,
+                  //           fontSize: 16),
+                  //     ),
+                  //   ],
+                  // ),
+
+                  SizedBox(
+                    height: 8,
                   ),
                 ],
               ),
