@@ -63,6 +63,7 @@ class CeiLoginPage extends StatelessWidget {
               ),
               CupertinoTextField(
                 autofillHints: [AutofillHints.username],
+                textInputAction: TextInputAction.next,
                 inputFormatters: [cpfInputFormatter],
                 prefix: Container(
                   width: 100,
