@@ -67,7 +67,7 @@ class _StockAddState extends State<StockAdd> {
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.text,
                 prefix: Container(
-                  width: 115,
+                  width: 116,
                   padding: EdgeInsets.all(16),
                   child: Text(
                     'Ativo  ',
@@ -84,7 +84,7 @@ class _StockAddState extends State<StockAdd> {
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.text,
                 prefix: Container(
-                  width: 115,
+                  width: 116,
                   padding: EdgeInsets.all(16),
                   child: Text(
                     'Corretora',
@@ -102,7 +102,7 @@ class _StockAddState extends State<StockAdd> {
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
                 prefix: Container(
-                  width: 115,
+                  width: 116,
                   padding: EdgeInsets.all(16),
                   child: Text(
                     'Quantidade',
@@ -119,7 +119,7 @@ class _StockAddState extends State<StockAdd> {
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 prefix: Container(
-                  width: 115,
+                  width: 116,
                   padding: EdgeInsets.all(16),
                   child: Text(
                     'Preço ',
@@ -137,7 +137,7 @@ class _StockAddState extends State<StockAdd> {
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
                 prefix: Container(
-                  width: 115,
+                  width: 116,
                   padding: EdgeInsets.all(16),
                   child: Text(
                     'Data',
@@ -154,7 +154,7 @@ class _StockAddState extends State<StockAdd> {
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 prefix: Container(
-                  width: 115,
+                  width: 116,
                   padding: EdgeInsets.all(16),
                   child: Text(
                     'Custos',
