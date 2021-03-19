@@ -2,21 +2,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/pressable_card.dart';
+import 'package:goatfolio/pages/summary/screen/rentability.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 
-class MonthSummaryCard extends StatefulWidget {
+
+class RentabilityCard extends StatefulWidget {
   static const String CARD_TITLE = "Rentabilidade";
   final PortfolioPerformance performance;
 
-  const MonthSummaryCard(this.performance, {Key key}) : super(key: key);
+  const RentabilityCard(this.performance, {Key key}) : super(key: key);
 
   @override
-  _MonthSummaryCardState createState() {
-    return _MonthSummaryCardState();
+  _RentabilityCardState createState() {
+    return _RentabilityCardState();
   }
 }
 
-class _MonthSummaryCardState extends State<MonthSummaryCard> {
+class _RentabilityCardState extends State<RentabilityCard> {
   var sortedHistory;
 
   void initState() {
@@ -31,7 +33,7 @@ class _MonthSummaryCardState extends State<MonthSummaryCard> {
     return Container(
       width: double.infinity,
       child: PressableCard(
-        onPressed: () => {},
+        onPressed: () => goToRentabilityPage(context, widget.performance),
         child: Column(
           children: [
             Container(
@@ -70,30 +72,25 @@ class _MonthSummaryCardState extends State<MonthSummaryCard> {
                         children: [
                           Text(
                             'Variação no mês: ',
-                            style: textTheme.textStyle
-                                .copyWith(fontSize: 16),
+                            style: textTheme.textStyle.copyWith(fontSize: 16),
                           ),
                           Text(
-                            moneyFormatter.format(
-                                widget.performance.grossAmount -
-                                    widget
-                                        .performance
-                                        .history[widget.performance
-                                                .history.length -
-                                            2]
-                                        .grossAmount),
+                            moneyFormatter.format(widget
+                                    .performance.grossAmount -
+                                widget
+                                    .performance
+                                    .history[
+                                        widget.performance.history.length - 2]
+                                    .grossAmount),
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyText2
                                 .copyWith(
-                                    color: widget.performance
-                                                    .grossAmount -
+                                    color: widget.performance.grossAmount -
                                                 widget
                                                     .performance
-                                                    .history[widget
-                                                            .performance
-                                                            .history
-                                                            .length -
+                                                    .history[widget.performance
+                                                            .history.length -
                                                         2]
                                                     .grossAmount >=
                                             0
@@ -108,8 +105,7 @@ class _MonthSummaryCardState extends State<MonthSummaryCard> {
                         children: [
                           Text(
                             'Variação no dia: ',
-                            style: textTheme.textStyle
-                                .copyWith(fontSize: 16),
+                            style: textTheme.textStyle.copyWith(fontSize: 16),
                           ),
                           Text(
                             moneyFormatter
@@ -118,11 +114,9 @@ class _MonthSummaryCardState extends State<MonthSummaryCard> {
                                 .textTheme
                                 .bodyText2
                                 .copyWith(
-                                    color:
-                                        widget.performance.dayVariation >=
-                                                0
-                                            ? Colors.green
-                                            : Colors.red,
+                                    color: widget.performance.dayVariation >= 0
+                                        ? Colors.green
+                                        : Colors.red,
                                     fontSize: 16),
                           ),
                         ],

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-class LinearChartChart extends StatefulWidget {
+class LinearChart extends StatefulWidget {
   final List<charts.Series> seriesList;
   final bool animate;
   final Function onSelectionChanged;
 
-  LinearChartChart(this.seriesList, {this.onSelectionChanged, this.animate});
+  LinearChart(this.seriesList, {this.onSelectionChanged, this.animate});
 
   @override
-  _LinearChartChartState createState() => _LinearChartChartState();
+  _LinearChartState createState() => _LinearChartState();
 }
 
-class _LinearChartChartState extends State<LinearChartChart> {
+class _LinearChartState extends State<LinearChart> {
   Widget _chart;
 
   @override
@@ -44,7 +44,9 @@ class _LinearChartChartState extends State<LinearChartChart> {
               renderSpec: new charts.NoneRenderSpec(),
             ),
             behaviors: [
-              charts.SeriesLegend(desiredMaxColumns: 2, position: charts.BehaviorPosition.bottom),
+              charts.SeriesLegend(
+                  desiredMaxColumns: 2,
+                  position: charts.BehaviorPosition.bottom),
               new charts.SelectNearest(
                   eventTrigger: charts.SelectionTrigger.tapAndDrag),
             ],
@@ -53,9 +55,14 @@ class _LinearChartChartState extends State<LinearChartChart> {
                 type: charts.SelectionModelType.info,
                 changedListener: (model) {
                   if (model.selectedDatum.isNotEmpty) {
-                    final selectedDatum = model.selectedDatum.first.series.data;
+                    final selectedDatum = model.selectedDatum;
                     final index = model.selectedDatum.first.index;
-                    widget.onSelectionChanged(selectedDatum[index]);
+                    final Map<String, dynamic> result = Map();
+                    selectedDatum.forEach((element) {
+                      result[element.series.displayName] =
+                          element.series.data[index];
+                    });
+                    widget.onSelectionChanged(result);
                   }
                 },
               ),

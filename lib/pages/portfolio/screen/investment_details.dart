@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:goatfolio/pages/portfolio/widget/linear_chart.dart';
+import 'package:goatfolio/common/widget/linear_chart.dart';
 import 'package:goatfolio/services/performance/model/stock_performance.dart';
 import 'package:intl/intl.dart';
 import 'package:goatfolio/common/extension/string.dart';
@@ -33,7 +33,8 @@ class InvestmentDetails extends StatefulWidget {
 }
 
 class _InvestmentDetailsState extends State<InvestmentDetails> {
-  _MoneyDateSeries selectedSeries;
+  _MoneyDateSeries selectedGrossSeries;
+  _MoneyDateSeries selectedInvestedSeries;
   List<charts.Series<_MoneyDateSeries, DateTime>> totalAmountSeries;
   final dateFormat = DateFormat('MMMM', 'pt_BR');
   String selectedTab;
@@ -41,12 +42,14 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
   void initState() {
     super.initState();
     totalAmountSeries = createTotalAmountSeries();
-    selectedSeries = totalAmountSeries.first.data.last;
+    selectedGrossSeries = totalAmountSeries.first.data.last;
+    selectedInvestedSeries = totalAmountSeries.last.data.last;
   }
 
-  void onSelectionChanged(_MoneyDateSeries series) {
+  void onSelectionChanged(Map<String, dynamic> series) {
     setState(() {
-      selectedSeries = series;
+      selectedGrossSeries = series['Saldo bruto'];
+      selectedInvestedSeries = series['Valor investido'];
     });
   }
 
@@ -94,7 +97,7 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
                     'a': Text("Valorização"),
                     'b': Text("Rentabilidade")
                   },
-                  onValueChanged: (value){
+                  onValueChanged: (value) {
                     setState(() {
                       selectedTab = value;
                     });
@@ -112,12 +115,21 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
                       style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
                     ),
                     Text(
-                      moneyFormatter.format(selectedSeries.money),
+                      moneyFormatter.format(selectedGrossSeries.money),
                       style: textTheme.textStyle
                           .copyWith(fontSize: 28, fontWeight: FontWeight.w500),
                     ),
                     Text(
-                      '${dateFormat.format(selectedSeries.date).capitalize()} de ${selectedSeries.date.year}',
+                      'Valor investido',
+                      style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
+                    ),
+                    Text(
+                      moneyFormatter.format(selectedInvestedSeries.money),
+                      style: textTheme.textStyle
+                          .copyWith(fontSize: 20, fontWeight: FontWeight.w500),
+                    ),
+                    Text(
+                      '${dateFormat.format(selectedGrossSeries.date).capitalize()} de ${selectedGrossSeries.date.year}',
                       style: textTheme.tabLabelTextStyle
                           .copyWith(fontSize: 16, fontWeight: FontWeight.w400),
                     ),
@@ -126,8 +138,8 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
               ),
               SizedBox(
                 height: 240,
-                child: LinearChartChart(
-                  createTotalAmountSeries(),
+                child: LinearChart(
+                  totalAmountSeries,
                   onSelectionChanged: onSelectionChanged,
                 ),
               ),
@@ -208,15 +220,15 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
           _MoneyDateSeries(element.date, element.closePrice * element.amount));
     });
 
-      double investedAmount = 0.0;
-      widget.item.history.forEach((history) {
-        if (history.amount == 0) {
-          investedAmount = 0;
-        } else {
-          investedAmount += history.investedAmount;
-        }
-        seriesInvested.add(_MoneyDateSeries(history.date, investedAmount));
-      });
+    double investedAmount = 0.0;
+    widget.item.history.forEach((history) {
+      if (history.amount == 0) {
+        investedAmount = 0;
+      } else {
+        investedAmount += history.investedAmount;
+      }
+      seriesInvested.add(_MoneyDateSeries(history.date, investedAmount));
+    });
 
     return [
       new charts.Series<_MoneyDateSeries, DateTime>(
