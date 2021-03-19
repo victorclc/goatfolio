@@ -110,6 +110,41 @@ class _RentabilityPageState extends State<RentabilityPage> {
                   onSelectionChanged: onSelectionChanged,
                 ),
               ),
+              Divider(
+                color: Colors.grey,
+                height: 24,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Saldo bruto'),
+                  Text(moneyFormatter.format(widget.performance.grossAmount)),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Valor investido'),
+                  Text(
+                      moneyFormatter.format(widget.performance.investedAmount)),
+                ],
+              ),
+              SizedBox(
+                height: 4,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Resultado'),
+                  Text(
+                    moneyFormatter.format(widget.performance.result),
+                    style: textTheme.textStyle.copyWith(
+                        color: widget.performance.result >= 0
+                            ? Colors.green
+                            : Colors.red),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

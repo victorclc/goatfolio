@@ -13,6 +13,7 @@ class PortfolioPerformance {
   List<PortfolioHistory> history;
 
   get grossAmount => stockGrossAmount + reitGrossAmount;
+  get result => grossAmount - investedAmount;
 
   get prevDayGrossAmount => prevStockGrossAmount + prevReitGrossAmount;
 
