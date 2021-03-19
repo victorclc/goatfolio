@@ -89,7 +89,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 220,
+      height: 224,
       child: PressableCard(
         cardPadding: EdgeInsets.only(left: 4, right: 16, top: 16, bottom: 16),
         onPressed: () => {},
