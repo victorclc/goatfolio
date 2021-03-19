@@ -4,6 +4,7 @@ import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/widget/multi_prompt.dart';
 import 'package:goatfolio/pages/add/prompt/add_stock_prompt.dart';
+import 'package:goatfolio/pages/add/screen/stock_add.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
@@ -79,8 +80,8 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsListPrototype> {
         navigationBar: CupertinoNavigationBar(
           previousPageTitle: "",
           trailing: IconButton(
-            alignment: Alignment.centerRight,
-            padding: EdgeInsets.all(0),
+              alignment: Alignment.centerRight,
+              padding: EdgeInsets.all(0),
               icon: Icon(Icons.add),
               onPressed: () => ModalUtils.showUnDismissibleModalBottomSheet(
                     context,
@@ -127,31 +128,20 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsListPrototype> {
                             }
                             final List<SettingsSection> sections = List();
                             for (String letter in tickersByAlphabet.keys) {
-                              sections.add(SettingsSection(
-                                title: letter,
-                                tiles: tickersByAlphabet[letter]
-                                    .map((e) => SettingsTile(
-                                          onPressed: (context) => ModalUtils
-                                              .showUnDismissibleModalBottomSheet(
-                                            context,
-                                            MultiPrompt(
-                                              onSubmit: (values) async {
-                                                values['ticker'] = e;
-                                                await onStockSubmit(values);
-                                              },
-                                              promptRequests: [
-                                                StockAmountPrompt(),
-                                                StockPricePrompt(),
-                                                StockDatePrompt(),
-                                                StockBrokerPrompt(),
-                                                StockCostsPrompt(),
-                                              ],
-                                            ),
-                                          ),
+                              sections.add(
+                                SettingsSection(
+                                  title: letter,
+                                  tiles: tickersByAlphabet[letter]
+                                      .map((e) => SettingsTile(
                                           title: e,
-                                        ))
-                                    .toList(),
-                              ));
+                                          onPressed: (context) =>
+                                              Navigator.of(context).push(
+                                                  CupertinoPageRoute(
+                                                      builder: (contexx) =>
+                                                          StockAdd()))))
+                                      .toList(),
+                                ),
+                              );
                             }
                             return Expanded(
                                 child: SettingsList(
