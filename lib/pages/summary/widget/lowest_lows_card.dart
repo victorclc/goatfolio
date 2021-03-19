@@ -31,7 +31,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
     if (lows.length == 0) {
       return Text("Nenhuma baixa", style: Theme.of(context).textTheme.subtitle1);
     }
-    int listSize = lows.length > 5 ? 5 : lows.length;
+    int listSize = lows.length > 3 ? 3 : lows.length;
     List<Widget> list = List();
     list.add(
       Column(

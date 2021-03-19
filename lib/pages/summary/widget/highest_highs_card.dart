@@ -31,7 +31,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
     if (highs.length == 0) {
       return Text("Nenhuma alta", style: Theme.of(context).textTheme.subtitle1);
     }
-    int listSize = highs.length > 5 ? 5 : highs.length;
+    int listSize = highs.length > 3 ? 3 : highs.length;
     List<Widget> list = List();
     list.add(
       Column(
