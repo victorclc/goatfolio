@@ -2,13 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class PressableCard extends StatefulWidget {
-  const PressableCard({
-    this.onPressed,
-    this.child
-  });
+  const PressableCard({this.onPressed, this.child, this.cardPadding});
 
   final VoidCallback onPressed;
   final Widget child;
+  final EdgeInsets cardPadding;
 
   @override
   State<StatefulWidget> createState() => _PressableCardState();
@@ -20,7 +18,6 @@ class _PressableCardState extends State<PressableCard>
   AnimationController controller;
   Animation<double> elevationAnimation;
   final Animation<double> flattenAnimation = AlwaysStoppedAnimation(0);
-
 
   @override
   void initState() {
@@ -64,8 +61,7 @@ class _PressableCardState extends State<PressableCard>
         // hero animation. You likely want to modularize them more in your own
         // app.
         child: AnimatedBuilder(
-          animation:
-          Listenable.merge([elevationAnimation, flattenAnimation]),
+          animation: Listenable.merge([elevationAnimation, flattenAnimation]),
           child: widget.child,
           builder: (context, child) {
             return Transform.scale(
@@ -73,14 +69,17 @@ class _PressableCardState extends State<PressableCard>
               // in your own app.
               scale: 1 - elevationAnimation.value * 0.03,
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16) *
-                    flatten,
+                padding: widget.cardPadding ??
+                    EdgeInsets.symmetric(vertical: 16, horizontal: 16) *
+                        flatten,
                 child: PhysicalModel(
                   elevation:
-                  ((1 - elevationAnimation.value) * 10 + 10) * flatten,
+                      ((1 - elevationAnimation.value) * 10 + 10) * flatten,
                   borderRadius: BorderRadius.circular(12 * flatten),
                   clipBehavior: Clip.antiAlias,
-                  color: Theme.of(context).brightness == Brightness.light ? Colors.white: Colors.black,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.white
+                      : Colors.black,
                   child: child,
                 ),
               ),

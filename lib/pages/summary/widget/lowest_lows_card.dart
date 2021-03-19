@@ -43,10 +43,10 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
                 "Ticker",
                 style: Theme.of(context).textTheme.bodyText2,
               ),
-              Text(
-                "Preço",
-                style: Theme.of(context).textTheme.bodyText2,
-              ),
+              // Text(
+              //   "Preço",
+              //   style: Theme.of(context).textTheme.bodyText2,
+              // ),
               Text(
                 "Hoje",
                 style: Theme.of(context).textTheme.bodyText2,
@@ -63,7 +63,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(stock.ticker),
-          Text(moneyFormatter.format(stock.currentStockPrice)),
+          // Text(moneyFormatter.format(stock.currentStockPrice)),
           Text(
             percentFormatter.format(stock.currentDayChangePercent / 100),
             style: Theme.of(context)
@@ -90,6 +90,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
     return Container(
       width: double.infinity,
       child: PressableCard(
+        cardPadding: EdgeInsets.only(left: 8, right: 16, top: 16, bottom: 16),
         onPressed: () => {},
         child: Padding(
           padding: const EdgeInsets.all(16.0),

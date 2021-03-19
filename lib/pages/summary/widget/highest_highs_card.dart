@@ -43,10 +43,10 @@ class _HighestHighsState extends State<HighestHighsCard> {
                 "Ticker",
                 style: Theme.of(context).textTheme.bodyText2,
               ),
-              Text(
-                "Preço",
-                style: Theme.of(context).textTheme.bodyText2,
-              ),
+              // Text(
+              //   "Preço",
+              //   style: Theme.of(context).textTheme.bodyText2,
+              // ),
               Text(
                 "Hoje",
                 style: Theme.of(context).textTheme.bodyText2,
@@ -63,7 +63,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(stock.ticker),
-          Text(moneyFormatter.format(stock.currentStockPrice)),
+          // Text(moneyFormatter.format(stock.currentStockPrice)),
           Text(
             percentFormatter.format(stock.currentDayChangePercent / 100),
             style: Theme.of(context)
@@ -90,6 +90,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
     return Container(
       width: double.infinity,
       child: PressableCard(
+        cardPadding: EdgeInsets.only(left: 16, right: 8, top: 16, bottom: 16),
         onPressed: () => {},
         child: Padding(
           padding: const EdgeInsets.all(16.0),
