@@ -5,7 +5,6 @@ import 'package:goatfolio/common/widget/pressable_card.dart';
 import 'package:goatfolio/pages/summary/screen/rentability.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 
-
 class RentabilityCard extends StatefulWidget {
   static const String CARD_TITLE = "Rentabilidade";
   final PortfolioPerformance performance;
@@ -82,21 +81,18 @@ class _RentabilityCardState extends State<RentabilityCard> {
                                     .history[
                                         widget.performance.history.length - 2]
                                     .grossAmount),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
-                                .copyWith(
-                                    color: widget.performance.grossAmount -
-                                                widget
-                                                    .performance
-                                                    .history[widget.performance
-                                                            .history.length -
-                                                        2]
-                                                    .grossAmount >=
-                                            0
-                                        ? Colors.green
-                                        : Colors.red,
-                                    fontSize: 16),
+                            style: textTheme.textStyle.copyWith(
+                                color: widget.performance.grossAmount -
+                                            widget
+                                                .performance
+                                                .history[widget.performance
+                                                        .history.length -
+                                                    2]
+                                                .grossAmount >=
+                                        0
+                                    ? Colors.green
+                                    : Colors.red,
+                                fontSize: 16),
                           ),
                         ],
                       ),
@@ -110,9 +106,7 @@ class _RentabilityCardState extends State<RentabilityCard> {
                           Text(
                             moneyFormatter
                                 .format(widget.performance.dayVariation),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyText2
+                            style: textTheme.textStyle
                                 .copyWith(
                                     color: widget.performance.dayVariation >= 0
                                         ? Colors.green

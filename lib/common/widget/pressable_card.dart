@@ -40,6 +40,7 @@ class _PressableCardState extends State<PressableCard>
 
   @override
   Widget build(context) {
+    // print(CupertinoTheme.of(context).brightness);
     return Listener(
       onPointerDown: (details) {
         if (widget.onPressed != null) {
@@ -77,9 +78,7 @@ class _PressableCardState extends State<PressableCard>
                       ((1 - elevationAnimation.value) * 10 + 10) * flatten,
                   borderRadius: BorderRadius.circular(12 * flatten),
                   clipBehavior: Clip.antiAlias,
-                  color: Theme.of(context).brightness == Brightness.light
-                      ? Colors.white
-                      : Colors.black,
+                  color: CupertinoTheme.of(context).scaffoldBackgroundColor,
                   child: child,
                 ),
               ),
