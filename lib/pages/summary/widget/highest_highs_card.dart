@@ -33,30 +33,30 @@ class _HighestHighsState extends State<HighestHighsCard> {
     }
     int listSize = highs.length > 3 ? 3 : highs.length;
     List<Widget> list = List();
-    list.add(
-      Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Ticker",
-                style: Theme.of(context).textTheme.bodyText2,
-              ),
-              // Text(
-              //   "Preço",
-              //   style: Theme.of(context).textTheme.bodyText2,
-              // ),
-              Text(
-                "Hoje",
-                style: Theme.of(context).textTheme.bodyText2,
-              ),
-            ],
-          ),
-          SizedBox(height: 8,)
-        ],
-      ),
-    );
+    // list.add(
+    //   Column(
+    //     children: [
+    //       Row(
+    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //         children: [
+    //           Text(
+    //             "Ativo",
+    //             style: Theme.of(context).textTheme.bodyText2,
+    //           ),
+    //           // Text(
+    //           //   "Preço",
+    //           //   style: Theme.of(context).textTheme.bodyText2,
+    //           // ),
+    //           Text(
+    //             "Hoje",
+    //             style: Theme.of(context).textTheme.bodyText2,
+    //           ),
+    //         ],
+    //       ),
+    //       SizedBox(height: 8,)
+    //     ],
+    //   ),
+    // );
     for (int i = 0; i < listSize; i++) {
       StockPerformance stock = highs[i];
       list.add(Row(
