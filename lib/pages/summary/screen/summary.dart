@@ -25,24 +25,8 @@ class _SummaryPageState extends State<SummaryPage> {
       slivers: [
         CupertinoSliverNavigationBar(
           largeTitle: Text(SummaryPage.title),
-          leading: Text(
-            DateFormat("MMMM yyyy", 'pt_BR')
-                .format(DateTime.now())
-                .capitalize(),
-            style: Theme
-                .of(context)
-                .textTheme
-                .subtitle2
-                .copyWith(fontWeight: FontWeight.w400),
-          ),
-          trailing: CupertinoButton(
-            padding: EdgeInsets.zero,
-            child: Icon(
-              CupertinoIcons.bell,
-              color: Colors.black,
-            ),
-            onPressed: () => print("BELL"),
-          ),
+          backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+          border: null,
         ),
         CupertinoSliverRefreshControl(
           onRefresh: () async =>
