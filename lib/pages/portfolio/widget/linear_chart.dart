@@ -44,6 +44,7 @@ class _LinearChartChartState extends State<LinearChartChart> {
               renderSpec: new charts.NoneRenderSpec(),
             ),
             behaviors: [
+              charts.SeriesLegend(desiredMaxColumns: 2, position: charts.BehaviorPosition.bottom),
               new charts.SelectNearest(
                   eventTrigger: charts.SelectionTrigger.tapAndDrag),
             ],

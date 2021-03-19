@@ -208,15 +208,33 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
           _MoneyDateSeries(element.date, element.closePrice * element.amount));
     });
 
+      double investedAmount = 0.0;
+      widget.item.history.forEach((history) {
+        if (history.amount == 0) {
+          investedAmount = 0;
+        } else {
+          investedAmount += history.investedAmount;
+        }
+        seriesInvested.add(_MoneyDateSeries(history.date, investedAmount));
+      });
+
     return [
       new charts.Series<_MoneyDateSeries, DateTime>(
-        id: "gross",
+        id: "Saldo bruto",
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
         domainFn: (_MoneyDateSeries history, _) => history.date,
         areaColorFn: (_, __) =>
             charts.MaterialPalette.blue.shadeDefault.lighter,
         measureFn: (_MoneyDateSeries history, _) => history.money,
         data: seriesGross,
+      ),
+      new charts.Series<_MoneyDateSeries, DateTime>(
+        id: "Valor investido",
+        colorFn: (_, __) => charts.MaterialPalette.deepOrange.shadeDefault,
+        domainFn: (_MoneyDateSeries history, _) => history.date,
+        dashPatternFn: (_, __) => [2, 2],
+        measureFn: (_MoneyDateSeries history, _) => history.money,
+        data: seriesInvested,
       ),
     ];
   }
