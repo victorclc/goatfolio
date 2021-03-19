@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CeiLoginPage extends StatelessWidget {
@@ -62,6 +63,7 @@ class CeiLoginPage extends StatelessWidget {
               ),
               CupertinoTextField(
                 autofillHints: [AutofillHints.username],
+                inputFormatters: [cpfInputFormatter],
                 prefix: Container(
                   width: 100,
                   padding: EdgeInsets.all(16),
