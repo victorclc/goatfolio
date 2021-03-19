@@ -132,13 +132,13 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsListPrototype> {
                                 SettingsSection(
                                   title: letter,
                                   tiles: tickersByAlphabet[letter]
-                                      .map((e) => SettingsTile(
+                                      .map(
+                                        (e) => SettingsTile(
                                           title: e,
                                           onPressed: (context) =>
-                                              Navigator.of(context).push(
-                                                  CupertinoPageRoute(
-                                                      builder: (contexx) =>
-                                                          StockAdd()))))
+                                            ModalUtils.showDragableModalBottomSheet(context, StockAdd()),
+                                        ),
+                                      )
                                       .toList(),
                                 ),
                               );
