@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/pages/add/screen/stock_list_prototype.dart';
+import 'package:goatfolio/services/authentication/service/cognito.dart';
+import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 import 'cei_login.dart';
@@ -49,7 +51,7 @@ class AddPrototypePage extends StatelessWidget {
                               // ),
                               ModalUtils.showDragableModalBottomSheet(
                             context,
-                                CeiLoginPage(),
+                                CeiLoginPage(userService: Provider.of<UserService>(context, listen: false)),
                           ),
                           ),
                       SettingsTile(

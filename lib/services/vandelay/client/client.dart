@@ -17,7 +17,7 @@ class VandelayClient {
       requestTimeout: Duration(seconds: 30));
 
 
-  Future<void> importCEIRequest(String username, String password) async {
+  Future<bool> importCEIRequest(String username, String password) async {
     CeiImportRequest request =
     CeiImportRequest(taxId: username, password: password);
     String accessToken = await userService.getSessionToken();
@@ -34,5 +34,6 @@ class VandelayClient {
     if (response.statusCode != HttpStatus.accepted) {
       throw Exception("Import request failed");
     }
+    return true;
   }
 }

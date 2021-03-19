@@ -1,9 +1,45 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
+import 'package:goatfolio/common/util/dialog.dart';
+import 'package:goatfolio/common/util/modal.dart';
+import 'package:goatfolio/common/widget/progress_indicator_scaffold.dart';
+import 'package:goatfolio/services/authentication/service/cognito.dart';
+import 'package:goatfolio/services/vandelay/client/client.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class CeiLoginPage extends StatelessWidget {
+class CeiLoginPage extends StatefulWidget {
+  final UserService userService;
+
+  const CeiLoginPage({Key key, this.userService}) : super(key: key);
+
+  @override
+  _CeiLoginPageState createState() => _CeiLoginPageState();
+}
+
+class _CeiLoginPageState extends State<CeiLoginPage> {
+  TextEditingController _cpfController = new TextEditingController();
+  TextEditingController _passwordController = new TextEditingController();
+  VandelayClient client;
+  Future<bool> _future;
+
+  bool canSubmit() {
+    return _cpfController.text.isNotEmpty &&
+        _passwordController.text.isNotEmpty;
+  }
+
+  Future submitRequest() async {
+    _future =
+        client.importCEIRequest(_cpfController.text, _passwordController.text);
+    return _future;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    client = VandelayClient(widget.userService);
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
@@ -35,7 +71,26 @@ class CeiLoginPage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: canSubmit()
+                ? () => ModalUtils.showUnDismissibleModalBottomSheet(
+                      context,
+                      ProgressIndicatorScaffold(
+                          message: 'Solicitando importação...',
+                          future: submitRequest(),
+                          onFinish: () async {
+                            try {
+                              await _future;
+                              await DialogUtils.showSuccessDialog(context,
+                                  "Importação solicitada com sucesso!");
+                            } catch (Exceptions) {
+                              await DialogUtils.showErrorDialog(context,
+                                  "Erro ao solicitar importação, tente novamente mais tarde.");
+                            }
+
+                            Navigator.of(context).pop();
+                          }),
+                    )
+                : null,
           ),
         ),
         child: SafeArea(
@@ -62,8 +117,13 @@ class CeiLoginPage extends StatelessWidget {
                 height: 48,
               ),
               CupertinoTextField(
+                controller: _cpfController,
+                onChanged: (something) {
+                  setState(() {});
+                },
                 autofillHints: [AutofillHints.username],
                 textInputAction: TextInputAction.next,
+                keyboardType: TextInputType.number,
                 inputFormatters: [cpfInputFormatter],
                 prefix: Container(
                   width: 100,
@@ -77,6 +137,10 @@ class CeiLoginPage extends StatelessWidget {
                 placeholder: "Obrigatório",
               ),
               CupertinoTextField(
+                controller: _passwordController,
+                onChanged: (something) {
+                  setState(() {});
+                },
                 autofillHints: [AutofillHints.password],
                 obscureText: true,
                 prefix: Container(
@@ -92,39 +156,52 @@ class CeiLoginPage extends StatelessWidget {
               ),
               CupertinoButton(
                 child: Text("Esqueceu sua senha?"),
-                onPressed: () async => await launch('https://cei.b3.com.br/CEI_Responsivo/recuperar-senha.aspx'),
+                onPressed: () async => await launch(
+                    'https://cei.b3.com.br/CEI_Responsivo/recuperar-senha.aspx'),
               ),
               SizedBox(
                 height: 48,
               ),
-              Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.only(left: 16, right: 16),
-                child: Text(
-                  'Limitações da importação',
-                  style: textTheme.textStyle,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              Icon(Icons.info_outline),
-              SizedBox(
-                height: 8,
-              ),
-              Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.only(left: 16, right: 16),
-                child: Text(
-                  'O CEI disponibiliza apenas as movimentações dos ultimos 18 meses. Caso você tenha movimentações anteriores a esse período, será necessario inclui-las manualmente, para que voce tenha os valores corretos da rentabilidade da sua carteira',
-                  style: textTheme.textStyle
-                      .copyWith(fontSize: 12, fontWeight: FontWeight.w200),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              _LimitationsInfo(),
             ],
           ),
         )));
+  }
+}
+
+class _LimitationsInfo extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = CupertinoTheme.of(context).textTheme;
+    return Column(
+      children: [
+        Container(
+          alignment: Alignment.center,
+          padding: EdgeInsets.only(left: 16, right: 16),
+          child: Text(
+            'Limitações da importação',
+            style: textTheme.textStyle,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        SizedBox(
+          height: 16,
+        ),
+        Icon(Icons.info_outline),
+        SizedBox(
+          height: 8,
+        ),
+        Container(
+          alignment: Alignment.center,
+          padding: EdgeInsets.only(left: 16, right: 16),
+          child: Text(
+            'O CEI disponibiliza apenas as movimentações dos ultimos 18 meses. Caso você tenha movimentações anteriores a esse período, será necessario inclui-las manualmente, para que voce tenha os valores corretos da rentabilidade da sua carteira',
+            style: textTheme.textStyle
+                .copyWith(fontSize: 12, fontWeight: FontWeight.w200),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
   }
 }
