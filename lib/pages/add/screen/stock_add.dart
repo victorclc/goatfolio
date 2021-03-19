@@ -5,14 +5,38 @@ class StockAdd extends StatefulWidget {
   _StockAddState createState() => _StockAddState();
 }
 
+const BoxDecoration _kDefaultRoundedBorderDecoration = BoxDecoration(
+  color: CupertinoDynamicColor.withBrightness(
+    color: CupertinoColors.white,
+    darkColor: CupertinoColors.black,
+  ),
+  border: _kDefaultRoundedBorder,
+  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+);
+
+const Border _kDefaultRoundedBorder = Border(
+  // top: _kDefaultRoundedBorderSide,
+  bottom: _kDefaultRoundedBorderSide,
+  left: _kDefaultRoundedBorderSide,
+  right: _kDefaultRoundedBorderSide,
+);
+
+const BorderSide _kDefaultRoundedBorderSide = BorderSide(
+  color: CupertinoDynamicColor.withBrightness(
+    color: Color(0x33000000),
+    darkColor: Color(0x33FFFFFF),
+  ),
+  style: BorderStyle.solid,
+  width: 0.0,
+);
 class _StockAddState extends State<StockAdd> {
   @override
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
           border: null,
+          backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
           leading: CupertinoButton(
             padding: EdgeInsets.all(0),
             child: Align(
@@ -58,7 +82,6 @@ class _StockAddState extends State<StockAdd> {
                 onChanged: (something) {
                   setState(() {});
                 },
-                decoration: BoxDecoration(),
                 autofillHints: [AutofillHints.username],
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
@@ -96,7 +119,6 @@ class _StockAddState extends State<StockAdd> {
                 onChanged: (something) {
                   setState(() {});
                 },
-                decoration: BoxDecoration(),
                 autofillHints: [AutofillHints.username],
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
@@ -134,7 +156,6 @@ class _StockAddState extends State<StockAdd> {
                 onChanged: (something) {
                   setState(() {});
                 },
-                decoration: BoxDecoration(),
                 autofillHints: [AutofillHints.username],
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
