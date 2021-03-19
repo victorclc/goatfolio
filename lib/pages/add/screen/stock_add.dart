@@ -64,9 +64,8 @@ class _StockAddState extends State<StockAdd> {
                   setState(() {});
                 },
                 decoration: BoxDecoration(),
-                autofillHints: [AutofillHints.username],
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text,
                 prefix: Container(
                   width: 115,
                   padding: EdgeInsets.all(16),
@@ -76,15 +75,14 @@ class _StockAddState extends State<StockAdd> {
                         .copyWith(fontWeight: FontWeight.w400),
                   ),
                 ),
-                placeholder: "Obrigatório",
+                placeholder: "ex.: BIDI4",
               ),
               CupertinoTextField(
                 onChanged: (something) {
                   setState(() {});
                 },
-                autofillHints: [AutofillHints.username],
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text,
                 prefix: Container(
                   width: 115,
                   padding: EdgeInsets.all(16),
@@ -94,14 +92,13 @@ class _StockAddState extends State<StockAdd> {
                         .copyWith(fontWeight: FontWeight.w400),
                   ),
                 ),
-                placeholder: "Obrigatório",
+                placeholder: "Corretora (opcional)",
               ),
               CupertinoTextField(
                 onChanged: (something) {
                   setState(() {});
                 },
                 decoration: BoxDecoration(),
-                autofillHints: [AutofillHints.username],
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
                 prefix: Container(
@@ -113,32 +110,30 @@ class _StockAddState extends State<StockAdd> {
                         .copyWith(fontWeight: FontWeight.w400),
                   ),
                 ),
-                placeholder: "Obrigatório",
+                placeholder: "Quantidade",
               ),
               CupertinoTextField(
                 onChanged: (something) {
                   setState(() {});
                 },
-                autofillHints: [AutofillHints.username],
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
                 prefix: Container(
                   width: 115,
                   padding: EdgeInsets.all(16),
                   child: Text(
-                    'Preço  ',
+                    'Preço ',
                     style: textTheme.textStyle
                         .copyWith(fontWeight: FontWeight.w400),
                   ),
                 ),
-                placeholder: "Obrigatório",
+                placeholder: "Preço",
               ),
               CupertinoTextField(
                 onChanged: (something) {
                   setState(() {});
                 },
                 decoration: BoxDecoration(),
-                autofillHints: [AutofillHints.username],
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
                 prefix: Container(
@@ -150,15 +145,14 @@ class _StockAddState extends State<StockAdd> {
                         .copyWith(fontWeight: FontWeight.w400),
                   ),
                 ),
-                placeholder: "Obrigatório",
+                placeholder: "dd/mm/aaaa",
               ),
               CupertinoTextField(
                 onChanged: (something) {
                   setState(() {});
                 },
-                autofillHints: [AutofillHints.username],
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
                 prefix: Container(
                   width: 115,
                   padding: EdgeInsets.all(16),
@@ -168,7 +162,7 @@ class _StockAddState extends State<StockAdd> {
                         .copyWith(fontWeight: FontWeight.w400),
                   ),
                 ),
-                placeholder: "Obrigatório",
+                placeholder: "Custos (opcional)",
               ),
             ],
           ),
