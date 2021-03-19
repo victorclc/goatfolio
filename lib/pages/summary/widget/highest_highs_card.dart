@@ -29,7 +29,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
 
   Widget buildTopFive() {
     if (highs.length == 0) {
-      return Text("Nenhuma alta", style: Theme.of(context).textTheme.subtitle1);
+      return Text("Nenhum", style: Theme.of(context).textTheme.subtitle1);
     }
     int listSize = highs.length > 3 ? 3 : highs.length;
     List<Widget> list = List();
@@ -89,6 +89,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      height: 224,
       child: PressableCard(
         cardPadding: EdgeInsets.only(left: 16, right: 4, top: 16, bottom: 16),
         onPressed: () => {},
