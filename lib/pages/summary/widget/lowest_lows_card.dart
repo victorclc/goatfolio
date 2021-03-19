@@ -29,7 +29,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
 
   Widget buildTopFive() {
     if (lows.length == 0) {
-      return Text("Nenhuma baixa", style: Theme.of(context).textTheme.subtitle1);
+      return Text("Nenhum", style: Theme.of(context).textTheme.subtitle1);
     }
     int listSize = lows.length > 3 ? 3 : lows.length;
     List<Widget> list = List();
@@ -89,6 +89,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      height: 220,
       child: PressableCard(
         cardPadding: EdgeInsets.only(left: 4, right: 16, top: 16, bottom: 16),
         onPressed: () => {},
