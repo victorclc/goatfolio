@@ -34,3 +34,5 @@ class CurrencyPtBrInputFormatter extends TextInputFormatter {
 }
 
 final cpfInputFormatter = new MaskTextInputFormatter(mask: '###.###.###-##', filter: { "#": RegExp(r'[0-9]') });
+final moneyInputFormatter = new MaskTextInputFormatter(mask: 'R\$ #,##0.00', filter: { "#": RegExp(r'[0-9]') });
+final dateInputFormatter = new MaskTextInputFormatter(mask: '##/##/####', filter: { "#": RegExp(r'[0-9]') });
