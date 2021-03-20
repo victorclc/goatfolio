@@ -106,6 +106,7 @@ class _StockAddState extends State<StockAdd> {
                   padding: EdgeInsets.all(16),
                   child: Text(
                     'Quantidade',
+                    overflow: TextOverflow.ellipsis,
                     style: textTheme.textStyle
                         .copyWith(fontWeight: FontWeight.w400),
                   ),
