@@ -60,6 +60,7 @@ class _StockAddState extends State<StockAdd> {
             children: [
               SizedBox(height: 32,),
               CupertinoTextField(
+                autofocus: true,
                 onChanged: (something) {
                   setState(() {});
                 },
@@ -75,7 +76,7 @@ class _StockAddState extends State<StockAdd> {
                         .copyWith(fontWeight: FontWeight.w400),
                   ),
                 ),
-                placeholder: "ex.: BIDI4",
+                placeholder: "Código do ativo",
               ),
               CupertinoTextField(
                 onChanged: (something) {
