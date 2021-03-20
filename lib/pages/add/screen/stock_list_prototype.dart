@@ -83,18 +83,12 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsListPrototype> {
               alignment: Alignment.centerRight,
               padding: EdgeInsets.all(0),
               icon: Icon(Icons.add),
-              onPressed: () => ModalUtils.showUnDismissibleModalBottomSheet(
+              onPressed: () => ModalUtils.showDragableModalBottomSheet(
                     context,
-                    MultiPrompt(
-                      onSubmit: onStockSubmit,
-                      promptRequests: [
-                        StockTickerPrompt(),
-                        StockAmountPrompt(),
-                        StockPricePrompt(),
-                        StockDatePrompt(),
-                        StockBrokerPrompt(),
-                        StockCostsPrompt(),
-                      ],
+                    StockAdd(
+                      buyOperation: widget.buyOperation,
+                      userService:
+                          Provider.of<UserService>(context, listen: false),
                     ),
                   )),
           middle: Text(widget.buyOperation ? "Compra" : "Venda"),
@@ -133,12 +127,15 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsListPrototype> {
                                   title: letter,
                                   tiles: tickersByAlphabet[letter]
                                       .map(
-                                        (e) => SettingsTile(
-                                          title: e,
+                                        (ticker) => SettingsTile(
+                                          title: ticker,
                                           onPressed: (context) => ModalUtils
                                               .showDragableModalBottomSheet(
                                                   context,
                                                   StockAdd(
+                                                    ticker: ticker,
+                                                    buyOperation:
+                                                        widget.buyOperation,
                                                     userService: Provider.of<
                                                             UserService>(
                                                         context,

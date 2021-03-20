@@ -11,8 +11,10 @@ import 'package:intl/intl.dart';
 class StockAdd extends StatefulWidget {
   final bool buyOperation;
   final UserService userService;
+  final String ticker;
 
-  const StockAdd({Key key, this.buyOperation = true, this.userService})
+  const StockAdd(
+      {Key key, this.buyOperation = true, this.userService, this.ticker})
       : super(key: key);
 
   @override
@@ -33,6 +35,7 @@ class _StockAddState extends State<StockAdd> {
   void initState() {
     super.initState();
     service = StockInvestmentService(widget.userService);
+    _tickerController.text = widget.ticker ?? '';
   }
 
   bool canSubmit() {
@@ -77,7 +80,7 @@ class _StockAddState extends State<StockAdd> {
             onPressed: () => Navigator.of(context).pop(),
           ),
           middle: Text(
-            'Nova compra',
+            widget.buyOperation ? 'Nova compra': 'Nova venda',
             style: textTheme.navTitleTextStyle,
           ),
           trailing: CupertinoButton(
@@ -145,7 +148,7 @@ class _StockAddState extends State<StockAdd> {
               ),
               CupertinoTextField(
                 controller: _tickerController,
-                autofocus: true,
+                autofocus: widget.ticker == null ? true : false,
                 onChanged: (something) {
                   setState(() {});
                 },
@@ -166,6 +169,7 @@ class _StockAddState extends State<StockAdd> {
               ),
               CupertinoTextField(
                 controller: _brokerController,
+                autofocus: widget.ticker != null ? true : false,
                 onChanged: (something) {
                   setState(() {});
                 },
