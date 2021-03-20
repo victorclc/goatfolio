@@ -135,8 +135,15 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsListPrototype> {
                                       .map(
                                         (e) => SettingsTile(
                                           title: e,
-                                          onPressed: (context) =>
-                                            ModalUtils.showDragableModalBottomSheet(context, StockAdd()),
+                                          onPressed: (context) => ModalUtils
+                                              .showDragableModalBottomSheet(
+                                                  context,
+                                                  StockAdd(
+                                                    userService: Provider.of<
+                                                            UserService>(
+                                                        context,
+                                                        listen: false),
+                                                  )),
                                         ),
                                       )
                                       .toList(),

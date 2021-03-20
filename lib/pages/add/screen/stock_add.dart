@@ -3,8 +3,18 @@ import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/widget/progress_indicator_scaffold.dart';
+import 'package:goatfolio/services/authentication/service/cognito.dart';
+import 'package:goatfolio/services/investment/model/stock.dart';
+import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class StockAdd extends StatefulWidget {
+  final bool buyOperation;
+  final UserService userService;
+
+  const StockAdd({Key key, this.buyOperation = true, this.userService})
+      : super(key: key);
 
   @override
   _StockAddState createState() => _StockAddState();
@@ -17,7 +27,14 @@ class _StockAddState extends State<StockAdd> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _costsController = TextEditingController();
+  StockInvestmentService service;
   Future _future;
+
+  @override
+  void initState() {
+    super.initState();
+    service = StockInvestmentService(widget.userService);
+  }
 
   bool canSubmit() {
     return _tickerController.text.isNotEmpty &&
@@ -28,7 +45,26 @@ class _StockAddState extends State<StockAdd> {
   }
 
   Future<void> submitRequest() async {
-    return;
+    final investment = StockInvestment(
+        ticker: _tickerController.text,
+        amount: int.parse(_amountController.text),
+        price: getDoubleFromMoneyFormat(_priceController.text),
+        type: 'STOCK',
+        operation: widget.buyOperation ? 'BUY' : 'SELL',
+        date: DateFormat('dd/MM/yyyy').parse(_dateController.text),
+        broker: _brokerController.text,
+        costs: getDoubleFromMoneyFormat(_costsController.text ?? '0.0'));
+
+    _future = service.addInvestment(investment);
+    return _future;
+  }
+
+  double getDoubleFromMoneyFormat(String formatted) {
+    double value =
+        double.parse(formatted.replaceAllMapped(RegExp(r'\D'), (match) {
+      return '';
+    }));
+    return value / 100;
   }
 
   @override
@@ -70,18 +106,17 @@ class _StockAddState extends State<StockAdd> {
                 ? () => ModalUtils.showUnDismissibleModalBottomSheet(
                       context,
                       ProgressIndicatorScaffold(
-                          message: 'Solicitando importação...',
+                          message: 'Adicionando investimento...',
                           future: submitRequest(),
                           onFinish: () async {
                             try {
                               await _future;
                               await DialogUtils.showSuccessDialog(context,
-                                  "Importação solicitada com sucesso!");
+                                  "Investimento adicionado com sucesso");
                             } catch (Exceptions) {
-                              await DialogUtils.showErrorDialog(context,
-                                  "Erro ao solicitar importação, tente novamente mais tarde.");
+                              await DialogUtils.showErrorDialog(
+                                  context, "Erro ao adicionar investimento.");
                             }
-
                             Navigator.of(context).pop();
                           }),
                     )
