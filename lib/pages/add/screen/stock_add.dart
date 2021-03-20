@@ -101,6 +101,7 @@ class _StockAddState extends State<StockAdd> {
                 },
                 decoration: BoxDecoration(),
                 textInputAction: TextInputAction.next,
+                inputFormatters: [UpperCaseTextFormatter()],
                 keyboardType: TextInputType.text,
                 prefix: Container(
                   width: 120,
@@ -157,7 +158,7 @@ class _StockAddState extends State<StockAdd> {
                   setState(() {});
                 },
                 textInputAction: TextInputAction.next,
-                inputFormatters: [CurrencyPtBrInputFormatter()],
+                inputFormatters: [moneyInputFormatter],
                 keyboardType: TextInputType.number,
                 prefix: Container(
                   width: 118,
@@ -176,7 +177,7 @@ class _StockAddState extends State<StockAdd> {
                   setState(() {});
                 },
                 decoration: BoxDecoration(),
-                inputFormatters: [DateInputFormatter()],
+                inputFormatters: [dateInputFormatter],
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
                 prefix: Container(
@@ -196,7 +197,7 @@ class _StockAddState extends State<StockAdd> {
                   setState(() {});
                 },
                 textInputAction: TextInputAction.next,
-                inputFormatters: [CurrencyPtBrInputFormatter()],
+                inputFormatters: [moneyInputFormatter],
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 prefix: Container(
                   width: 120,
