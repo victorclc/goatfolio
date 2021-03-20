@@ -5,6 +5,7 @@ import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/widget/progress_indicator_scaffold.dart';
 
 class StockAdd extends StatefulWidget {
+
   @override
   _StockAddState createState() => _StockAddState();
 }
