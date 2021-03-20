@@ -7,7 +7,6 @@ import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class StockAdd extends StatefulWidget {
   final bool buyOperation;
@@ -44,17 +43,7 @@ class _StockAddState extends State<StockAdd> {
         _dateController.text.isNotEmpty;
   }
 
-  Future<void> submitRequest() async {
-    final investment = StockInvestment(
-        ticker: _tickerController.text,
-        amount: int.parse(_amountController.text),
-        price: getDoubleFromMoneyFormat(_priceController.text),
-        type: 'STOCK',
-        operation: widget.buyOperation ? 'BUY' : 'SELL',
-        date: DateFormat('dd/MM/yyyy').parse(_dateController.text),
-        broker: _brokerController.text,
-        costs: getDoubleFromMoneyFormat(_costsController.text ?? '0.0'));
-
+  Future<void> submitRequest(StockInvestment investment) async {
     _future = service.addInvestment(investment);
     return _future;
   }
@@ -103,11 +92,35 @@ class _StockAddState extends State<StockAdd> {
               ),
             ),
             onPressed: canSubmit()
-                ? () => ModalUtils.showUnDismissibleModalBottomSheet(
+                ? () async {
+                    try {
+                      //TODO criar form valida campos e retornar uma mensagem esxplicando exatamente o q esta errado
+                      final investment = StockInvestment(
+                          ticker: _tickerController.text,
+                          amount: int.parse(_amountController.text),
+                          price:
+                              getDoubleFromMoneyFormat(_priceController.text),
+                          type: 'STOCK',
+                          operation: widget.buyOperation ? 'BUY' : 'SELL',
+                          date: DateFormat('dd/MM/yyyy')
+                              .parse(_dateController.text),
+                          broker: _brokerController.text,
+                          costs: getDoubleFromMoneyFormat(
+                              _costsController.text.isNotEmpty
+                                  ? _costsController.text
+                                  : '0.0'));
+
+                      submitRequest(investment);
+                    } catch (Exception) {
+                      await DialogUtils.showErrorDialog(
+                          context, "Dados invalidos.");
+                      return;
+                    }
+                    ModalUtils.showUnDismissibleModalBottomSheet(
                       context,
                       ProgressIndicatorScaffold(
                           message: 'Adicionando investimento...',
-                          future: submitRequest(),
+                          future: _future,
                           onFinish: () async {
                             try {
                               await _future;
@@ -119,7 +132,8 @@ class _StockAddState extends State<StockAdd> {
                             }
                             Navigator.of(context).pop();
                           }),
-                    )
+                    );
+                  }
                 : null,
           ),
         ),
