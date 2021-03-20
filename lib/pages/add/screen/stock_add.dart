@@ -176,7 +176,7 @@ class _StockAddState extends State<StockAdd> {
                   setState(() {});
                 },
                 decoration: BoxDecoration(),
-                inputFormatters: [dateInputFormatter],
+                inputFormatters: [DateInputFormatter()],
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
                 prefix: Container(
