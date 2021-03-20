@@ -38,27 +38,6 @@ class _StockAddState extends State<StockAdd> {
     _tickerController.text = widget.ticker ?? '';
   }
 
-  bool canSubmit() {
-    return _tickerController.text.isNotEmpty &&
-        _brokerController.text.isNotEmpty &&
-        _amountController.text.isNotEmpty &&
-        _priceController.text.isNotEmpty &&
-        _dateController.text.isNotEmpty;
-  }
-
-  Future<void> submitRequest(StockInvestment investment) async {
-    _future = service.addInvestment(investment);
-    return _future;
-  }
-
-  double getDoubleFromMoneyFormat(String formatted) {
-    double value =
-        double.parse(formatted.replaceAllMapped(RegExp(r'\D'), (match) {
-      return '';
-    }));
-    return value / 100;
-  }
-
   @override
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
@@ -80,7 +59,7 @@ class _StockAddState extends State<StockAdd> {
             onPressed: () => Navigator.of(context).pop(),
           ),
           middle: Text(
-            widget.buyOperation ? 'Nova compra': 'Nova venda',
+            widget.buyOperation ? 'Nova compra' : 'Nova venda',
             style: textTheme.navTitleTextStyle,
           ),
           trailing: CupertinoButton(
@@ -94,50 +73,7 @@ class _StockAddState extends State<StockAdd> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            onPressed: canSubmit()
-                ? () async {
-                    try {
-                      //TODO criar form valida campos e retornar uma mensagem esxplicando exatamente o q esta errado
-                      final investment = StockInvestment(
-                          ticker: _tickerController.text,
-                          amount: int.parse(_amountController.text),
-                          price:
-                              getDoubleFromMoneyFormat(_priceController.text),
-                          type: 'STOCK',
-                          operation: widget.buyOperation ? 'BUY' : 'SELL',
-                          date: DateFormat('dd/MM/yyyy')
-                              .parse(_dateController.text),
-                          broker: _brokerController.text,
-                          costs: getDoubleFromMoneyFormat(
-                              _costsController.text.isNotEmpty
-                                  ? _costsController.text
-                                  : '0.0'));
-
-                      submitRequest(investment);
-                    } catch (Exception) {
-                      await DialogUtils.showErrorDialog(
-                          context, "Dados invalidos.");
-                      return;
-                    }
-                    ModalUtils.showUnDismissibleModalBottomSheet(
-                      context,
-                      ProgressIndicatorScaffold(
-                          message: 'Adicionando investimento...',
-                          future: _future,
-                          onFinish: () async {
-                            try {
-                              await _future;
-                              await DialogUtils.showSuccessDialog(context,
-                                  "Investimento adicionado com sucesso");
-                            } catch (Exceptions) {
-                              await DialogUtils.showErrorDialog(
-                                  context, "Erro ao adicionar investimento.");
-                            }
-                            Navigator.of(context).pop();
-                          }),
-                    );
-                  }
-                : null,
+            onPressed: canSubmit() ? onSubmit : null,
           ),
         ),
         child: SingleChildScrollView(
@@ -267,5 +203,108 @@ class _StockAddState extends State<StockAdd> {
             ],
           ),
         ));
+  }
+
+  List<String> validateForm() {
+    final List<String> problems = [];
+    if (_tickerController.text.length != 6) {
+      problems.add("Código do ativo inválido.");
+    }
+    if (int.parse(_amountController.text) <= 0) {
+      problems.add("Quantidade não pode ser 0.");
+    }
+    if (getDoubleFromMoneyFormat(_priceController.text) <= 0) {
+      problems.add("O preço não pode ser R\$ 0,00.");
+    }
+    if (getDoubleFromMoneyFormat(
+            _costsController.text.isNotEmpty ? _costsController.text : '0.0') <
+        0) {
+      problems.add("O custo não pode ser negativo.");
+    }
+    if (_dateController.text.length != 10) {
+      problems.add("Data inválida.");
+    } else {
+      final splittedDate = _dateController.text.split("/");
+      final day = int.parse(splittedDate[0]);
+      final month = int.parse(splittedDate[1]);
+      if (day > 31 || month > 12) {
+        problems.add("Data inválida.");
+      }
+    }
+    return problems;
+  }
+
+  void onSubmit() async {
+    try {
+      final problems = validateForm();
+      if (problems.isNotEmpty) {
+        final List<Widget> problemWidgets = [];
+        problems.forEach((description) {
+          problemWidgets.add(Text(description));
+        });
+        await DialogUtils.showCustomErrorDialog(
+            context,
+            Column(
+              children: problemWidgets,
+            ));
+        return;
+      }
+    } on Exception catch (e) {
+      print(e);
+      await DialogUtils.showErrorDialog(context, "Dados invalidos.");
+      return;
+    }
+
+    final investment = StockInvestment(
+        ticker: _tickerController.text,
+        amount: int.parse(_amountController.text),
+        price: getDoubleFromMoneyFormat(_priceController.text),
+        type: 'STOCK',
+        operation: widget.buyOperation ? 'BUY' : 'SELL',
+        date: DateFormat('dd/MM/yyyy').parse(_dateController.text),
+        broker: _brokerController.text,
+        costs: getDoubleFromMoneyFormat(
+            _costsController.text.isNotEmpty ? _costsController.text : '0.0'));
+
+    _future = service.addInvestment(investment);
+
+    ModalUtils.showUnDismissibleModalBottomSheet(
+      context,
+      ProgressIndicatorScaffold(
+          message: 'Adicionando investimento...',
+          future: _future,
+          onFinish: () async {
+            try {
+              await _future;
+              await DialogUtils.showSuccessDialog(
+                  context, "Investimento adicionado com sucesso");
+            } catch (Exceptions) {
+              await DialogUtils.showErrorDialog(
+                  context, "Erro ao adicionar investimento.");
+            }
+            Navigator.of(context).pop();
+          }),
+    );
+  }
+
+  bool canSubmit() {
+    return _tickerController.text.isNotEmpty &&
+        _brokerController.text.isNotEmpty &&
+        _amountController.text.isNotEmpty &&
+        _priceController.text.isNotEmpty &&
+        _dateController.text.isNotEmpty;
+  }
+
+  Future<void> submitRequest(StockInvestment investment) async {
+    _future = service.addInvestment(investment);
+    return _future;
+  }
+
+  double getDoubleFromMoneyFormat(String formatted) {
+    double value =
+        double.parse(formatted.replaceAllMapped(RegExp(r'\D'), (match) {
+      return '';
+    }));
+    return value / 100;
   }
 }

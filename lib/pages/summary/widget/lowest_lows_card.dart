@@ -32,7 +32,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
       return Text("Nenhum", style: Theme.of(context).textTheme.subtitle1);
     }
     int listSize = lows.length > 3 ? 3 : lows.length;
-    List<Widget> list = List();
+    List<Widget> list = [];
     list.add(
       Column(
         children: [

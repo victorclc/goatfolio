@@ -180,7 +180,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
   }
 
   List<charts.Series<TickerTotals, String>> buildSubtypeSeries() {
-    List<TickerTotals> data = List();
+    List<TickerTotals> data = [];
 
     if (performance.stockGrossAmount > 0) {
       colors['Ações/ETFs'] = Rgb.random();

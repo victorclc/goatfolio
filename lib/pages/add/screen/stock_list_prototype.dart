@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/modal.dart';
-import 'package:goatfolio/common/widget/multi_prompt.dart';
-import 'package:goatfolio/pages/add/prompt/add_stock_prompt.dart';
 import 'package:goatfolio/pages/add/screen/stock_add.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
@@ -116,11 +114,11 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsListPrototype> {
                             for (String ticker in tickers) {
                               if (!tickersByAlphabet.containsKey(ticker[0])) {
                                 tickersByAlphabet.putIfAbsent(
-                                    ticker[0], () => List());
+                                    ticker[0], () => []);
                               }
                               tickersByAlphabet[ticker[0]].add(ticker);
                             }
-                            final List<SettingsSection> sections = List();
+                            final List<SettingsSection> sections = [];
                             for (String letter in tickersByAlphabet.keys) {
                               sections.add(
                                 SettingsSection(

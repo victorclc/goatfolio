@@ -12,6 +12,12 @@ class DialogUtils {
     return _cupertinoNotifyDialog(context, title, message);
   }
 
+  static Future<void> showCustomErrorDialog(
+      BuildContext context, Widget content,
+      [String title = "Erro"]) async {
+    return _cupertinoCustomNotifyDialog(context, title, content);
+  }
+
   static Future<void> showNoYesDialog(BuildContext context,
       {String title,
       String message,
@@ -61,6 +67,17 @@ class DialogUtils {
     ]);
   }
 
+  static Future<void> _cupertinoCustomNotifyDialog(
+      BuildContext context, String title, Widget content) async {
+    await _cupertinoCustomDialog(context, title, content, [
+      CupertinoDialogAction(
+        child: Text("OK"),
+        isDefaultAction: true,
+        onPressed: () => Navigator.pop(context),
+      )
+    ]);
+  }
+
   static Future<void> androidNotifyDialog(
       BuildContext context, String title, String message) async {
     await _androidDialog(context, title, message, [
@@ -82,6 +99,21 @@ class DialogUtils {
         return CupertinoAlertDialog(
           title: Text(title),
           content: Text(message),
+          actions: actions,
+        );
+      },
+    );
+  }
+
+  static Future<void> _cupertinoCustomDialog(BuildContext context, String title,
+      Widget content, List<Widget> actions) async {
+    await showCupertinoDialog(
+      useRootNavigator: false,
+      context: context,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: Text(title),
+          content: content,
           actions: actions,
         );
       },
