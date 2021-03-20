@@ -1,147 +1,73 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/modal.dart';
-import 'package:goatfolio/common/widget/multi_prompt.dart';
-import 'package:goatfolio/pages/add/prompt/cei_authentication.dart';
 import 'package:goatfolio/pages/add/screen/stock_list.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
-import 'package:goatfolio/services/vandelay/client/client.dart';
 import 'package:provider/provider.dart';
+import 'package:settings_ui/settings_ui.dart';
+
+import 'cei_login.dart';
 
 class AddPage extends StatelessWidget {
   static const icon = Icon(Icons.add);
   static const String title = "Adicionar";
+  static const Color backgroundGray = Color(0xFFEFEFF4);
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(title),
-      ),
+      backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
       child: SafeArea(
-        child: Container(
-          child: Column(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: AddOptionButton(
-                        icon: Icon(Icons.autorenew),
-                        title: "Importar automaticamente",
-                        subtitle: "Importe seus dados do portal CEI",
-                        onPressed: () =>
-                            ModalUtils.showUnDismissibleModalBottomSheet(
-                                context,
-                                MultiPrompt(
-                                  onSubmit: (Map values) async {
-                                    final client = VandelayClient(Provider.of<UserService>(context, listen: false));
-                                    try {
-                                      await client.importCEIRequest(
-                                          values['username'], values['password']);
-                                      await DialogUtils.showSuccessDialog(
-                                          context, "Importação solicitada com sucesso!");
-                                    } catch (Exception) {
-                                      await DialogUtils.showErrorDialog(
-                                          context, "Erro ao solicitar importação, tente novamente mais tarde.");
-                                    }
-
-                                  },
-                                  promptRequests: [
-                                    CeiTaxIdPrompt(),
-                                    CeiPasswordPrompt()
-                                  ],
-                                )),
-                      ),
-                    ),
-                    Expanded(
-                      child: AddOptionButton(
-                        icon: Icon(Icons.trending_up),
-                        title: "Operação de compra",
-                        subtitle: "Cadastre suas aplicações em Renda Variável",
-                        onPressed: () => goTInvestmentList(context, true),
-                      ),
-                    ),
-                    Expanded(
-                      child: AddOptionButton(
-                        icon: Icon(Icons.trending_down),
-                        includeBottomBorder: false,
-                        title: "Operação de venda",
-                        subtitle:
-                            "Cadastre suas vendas/resgates de seus produtos cadastrados",
-                        onPressed: () => goTInvestmentList(context, false),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [],
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class AddOptionButton extends StatelessWidget {
-  final Icon icon;
-  final String title;
-  final String subtitle;
-  final Function onPressed;
-  final bool includeBottomBorder;
-
-  const AddOptionButton(
-      {Key key,
-      this.icon,
-      this.title,
-      this.subtitle,
-      this.onPressed,
-      this.includeBottomBorder = true})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: this.includeBottomBorder
-          ? BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: Colors.grey),
-              ),
-            )
-          : null,
-      child: CupertinoButton(
-        padding: EdgeInsets.only(right: 8),
-        onPressed: onPressed,
-        child: Row(
+        child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: this.icon,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    this.title,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText2
-                        .copyWith(fontSize: 16, fontWeight: FontWeight.w500),
+            Container(
+                padding: EdgeInsets.all(16),
+                alignment: Alignment.centerLeft,
+                child: DefaultTextStyle(
+                  style: CupertinoTheme.of(context)
+                      .textTheme
+                      .navLargeTitleTextStyle,
+                  child: Text(
+                    title,
                   ),
-                  Text(
-                    this.subtitle,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText2
-                        .copyWith(fontSize: 16, fontWeight: FontWeight.w200),
+                )),
+            Expanded(
+              child: SettingsList(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                sections: [
+                  SettingsSection(
+                    title: "RENDA VARIÁVEL",
+                    // subtitle: Text("RENDA VARIAVEL"),
+                    // titlePadding: EdgeInsets.all(0),
+                    // subtitlePadding: EdgeInsets.all(0),
+                    tiles: [
+                      SettingsTile(
+                          title: 'Importar automaticamente (CEI)',
+                          onPressed: (context) =>
+                              // Navigator.of(context).push(
+                              //   CupertinoPageRoute(
+                              //       builder: (context) => CeiLoginPage()),
+                              // ),
+                              ModalUtils.showDragableModalBottomSheet(
+                            context,
+                                CeiLoginPage(userService: Provider.of<UserService>(context, listen: false)),
+                          ),
+                          ),
+                      SettingsTile(
+                        title: 'Operação de compra',
+                        onPressed: (context) =>
+                            goToInvestmentList(context, true),
+                      ),
+                      SettingsTile(
+                        title: 'Operação de venda',
+                        onPressed: (context) =>
+                            goToInvestmentList(context, false),
+                      ),
+                    ],
+                  ),
+                  SettingsSection(
+                    tiles: [],
                   ),
                 ],
               ),
