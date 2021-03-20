@@ -10,8 +10,7 @@ import 'package:goatfolio/services/investment/storage/stock_investment.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 
-void goToInvestmentList(
-    BuildContext context, bool buyOperation) async {
+void goToInvestmentList(BuildContext context, bool buyOperation) async {
   await Navigator.push(
     context,
     CupertinoPageRoute(
@@ -77,18 +76,20 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsList> {
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           previousPageTitle: "",
-          trailing: IconButton(
-              alignment: Alignment.centerRight,
-              padding: EdgeInsets.all(0),
-              icon: Icon(Icons.add),
-              onPressed: () => ModalUtils.showDragableModalBottomSheet(
-                    context,
-                    StockAdd(
-                      buyOperation: widget.buyOperation,
-                      userService:
-                          Provider.of<UserService>(context, listen: false),
-                    ),
-                  )),
+          trailing: widget.buyOperation
+              ? IconButton(
+                  alignment: Alignment.centerRight,
+                  padding: EdgeInsets.all(0),
+                  icon: Icon(Icons.add),
+                  onPressed: () => ModalUtils.showDragableModalBottomSheet(
+                        context,
+                        StockAdd(
+                          buyOperation: widget.buyOperation,
+                          userService:
+                              Provider.of<UserService>(context, listen: false),
+                        ),
+                      ))
+              : null,
           middle: Text(widget.buyOperation ? "Compra" : "Venda"),
         ),
         child: SafeArea(
