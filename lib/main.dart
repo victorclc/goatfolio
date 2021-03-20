@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:goatfolio/common/config/app_config.dart';
 import 'package:goatfolio/pages/add/screen/add.dart';
-import 'package:goatfolio/pages/add/screen/add_prototype.dart';
 import 'package:goatfolio/pages/extract/extract.dart';
 import 'package:goatfolio/pages/login/screen/login.dart';
 import 'package:goatfolio/pages/portfolio/screen/portfolio.dart';
@@ -174,7 +173,7 @@ class _NavigationWidgetState extends State<NavigationWidget>
           case 2:
             return CupertinoTabView(
                 defaultTitle: AddPage.title,
-                builder: (context) => AddPrototypePage());
+                builder: (context) => AddPage());
           case 3:
             return CupertinoTabView(
               defaultTitle: ExtractPage.title,

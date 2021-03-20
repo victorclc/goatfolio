@@ -2,16 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/modal.dart';
-import 'package:goatfolio/common/widget/multi_prompt.dart';
-import 'package:goatfolio/common/widget/preety_text_field.dart';
-import 'package:goatfolio/pages/add/prompt/add_stock_prompt.dart';
+import 'package:goatfolio/pages/add/screen/stock_add.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
 import 'package:goatfolio/services/investment/storage/stock_investment.dart';
 import 'package:provider/provider.dart';
+import 'package:settings_ui/settings_ui.dart';
 
-void goTInvestmentList(BuildContext context, bool buyOperation) async {
+void goToInvestmentList(BuildContext context, bool buyOperation) async {
   await Navigator.push(
     context,
     CupertinoPageRoute(
@@ -29,22 +28,14 @@ class InvestmentsList extends StatefulWidget {
       : super(key: key);
 
   @override
-  _InvestmentsListState createState() => _InvestmentsListState();
+  _InvestmentsLisPrototypetState createState() =>
+      _InvestmentsLisPrototypetState();
 }
 
-class _InvestmentsListState extends State<InvestmentsList> {
+class _InvestmentsLisPrototypetState extends State<InvestmentsList> {
   StockInvestmentStorage storage;
   StockInvestmentService service;
   Future<List<String>> _future;
-
-  @override
-  void initState() {
-    super.initState();
-    final userService = Provider.of<UserService>(context, listen: false);
-    storage = StockInvestmentStorage();
-    service = StockInvestmentService(userService);
-    _future = storage.getDistinctTickers();
-  }
 
   Future<void> onStockSubmit(Map values) async {
     print(values);
@@ -72,71 +63,39 @@ class _InvestmentsListState extends State<InvestmentsList> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    final userService = Provider.of<UserService>(context, listen: false);
+    storage = StockInvestmentStorage();
+    service = StockInvestmentService(userService);
+    _future = storage.getDistinctTickers();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           previousPageTitle: "",
+          trailing: widget.buyOperation
+              ? IconButton(
+                  alignment: Alignment.centerRight,
+                  padding: EdgeInsets.all(0),
+                  icon: Icon(Icons.add),
+                  onPressed: () => ModalUtils.showDragableModalBottomSheet(
+                        context,
+                        StockAdd(
+                          buyOperation: widget.buyOperation,
+                          userService:
+                              Provider.of<UserService>(context, listen: false),
+                        ),
+                      ))
+              : null,
           middle: Text(widget.buyOperation ? "Compra" : "Venda"),
         ),
         child: SafeArea(
           child: Container(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: PrettyTextField(
-                    label: 'Buscar',
-                    suffixIcon: Icon(Icons.search),
-                  ),
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(color: Colors.grey),
-                      bottom: BorderSide(color: Colors.grey),
-                    ),
-                  ),
-                  padding:
-                      EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
-                  width: double.infinity,
-                  child: widget.buyOperation
-                      ? CupertinoButton(
-                          padding: EdgeInsets.all(0),
-                          onPressed: () =>
-                              ModalUtils.showUnDismissibleModalBottomSheet(
-                            context,
-                            MultiPrompt(
-                              onSubmit: onStockSubmit,
-                              promptRequests: [
-                                StockTickerPrompt(),
-                                StockAmountPrompt(),
-                                StockPricePrompt(),
-                                StockDatePrompt(),
-                                StockBrokerPrompt(),
-                                StockCostsPrompt(),
-                              ],
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.add_circle_outline),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 16.0),
-                                child: Text("Adicionar novo ativo"),
-                              ),
-                              Expanded(
-                                child: Container(
-                                    alignment: Alignment.centerRight,
-                                    child: Icon(Icons.keyboard_arrow_right)),
-                              )
-                            ],
-                          ),
-                        )
-                      : Container(),
-                ),
                 FutureBuilder(
                     future: _future,
                     builder: (context, snapshot) {
@@ -149,54 +108,47 @@ class _InvestmentsListState extends State<InvestmentsList> {
                         case ConnectionState.done:
                           if (snapshot.hasData) {
                             print(snapshot.data);
-                            final List<String> tickers = snapshot.data;
-                            return Expanded(
-                                child: ListView.builder(
-                              itemCount: tickers.length,
-                              itemBuilder: (context, index) {
-                                return CupertinoButton(
-                                  padding: EdgeInsets.all(0),
-                                  onPressed: () => ModalUtils
-                                      .showUnDismissibleModalBottomSheet(
-                                    context,
-                                    MultiPrompt(
-                                      onSubmit: (values) async {
-                                        values['ticker'] = tickers[index];
-                                        await onStockSubmit(values);
-                                      },
-                                      promptRequests: [
-                                        StockAmountPrompt(),
-                                        StockPricePrompt(),
-                                        StockDatePrompt(),
-                                        StockBrokerPrompt(),
-                                        StockCostsPrompt(),
-                                      ],
-                                    ),
-                                  ),
-                                  child: Container(
-                                    padding: EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(color: Colors.grey),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          tickers[index],
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .subtitle1,
+                            final List<String> tickers = snapshot.data..sort();
+                            print("abcd"[0]);
+                            final Map<String, List<String>> tickersByAlphabet =
+                                Map();
+                            for (String ticker in tickers) {
+                              if (!tickersByAlphabet.containsKey(ticker[0])) {
+                                tickersByAlphabet.putIfAbsent(
+                                    ticker[0], () => []);
+                              }
+                              tickersByAlphabet[ticker[0]].add(ticker);
+                            }
+                            final List<SettingsSection> sections = [];
+                            for (String letter in tickersByAlphabet.keys) {
+                              sections.add(
+                                SettingsSection(
+                                  title: letter,
+                                  tiles: tickersByAlphabet[letter]
+                                      .map(
+                                        (ticker) => SettingsTile(
+                                          title: ticker,
+                                          onPressed: (context) => ModalUtils
+                                              .showDragableModalBottomSheet(
+                                                  context,
+                                                  StockAdd(
+                                                    ticker: ticker,
+                                                    buyOperation:
+                                                        widget.buyOperation,
+                                                    userService: Provider.of<
+                                                            UserService>(
+                                                        context,
+                                                        listen: false),
+                                                  )),
                                         ),
-                                        Icon(Icons
-                                            .keyboard_arrow_right_outlined),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
+                                      )
+                                      .toList(),
+                                ),
+                              );
+                            }
+                            return Expanded(
+                                child: SettingsList(
+                              sections: sections,
                             ));
                           }
                       }

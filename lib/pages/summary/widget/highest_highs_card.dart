@@ -32,7 +32,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
       return Text("Nenhum", style: Theme.of(context).textTheme.subtitle1);
     }
     int listSize = highs.length > 3 ? 3 : highs.length;
-    List<Widget> list = List();
+    List<Widget> list = [];
     list.add(
       Column(
         children: [
