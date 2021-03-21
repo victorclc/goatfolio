@@ -152,7 +152,7 @@ class _ExtractPageState extends State<ExtractPage> {
                   padding: EdgeInsets.all(16),
                   child: CupertinoSearchTextField(),
                 ),
-                Divider(height: 8, color: Colors.grey,)
+                Divider(height: 8, color: Colors.grey.shade300,)
               ],
             ),
           ),
