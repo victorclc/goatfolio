@@ -133,23 +133,27 @@ class _ExtractPageState extends State<ExtractPage> {
       slivers: [
         CupertinoSliverNavigationBar(
           largeTitle: Text(ExtractPage.title),
-          backgroundColor: CupertinoTheme
+          backgroundColor:  CupertinoTheme
               .of(context)
               .scaffoldBackgroundColor,
           border: Border(),
-          automaticallyImplyTitle: false,
         ),
         SliverPersistentHeader(
           pinned: true,
           delegate: _SliverAppBarDelegate(
-            minHeight: 68,
-            maxHeight: 68,
-            child: Container(
-              color: CupertinoTheme
-                  .of(context)
-                  .scaffoldBackgroundColor,
-              padding: EdgeInsets.all(16),
-              child: CupertinoSearchTextField(),
+            minHeight: 76,
+            maxHeight: 76,
+            child: Column(
+              children: [
+                Container(
+                  color: CupertinoTheme
+                      .of(context)
+                      .scaffoldBackgroundColor,
+                  padding: EdgeInsets.all(16),
+                  child: CupertinoSearchTextField(),
+                ),
+                Divider(height: 8, color: Colors.grey,)
+              ],
             ),
           ),
         ),
