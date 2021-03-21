@@ -409,7 +409,7 @@ class StockExtractItem extends StatelessWidget {
           Container(
             padding: EdgeInsets.only(left: 8),
             height: 32,
-            child: VerticalDivider(width: 5, color: Colors.grey),
+            child: Container(),
           ),
         ],
       ),
