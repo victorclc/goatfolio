@@ -46,7 +46,8 @@ class _ExtractPageState extends State<ExtractPage> {
   bool scrollListener(ScrollNotification notification) {
     // print(notification);
     FocusUtils.unfocus(context);
-    if (!searching && notification is ScrollEndNotification &&
+    if (!searching &&
+        notification is ScrollEndNotification &&
         notification.metrics.extentAfter <= 100) {
       loadMoreInvestments();
     }
@@ -55,7 +56,7 @@ class _ExtractPageState extends State<ExtractPage> {
 
   Future<List<StockInvestment>> getInvestments() async {
     final data =
-    await stockService.getInvestments(limit: limit, offset: offset);
+        await stockService.getInvestments(limit: limit, offset: offset);
     if (data != null && data.isNotEmpty) {
       offset += data.length;
     }
@@ -80,7 +81,11 @@ class _ExtractPageState extends State<ExtractPage> {
   }
 
   Future<void> onRefresh() async {
-    print('ON REFRESH');
+    await stockService.refreshInvestments();
+    offset = 0;
+    setState(() {
+      _future = getInvestments();
+    });
   }
 
   @override
@@ -97,15 +102,17 @@ class _ExtractPageState extends State<ExtractPage> {
           slivers: [
             CupertinoSliverNavigationBar(
               largeTitle: Text(ExtractPage.title),
-              backgroundColor: CupertinoTheme
-                  .of(context)
-                  .scaffoldBackgroundColor,
+              backgroundColor:
+                  CupertinoTheme.of(context).scaffoldBackgroundColor,
               border: Border(),
             ),
             buildSliverTextSearchField(),
-            CupertinoSliverRefreshControl(
-              onRefresh: onRefresh,
-            ),
+            !searching
+                ? CupertinoSliverRefreshControl(
+                    onRefresh: onRefresh,
+                  )
+                : SliverList(
+                    delegate: SliverChildListDelegate.fixed([Container()])),
             SliverSafeArea(
               top: false,
               sliver: SliverPadding(
@@ -128,7 +135,8 @@ class _ExtractPageState extends State<ExtractPage> {
                                 return Column(
                                   children: [
                                     Container(
-                                      padding: EdgeInsets.only(left: 16, right: 16),
+                                      padding:
+                                          EdgeInsets.only(left: 16, right: 16),
                                       child: ListView.builder(
                                         padding: EdgeInsets.zero,
                                         physics: NeverScrollableScrollPhysics(),
@@ -144,17 +152,14 @@ class _ExtractPageState extends State<ExtractPage> {
                                               children: [
                                                 Container(
                                                   width: double.infinity,
-                                                  padding:
-                                                  EdgeInsets.only(bottom: 16),
-                                                  alignment: Alignment.centerLeft,
+                                                  padding: EdgeInsets.only(
+                                                      bottom: 16),
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Text(
-                                                    '${monthFormatter.format(
-                                                        investment.date)
-                                                        .capitalize()} de ${investment
-                                                        .date.year}',
-                                                    style:
-                                                    CupertinoTheme
-                                                        .of(context)
+                                                    '${monthFormatter.format(investment.date).capitalize()} de ${investment.date.year}',
+                                                    style: CupertinoTheme.of(
+                                                            context)
                                                         .textTheme
                                                         .navTitleTextStyle,
                                                   ),
@@ -231,9 +236,7 @@ class _ExtractPageState extends State<ExtractPage> {
         child: Column(
           children: [
             Container(
-              color: CupertinoTheme
-                  .of(context)
-                  .scaffoldBackgroundColor,
+              color: CupertinoTheme.of(context).scaffoldBackgroundColor,
               padding: EdgeInsets.all(16),
               child: CupertinoSearchTextField(
                 controller: searchController,
@@ -252,9 +255,7 @@ class _ExtractPageState extends State<ExtractPage> {
               ),
             ),
             Container(
-                color: CupertinoTheme
-                    .of(context)
-                    .scaffoldBackgroundColor,
+                color: CupertinoTheme.of(context).scaffoldBackgroundColor,
                 child: Divider(
                   height: 8,
                   color: Colors.grey.shade300,
@@ -280,22 +281,13 @@ class _LoadingError extends StatelessWidget {
           height: 32,
         ),
         Text("Tivemos um problema ao carregar",
-            style: Theme
-                .of(context)
-                .textTheme
-                .subtitle1),
-        Text(" as transações.", style: Theme
-            .of(context)
-            .textTheme
-            .subtitle1),
+            style: Theme.of(context).textTheme.subtitle1),
+        Text(" as transações.", style: Theme.of(context).textTheme.subtitle1),
         SizedBox(
           height: 8,
         ),
         Text("Toque para tentar novamente.",
-            style: Theme
-                .of(context)
-                .textTheme
-                .subtitle1),
+            style: Theme.of(context).textTheme.subtitle1),
         CupertinoButton(
           padding: EdgeInsets.all(0),
           child: Icon(
@@ -315,8 +307,8 @@ class _StockExtractItem extends StatelessWidget {
   final Function onEdited;
   final Function onDeleted;
 
-  _StockExtractItem(BuildContext context, this.investment, this.onEdited,
-      this.onDeleted,
+  _StockExtractItem(
+      BuildContext context, this.investment, this.onEdited, this.onDeleted,
       {Key key})
       : super(key: key);
 
@@ -361,8 +353,7 @@ class _StockExtractItem extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           investment.operation == "BUY" ? "Compra" : "Venda",
-                          style: Theme
-                              .of(context)
+                          style: Theme.of(context)
                               .textTheme
                               .bodyText2
                               .copyWith(fontSize: 12),
@@ -372,8 +363,7 @@ class _StockExtractItem extends StatelessWidget {
                         ),
                         Text(
                           investment.ticker.replaceAll('.SA', ''),
-                          style: Theme
-                              .of(context)
+                          style: Theme.of(context)
                               .textTheme
                               .bodyText2
                               .copyWith(fontWeight: FontWeight.w600),
@@ -384,8 +374,7 @@ class _StockExtractItem extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           formatter.format(investment.date).capitalizeWords(),
-                          style: Theme
-                              .of(context)
+                          style: Theme.of(context)
                               .textTheme
                               .bodyText2
                               .copyWith(fontSize: 12),
@@ -394,10 +383,8 @@ class _StockExtractItem extends StatelessWidget {
                           height: 8,
                         ),
                         Text(
-                          "${moneyFormatter.format(
-                              investment.price * investment.amount)}",
-                          style: Theme
-                              .of(context)
+                          "${moneyFormatter.format(investment.price * investment.amount)}",
+                          style: Theme.of(context)
                               .textTheme
                               .bodyText2
                               .copyWith(fontWeight: FontWeight.w600),
@@ -446,8 +433,8 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => math.max(maxHeight, minHeight);
 
   @override
-  Widget build(BuildContext context, double shrinkOffset,
-      bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return new SizedBox.expand(child: child);
   }
 

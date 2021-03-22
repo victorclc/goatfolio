@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/client/portfolio.dart';
@@ -18,10 +17,12 @@ class StockInvestmentService {
     final newInvestment = await portfolioClient.addStockInvestment(investment);
     await storage.insert(newInvestment);
   }
+
   Future<void> editInvestment(StockInvestment investment) async {
     await portfolioClient.editStockInvestment(investment);
     await storage.insert(investment);
   }
+
   Future<void> deleteInvestment(StockInvestment investment) async {
     await portfolioClient.delete(investment);
     await storage.delete(investment);
@@ -32,11 +33,18 @@ class StockInvestmentService {
 
     if ((data == null || data.isEmpty) && offset == 0) {
       debugPrint("Buscando na API");
-      List<StockInvestment> investments = await portfolioClient.getInvestments();
+      List<StockInvestment> investments =
+          await portfolioClient.getInvestments();
       investments.forEach((i) async => await storage.insert(i));
       return storage.getAll(limit, offset);
     }
     return data;
+  }
+
+  Future<void> refreshInvestments() async {
+    debugPrint("Refreshing investments");
+    List<StockInvestment> investments = await portfolioClient.getInvestments();
+    investments.forEach((i) async => await storage.insert(i));
   }
 
   Future<List<StockInvestment>> getByTicker(String ticker) async {
