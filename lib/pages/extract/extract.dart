@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
+import 'package:goatfolio/common/util/focus.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/widget/bottom_sheet_page.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
@@ -43,6 +44,7 @@ class _ExtractPageState extends State<ExtractPage> {
 
   bool scrollListener(ScrollNotification notification) {
     // print(notification);
+    FocusUtils.unfocus(context);
     if (notification is ScrollEndNotification &&
         notification.metrics.extentAfter <= 100) {
       loadMoreInvestments();
@@ -83,111 +85,120 @@ class _ExtractPageState extends State<ExtractPage> {
   @override
   Widget build(BuildContext context) {
     DateTime prevDateTime;
-    return CustomScrollView(
-      slivers: [
-        CupertinoSliverNavigationBar(
-          largeTitle: Text(ExtractPage.title),
-          backgroundColor: CupertinoTheme
-              .of(context)
-              .scaffoldBackgroundColor,
-          border: Border(),
-        ),
-        buildSliverTextSearchField(),
-        CupertinoSliverRefreshControl(
-          onRefresh: onRefresh,
-        ),
-        SliverSafeArea(
-          top: false,
-          sliver: SliverPadding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate.fixed(
-                [
-                  FutureBuilder(
-                    future: _future,
-                    builder: (context, snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.none:
-                        case ConnectionState.active:
-                          break;
-                        case ConnectionState.waiting:
-                          return CupertinoActivityIndicator();
-                        case ConnectionState.done:
-                          if (snapshot.hasData) {
-                            investments = snapshot.data;
-                            return Column(
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.only(left: 16, right: 16),
-                                  child: ListView.builder(
-                                    padding: EdgeInsets.zero,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemCount: investments.length,
-                                    itemBuilder: (context, index) {
-                                      final investment = investments[index];
-                                      if (prevDateTime == null ||
-                                          investment.date.month !=
-                                              prevDateTime.month) {
-                                        prevDateTime = investment.date;
-                                        return Column(
-                                          children: [
-                                            Container(
-                                              width: double.infinity,
-                                              padding:
-                                              EdgeInsets.only(bottom: 16),
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                '${monthFormatter.format(
-                                                    investment.date)
-                                                    .capitalize()} de ${investment
-                                                    .date.year}',
-                                                style:
-                                                CupertinoTheme
-                                                    .of(context)
-                                                    .textTheme
-                                                    .navTitleTextStyle,
-                                              ),
-                                            ),
-                                            _StockExtractItem(
-                                                context,
-                                                investments[index],
-                                                onEditCb,
-                                                onDeleteCb)
-                                          ],
-                                        );
-                                      }
-                                      prevDateTime = investment.date;
-                                      return _StockExtractItem(
-                                          context,
-                                          investments[index],
-                                          onEditCb,
-                                          onDeleteCb);
-                                    },
-                                  ),
-                                ),
-                                scrollLoading
-                                    ? CupertinoActivityIndicator()
-                                    : Container(),
-                              ],
-                            );
+    return NotificationListener<ScrollNotification>(
+      onNotification: scrollListener,
+      child: GestureDetector(
+        onTap: () => FocusUtils.unfocus(context),
+        onVerticalDragStart: (_) => FocusUtils.unfocus(context),
+        onPanStart: (_) => FocusUtils.unfocus(context),
+        child: CustomScrollView(
+          controller: controller,
+          slivers: [
+            CupertinoSliverNavigationBar(
+              largeTitle: Text(ExtractPage.title),
+              backgroundColor: CupertinoTheme
+                  .of(context)
+                  .scaffoldBackgroundColor,
+              border: Border(),
+            ),
+            buildSliverTextSearchField(),
+            CupertinoSliverRefreshControl(
+              onRefresh: onRefresh,
+            ),
+            SliverSafeArea(
+              top: false,
+              sliver: SliverPadding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate.fixed(
+                    [
+                      FutureBuilder(
+                        future: _future,
+                        builder: (context, snapshot) {
+                          switch (snapshot.connectionState) {
+                            case ConnectionState.none:
+                            case ConnectionState.active:
+                              break;
+                            case ConnectionState.waiting:
+                              return CupertinoActivityIndicator();
+                            case ConnectionState.done:
+                              if (snapshot.hasData) {
+                                investments = snapshot.data;
+                                return Column(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.only(left: 16, right: 16),
+                                      child: ListView.builder(
+                                        padding: EdgeInsets.zero,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemCount: investments.length,
+                                        itemBuilder: (context, index) {
+                                          final investment = investments[index];
+                                          if (prevDateTime == null ||
+                                              investment.date.month !=
+                                                  prevDateTime.month) {
+                                            prevDateTime = investment.date;
+                                            return Column(
+                                              children: [
+                                                Container(
+                                                  width: double.infinity,
+                                                  padding:
+                                                  EdgeInsets.only(bottom: 16),
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Text(
+                                                    '${monthFormatter.format(
+                                                        investment.date)
+                                                        .capitalize()} de ${investment
+                                                        .date.year}',
+                                                    style:
+                                                    CupertinoTheme
+                                                        .of(context)
+                                                        .textTheme
+                                                        .navTitleTextStyle,
+                                                  ),
+                                                ),
+                                                _StockExtractItem(
+                                                    context,
+                                                    investments[index],
+                                                    onEditCb,
+                                                    onDeleteCb)
+                                              ],
+                                            );
+                                          }
+                                          prevDateTime = investment.date;
+                                          return _StockExtractItem(
+                                              context,
+                                              investments[index],
+                                              onEditCb,
+                                              onDeleteCb);
+                                        },
+                                      ),
+                                    ),
+                                    scrollLoading
+                                        ? CupertinoActivityIndicator()
+                                        : Container(),
+                                  ],
+                                );
+                              }
                           }
-                      }
-                      return _LoadingError(
-                        onPressed: () {
-                          setState(() {
-                            _future = getInvestments();
-                          });
+                          return _LoadingError(
+                            onPressed: () {
+                              setState(() {
+                                _future = getInvestments();
+                              });
+                            },
+                          );
                         },
-                      );
-                    },
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
