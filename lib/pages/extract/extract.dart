@@ -1,19 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
+import 'package:goatfolio/common/util/focus.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/widget/bottom_sheet_page.dart';
-import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
-import 'package:goatfolio/services/investment/client/portfolio.dart';
 
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
-import 'package:goatfolio/services/investment/storage/stock_investment.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:goatfolio/common/extension/string.dart';
-
+import 'dart:math' as math;
 import 'details.dart';
 
 class ExtractPage extends StatefulWidget {
@@ -25,38 +23,48 @@ class ExtractPage extends StatefulWidget {
 }
 
 class _ExtractPageState extends State<ExtractPage> {
-  ScrollController controller;
-  PortfolioClient client;
-  StockInvestmentStorage storage;
+  static const int limit = 20;
+  final DateFormat monthFormatter = DateFormat('MMMM', 'pt_BR');
+  TextEditingController searchController = TextEditingController();
   StockInvestmentService stockService;
   List<StockInvestment> investments;
   Future<List<StockInvestment>> _future;
-  static const int limit = 20;
   int offset = 0;
   bool scrollLoading = false;
+  bool searching = false;
+
+  ScrollController controller;
 
   @override
   void initState() {
     super.initState();
     final userService = Provider.of<UserService>(context, listen: false);
-    client = PortfolioClient(userService);
     stockService = StockInvestmentService(userService);
-    storage = StockInvestmentStorage();
     _future = getInvestments();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  bool _scrollListener(ScrollNotification notification) {
+  bool scrollListener(ScrollNotification notification) {
     // print(notification);
-    if (notification is ScrollEndNotification &&
+    FocusUtils.unfocus(context);
+    if (!searching &&
+        notification is ScrollEndNotification &&
         notification.metrics.extentAfter <= 100) {
       loadMoreInvestments();
     }
     return false;
+  }
+
+  Future<List<StockInvestment>> getInvestments() async {
+    final data =
+        await stockService.getInvestments(limit: limit, offset: offset);
+    if (data != null && data.isNotEmpty) {
+      offset += data.length;
+    }
+    return data;
+  }
+
+  Future<List<StockInvestment>> getInvestmentsTicker(String ticker) async {
+    return await stockService.getByTicker(ticker);
   }
 
   void loadMoreInvestments() async {
@@ -73,21 +81,131 @@ class _ExtractPageState extends State<ExtractPage> {
   }
 
   Future<void> onRefresh() async {
-    print("BUSCANDO");
-    final int timestamp = investments[0].date.millisecondsSinceEpoch ~/ 1000;
-    List<StockInvestment> data = await client.getInvestments(timestamp, 'ge');
-    print(data);
-    data.forEach((i) async => await storage.insert(i));
+    await stockService.refreshInvestments();
+    offset = 0;
     setState(() {
-      investments = null;
-      resetState();
+      _future = getInvestments();
     });
   }
 
-  void resetState() {
-    offset = 0;
-    investments = null;
-    _future = getInvestments();
+  @override
+  Widget build(BuildContext context) {
+    DateTime prevDateTime;
+    return NotificationListener<ScrollNotification>(
+      onNotification: scrollListener,
+      child: GestureDetector(
+        onTap: () => FocusUtils.unfocus(context),
+        onVerticalDragStart: (_) => FocusUtils.unfocus(context),
+        onPanStart: (_) => FocusUtils.unfocus(context),
+        child: CustomScrollView(
+          controller: controller,
+          slivers: [
+            CupertinoSliverNavigationBar(
+              largeTitle: Text(ExtractPage.title),
+              backgroundColor:
+                  CupertinoTheme.of(context).scaffoldBackgroundColor,
+              border: Border(),
+            ),
+            buildSliverTextSearchField(),
+            !searching
+                ? CupertinoSliverRefreshControl(
+                    onRefresh: onRefresh,
+                  )
+                : SliverList(
+                    delegate: SliverChildListDelegate.fixed([Container()])),
+            SliverSafeArea(
+              top: false,
+              sliver: SliverPadding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate.fixed(
+                    [
+                      FutureBuilder(
+                        future: _future,
+                        builder: (context, snapshot) {
+                          switch (snapshot.connectionState) {
+                            case ConnectionState.none:
+                            case ConnectionState.active:
+                              break;
+                            case ConnectionState.waiting:
+                              return CupertinoActivityIndicator();
+                            case ConnectionState.done:
+                              if (snapshot.hasData) {
+                                investments = snapshot.data;
+                                return Column(
+                                  children: [
+                                    Container(
+                                      padding:
+                                          EdgeInsets.only(left: 16, right: 16),
+                                      child: ListView.builder(
+                                        padding: EdgeInsets.zero,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemCount: investments.length,
+                                        itemBuilder: (context, index) {
+                                          final investment = investments[index];
+                                          if (prevDateTime == null ||
+                                              investment.date.month !=
+                                                  prevDateTime.month) {
+                                            prevDateTime = investment.date;
+                                            return Column(
+                                              children: [
+                                                Container(
+                                                  width: double.infinity,
+                                                  padding: EdgeInsets.only(
+                                                      bottom: 16),
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    '${monthFormatter.format(investment.date).capitalize()} de ${investment.date.year}',
+                                                    style: CupertinoTheme.of(
+                                                            context)
+                                                        .textTheme
+                                                        .navTitleTextStyle,
+                                                  ),
+                                                ),
+                                                _StockExtractItem(
+                                                    context,
+                                                    investments[index],
+                                                    onEditCb,
+                                                    onDeleteCb)
+                                              ],
+                                            );
+                                          }
+                                          prevDateTime = investment.date;
+                                          return _StockExtractItem(
+                                              context,
+                                              investments[index],
+                                              onEditCb,
+                                              onDeleteCb);
+                                        },
+                                      ),
+                                    ),
+                                    scrollLoading
+                                        ? CupertinoActivityIndicator()
+                                        : Container(),
+                                  ],
+                                );
+                              }
+                          }
+                          return _LoadingError(
+                            onPressed: () {
+                              setState(() {
+                                _future = getInvestments();
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void onEditCb() {
@@ -101,7 +219,7 @@ class _ExtractPageState extends State<ExtractPage> {
       investments.remove(investment);
       offset--;
     });
-    final data = await getStorageInvestments(limit: 1);
+    final data = await getInvestments();
     if (data != null && data.isNotEmpty) {
       setState(() {
         investments.addAll(data);
@@ -109,112 +227,87 @@ class _ExtractPageState extends State<ExtractPage> {
     }
   }
 
-  Future<List<StockInvestment>> getInvestments() async {
-    // await deleteInvestmentsDatabase();
-    final data = await getStorageInvestments();
-    if ((data == null || data.isEmpty) &&
-        (investments == null || investments.isEmpty)) {
-      debugPrint("Buscando na API");
-      List<StockInvestment> investments = await client.getInvestments();
-      investments.forEach((i) async => await storage.insert(i));
-      return getStorageInvestments();
-    }
-    return data;
+  SliverPersistentHeader buildSliverTextSearchField() {
+    return SliverPersistentHeader(
+      pinned: true,
+      delegate: _SliverAppBarDelegate(
+        minHeight: 76,
+        maxHeight: 76,
+        child: Column(
+          children: [
+            Container(
+              color: CupertinoTheme.of(context).scaffoldBackgroundColor,
+              padding: EdgeInsets.all(16),
+              child: CupertinoSearchTextField(
+                controller: searchController,
+                onChanged: (value) {
+                  setState(() {
+                    if (value.isNotEmpty) {
+                      searching = true;
+                      _future = getInvestmentsTicker(value);
+                    } else {
+                      offset = 0;
+                      searching = false;
+                      _future = getInvestments();
+                    }
+                  });
+                },
+              ),
+            ),
+            Container(
+                color: CupertinoTheme.of(context).scaffoldBackgroundColor,
+                child: Divider(
+                  height: 8,
+                  color: Colors.grey.shade300,
+                ))
+          ],
+        ),
+      ),
+    );
   }
+}
 
-  Future<List<StockInvestment>> getStorageInvestments({limit = limit}) async {
-    debugPrint("getInvestmentsPaginated(offset: $offset, limit: $limit");
-    final data = await storage.getPaginated(offset, limit);
-    if (data != null && data.isNotEmpty) {
-      this.offset += limit;
-    }
-    return data;
-  }
+class _LoadingError extends StatelessWidget {
+  final Function onPressed;
+
+  const _LoadingError({Key key, @required this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoSliverPage(
-      largeTitle: ExtractPage.title,
-      onScrollNotification: _scrollListener,
-      onRefresh: onRefresh,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        FutureBuilder(
-          future: _future,
-          builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.none:
-              case ConnectionState.active:
-                break;
-              case ConnectionState.waiting:
-                return CupertinoActivityIndicator();
-              case ConnectionState.done:
-                if (snapshot.hasData) {
-                  investments = snapshot.data;
-                  return Column(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(left: 16, right: 16),
-                        child: ListView.builder(
-                          padding: EdgeInsets.zero,
-                          physics: NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: investments.length,
-                          itemBuilder: (context, index) {
-                            return StockExtractItem(context, investments[index],
-                                onEditCb, onDeleteCb);
-                          },
-                        ),
-                      ),
-                      scrollLoading
-                          ? CupertinoActivityIndicator()
-                          : Container(),
-                    ],
-                  );
-                }
-            }
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 32,
-                ),
-                Text("Tivemos um problema ao carregar",
-                    style: Theme.of(context).textTheme.subtitle1),
-                Text(" as transações.",
-                    style: Theme.of(context).textTheme.subtitle1),
-                SizedBox(
-                  height: 8,
-                ),
-                Text("Toque para tentar novamente.",
-                    style: Theme.of(context).textTheme.subtitle1),
-                CupertinoButton(
-                  padding: EdgeInsets.all(0),
-                  child: Icon(
-                    Icons.refresh_outlined,
-                    size: 32,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _future = getInvestments();
-                    });
-                  },
-                ),
-              ],
-            );
-          },
+        SizedBox(
+          height: 32,
+        ),
+        Text("Tivemos um problema ao carregar",
+            style: Theme.of(context).textTheme.subtitle1),
+        Text(" as transações.", style: Theme.of(context).textTheme.subtitle1),
+        SizedBox(
+          height: 8,
+        ),
+        Text("Toque para tentar novamente.",
+            style: Theme.of(context).textTheme.subtitle1),
+        CupertinoButton(
+          padding: EdgeInsets.all(0),
+          child: Icon(
+            Icons.refresh_outlined,
+            size: 32,
+          ),
+          onPressed: onPressed,
         ),
       ],
     );
   }
 }
 
-class StockExtractItem extends StatelessWidget {
+class _StockExtractItem extends StatelessWidget {
   final DateFormat formatter = DateFormat('dd MMM yyyy', 'pt_BR');
   final StockInvestment investment;
   final Function onEdited;
   final Function onDeleted;
 
-  StockExtractItem(
+  _StockExtractItem(
       BuildContext context, this.investment, this.onEdited, this.onDeleted,
       {Key key})
       : super(key: key);
@@ -319,5 +412,36 @@ class StockExtractItem extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  _SliverAppBarDelegate({
+    @required this.minHeight,
+    @required this.maxHeight,
+    @required this.child,
+  });
+
+  final double minHeight;
+  final double maxHeight;
+  final Widget child;
+
+  @override
+  double get minExtent => minHeight;
+
+  @override
+  double get maxExtent => math.max(maxHeight, minHeight);
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return new SizedBox.expand(child: child);
+  }
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return maxHeight != oldDelegate.maxHeight ||
+        minHeight != oldDelegate.minHeight ||
+        child != oldDelegate.child;
   }
 }
