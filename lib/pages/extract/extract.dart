@@ -31,6 +31,7 @@ class _ExtractPageState extends State<ExtractPage> {
   Future<List<StockInvestment>> _future;
   int offset = 0;
   bool scrollLoading = false;
+  bool searching = false;
 
   ScrollController controller;
 
@@ -45,7 +46,7 @@ class _ExtractPageState extends State<ExtractPage> {
   bool scrollListener(ScrollNotification notification) {
     // print(notification);
     FocusUtils.unfocus(context);
-    if (notification is ScrollEndNotification &&
+    if (!searching && notification is ScrollEndNotification &&
         notification.metrics.extentAfter <= 100) {
       loadMoreInvestments();
     }
@@ -239,9 +240,11 @@ class _ExtractPageState extends State<ExtractPage> {
                 onChanged: (value) {
                   setState(() {
                     if (value.isNotEmpty) {
+                      searching = true;
                       _future = getInvestmentsTicker(value);
                     } else {
                       offset = 0;
+                      searching = false;
                       _future = getInvestments();
                     }
                   });
