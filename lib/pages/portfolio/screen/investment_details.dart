@@ -93,8 +93,8 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
                 child: CupertinoSlidingSegmentedControl(
                   groupValue: selectedTab ?? 'a',
                   children: {
-                    'a': Text("Valorização"),
-                    'b': Text("Rentabilidade")
+                    'a': Text("Valorização", style: textTheme.textStyle.copyWith(fontSize: 14),),
+                    'b': Text("Rentabilidade", style: textTheme.textStyle.copyWith(fontSize: 14),),
                   },
                   onValueChanged: (value) {
                     setState(() {
