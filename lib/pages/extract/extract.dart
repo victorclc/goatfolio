@@ -274,6 +274,7 @@ class _LoadingError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = CupertinoTheme.of(context).textTheme;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -314,6 +315,8 @@ class _StockExtractItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = CupertinoTheme.of(context).textTheme;
+
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: () async {
@@ -353,20 +356,15 @@ class _StockExtractItem extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           investment.operation == "BUY" ? "Compra" : "Venda",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              .copyWith(fontSize: 12),
+                          style: textTheme.textStyle.copyWith(fontSize: 12),
                         ),
                         SizedBox(
                           height: 8,
                         ),
                         Text(
                           investment.ticker.replaceAll('.SA', ''),
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              .copyWith(fontWeight: FontWeight.w600),
+                          style: textTheme.textStyle.copyWith(
+                              fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -374,20 +372,15 @@ class _StockExtractItem extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           formatter.format(investment.date).capitalizeWords(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              .copyWith(fontSize: 12),
+                          style: textTheme.textStyle.copyWith(fontSize: 12),
                         ),
                         SizedBox(
                           height: 8,
                         ),
                         Text(
                           "${moneyFormatter.format(investment.price * investment.amount)}",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              .copyWith(fontWeight: FontWeight.w600),
+                          style: textTheme.textStyle.copyWith(
+                              fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
