@@ -22,6 +22,7 @@ class CupertinoSliverPage extends StatelessWidget {
         slivers: [
           CupertinoSliverNavigationBar(
             largeTitle: Text(largeTitle),
+            backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
           ),
           CupertinoSliverRefreshControl(
             onRefresh: onRefresh,

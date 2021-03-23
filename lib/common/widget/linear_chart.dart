@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
@@ -24,6 +25,7 @@ class _LinearChartState extends State<LinearChart> {
   }
 
   Widget _buildChart() {
+    final textTheme = CupertinoTheme.of(context).textTheme;
     return Column(
       children: <Widget>[
         Expanded(
@@ -37,14 +39,29 @@ class _LinearChartState extends State<LinearChart> {
             ],
             dateTimeFactory: const charts.LocalDateTimeFactory(),
             primaryMeasureAxis: new charts.NumericAxisSpec(
-                // renderSpec: new charts.NoneRenderSpec(),
+              renderSpec: new charts.GridlineRendererSpec(
+                labelStyle: charts.TextStyleSpec(
+                  fontFamily: textTheme.textStyle.fontFamily,
+                  fontSize: 12,
+                  fontWeight: textTheme.textStyle.fontWeight.toString(),
+                  color:
+                      charts.ColorUtil.fromDartColor(textTheme.textStyle.color),
                 ),
+              ),
+            ),
             domainAxis: new charts.DateTimeAxisSpec(
               showAxisLine: true,
               renderSpec: new charts.NoneRenderSpec(),
             ),
             behaviors: [
               charts.SeriesLegend(
+                  entryTextStyle: charts.TextStyleSpec(
+                    fontFamily: textTheme.textStyle.fontFamily,
+                    fontSize: 14,
+                    fontWeight: textTheme.textStyle.fontWeight.toString(),
+                    color: charts.ColorUtil.fromDartColor(
+                        textTheme.textStyle.color),
+                  ),
                   desiredMaxColumns: 2,
                   position: charts.BehaviorPosition.bottom),
               new charts.SelectNearest(

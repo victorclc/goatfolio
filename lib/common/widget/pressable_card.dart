@@ -78,7 +78,9 @@ class _PressableCardState extends State<PressableCard>
                       ((1 - elevationAnimation.value) * 10 + 10) * flatten,
                   borderRadius: BorderRadius.circular(12 * flatten),
                   clipBehavior: Clip.antiAlias,
-                  color: CupertinoTheme.of(context).scaffoldBackgroundColor,
+                  color: CupertinoDynamicColor.withBrightness(
+                      color: CupertinoTheme.of(context).scaffoldBackgroundColor,
+                      darkColor: CupertinoTheme.of(context).barBackgroundColor),
                   child: child,
                 ),
               ),

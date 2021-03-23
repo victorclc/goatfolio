@@ -78,8 +78,7 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
                     ),
                     Text(
                       " ${widget.item.ticker.replaceAll('.SA', '')}",
-                      style: TextStyle(
-                        fontSize: 16,
+                      style: textTheme.textStyle.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -94,8 +93,8 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
                 child: CupertinoSlidingSegmentedControl(
                   groupValue: selectedTab ?? 'a',
                   children: {
-                    'a': Text("Valorização"),
-                    'b': Text("Rentabilidade")
+                    'a': Text("Valorização", style: textTheme.textStyle.copyWith(fontSize: 14),),
+                    'b': Text("Rentabilidade", style: textTheme.textStyle.copyWith(fontSize: 14),),
                   },
                   onValueChanged: (value) {
                     setState(() {
@@ -157,13 +156,21 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
                 height: 16,
               ),
               _buildContentRow(
-                  "Quantidade", widget.item.currentAmount.toString()),
+                  "Quantidade",
+                  widget.item.currentAmount.toString(),
+                  textTheme.textStyle,
+                  textTheme.textStyle),
               _buildContentRow(
                   "Saldo bruto",
                   moneyFormatter.format(widget.item.currentAmount *
-                      widget.item.currentStockPrice)),
-              _buildContentRow("Valor investido",
-                  moneyFormatter.format(widget.item.currentInvested)),
+                      widget.item.currentStockPrice),
+                  textTheme.textStyle,
+                  textTheme.textStyle),
+              _buildContentRow(
+                  "Valor investido",
+                  moneyFormatter.format(widget.item.currentInvested),
+                  textTheme.textStyle,
+                  textTheme.textStyle),
               SizedBox(
                 height: 12,
               ),
@@ -172,12 +179,13 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
                 children: <Widget>[
                   Text(
                     "Resultado",
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style: textTheme.textStyle
+                        .copyWith(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                   Text(
                     moneyFormatter
                         .format(currentValue - widget.item.currentInvested),
-                    style: TextStyle(
+                    style: textTheme.textStyle.copyWith(
                         fontSize: 16,
                         color: currentValue - widget.item.currentInvested >= 0
                             ? Colors.green
@@ -188,10 +196,16 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
               SizedBox(
                 height: 12,
               ),
-              _buildContentRow("Cotação atual",
-                  moneyFormatter.format(widget.item.currentStockPrice)),
-              _buildContentRow("Preço médio",
-                  moneyFormatter.format(widget.item.averagePrice)),
+              _buildContentRow(
+                  "Cotação atual",
+                  moneyFormatter.format(widget.item.currentStockPrice),
+                  textTheme.textStyle,
+                  textTheme.textStyle),
+              _buildContentRow(
+                  "Preço médio",
+                  moneyFormatter.format(widget.item.averagePrice),
+                  textTheme.textStyle,
+                  textTheme.textStyle),
               SizedBox(
                 height: 12,
               ),
@@ -199,7 +213,9 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
                   "% preço médio",
                   percentFormatter.format((widget.item.currentStockPrice /
                           widget.item.averagePrice) -
-                      1)),
+                      1),
+                  textTheme.textStyle,
+                  textTheme.textStyle),
               Divider(
                 height: 32,
                 color: Colors.grey,
@@ -270,14 +286,15 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
   //   ];
   // }
 
-  Widget _buildContentRow(String key, String value, [TextStyle style]) {
+  Widget _buildContentRow(String key, String value,
+      [TextStyle keyStyle, TextStyle valueStyle]) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Text(key),
+        Text(key, style: keyStyle),
         Text(
           value,
-          style: style,
+          style: valueStyle,
         ),
       ],
     );
