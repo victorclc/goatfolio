@@ -1,4 +1,5 @@
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class DonutAutoLabelChart extends StatefulWidget {
@@ -21,6 +22,7 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
   String tappedType;
 
   Widget buildChart(BuildContext context) {
+    final textTheme = CupertinoTheme.of(context).textTheme;
     return new charts.PieChart(
       getSeries(),
       animate: widget.animate,
@@ -39,7 +41,13 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
       ],
       defaultRenderer:
           new charts.ArcRendererConfig(arcWidth: 40, arcRendererDecorators: [
-        new charts.ArcLabelDecorator(),
+        new charts.ArcLabelDecorator(
+            outsideLabelStyleSpec: charts.TextStyleSpec(
+                fontSize: 14,
+                fontFamily: textTheme.textStyle.fontFamily,
+                color: charts.Color.fromHex(
+                    code:
+                        textTheme.textStyle.color.hashCode.toRadixString(16)))),
       ]),
     );
   }

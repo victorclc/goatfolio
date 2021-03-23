@@ -29,6 +29,8 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = CupertinoTheme.of(context).textTheme;
+
     return CupertinoSliverPage(
         largeTitle: PortfolioPage.title,
         onRefresh: () async =>
@@ -57,11 +59,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                               EdgeInsets.only(left: 16, bottom: 16, top: 8),
                           child: Text(
                             "Alocação",
-                            style:
-                                Theme.of(context).textTheme.bodyText2.copyWith(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                            style: textTheme.navTitleTextStyle,
                           ),
                         ),
                         SizedBox(
@@ -71,6 +69,16 @@ class _PortfolioPageState extends State<PortfolioPage> {
                             typeSeries: buildSubtypeSeries(),
                             stocksSeries: buildStockSeries(),
                             reitsSeries: buildReitSeries(),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 16,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Divider(
+                            height: 0,
+                            color: Colors.grey,
                           ),
                         ),
                         InvestmentTypeExpansionTile(
@@ -256,6 +264,8 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = CupertinoTheme.of(context).textTheme;
+
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8),
       child: ExpansionTileCustom(
@@ -271,10 +281,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
             ),
             Text(
               ' ' + title,
-              style: Theme.of(context).textTheme.bodyText2.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: textTheme.navTitleTextStyle,
             ),
           ],
         ),
@@ -286,13 +293,13 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     "Total em carteira",
-                    style: Theme.of(context).textTheme.bodyText2,
+                    style: textTheme.textStyle.copyWith(fontSize: 16),
                   ),
                 ],
               ),
               Text(
                 moneyFormatter.format(grossAmount),
-                style: Theme.of(context).textTheme.bodyText2,
+                style: textTheme.textStyle.copyWith(fontSize: 16),
               ),
             ],
           ),
@@ -303,7 +310,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     "% do portfolio",
-                    style: Theme.of(context).textTheme.bodyText2,
+                    style: textTheme.textStyle.copyWith(fontSize: 16),
                   ),
                 ],
               ),
@@ -311,7 +318,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
               // 34000   x
               Text(
                 percentFormatter.format(grossAmount / totalAmount),
-                style: Theme.of(context).textTheme.bodyText2,
+                style: textTheme.textStyle.copyWith(fontSize: 16),
               ),
             ],
           ),
@@ -358,6 +365,8 @@ class StockInvestmentSummaryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = CupertinoTheme.of(context).textTheme;
+
     final currentValue = performance.currentAmount *
         (performance.currentStockPrice != null
             ? performance.currentStockPrice
@@ -382,10 +391,10 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   ),
                   Text(
                     " ${performance.ticker.replaceAll('.SA', '')}",
-                    style: Theme.of(context).textTheme.bodyText2.copyWith(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    style: textTheme.textStyle.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
@@ -397,13 +406,13 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       "Saldo atual",
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: textTheme.textStyle.copyWith(fontSize: 16),
                     ),
                   ],
                 ),
                 Text(
                   moneyFormatter.format(currentValue),
-                  style: Theme.of(context).textTheme.bodyText2,
+                  style: textTheme.textStyle.copyWith(fontSize: 16),
                 ),
               ],
             ),
@@ -414,14 +423,15 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       "Resultado",
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: textTheme.textStyle.copyWith(fontSize: 16),
                     ),
                   ],
                 ),
                 Text(
                   moneyFormatter
                       .format(currentValue - performance.currentInvested),
-                  style: Theme.of(context).textTheme.bodyText2.copyWith(
+                  style: textTheme.textStyle.copyWith(
+                      fontSize: 16,
                       color: currentValue - performance.currentInvested < 0
                           ? Colors.red
                           : Colors.green),
@@ -439,7 +449,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       "% na categoria",
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: textTheme.textStyle.copyWith(fontSize: 16),
                     ),
                   ],
                 ),
@@ -447,7 +457,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   percentFormatter.format((performance.currentStockPrice *
                           performance.currentAmount) /
                       typeTotalAmount),
-                  style: Theme.of(context).textTheme.bodyText2,
+                  style: textTheme.textStyle.copyWith(fontSize: 16),
                 ),
               ],
             ),
@@ -458,7 +468,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       "% do portfolio",
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: textTheme.textStyle.copyWith(fontSize: 16),
                     ),
                   ],
                 ),
@@ -466,7 +476,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   percentFormatter.format((performance.currentStockPrice *
                           performance.currentAmount) /
                       portfolioTotalAmount),
-                  style: Theme.of(context).textTheme.bodyText2,
+                  style: textTheme.textStyle.copyWith(fontSize: 16),
                 ),
               ],
             ),
