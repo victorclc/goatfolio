@@ -43,6 +43,11 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
       defaultRenderer:
           new charts.ArcRendererConfig(arcWidth: 40, arcRendererDecorators: [
         new charts.ArcLabelDecorator(
+          insideLabelStyleSpec: charts.TextStyleSpec(
+              fontSize: 14,
+              fontFamily: textTheme.textStyle.fontFamily,
+              fontWeight: textTheme.textStyle.fontWeight.toString(),
+              color: charts.MaterialPalette.white),
           outsideLabelStyleSpec: charts.TextStyleSpec(
             fontSize: 14,
             fontFamily: textTheme.textStyle.fontFamily,
