@@ -364,7 +364,7 @@ class _StockExtractItem extends StatelessWidget {
                         Text(
                           investment.ticker.replaceAll('.SA', ''),
                           style: textTheme.textStyle.copyWith(
-                              fontSize: 16, fontWeight: FontWeight.w400),
+                              fontSize: 16, fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
@@ -379,7 +379,7 @@ class _StockExtractItem extends StatelessWidget {
                         ),
                         Text(
                           "${moneyFormatter.format(investment.price * investment.amount)}",
-                          style: textTheme.textStyle.copyWith(
+                          style: textTheme.textStyle.copyWith(fontWeight: FontWeight.w500,
                               fontSize: 16),
                         ),
                       ],
