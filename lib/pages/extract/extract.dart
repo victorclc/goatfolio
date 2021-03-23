@@ -364,7 +364,7 @@ class _StockExtractItem extends StatelessWidget {
                         Text(
                           investment.ticker.replaceAll('.SA', ''),
                           style: textTheme.textStyle.copyWith(
-                              fontSize: 16,),
+                              fontSize: 16, fontWeight: FontWeight.w400),
                         ),
                       ],
                     ),
