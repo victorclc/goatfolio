@@ -61,8 +61,8 @@ class _RentabilityPageState extends State<RentabilityPage> {
                 child: CupertinoSlidingSegmentedControl(
                   groupValue: selectedTab ?? 'a',
                   children: {
-                    'a': Text("Valorização"),
-                    'b': Text("Rentabilidade")
+                    'a': Text("Valorização", style: textTheme.textStyle.copyWith(fontSize: 14)),
+                    'b': Text("Rentabilidade", style: textTheme.textStyle.copyWith(fontSize: 14))
                   },
                   onValueChanged: (value) {
                     setState(() {
@@ -114,19 +114,29 @@ class _RentabilityPageState extends State<RentabilityPage> {
                 color: Colors.grey,
                 height: 24,
               ),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Mais informações",
+                  style: textTheme.navTitleTextStyle,
+                ),
+              ),
+              SizedBox(
+                height: 16,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Saldo bruto'),
-                  Text(moneyFormatter.format(widget.performance.grossAmount)),
+                  Text('Saldo bruto', style: textTheme.textStyle),
+                  Text(moneyFormatter.format(widget.performance.grossAmount), style: textTheme.textStyle),
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Valor investido'),
+                  Text('Valor investido', style: textTheme.textStyle),
                   Text(
-                      moneyFormatter.format(widget.performance.investedAmount)),
+                      moneyFormatter.format(widget.performance.investedAmount), style: textTheme.textStyle),
                 ],
               ),
               SizedBox(
@@ -135,7 +145,7 @@ class _RentabilityPageState extends State<RentabilityPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Resultado'),
+                  Text('Resultado', style: textTheme.textStyle),
                   Text(
                     moneyFormatter.format(widget.performance.result),
                     style: textTheme.textStyle.copyWith(
