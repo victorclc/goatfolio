@@ -23,13 +23,15 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
     lows = widget.performance.stocks
         .where((stock) => stock.currentDayChangePercent < 0)
         .toList()
-      ..sort((a, b) =>
-          a.currentDayChangePercent.compareTo(b.currentDayChangePercent));
+          ..sort((a, b) =>
+              a.currentDayChangePercent.compareTo(b.currentDayChangePercent));
   }
 
-  Widget buildTopFive() {
+  Widget buildTopFive(BuildContext context) {
+    final textTheme = CupertinoTheme.of(context).textTheme;
+
     if (lows.length == 0) {
-      return Text("Nenhum", style: Theme.of(context).textTheme.subtitle1);
+      return Text("Nenhum", style: textTheme.navTitleTextStyle);
     }
     int listSize = lows.length > 3 ? 3 : lows.length;
     List<Widget> list = [];
@@ -41,7 +43,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
             children: [
               Text(
                 "Ticker",
-                style: Theme.of(context).textTheme.bodyText2,
+                style: textTheme.textStyle.copyWith(fontSize: 16),
               ),
               // Text(
               //   "Preço",
@@ -49,11 +51,13 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
               // ),
               Text(
                 "Hoje",
-                style: Theme.of(context).textTheme.bodyText2,
+                style: textTheme.textStyle.copyWith(fontSize: 16),
               ),
             ],
           ),
-          SizedBox(height: 8,)
+          SizedBox(
+            height: 8,
+          )
         ],
       ),
     );
@@ -62,14 +66,14 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
       list.add(Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(stock.ticker),
-          // Text(moneyFormatter.format(stock.currentStockPrice)),
+          Text(
+            stock.ticker,
+            style: textTheme.textStyle.copyWith(fontSize: 14),
+          ),
           Text(
             percentFormatter.format(stock.currentDayChangePercent / 100),
-            style: Theme.of(context)
-                .textTheme
-                .bodyText2
-                .copyWith(color: Colors.red),
+            style:
+                textTheme.textStyle.copyWith(fontSize: 14, color: Colors.red),
           ),
         ],
       ));
@@ -107,7 +111,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
               SizedBox(
                 height: 16,
               ),
-            ]..add(buildTopFive()),
+            ]..add(buildTopFive(context)),
           ),
         ),
       ),

@@ -28,6 +28,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
   }
 
   Widget buildTopFive() {
+    final textTheme = CupertinoTheme.of(context).textTheme;
     if (highs.length == 0) {
       return Text("Nenhum", style: Theme.of(context).textTheme.subtitle1);
     }
@@ -41,7 +42,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
             children: [
               Text(
                 "Ticker",
-                style: Theme.of(context).textTheme.bodyText2,
+                style: textTheme.textStyle.copyWith(fontSize: 16),
               ),
               // Text(
               //   "Preço",
@@ -49,11 +50,13 @@ class _HighestHighsState extends State<HighestHighsCard> {
               // ),
               Text(
                 "Hoje",
-                style: Theme.of(context).textTheme.bodyText2,
+                style: textTheme.textStyle.copyWith(fontSize: 16),
               ),
             ],
           ),
-          SizedBox(height: 8,)
+          SizedBox(
+            height: 8,
+          )
         ],
       ),
     );
@@ -62,14 +65,12 @@ class _HighestHighsState extends State<HighestHighsCard> {
       list.add(Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(stock.ticker),
+          Text(stock.ticker, style: textTheme.textStyle.copyWith(fontSize: 14)),
           // Text(moneyFormatter.format(stock.currentStockPrice)),
           Text(
             percentFormatter.format(stock.currentDayChangePercent / 100),
-            style: Theme.of(context)
-                .textTheme
-                .bodyText2
-                .copyWith(color: Colors.green),
+            style:
+                textTheme.textStyle.copyWith(fontSize: 14, color: Colors.green),
           ),
         ],
       ));
