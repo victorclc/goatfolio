@@ -44,7 +44,6 @@ class _PressableCardState extends State<PressableCard>
     print("platform brightness: ${MediaQuery.of(context).platformBrightness}");
     print("highContrast: ${MediaQuery.of(context).highContrast}");
 
-
     return Listener(
       onPointerDown: (details) {
         if (widget.onPressed != null) {
@@ -82,9 +81,10 @@ class _PressableCardState extends State<PressableCard>
                       ((1 - elevationAnimation.value) * 10 + 10) * flatten,
                   borderRadius: BorderRadius.circular(12 * flatten),
                   clipBehavior: Clip.antiAlias,
-                  color: CupertinoDynamicColor.withBrightness(
-                      color: CupertinoTheme.of(context).scaffoldBackgroundColor,
-                      darkColor: CupertinoTheme.of(context).barBackgroundColor),
+                  color: MediaQuery.of(context).platformBrightness ==
+                          Brightness.light
+                      ? CupertinoTheme.of(context).scaffoldBackgroundColor
+                      : CupertinoTheme.of(context).barBackgroundColor,
                   child: child,
                 ),
               ),
