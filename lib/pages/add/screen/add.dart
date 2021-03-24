@@ -16,24 +16,18 @@ class AddPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      navigationBar: CupertinoNavigationBar(),
       child: SafeArea(
         child: Column(
           children: [
-            Container(
-                padding: EdgeInsets.all(16),
-                alignment: Alignment.centerLeft,
-                child: DefaultTextStyle(
-                  style: CupertinoTheme.of(context)
-                      .textTheme
-                      .navLargeTitleTextStyle,
-                  child: Text(
-                    title,
-                  ),
-                )),
             Expanded(
               child: SettingsList(
                 shrinkWrap: true,
+                lightBackgroundColor:
+                    MediaQuery.of(context).platformBrightness !=
+                            Brightness.light
+                        ? CupertinoTheme.of(context).scaffoldBackgroundColor
+                        : null,
                 physics: NeverScrollableScrollPhysics(),
                 sections: [
                   SettingsSection(
@@ -43,17 +37,15 @@ class AddPage extends StatelessWidget {
                     // subtitlePadding: EdgeInsets.all(0),
                     tiles: [
                       SettingsTile(
-                          title: 'Importar automaticamente (CEI)',
-                          onPressed: (context) =>
-                              // Navigator.of(context).push(
-                              //   CupertinoPageRoute(
-                              //       builder: (context) => CeiLoginPage()),
-                              // ),
-                              ModalUtils.showDragableModalBottomSheet(
-                            context,
-                                CeiLoginPage(userService: Provider.of<UserService>(context, listen: false)),
-                          ),
-                          ),
+                        title: 'Importar automaticamente (CEI)',
+                        onPressed: (context) =>
+                            ModalUtils.showDragableModalBottomSheet(
+                          context,
+                          CeiLoginPage(
+                              userService: Provider.of<UserService>(context,
+                                  listen: false)),
+                        ),
+                      ),
                       SettingsTile(
                         title: 'Operação de compra',
                         onPressed: (context) =>
