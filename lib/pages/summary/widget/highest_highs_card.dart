@@ -90,7 +90,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 224,
+      height: 226,
       child: PressableCard(
         cardPadding: EdgeInsets.only(left: 16, right: 4, top: 16, bottom: 16),
         onPressed: () => {},
