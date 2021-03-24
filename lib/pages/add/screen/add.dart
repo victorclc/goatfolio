@@ -36,7 +36,7 @@ class AddPage extends StatelessWidget {
                     // titlePadding: EdgeInsets.all(0),
                     // subtitlePadding: EdgeInsets.all(0),
                     tiles: [
-                      SettingsTile(
+                      BetterSettingsTile(
                         title: 'Importar automaticamente (CEI)',
                         onPressed: (context) =>
                             ModalUtils.showDragableModalBottomSheet(
@@ -46,12 +46,12 @@ class AddPage extends StatelessWidget {
                                   listen: false)),
                         ),
                       ),
-                      SettingsTile(
+                      BetterSettingsTile(
                         title: 'Operação de compra',
                         onPressed: (context) =>
                             goToInvestmentList(context, true),
                       ),
-                      SettingsTile(
+                      BetterSettingsTile(
                         title: 'Operação de venda',
                         onPressed: (context) =>
                             goToInvestmentList(context, false),
@@ -108,6 +108,38 @@ class BetterSettingsTile extends SettingsTile {
       valueTextStyle: subtitleTextStyle,
     );
   }
+
+  BetterSettingsTile({
+    Key key,
+    @required title,
+    titleMaxLines,
+    subtitle,
+    subtitleMaxLines,
+    leading,
+    trailing,
+    iosChevron = defaultCupertinoForwardIcon,
+    iosChevronPadding = defaultCupertinoForwardPadding,
+    onTap,
+    titleTextStyle,
+    subtitleTextStyle,
+    enabled = true,
+    onPressed,
+    switchActiveColor,
+  }) : super(
+            title: title,
+            titleMaxLines: titleMaxLines,
+            subtitle: subtitle,
+            subtitleMaxLines: subtitleMaxLines,
+            leading: leading,
+            trailing: trailing,
+            iosChevron: iosChevron,
+            iosChevronPadding: iosChevronPadding,
+            onTap: onTap,
+            titleTextStyle: titleTextStyle,
+            subtitleTextStyle: subtitleTextStyle,
+            enabled: enabled,
+            onPressed: onPressed,
+            switchActiveColor: switchActiveColor);
 }
 
 enum SettingsItemType {
