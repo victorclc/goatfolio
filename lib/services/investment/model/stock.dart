@@ -1,27 +1,39 @@
 class StockInvestment {
-  final String type;
-  final String operation;
-  final DateTime date;
-  final String id;
-  final String subject;
-  final String broker;
-  final double costs;
-  final String ticker;
-  final int amount;
-  final double price;
+  String type;
+  String operation;
+  DateTime date;
+  String id;
+  String subject;
+  String broker;
+  double costs;
+  String ticker;
+  int amount;
+  double price;
 
-  StockInvestment({
-    this.ticker,
-    this.amount,
-    this.price,
-    this.type,
-    this.operation,
-    this.date,
-    this.id,
-    this.subject,
-    this.broker,
-    this.costs
-  });
+  StockInvestment(
+      {this.ticker,
+      this.amount,
+      this.price,
+      this.type,
+      this.operation,
+      this.date,
+      this.id,
+      this.subject,
+      this.broker,
+      this.costs});
+
+  void copy(StockInvestment inv) {
+    this.ticker = inv.ticker;
+    this.amount = inv.amount;
+    this.price = inv.price;
+    this.type = inv.type;
+    this.operation = inv.operation;
+    this.date = inv.date;
+    this.id = inv.id;
+    this.subject = inv.subject;
+    this.broker = inv.broker;
+    this.costs = inv.costs;
+  }
 
   StockInvestment.fromJson(Map<String, dynamic> json)
       : type = json['type'],

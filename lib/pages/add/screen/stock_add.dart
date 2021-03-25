@@ -12,10 +12,39 @@ class StockAdd extends StatefulWidget {
   final bool buyOperation;
   final UserService userService;
   final String ticker;
+  final String broker;
+  final int amount;
+  final double price;
+  final DateTime date;
+  final double costs;
+  final String id;
+  final StockInvestment origInvestment;
 
   const StockAdd(
-      {Key key, this.buyOperation = true, this.userService, this.ticker})
+      {Key key,
+      this.buyOperation = true,
+      this.userService,
+      this.ticker,
+      this.broker,
+      this.amount,
+      this.price,
+      this.date,
+      this.costs,
+      this.id,
+      this.origInvestment})
       : super(key: key);
+
+  StockAdd.fromStockInvestment(this.origInvestment,
+      {@required UserService userService})
+      : buyOperation = origInvestment.operation == 'BUY',
+        ticker = origInvestment.ticker,
+        broker = origInvestment.broker,
+        amount = origInvestment.amount,
+        price = origInvestment.price,
+        date = origInvestment.date,
+        costs = origInvestment.costs,
+        id = origInvestment.id,
+        userService = userService;
 
   @override
   _StockAddState createState() => _StockAddState();
@@ -36,6 +65,19 @@ class _StockAddState extends State<StockAdd> {
     super.initState();
     service = StockInvestmentService(widget.userService);
     _tickerController.text = widget.ticker ?? '';
+    _brokerController.text = widget.broker ?? '';
+    if (widget.amount != null) {
+      _amountController.text = '${widget.amount}';
+    }
+    if (widget.price != null) {
+      _priceController.text = moneyInputFormatter.format("${widget.price}");
+    }
+    if (widget.date != null) {
+      _dateController.text = DateFormat('dd/MM/yyyy').format(widget.date);
+    }
+    if (widget.costs != null) {
+      _costsController.text = moneyInputFormatter.format("${widget.costs}");
+    }
   }
 
   @override
@@ -105,7 +147,9 @@ class _StockAddState extends State<StockAdd> {
               ),
               CupertinoTextField(
                 controller: _brokerController,
-                autofocus: widget.ticker != null ? true : false,
+                autofocus: widget.ticker != null && widget.broker == null
+                    ? true
+                    : false,
                 onChanged: (something) {
                   setState(() {});
                 },
@@ -207,7 +251,8 @@ class _StockAddState extends State<StockAdd> {
 
   List<String> validateForm() {
     final List<String> problems = [];
-    if (_tickerController.text.length != 6) {
+    if (_tickerController.text.length < 5 ||
+        _tickerController.text.length > 6) {
       problems.add("Código do ativo inválido.");
     }
     if (int.parse(_amountController.text) <= 0) {
@@ -256,6 +301,7 @@ class _StockAddState extends State<StockAdd> {
     }
 
     final investment = StockInvestment(
+        id: widget.id,
         ticker: _tickerController.text,
         amount: int.parse(_amountController.text),
         price: getDoubleFromMoneyFormat(_priceController.text),
@@ -266,16 +312,25 @@ class _StockAddState extends State<StockAdd> {
         costs: getDoubleFromMoneyFormat(
             _costsController.text.isNotEmpty ? _costsController.text : '0.0'));
 
-    _future = service.addInvestment(investment);
+    if (widget.id != null) {
+      _future = service.editInvestment(investment);
+    } else {
+      _future = service.addInvestment(investment);
+    }
 
     ModalUtils.showUnDismissibleModalBottomSheet(
       context,
       ProgressIndicatorScaffold(
-          message: 'Adicionando investimento...',
+          message: widget.id != null
+              ? 'Editando investimento...'
+              : 'Adicionando investimento...',
           future: _future,
           onFinish: () async {
             try {
               await _future;
+              if (widget.origInvestment != null) {
+                widget.origInvestment.copy(investment);
+              }
               await DialogUtils.showSuccessDialog(
                   context, "Investimento adicionado com sucesso");
             } catch (Exceptions) {

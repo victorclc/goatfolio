@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
+import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/focus.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/widget/bottom_sheet_page.dart';
+import 'package:goatfolio/common/widget/progress_indicator_scaffold.dart';
+import 'package:goatfolio/pages/add/screen/stock_add.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 
 import 'package:goatfolio/services/investment/model/stock.dart';
@@ -208,13 +211,19 @@ class _ExtractPageState extends State<ExtractPage> {
     );
   }
 
-  void onEditCb() {
+  void onEditCb(StockInvestment investment) async {
+    await ModalUtils.showDragableModalBottomSheet(
+      context,
+      StockAdd.fromStockInvestment(
+        investment,
+        userService: Provider.of<UserService>(context, listen: false),
+      ),
+    );
     setState(() {});
   }
 
   void onDeleteCb(StockInvestment investment) async {
-    await stockService.deleteInvestment(investment);
-
+    final deleteFuture = stockService.deleteInvestment(investment);
     setState(() {
       investments.remove(investment);
       offset--;
@@ -322,9 +331,9 @@ class _StockExtractItem extends StatelessWidget {
       onPressed: () async {
         await ModalUtils.showDragableModalBottomSheet(
           context,
-          BottomSheetPage(
-            child: ExtractDetails(investment, onEdited, onDeleted),
-          ),
+          ExtractDetails(investment, onEdited, onDeleted),
+          expandable: false,
+          isDismissible: true,
         );
       },
       child: Column(
@@ -379,8 +388,8 @@ class _StockExtractItem extends StatelessWidget {
                         ),
                         Text(
                           "${moneyFormatter.format(investment.price * investment.amount)}",
-                          style: textTheme.textStyle.copyWith(fontWeight: FontWeight.w500,
-                              fontSize: 14),
+                          style: textTheme.textStyle.copyWith(
+                              fontWeight: FontWeight.w500, fontSize: 14),
                         ),
                       ],
                     ),

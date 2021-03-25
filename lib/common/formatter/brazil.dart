@@ -15,22 +15,21 @@ class CurrencyPtBrInputFormatter extends TextInputFormatter {
 
   final int maxDigits;
 
+  String format(String text) {
+    final formatter = new NumberFormat("#,##0.00", "pt_BR");
+    double value = double.parse(text.replaceAllMapped(RegExp(r'\D'), (match) {
+      return '';
+    }));
+    return "R\$ " + formatter.format(value / 100);
+  }
+
   TextEditingValue formatEditUpdate(
       TextEditingValue oldValue, TextEditingValue newValue) {
     if (newValue.selection.baseOffset == 0) {
       return newValue;
     }
 
-    // if (maxDigits != null && newValue.selection.baseOffset > maxDigits) {
-    //   return oldValue;
-    // }
-
-    final formatter = new NumberFormat("#,##0.00", "pt_BR");
-    double value =
-        double.parse(newValue.text.replaceAllMapped(RegExp(r'\D'), (match) {
-      return '';
-    }));
-    String newText = "R\$ " + formatter.format(value / 100);
+    String newText = format(newValue.text);
     return newValue.copyWith(
         text: newText,
         selection: new TextSelection.collapsed(offset: newText.length));
