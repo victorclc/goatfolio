@@ -18,8 +18,6 @@ class PerformanceCore:
         self.portfolio_repo = PortfolioRepository()
         self.market_data = MarketData()
 
-
-
     def consolidate_port_new_and_old_change_name(self, subject, new_investments, old_investments):
         """
             new_investments is a new or a newer version of the investment
@@ -28,7 +26,7 @@ class PerformanceCore:
             new investments will be added to the portfolio and old investments will be subtracted from the portfolio
         """
         new_invest_map = groupby(sorted(new_investments, key=lambda i: i.ticker), key=lambda i: i.ticker)
-        # old_invest_map = groupby(sorted(old_investments, key=lambda i: i.ticker), key=lambda i: i.ticker)
+        old_invest_map = groupby(sorted(old_investments, key=lambda i: i.ticker), key=lambda i: i.ticker)
 
         portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
 
@@ -39,10 +37,17 @@ class PerformanceCore:
                 portfolio.stocks.append(stock_consolidated)
 
             investments = sorted(list(investments), key=lambda i: i.date)
-            for i in investments:
-                portfolio.initial_date = min(portfolio.initial_date, i.date)
-                self.consolidate_stock_new(stock_consolidated, i)
+            for inv in investments:
+                portfolio.initial_date = min(portfolio.initial_date, inv.date)
+                self.consolidate_stock_new(stock_consolidated, inv)
             self._fix_stock_history_gap(stock_consolidated.history, ticker)
+
+        for ticker, investments in old_invest_map:
+            stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
+            investments = sorted(list(investments), key=lambda i: i.date)
+            for inv in investments:
+                inv.amount = inv.amount * -1
+                self.consolidate_stock_new(stock_consolidated, inv)
 
         all_stocks_history = [item for sublist in [s.history for s in portfolio.stocks] for item in sublist]
         portfolio_history_map = {}
