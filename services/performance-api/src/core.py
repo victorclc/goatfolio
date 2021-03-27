@@ -6,7 +6,7 @@ from typing import List
 from dateutil.relativedelta import relativedelta
 
 from adapters import InvestmentRepository, MarketData, PortfolioRepository
-from goatcommons.constants import OperationType, InvestmentsType
+from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
 from models import Portfolio, StockConsolidated, StockPosition, PortfolioPosition
@@ -18,19 +18,21 @@ class PerformanceCore:
         self.portfolio_repo = PortfolioRepository()
         self.market_data = MarketData()
 
-    def consolidate_port_new_and_old_change_name(self, subject, new_investments, old_investments):
+    def consolidate_portfolio(self, subject, new_investments, old_investments):
         """
             new_investments is a new or a newer version of the investment
             old_investments is an old a investment before edit or deletion
 
             new investments will be added to the portfolio and old investments will be subtracted from the portfolio
         """
-        new_invest_map = groupby(sorted(new_investments, key=lambda i: i.ticker), key=lambda i: i.ticker)
-        old_invest_map = groupby(sorted(old_investments, key=lambda i: i.ticker), key=lambda i: i.ticker)
+        for inv in old_investments:
+            inv.amount = -1 * inv.amount
+        investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
+                                  key=lambda i: i.ticker)
 
         portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
 
-        for ticker, investments in new_invest_map:
+        for ticker, investments in investments_map:
             stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
             if not stock_consolidated:
                 stock_consolidated = StockConsolidated(ticker=ticker)
@@ -38,17 +40,16 @@ class PerformanceCore:
 
             investments = sorted(list(investments), key=lambda i: i.date)
             for inv in investments:
-                portfolio.initial_date = min(portfolio.initial_date, inv.date)
-                self.consolidate_stock_new(stock_consolidated, inv)
+                if inv.amount > 0:
+                    portfolio.initial_date = min(portfolio.initial_date, inv.date)
+                self.consolidate_stock(stock_consolidated, inv)
             self._fix_stock_history_gap(stock_consolidated.history, ticker)
 
-        for ticker, investments in old_invest_map:
-            stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
-            investments = sorted(list(investments), key=lambda i: i.date)
-            for inv in investments:
-                inv.amount = inv.amount * -1
-                self.consolidate_stock_new(stock_consolidated, inv)
+        self.consolidate_portfolio_summary(portfolio)
+        self.portfolio_repo.save(portfolio)
 
+    @staticmethod
+    def consolidate_portfolio_summary(portfolio: Portfolio):
         all_stocks_history = [item for sublist in [s.history for s in portfolio.stocks] for item in sublist]
         portfolio_history_map = {}
         portfolio.invested_amount = Decimal(0)
@@ -67,9 +68,7 @@ class PerformanceCore:
                 p_position.gross_amount = p_position.gross_amount + stock_position.amount * stock_position.close_price
         portfolio.history = list(portfolio_history_map.values())
 
-        self.portfolio_repo.save(portfolio)
-
-    def consolidate_stock_new(self, stock_consolidated: StockConsolidated, inv: StockInvestment):
+    def consolidate_stock(self, stock_consolidated: StockConsolidated, inv: StockInvestment):
         stock_consolidated.initial_date = min(stock_consolidated.initial_date, inv.date)
         stock_consolidated.add_investment(inv)
 
@@ -113,7 +112,7 @@ class PerformanceCore:
             prev = proc
             proc = proc + relativedelta(months=1)
 
-    def calculate_portfolio_performance(self, subject):
+    def calculate_today_performance(self, subject):
         assert subject
         portfolio = self.portfolio_repo.find(subject)
 
@@ -133,14 +132,6 @@ class PerformanceCore:
 
         portfolio.stocks, portfolio.stock_gross_amount, portfolio.stock_prev_gross_amount = stock_performance
         portfolio.reits, portfolio.reit_gross_amount, portfolio.reit_prev_gross_amount = reit_performance
-
-        # h_dict = {int(h.date.timestamp()): h for h in portfolio.history}
-        # s_history = [item for sublist in [s.history for s in portfolio.stocks + portfolio.reits] for item in sublist]
-        #
-        # for s_position in s_history:
-        #     s_timestamp = int(s_position.date.timestamp())
-        #     h_dict[s_timestamp].gross_amount = h_dict[
-        #                                            s_timestamp].gross_amount + s_position.amount * s_position.close_price
 
         return portfolio
 

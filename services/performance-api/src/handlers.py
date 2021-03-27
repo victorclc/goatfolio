@@ -18,19 +18,8 @@ def get_performance_handler(event, context):
     logger.info(f"EVENT: {event}")
     try:
         subject = AWSEventUtils.get_event_subject(event)
-        result = core.calculate_portfolio_performance(subject)
+        result = core.calculate_today_performance(subject)
         return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(result.to_dict())}
-    except AssertionError as ex:
-        logger.error(ex)
-        return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
-
-
-def get_today_variation_handler(event, context):
-    logger.info(f"EVENT: {event}")
-    try:
-        subject = AWSEventUtils.get_event_subject(event)
-        result = core.calculate_today_variation(subject)
-        return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(result)}
     except AssertionError as ex:
         logger.error(ex)
         return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
@@ -53,7 +42,7 @@ def consolidate_portfolio_handler(event, context):
                 old = _dynamo_stream_to_stock_investment(dynamodb['OldImage'])
                 assert old.subject == subject, 'DIFFERENT SUBJECTS IN THE SAME STREAM'
                 old_investments.append(old)
-        core.consolidate_port_new_and_old_change_name(subject, new_investments, old_investments)
+        core.consolidate_portfolio(subject, new_investments, old_investments)
     except Exception:
         print(f'CAUGHT EXCEPTION')
         traceback.print_exc()

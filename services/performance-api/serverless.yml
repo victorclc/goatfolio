@@ -64,9 +64,6 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
-  getTodayVariation:
-    handler: src/handlers.get_today_variation_handler
-
   consolidatePortfolio:
     handler: src/handlers.consolidate_portfolio_handler
     events:
@@ -74,7 +71,6 @@ functions:
           type: dynamodb
           arn:
             'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
-
 
 resources:
   Resources:
