@@ -26,6 +26,7 @@ if __name__ == '__main__':
                 for index, row in table.iterrows():
                     if row['0'] == 'Código:':
                         ticker = row['1']
+                        engine.execute(f"UPDATE cvm_company_info set ticker = '{ticker}' where cvm_code = '{code}'")
             elif set(table.columns) == {'Unnamed: 0', 'Proventos', 'Código ISIN', 'Deliberado em',
                                         'Negócios com até', '% / Fator de Grupamento', 'Ativo Emitido',
                                         'Observações'}:
