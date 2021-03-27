@@ -1,4 +1,3 @@
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -10,7 +9,6 @@ def analyze():
 
 
 if __name__ == '__main__':
-    processing_start = datetime.now().timestamp()
     engine = create_engine('postgresql://postgres:postgres@localhost:5432/postgres')
     # extract_and_persist_company_info_cvm(engine)
     cvm_codes = []
