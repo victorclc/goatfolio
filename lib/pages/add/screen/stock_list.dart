@@ -80,7 +80,7 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsList> {
               ? IconButton(
                   alignment: Alignment.centerRight,
                   padding: EdgeInsets.all(0),
-                  icon: Icon(Icons.add),
+                  icon: Icon(CupertinoIcons.add),
                   onPressed: () => ModalUtils.showDragableModalBottomSheet(
                         context,
                         StockAdd(
