@@ -118,7 +118,7 @@ class PerformanceCore:
 
     def calculate_today_performance(self, subject):
         assert subject
-        portfolio = self.portfolio_repo.find(subject)
+        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
 
         stocks = []
         reits = []
