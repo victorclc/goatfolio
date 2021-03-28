@@ -28,12 +28,17 @@ class SettingsPage extends StatelessWidget {
                 titleTextStyle:
                     TextStyle(fontSize: 16, color: Colors.redAccent),
                 onPressed: (BuildContext context) async {
-                  await Provider.of<UserService>(context, listen: false)
-                      .signOut();
+                  final userService =
+                      Provider.of<UserService>(context, listen: false);
+                  await userService.signOut();
                   Navigator.of(context, rootNavigator: true).pushReplacement(
-                      CupertinoPageRoute(
-                          builder: (context) =>
-                              LoginPage(onLoggedOn: goToNavigationPage)));
+                    CupertinoPageRoute(
+                      builder: (context) => LoginPage(
+                        onLoggedOn: goToNavigationPage,
+                        userService: userService,
+                      ),
+                    ),
+                  );
                 },
               ),
             ],
