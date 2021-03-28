@@ -1,0 +1,56 @@
+pipeline {
+    agent {
+        docker {
+            image 'victorclc/node-serverless'
+            args '-u 127:998 -v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+    environment {
+        HOME="."
+        SERVICE_PATH="${env.WORKSPACE}/services/cotahist-transformer"
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id-dev')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key-dev')
+        SLS_DEBUG='*'
+    }
+    stages {
+        stage('Clone') {
+            steps {
+                git(
+                    url: 'git@github.com:victorclc/goatfolio-serverless.git',
+                    credentialsId: 'github-ssh',
+                    branch: 'master'
+                )
+             }
+        }
+        stage('Tests') {
+            steps {
+                sh 'chmod +x run_tests.sh'
+                sh './run_tests.sh'
+            }
+        }
+        stage('Sonar') {
+            steps {
+                dir('services/cotahist-transformer'){
+                    sh 'sonar-scanner \
+                        -Dsonar.projectKey=cotahist-transformer \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://192.168.0.100:9000 \
+                        -Dsonar.login=336aba7fccae200cf3cae01931ec866eedf29723'
+                }
+             }
+        }
+        stage('Common Resources Deploy') {
+            steps {
+                sh 'serverless deploy'
+             }
+        }
+        stage('Service Deploy') {
+            steps {
+                 dir('services/cotahist-transformer'){
+                    sh 'npm install'
+                    sh 'serverless deploy'
+                }
+            }
+        }
+    }
+}
