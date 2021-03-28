@@ -49,7 +49,7 @@ class StockConsolidated:
         return self.bought_amount - self.sold_amount
 
     @property
-    def average_price(self)
+    def average_price(self):
         return self.total_spend / self.bought_amount
 
     def add_investment(self, investment: StockInvestment):
