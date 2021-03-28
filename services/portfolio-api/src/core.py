@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import uuid4
 
 from adapters import InvestmentRepository
@@ -23,6 +24,7 @@ class InvestmentCore:
     def add(self, subject, request: InvestmentRequest):
         assert subject
         investment = InvestmentUtils.load_model_by_type(request.type, request.investment)
+        assert investment.date <= datetime.now(), 'invalid date'
         investment.id = str(uuid4())
         investment.subject = subject
 
@@ -34,6 +36,7 @@ class InvestmentCore:
         investment = InvestmentUtils.load_model_by_type(request.type, request.investment)
         investment.subject = subject
         assert investment.id, 'investment id is empty'
+        assert investment.date <= datetime.now(), 'invalid date'
 
         self.repo.save(investment)
         return investment

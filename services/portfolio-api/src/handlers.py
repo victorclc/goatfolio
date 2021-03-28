@@ -1,3 +1,4 @@
+import traceback
 from dataclasses import asdict
 from http import HTTPStatus
 
@@ -23,8 +24,11 @@ def get_investments_handler(event, context):
         investments = core.get(subject, query_params=query)
         return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump([asdict(i) for i in investments])}
     except AssertionError as ex:
-        logger.error(ex)
+        traceback.print_exc()
         return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
+    except Exception as e:
+        traceback.print_exc()
+        raise e
 
 
 def add_investment_handler(event, context):
@@ -36,8 +40,11 @@ def add_investment_handler(event, context):
         result = core.add(subject, investment)
         return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(asdict(result))}
     except (AssertionError, TypeError) as ex:
-        logger.error(ex)
+        traceback.print_exc()
         return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
+    except Exception as e:
+        traceback.print_exc()
+        raise e
 
 
 def edit_investment_handler(event, context):
@@ -49,8 +56,11 @@ def edit_investment_handler(event, context):
         result = core.edit(subject, investment)
         return {'statusCode': 200, 'body': JsonUtils.dump(asdict(result))}
     except (AssertionError, TypeError) as ex:
-        logger.error(ex)
+        traceback.print_exc()
         return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
+    except Exception as e:
+        traceback.print_exc()
+        raise e
 
 
 def delete_investment_handler(event, context):
@@ -62,8 +72,11 @@ def delete_investment_handler(event, context):
         core.delete(subject, investment_id)
         return {'statusCode': 200, 'body': JsonUtils.dump({"message": "Success"})}
     except AssertionError as ex:
-        logger.error(ex)
+        traceback.print_exc()
         return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
+    except Exception as e:
+        traceback.print_exc()
+        raise e
 
 
 def batch_add_investments_handler(event, context):
@@ -76,3 +89,6 @@ def batch_add_investments_handler(event, context):
     except Exception as ex:
         logger.error(ex)
         return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
+    except Exception as e:
+        traceback.print_exc()
+        raise e
