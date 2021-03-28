@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:goatfolio/main.dart';
 import 'package:goatfolio/pages/login/screen/login.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
+import 'package:goatfolio/services/investment/storage/stock_investment.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 
@@ -30,6 +31,7 @@ class SettingsPage extends StatelessWidget {
                 onPressed: (BuildContext context) async {
                   final userService =
                       Provider.of<UserService>(context, listen: false);
+                  await deleteInvestmentsDatabase();
                   await userService.signOut();
                   Navigator.of(context, rootNavigator: true).pushReplacement(
                     CupertinoPageRoute(
