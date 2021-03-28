@@ -58,15 +58,19 @@ class PortfolioClient {
   }
 
   Future<void> editStockInvestment(StockInvestment investment) async {
+    final request = InvestmentRequest(type: 'STOCK', investment: investment);
     String accessToken = await userService.getSessionToken();
-    await _client.put(
-      baseUrl + "portfolio/investments/" + investment.id,
+    final response = await _client.put(
+      baseUrl + "portfolio/investments/",
       headers: {
         'Content-type': 'application/json',
         'Authorization': accessToken,
       },
-      body: jsonEncode(investment.toJson()),
+      body: jsonEncode(request.toJson()),
     );
+    if (response.statusCode != HttpStatus.ok) {
+      throw Exception("Edit Stock Investment failed");
+    }
   }
 
   Future<void> delete(StockInvestment investment) async {

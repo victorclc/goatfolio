@@ -275,6 +275,12 @@ class _StockAddState extends State<StockAdd> {
       if (day > 31 || month > 12) {
         problems.add("Data inválida.");
       }
+      if (DateFormat('dd/MM/yyyy')
+              .parse(_dateController.text)
+              .compareTo(DateTime.now()) >
+          0) {
+        problems.add("Data inválida.");
+      }
     }
     return problems;
   }
