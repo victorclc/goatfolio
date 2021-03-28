@@ -8,7 +8,6 @@ import 'package:goatfolio/services/authentication/service/cognito.dart';
 
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
-import 'package:goatfolio/services/investment/storage/stock_investment.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:goatfolio/common/extension/string.dart';
@@ -133,6 +132,16 @@ class _ExtractPageState extends State<ExtractPage> {
                             case ConnectionState.done:
                               if (snapshot.hasData) {
                                 investments = snapshot.data;
+                                if (investments.isEmpty) {
+                                  return Center(
+                                    child: Text(
+                                      "Nenhuma movimentação cadastrada",
+                                      style: CupertinoTheme.of(context)
+                                          .textTheme
+                                          .textStyle,
+                                    ),
+                                  );
+                                }
                                 return Column(
                                   children: [
                                     Container(
@@ -289,13 +298,13 @@ class _LoadingError extends StatelessWidget {
           height: 32,
         ),
         Text("Tivemos um problema ao carregar",
-            style: Theme.of(context).textTheme.subtitle1),
-        Text(" as transações.", style: Theme.of(context).textTheme.subtitle1),
+            style: textTheme.textStyle),
+        Text(" as transações.", style: textTheme.textStyle),
         SizedBox(
           height: 8,
         ),
         Text("Toque para tentar novamente.",
-            style: Theme.of(context).textTheme.subtitle1),
+            style: textTheme.textStyle),
         CupertinoButton(
           padding: EdgeInsets.all(0),
           child: Icon(
