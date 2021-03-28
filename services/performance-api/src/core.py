@@ -84,10 +84,14 @@ class PerformanceCore:
             h_position = StockPosition(month_date, candle.open, candle.close, amount, invested_amount=Decimal(0))
             stock_consolidated.history.append(h_position)
 
-        inv_amount = (inv.amount if inv.operation == OperationType.BUY else - inv.amount)
-        h_position.amount = h_position.amount + inv_amount
-        h_position.invested_amount = h_position.invested_amount + inv_amount * inv.price
+        if inv.operation == OperationType.BUY:
+            h_position.amount = h_position.amount + inv.amount
+            h_position.invested_amount = h_position.invested_amount + inv.amount * inv.price
+        else:
+            h_position.invested_amount = h_position.invested_amount - inv.amount * stock_consolidated.average_price
+            h_position.amount = h_position.amount - inv.amount
 
+        inv_amount = (inv.amount if inv.operation == OperationType.BUY else - inv.amount)
         for position in [position for position in stock_consolidated.history if position.date > month_date]:
             position.amount = position.amount + inv_amount
 
