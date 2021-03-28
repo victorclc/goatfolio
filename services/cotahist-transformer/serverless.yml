@@ -23,7 +23,7 @@ package:
     - tests/**
     - test-env/**
   include:
-    - ../../libs/aurodata/**
+    - ../../libs/auroradata/**
 
 plugins:
   - serverless-python-requirements
