@@ -1,9 +1,14 @@
+import logging
 from decimal import Decimal
 from itertools import groupby
 
 from adapters import B3CotaHistBucket
 from auroradata.aurora import AuroraData
 from models import B3DailySeries, BDICodes
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class CotaHistTransformerCore:
@@ -14,9 +19,8 @@ class CotaHistTransformerCore:
         self.aurora_data = AuroraData(cluster, secret, database)
         self.bucket = B3CotaHistBucket()
 
-    def transform_cota_hist(self):
-        # dowloaded_path = self.bucket.download(file)
-        downloaded_path = 'COTAHIST_M022021.TXT'
+    def transform_cota_hist(self, bucket_name, file_path):
+        downloaded_path = self.bucket.download_file(bucket_name, file_path)
         series = []
         with open(downloaded_path, 'r') as fp:
             for line in fp:
@@ -27,7 +31,8 @@ class CotaHistTransformerCore:
                     continue
                 series.append(data)
 
-        print(self.persist_monthly_series(series))
+        self.persist_monthly_series(series)
+        self.bucket.move_file_to_archive(bucket_name, file_path)
 
     def persist_monthly_series(self, series):
         grouped_by_ticker = groupby(sorted(series, key=lambda e: e.codigo_negociacao),
@@ -78,13 +83,10 @@ class CotaHistTransformerCore:
         self._persist_in_aurora(sql, sql_parameter_sets)
 
     def _persist_in_aurora(self, sql, sql_parameter_sets):
-        print(f'Entrys: {len(sql_parameter_sets)}')
+        logger.info(f'Number of entrys to persist: {len(sql_parameter_sets)}')
         position = 0
         while position < len(sql_parameter_sets):
-            print(self.aurora_data.batch_execute_statement(sql=sql,
-                                                           parameter_sets=sql_parameter_sets[position:position + 1000]))
+            logger.info(self.aurora_data.batch_execute_statement(sql=sql,
+                                                                 parameter_sets=sql_parameter_sets[
+                                                                                position:position + 1000]))
             position = position + 1000
-
-
-if __name__ == '__main__':
-    CotaHistTransformerCore().transform_cota_hist()
