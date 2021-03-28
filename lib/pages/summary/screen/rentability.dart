@@ -37,8 +37,12 @@ class _RentabilityPageState extends State<RentabilityPage> {
     super.initState();
     totalAmountSeries = createTotalAmountSeries();
 
-    selectedGrossSeries = totalAmountSeries.first.data.last;
-    selectedInvestedSeries = totalAmountSeries.last.data.last;
+    if (totalAmountSeries.first.data.isNotEmpty) {
+      selectedGrossSeries = totalAmountSeries.first.data.last;
+    }
+    if (totalAmountSeries.last.data.isNotEmpty) {
+      selectedInvestedSeries = totalAmountSeries.last.data.last;
+    }
   }
 
   @override
@@ -61,8 +65,10 @@ class _RentabilityPageState extends State<RentabilityPage> {
                 child: CupertinoSlidingSegmentedControl(
                   groupValue: selectedTab ?? 'a',
                   children: {
-                    'a': Text("Valorização", style: textTheme.textStyle.copyWith(fontSize: 14)),
-                    'b': Text("Rentabilidade", style: textTheme.textStyle.copyWith(fontSize: 14))
+                    'a': Text("Valorização",
+                        style: textTheme.textStyle.copyWith(fontSize: 14)),
+                    'b': Text("Rentabilidade",
+                        style: textTheme.textStyle.copyWith(fontSize: 14))
                   },
                   onValueChanged: (value) {
                     setState(() {
@@ -82,7 +88,9 @@ class _RentabilityPageState extends State<RentabilityPage> {
                       style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
                     ),
                     Text(
-                      moneyFormatter.format(selectedGrossSeries.money),
+                      moneyFormatter.format(selectedGrossSeries != null
+                          ? selectedGrossSeries.money
+                          : 0.0),
                       style: textTheme.textStyle
                           .copyWith(fontSize: 28, fontWeight: FontWeight.w500),
                     ),
@@ -91,12 +99,16 @@ class _RentabilityPageState extends State<RentabilityPage> {
                       style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
                     ),
                     Text(
-                      moneyFormatter.format(selectedInvestedSeries.money),
+                      moneyFormatter.format(selectedInvestedSeries != null
+                          ? selectedInvestedSeries.money
+                          : 0.0),
                       style: textTheme.textStyle
                           .copyWith(fontSize: 20, fontWeight: FontWeight.w500),
                     ),
                     Text(
-                      '${dateFormat.format(selectedGrossSeries.date).capitalize()} de ${selectedGrossSeries.date.year}',
+                      selectedGrossSeries != null
+                          ? '${dateFormat.format(selectedGrossSeries.date).capitalize()} de ${selectedGrossSeries.date.year}'
+                          : '${dateFormat.format(DateTime.now()).capitalize()} de ${DateTime.now().year}',
                       style: textTheme.tabLabelTextStyle
                           .copyWith(fontSize: 16, fontWeight: FontWeight.w400),
                     ),
@@ -105,10 +117,16 @@ class _RentabilityPageState extends State<RentabilityPage> {
               ),
               SizedBox(
                 height: 240,
-                child: LinearChart(
-                  totalAmountSeries,
-                  onSelectionChanged: onSelectionChanged,
-                ),
+                child: totalAmountSeries.first.data.isNotEmpty
+                    ? LinearChart(
+                        totalAmountSeries,
+                        onSelectionChanged: onSelectionChanged,
+                      )
+                    : Center(
+                        child: Text(
+                        'Nenhum dado ainda.',
+                        style: textTheme.textStyle,
+                      )),
               ),
               Divider(
                 color: Colors.grey,
@@ -128,15 +146,16 @@ class _RentabilityPageState extends State<RentabilityPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Saldo bruto', style: textTheme.textStyle),
-                  Text(moneyFormatter.format(widget.performance.grossAmount), style: textTheme.textStyle),
+                  Text(moneyFormatter.format(widget.performance.grossAmount),
+                      style: textTheme.textStyle),
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Valor investido', style: textTheme.textStyle),
-                  Text(
-                      moneyFormatter.format(widget.performance.investedAmount), style: textTheme.textStyle),
+                  Text(moneyFormatter.format(widget.performance.investedAmount),
+                      style: textTheme.textStyle),
                 ],
               ),
               SizedBox(

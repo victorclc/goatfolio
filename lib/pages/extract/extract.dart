@@ -1,16 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
-import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/focus.dart';
 import 'package:goatfolio/common/util/modal.dart';
-import 'package:goatfolio/common/widget/bottom_sheet_page.dart';
-import 'package:goatfolio/common/widget/progress_indicator_scaffold.dart';
 import 'package:goatfolio/pages/add/screen/stock_add.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
+import 'package:goatfolio/services/investment/storage/stock_investment.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:goatfolio/common/extension/string.dart';

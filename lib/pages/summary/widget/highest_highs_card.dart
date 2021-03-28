@@ -30,7 +30,14 @@ class _HighestHighsState extends State<HighestHighsCard> {
   Widget buildTopFive() {
     final textTheme = CupertinoTheme.of(context).textTheme;
     if (highs.length == 0) {
-      return Text("Nenhum", style: Theme.of(context).textTheme.subtitle1);
+      return Expanded(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: Text("Nenhum", style: textTheme.textStyle),
+          ),
+        ),
+      );
     }
     int listSize = highs.length > 3 ? 3 : highs.length;
     List<Widget> list = [];

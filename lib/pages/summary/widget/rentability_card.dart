@@ -75,14 +75,20 @@ class _RentabilityCardState extends State<RentabilityCard> {
                           ),
                           Text(
                             moneyFormatter.format(widget
-                                    .performance.grossAmount -
-                                widget
-                                    .performance
-                                    .history[
-                                        widget.performance.history.length - 2]
-                                    .grossAmount),
+                                    .performance.history.isEmpty
+                                ? 0.0
+                                : widget.performance.grossAmount -
+                                    widget
+                                        .performance
+                                        .history[
+                                            widget.performance.history.length -
+                                                2]
+                                        .grossAmount),
                             style: textTheme.textStyle.copyWith(
-                                color: widget.performance.grossAmount -
+                                color: widget
+                                    .performance.history.isEmpty
+                                    ? Colors.green
+                                    : widget.performance.grossAmount -
                                             widget
                                                 .performance
                                                 .history[widget.performance
@@ -106,32 +112,16 @@ class _RentabilityCardState extends State<RentabilityCard> {
                           Text(
                             moneyFormatter
                                 .format(widget.performance.dayVariation),
-                            style: textTheme.textStyle
-                                .copyWith(
-                                    color: widget.performance.dayVariation >= 0
-                                        ? Colors.green
-                                        : Colors.red,
-                                    fontSize: 16),
+                            style: textTheme.textStyle.copyWith(
+                                color: widget.performance.dayVariation >= 0
+                                    ? Colors.green
+                                    : Colors.red,
+                                fontSize: 16),
                           ),
                         ],
                       ),
                     ],
                   ),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //     Text('Variação no dia'),
-                  //     Text(
-                  //       moneyFormatter.format(widget.performance.dayVariation),
-                  //       style: Theme.of(context).textTheme.bodyText2.copyWith(
-                  //           color: widget.performance.dayVariation >= 0
-                  //               ? Colors.green
-                  //               : Colors.red,
-                  //           fontSize: 16),
-                  //     ),
-                  //   ],
-                  // ),
-
                   SizedBox(
                     height: 8,
                   ),

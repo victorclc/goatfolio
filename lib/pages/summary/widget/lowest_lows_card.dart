@@ -31,7 +31,14 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
     final textTheme = CupertinoTheme.of(context).textTheme;
 
     if (lows.length == 0) {
-      return Text("Nenhum", style: textTheme.navTitleTextStyle);
+      return Expanded(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: Text("Nenhum", style: textTheme.textStyle),
+          ),
+        ),
+      );
     }
     int listSize = lows.length > 3 ? 3 : lows.length;
     List<Widget> list = [];
