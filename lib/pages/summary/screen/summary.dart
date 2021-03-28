@@ -64,6 +64,7 @@ class _SummaryPageState extends State<SummaryPage> {
                           );
                         }
                     }
+                    final textTheme = CupertinoTheme.of(context).textTheme;
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -71,14 +72,14 @@ class _SummaryPageState extends State<SummaryPage> {
                           height: 32,
                         ),
                         Text("Tivemos um problema ao carregar",
-                            style: Theme.of(context).textTheme.subtitle1),
+                            style: textTheme.textStyle),
                         Text(" as informações.",
-                            style: Theme.of(context).textTheme.subtitle1),
+                            style: textTheme.textStyle),
                         SizedBox(
                           height: 8,
                         ),
                         Text("Toque para tentar novamente.",
-                            style: Theme.of(context).textTheme.subtitle1),
+                            style: textTheme.textStyle),
                         CupertinoButton(
                           padding: EdgeInsets.all(0),
                           child: Icon(

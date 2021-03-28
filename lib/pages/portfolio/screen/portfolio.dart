@@ -106,14 +106,14 @@ class _PortfolioPageState extends State<PortfolioPage> {
                     height: 32,
                   ),
                   Text("Tivemos um problema ao carregar",
-                      style: Theme.of(context).textTheme.subtitle1),
+                      style: textTheme.textStyle),
                   Text(" as informações.",
-                      style: Theme.of(context).textTheme.subtitle1),
+                      style: textTheme.textStyle),
                   SizedBox(
                     height: 8,
                   ),
                   Text("Toque para tentar novamente.",
-                      style: Theme.of(context).textTheme.subtitle1),
+                      style: textTheme.textStyle),
                   CupertinoButton(
                     padding: EdgeInsets.all(0),
                     child: Icon(
