@@ -277,7 +277,9 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
             Container(
               width: 4,
               height: 14,
-              color: colors[title].toColor(),
+              color: colors.containsKey(title)
+                  ? colors[title].toColor()
+                  : Rgb.random().toColor(),
             ),
             Text(
               ' ' + title,
@@ -317,7 +319,8 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
               // 100000 100
               // 34000   x
               Text(
-                percentFormatter.format(grossAmount / totalAmount),
+                percentFormatter
+                    .format(totalAmount == 0 ? 0.0 : grossAmount / totalAmount),
                 style: textTheme.textStyle.copyWith(fontSize: 16),
               ),
             ],
