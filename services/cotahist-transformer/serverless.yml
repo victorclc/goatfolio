@@ -1,0 +1,46 @@
+service: cotahist-transformer
+
+provider:
+  name: aws
+  region: us-east-2
+  stage: ${env:STAGE, 'dev'}
+  runtime: python3.8
+  environment:
+    PYTHONPATH: "src:libs"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - secretsmanager:GetSecretValue
+      Resource: "arn:aws:secretsmanager:us-east-2:831967415635:secret:rds-db-credentials/cluster-B7EKYQNIWMBMYI6I6DNK6ICBEE/postgres-z9xJqf"
+    - Effect: Allow
+      Action:
+        - rds-data:BatchExecuteStatement
+      Resource: "arn:aws:rds:us-east-2:831967415635:cluster:serverless-goatfolio-dev-marketdatardscluster-dq6ryzdhjru0"
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+    - test-env/**
+  include:
+    - ../../libs/aurodata/**
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    cacheLocation: '.cache/'
+
+functions:
+  transformCotaHist:
+    handler: handlers.transform_cota_hist_handler
+    events:
+      - s3:
+          bucket: ${self:provider.stage}-b3cotahist
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: monthly/
+            - suffix: .csv
+
