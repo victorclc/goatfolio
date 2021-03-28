@@ -81,7 +81,7 @@ class _CeiLoginPageState extends State<CeiLoginPage> {
                             try {
                               await _future;
                               await DialogUtils.showSuccessDialog(context,
-                                  "Importação solicitada com sucesso!");
+                                  "Importação solicitada com sucesso! Agora é só esperar que te avisaremos quando o processo tiver sido concluido");
                             } catch (Exceptions) {
                               await DialogUtils.showErrorDialog(context,
                                   "Erro ao solicitar importação, tente novamente mais tarde.");
