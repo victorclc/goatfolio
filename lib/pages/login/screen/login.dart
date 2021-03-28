@@ -1,7 +1,6 @@
 import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:goatfolio/common/config/app_config.dart';
 import 'package:goatfolio/common/constant/app.dart';
 import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/focus.dart';
@@ -9,7 +8,6 @@ import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/widget/animated_button.dart';
 import 'package:goatfolio/common/widget/multi_prompt.dart';
 import 'package:goatfolio/common/widget/preety_text_field.dart';
-import 'package:goatfolio/main.dart';
 import 'package:goatfolio/pages/login/prompt/signin.dart';
 import 'package:goatfolio/services/authentication/model/user.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
@@ -19,104 +17,85 @@ class LoginPage extends StatelessWidget {
   final TextEditingController passwordController = TextEditingController();
   final FocusNode emailNode = FocusNode();
   final FocusNode passwordNode = FocusNode();
+  final UserService userService;
 
   final Function onLoggedOn;
 
-  LoginPage({Key key, @required this.onLoggedOn}) : super(key: key);
+  LoginPage({Key key, @required this.onLoggedOn, this.userService})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final config = AppConfig.of(context);
-    final userService = UserService(config.cognitoUserPoolId,
-        config.cognitoClientId, config.cognitoIdentityPoolId);
-
-    return FutureBuilder(
-      future: userService.init(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data) {
-            // userService.signOut();
-            //init returns if the session is valid or not
-            return buildNavigationPage(userService);
-          } else {
-            return GestureDetector(
-              onTap: () => FocusUtils.unfocus(context),
-              child: SafeArea(
-                child: SingleChildScrollView(
-                  child: Container(
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Image(
-                            image: AssetImage(AppConstants.APP_LOGO),
-                            height: 152,
-                            width: 152,
-                          ),
-                        ),
-                        PrettyTextField(
-                          label: 'E-mail',
-                          focusNode: emailNode,
-                          controller: userController,
-                          autoFillHints: [AutofillHints.email],
-                          textInputType: TextInputType.emailAddress,
-                        ),
-                        PrettyTextField(
-                          label: 'Senha',
-                          hideText: true,
-                          focusNode: passwordNode,
-                          controller: passwordController,
-                          autoFillHints: [AutofillHints.password],
-                          textInputType: TextInputType.visiblePassword,
-                        ),
-                        Container(
-                          alignment: Alignment.centerRight,
-                          child: CupertinoButton(
-                            padding: EdgeInsets.all(0),
-                            child: Text("Esqueceu sua senha?"),
-                            onPressed: () =>
-                                _forgotPassword(context, userService),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 16,
-                        ),
-                        Container(
-                          width: double.infinity,
-                          child: AnimatedButton(
-                            onPressed: () =>
-                                _onLoginSubmit(context, userService),
-                            animatedText: "...",
-                            normalText: "ENTRAR",
-                            filled: true,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 32,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Não tem uma conta?  "),
-                            CupertinoButton(
-                              padding: EdgeInsets.all(0),
-                              child: Text("Criar conta"),
-                              onPressed: () =>
-                                  _onSigUpTap(context, userService),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+    return GestureDetector(
+      onTap: () => FocusUtils.unfocus(context),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Image(
+                    image: AssetImage(AppConstants.APP_LOGO),
+                    height: 152,
+                    width: 152,
                   ),
                 ),
-              ),
-            );
-          }
-        }
-        return Text("Carregando");
-      },
+                PrettyTextField(
+                  label: 'E-mail',
+                  focusNode: emailNode,
+                  controller: userController,
+                  autoFillHints: [AutofillHints.email],
+                  textInputType: TextInputType.emailAddress,
+                ),
+                PrettyTextField(
+                  label: 'Senha',
+                  hideText: true,
+                  focusNode: passwordNode,
+                  controller: passwordController,
+                  autoFillHints: [AutofillHints.password],
+                  textInputType: TextInputType.visiblePassword,
+                ),
+                Container(
+                  alignment: Alignment.centerRight,
+                  child: CupertinoButton(
+                    padding: EdgeInsets.all(0),
+                    child: Text("Esqueceu sua senha?"),
+                    onPressed: () => _forgotPassword(context, userService),
+                  ),
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Container(
+                  width: double.infinity,
+                  child: AnimatedButton(
+                    onPressed: () => _onLoginSubmit(context, userService),
+                    animatedText: "...",
+                    normalText: "ENTRAR",
+                    filled: true,
+                  ),
+                ),
+                SizedBox(
+                  height: 32,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Não tem uma conta?  "),
+                    CupertinoButton(
+                      padding: EdgeInsets.all(0),
+                      child: Text("Criar conta"),
+                      onPressed: () => _onSigUpTap(context, userService),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

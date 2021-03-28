@@ -13,19 +13,36 @@ import 'package:goatfolio/services/performance/notifier/portfolio_performance_no
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final cognitoClientId = '4eq433usu00k6m0as28srbsber';
+  final cognitoUserPoolId = 'us-east-2_tZFglntHx';
+  final cognitoIdentityPoolId =
+      'arn:aws:cognito-idp:us-east-2:831967415635:userpool/us-east-2_tZFglntHx';
+  final userService =
+      UserService(cognitoUserPoolId, cognitoClientId, cognitoIdentityPoolId);
+  final hasValidSession = await userService.init();
+
   final configuredApp = new AppConfig(
-    cognitoClientId: '4eq433usu00k6m0as28srbsber',
-    cognitoUserPoolId: 'us-east-2_tZFglntHx',
-    cognitoIdentityPoolId:
-        'arn:aws:cognito-idp:us-east-2:831967415635:userpool/us-east-2_tZFglntHx',
-    child: new GoatfolioApp(),
+    cognitoClientId: cognitoClientId,
+    cognitoUserPoolId: cognitoUserPoolId,
+    cognitoIdentityPoolId: cognitoIdentityPoolId,
+    child: new GoatfolioApp(
+      hasValidSession: hasValidSession,
+      userService: userService,
+    ),
   );
+
   runApp(configuredApp);
 }
 
 class GoatfolioApp extends StatelessWidget {
+  final bool hasValidSession;
+  final UserService userService;
+
+  const GoatfolioApp({Key key, this.hasValidSession, this.userService})
+      : super(key: key);
+
   @override
   Widget build(context) {
     return MaterialApp(
@@ -45,9 +62,12 @@ class GoatfolioApp extends StatelessWidget {
         );
       },
       home: Scaffold(
-        body: LoginPage(
-          onLoggedOn: goToNavigationPage,
-        ),
+        body: hasValidSession
+            ? buildNavigationPage(userService)
+            : LoginPage(
+                userService: userService,
+                onLoggedOn: goToNavigationPage,
+              ),
       ),
     );
   }
@@ -172,8 +192,7 @@ class _NavigationWidgetState extends State<NavigationWidget>
             );
           case 2:
             return CupertinoTabView(
-                defaultTitle: AddPage.title,
-                builder: (context) => AddPage());
+                defaultTitle: AddPage.title, builder: (context) => AddPage());
           case 3:
             return CupertinoTabView(
               defaultTitle: ExtractPage.title,
