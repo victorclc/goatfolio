@@ -51,8 +51,8 @@ class LoginPage extends StatelessWidget {
                           padding: const EdgeInsets.all(16.0),
                           child: Image(
                             image: AssetImage(AppConstants.APP_LOGO),
-                            height: 75,
-                            width: 75,
+                            height: 152,
+                            width: 152,
                           ),
                         ),
                         PrettyTextField(
@@ -193,8 +193,7 @@ class LoginPage extends StatelessWidget {
         MultiPrompt(
           keepOpenOnError: true,
           promptRequests: [
-            SignInEmailConfirmationPrompt(context,
-                userService, email),
+            SignInEmailConfirmationPrompt(context, userService, email),
           ],
           onSubmit: (Map values) async => await onConfirmAccountSubmit(
               context, userService, email, password, values),

@@ -1,3 +1,3 @@
 class AppConstants {
-  static const APP_LOGO = "images/app_logo.png";
+  static const APP_LOGO = "images/logo/logo.png";
 }
