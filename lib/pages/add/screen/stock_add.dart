@@ -70,7 +70,7 @@ class _StockAddState extends State<StockAdd> {
       _amountController.text = '${widget.amount}';
     }
     if (widget.price != null) {
-      _priceController.text = moneyInputFormatter.format("${widget.price}");
+      _priceController.text = moneyInputFormatter.format(widget.price.toStringAsFixed(2));
     }
     if (widget.date != null) {
       _dateController.text = DateFormat('dd/MM/yyyy').format(widget.date);
