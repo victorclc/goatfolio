@@ -22,7 +22,10 @@ class ExtractDetails extends StatelessWidget {
       navigationBar: CupertinoNavigationBar(
         leading: Container(),
         middle: Text("Detalhes"),
-        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+        backgroundColor:
+            MediaQuery.of(context).platformBrightness == Brightness.light
+                ? CupertinoTheme.of(context).scaffoldBackgroundColor
+                : CupertinoTheme.of(context).barBackgroundColor,
         border: Border(),
         trailing: CupertinoButton(
           padding: EdgeInsets.all(0),
