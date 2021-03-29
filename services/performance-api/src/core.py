@@ -30,7 +30,7 @@ class PerformanceCore:
         investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
                                   key=lambda i: i.ticker)
 
-        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
+        portfolio = Portfolio(subject=subject)
 
         for ticker, investments in investments_map:
             stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
@@ -133,6 +133,7 @@ class PerformanceCore:
 
         portfolio.stocks = stocks
         portfolio.reits = reits
+        self.consolidate_portfolio_summary(portfolio)
 
         portfolio.stocks, portfolio.stock_gross_amount, portfolio.stock_prev_gross_amount = stock_performance
         portfolio.reits, portfolio.reit_gross_amount, portfolio.reit_prev_gross_amount = reit_performance
@@ -155,7 +156,14 @@ class PerformanceCore:
                 prev_gross_amount = prev_gross_amount + stock.current_amount * data.prev_close_price
                 stock.current_stock_price = data.price
                 stock.current_day_change_percent = data.change
+                self._fix_stock_history_gap(stock.history, stock.ticker)
+                sorted(stock.history, key=lambda h: h.date)[-1].close_price = data.price
             else:
                 print(f"REMOVING {stock.ticker}")
                 zeroed_stocks.append(stock)
         return [stock for stock in stocks if stock not in zeroed_stocks], gross_amount, prev_gross_amount
+
+
+if __name__ == '__main__':
+    investments = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investments, [])
