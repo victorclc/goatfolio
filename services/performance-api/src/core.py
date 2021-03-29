@@ -50,7 +50,7 @@ class PerformanceCore:
 
     @staticmethod
     def consolidate_portfolio_summary(portfolio: Portfolio):
-        all_stocks_history = [item for sublist in [s.history for s in portfolio.stocks] for item in sublist]
+        all_stocks_history = [item for sublist in [s.history for s in portfolio.all_investments] for item in sublist]
         portfolio_history_map = {}
         portfolio.invested_amount = Decimal(0)
 

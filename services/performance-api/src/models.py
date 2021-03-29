@@ -19,6 +19,10 @@ class Portfolio:
     reits: list = field(default_factory=list)
     history: list = field(default_factory=list)
 
+    @property
+    def all_investments(self):
+        return self.stocks + self.reits
+
     def __post_init__(self):
         if not isinstance(self.initial_date, datetime):
             self.initial_date = datetime.fromtimestamp(float(self.initial_date))
