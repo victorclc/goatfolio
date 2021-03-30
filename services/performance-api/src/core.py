@@ -165,5 +165,5 @@ class PerformanceCore:
 
 
 if __name__ == '__main__':
-    investments = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-    PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investments, [])
+    investments = InvestmentRepository().find_by_subject('a6ad935c-45bf-4f2c-85ec-1198e5ea044c')
+    PerformanceCore().consolidate_portfolio('a6ad935c-45bf-4f2c-85ec-1198e5ea044c', investments, [])
