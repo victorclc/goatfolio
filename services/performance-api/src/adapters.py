@@ -56,6 +56,19 @@ class MarketData:
 
         return result
 
+    def ibov_from_date(self, date_from):
+        sql = f"SELECT candle_date, open_price, close_price from b3_monthly_chart where ticker = 'IBOVESPA' and candle_date >= '{date_from.strftime('%Y-%m-%d')}'order by candle_date"
+        query_response = self.aurora_data.execute_statement(sql)
+        result = list()
+        for record in query_response['records']:
+            candle_date = date.fromisoformat(record[0]['stringValue'])
+            open_price = Decimal(record[1]['stringValue'])
+            close_price = Decimal(record[2]['stringValue'])
+            result.append(MonthData(candle_date, open_price, close_price, 0))
+        print(result)
+
+        return result
+
     def ticker_month_data(self, ticker, _date):
         """
             Gets candle(open, close) for the entire date.year/date.month

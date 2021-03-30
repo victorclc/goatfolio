@@ -48,8 +48,7 @@ class PerformanceCore:
         self.consolidate_portfolio_summary(portfolio)
         self.portfolio_repo.save(portfolio)
 
-    @staticmethod
-    def consolidate_portfolio_summary(portfolio: Portfolio):
+    def consolidate_portfolio_summary(self, portfolio: Portfolio):
         all_stocks_history = [item for sublist in [s.history for s in portfolio.all_investments] for item in sublist]
         portfolio_history_map = {}
         portfolio.invested_amount = Decimal(0)
@@ -67,6 +66,11 @@ class PerformanceCore:
             if stock_position.amount > 0:
                 p_position.gross_amount = p_position.gross_amount + stock_position.amount * stock_position.close_price
         portfolio.history = list(portfolio_history_map.values())
+        data = self.market_data.ibov_from_date(portfolio.initial_date)
+        if not portfolio.ibov_history:
+            portfolio.ibov_history = [
+                StockPosition(date=datetime(candle.date.year, candle.date.month, candle.date.day),
+                              open_price=candle.open, close_price=candle.close) for candle in data]
 
     def consolidate_stock(self, stock_consolidated: StockConsolidated, inv: StockInvestment):
         stock_consolidated.initial_date = min(stock_consolidated.initial_date, inv.date)
@@ -165,5 +169,5 @@ class PerformanceCore:
 
 
 if __name__ == '__main__':
-    investments = InvestmentRepository().find_by_subject('a6ad935c-45bf-4f2c-85ec-1198e5ea044c')
-    PerformanceCore().consolidate_portfolio('a6ad935c-45bf-4f2c-85ec-1198e5ea044c', investments, [])
+    # investments = InvestmentRepository().find_by_subject('a6ad935c-45bf-4f2c-85ec-1198e5ea044c')
+    print(PerformanceCore().calculate_today_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))

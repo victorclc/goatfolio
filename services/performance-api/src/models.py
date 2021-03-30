@@ -18,6 +18,7 @@ class Portfolio:
     stocks: list = field(default_factory=list)  # todo list type hint
     reits: list = field(default_factory=list)
     history: list = field(default_factory=list)
+    ibov_history: list = field(default_factory=list)
 
     @property
     def all_investments(self):
@@ -29,11 +30,12 @@ class Portfolio:
         self.stocks = [StockConsolidated(**s) for s in self.stocks]
         self.reits = [StockConsolidated(**s) for s in self.reits]
         self.history = [PortfolioPosition(**p) for p in self.history]
+        self.ibov_history = [StockPosition(**p) for p in self.ibov_history]
 
     def to_dict(self):
         return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
                 'stocks': [s.to_dict() for s in self.stocks], 'reits': [s.to_dict() for s in self.reits],
-                'history': [h.to_dict() for h in self.history]}
+                'history': [h.to_dict() for h in self.history], 'ibov_history': [i.to_dict() for i in self.ibov_history]}
 
 
 @dataclass
