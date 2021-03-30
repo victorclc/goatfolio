@@ -30,7 +30,7 @@ class PerformanceCore:
         investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
                                   key=lambda i: i.ticker)
 
-        portfolio = Portfolio(subject=subject)
+        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
 
         for ticker, investments in investments_map:
             stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
