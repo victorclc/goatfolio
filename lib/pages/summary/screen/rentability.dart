@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/common/chart/money_date_series.dart';
+import 'package:goatfolio/common/chart/rentability_chart.dart';
+import 'package:goatfolio/common/chart/valorization_chart.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
-import 'package:goatfolio/common/widget/linear_chart.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:goatfolio/common/extension/string.dart';
 import 'package:intl/intl.dart';
 
 void goToRentabilityPage(
@@ -29,9 +30,9 @@ class RentabilityPage extends StatefulWidget {
 class _RentabilityPageState extends State<RentabilityPage> {
   final dateFormat = DateFormat('MMMM', 'pt_BR');
   String selectedTab;
-  List<charts.Series<_MoneyDateSeries, DateTime>> totalAmountSeries;
-  _MoneyDateSeries selectedGrossSeries;
-  _MoneyDateSeries selectedInvestedSeries;
+  List<charts.Series<MoneyDateSeries, DateTime>> totalAmountSeries;
+  MoneyDateSeries selectedGrossSeries;
+  MoneyDateSeries selectedInvestedSeries;
 
   void initState() {
     super.initState();
@@ -43,6 +44,7 @@ class _RentabilityPageState extends State<RentabilityPage> {
     if (totalAmountSeries.last.data.isNotEmpty) {
       selectedInvestedSeries = totalAmountSeries.last.data.last;
     }
+    selectedTab = 'a';
   }
 
   @override
@@ -65,7 +67,7 @@ class _RentabilityPageState extends State<RentabilityPage> {
                 child: CupertinoSlidingSegmentedControl(
                   groupValue: selectedTab ?? 'a',
                   children: {
-                    'a': Text("Valorização",
+                    'a': Text("Evolução",
                         style: textTheme.textStyle.copyWith(fontSize: 14)),
                     'b': Text("Rentabilidade",
                         style: textTheme.textStyle.copyWith(fontSize: 14))
@@ -77,57 +79,32 @@ class _RentabilityPageState extends State<RentabilityPage> {
                   },
                 ),
               ),
-              Container(
-                padding: EdgeInsets.only(top: 4),
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Saldo bruto',
-                      style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
-                    ),
-                    Text(
-                      moneyFormatter.format(selectedGrossSeries != null
-                          ? selectedGrossSeries.money
-                          : 0.0),
-                      style: textTheme.textStyle
-                          .copyWith(fontSize: 28, fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      'Valor investido',
-                      style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
-                    ),
-                    Text(
-                      moneyFormatter.format(selectedInvestedSeries != null
-                          ? selectedInvestedSeries.money
-                          : 0.0),
-                      style: textTheme.textStyle
-                          .copyWith(fontSize: 20, fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      selectedGrossSeries != null
-                          ? '${dateFormat.format(selectedGrossSeries.date).capitalize()} de ${selectedGrossSeries.date.year}'
-                          : '${dateFormat.format(DateTime.now()).capitalize()} de ${DateTime.now().year}',
-                      style: textTheme.tabLabelTextStyle
-                          .copyWith(fontSize: 16, fontWeight: FontWeight.w400),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 240,
-                child: totalAmountSeries.first.data.isNotEmpty
-                    ? LinearChart(
-                        totalAmountSeries,
-                        onSelectionChanged: onSelectionChanged,
-                      )
-                    : Center(
-                        child: Text(
-                        'Nenhum dado ainda.',
-                        style: textTheme.textStyle,
-                      )),
-              ),
+              totalAmountSeries.first.data.isEmpty
+                  ? Center(
+                      child: Text(
+                      'Nenhum dado ainda.',
+                      style: textTheme.textStyle,
+                    ))
+                  : selectedTab == 'a'
+                      ? ValorizationChart(
+                          totalAmountSeries: totalAmountSeries,
+                        )
+                      : RentabilityChart(
+                          rentabilitySeries: createRentabilitySeries(),
+                        ),
+              // SizedBox(
+              //   height: 240,
+              //   child: totalAmountSeries.first.data.isNotEmpty
+              //       ? LinearChart(
+              //           createRentabilitySeries(),
+              //           onSelectionChanged: onSelectionChanged,
+              //         )
+              //       : Center(
+              //           child: Text(
+              //           'Nenhum dado ainda.',
+              //           style: textTheme.textStyle,
+              //         )),
+              // ),
               Divider(
                 color: Colors.grey,
                 height: 24,
@@ -181,54 +158,98 @@ class _RentabilityPageState extends State<RentabilityPage> {
     );
   }
 
-  List<charts.Series<_MoneyDateSeries, DateTime>> createTotalAmountSeries() {
-    List<_MoneyDateSeries> seriesGross = [];
-    List<_MoneyDateSeries> seriesInvested = [];
+  List<charts.Series<MoneyDateSeries, DateTime>> createRentabilitySeries() {
+    List<MoneyDateSeries> series = [];
+    widget.performance.history.sort((a, b) => a.date.compareTo(b.date));
+    double prevMonthTotal = 0.0;
+    double acumulatedRentability = 0.0;
+    widget.performance.history.forEach((element) {
+      final monthTotal = element.grossAmount;
+      acumulatedRentability +=
+          ((monthTotal) / (prevMonthTotal + element.totalInvested) - 1) * 100;
+      prevMonthTotal = monthTotal;
+      series.add(MoneyDateSeries(element.date, acumulatedRentability));
+    });
+
+    List<MoneyDateSeries> ibovSeries = [];
+    widget.performance.ibovHistory.sort((a, b) => a.date.compareTo(b.date));
+    prevMonthTotal = 0.0;
+    acumulatedRentability = 0.0;
+    print(widget.performance.ibovHistory.length);
+    widget.performance.ibovHistory.forEach((element) {
+      print(DateFormat('yyyy-MM-dd').format(element.date));
+      if (element.date.year < widget.performance.initialDate.year ||
+          element.date.year == widget.performance.initialDate.year &&
+              element.date.month < widget.performance.initialDate.month)
+        print("data antiga");
+      else {
+        print('data nova');
+        if (prevMonthTotal == 0) {
+          prevMonthTotal = element.openPrice;
+        }
+        acumulatedRentability +=
+            (element.closePrice / prevMonthTotal - 1) * 100;
+        print(acumulatedRentability);
+        prevMonthTotal = element.closePrice;
+        ibovSeries.add(MoneyDateSeries(element.date, acumulatedRentability));
+      }
+    });
+    return [
+      new charts.Series<MoneyDateSeries, DateTime>(
+        id: "Rentabilidade",
+        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        domainFn: (MoneyDateSeries history, _) => history.date,
+        areaColorFn: (_, __) =>
+            charts.MaterialPalette.blue.shadeDefault.lighter,
+        measureFn: (MoneyDateSeries history, _) => history.money,
+        data: series,
+      ),
+      new charts.Series<MoneyDateSeries, DateTime>(
+        id: "IBOV",
+        colorFn: (_, __) => charts.MaterialPalette.deepOrange.shadeDefault,
+        domainFn: (MoneyDateSeries history, _) => history.date,
+        areaColorFn: (_, __) =>
+            charts.MaterialPalette.deepOrange.shadeDefault.lighter,
+        measureFn: (MoneyDateSeries history, _) => history.money,
+        data: ibovSeries,
+      ),
+    ];
+  }
+
+  List<charts.Series<MoneyDateSeries, DateTime>> createTotalAmountSeries() {
+    List<MoneyDateSeries> seriesGross = [];
+    List<MoneyDateSeries> seriesInvested = [];
 
     widget.performance.history.sort((a, b) => a.date.compareTo(b.date));
     widget.performance.history.forEach((element) {
-      seriesGross.add(_MoneyDateSeries(element.date, element.grossAmount));
+      seriesGross.add(MoneyDateSeries(element.date, element.grossAmount));
     });
 
     double investedAmount = 0.0;
     widget.performance.history.forEach((history) {
       investedAmount += history.totalInvested;
 
-      seriesInvested.add(_MoneyDateSeries(history.date, investedAmount));
+      seriesInvested.add(MoneyDateSeries(history.date, investedAmount));
     });
 
     return [
-      new charts.Series<_MoneyDateSeries, DateTime>(
+      new charts.Series<MoneyDateSeries, DateTime>(
         id: "Saldo bruto",
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (_MoneyDateSeries history, _) => history.date,
+        domainFn: (MoneyDateSeries history, _) => history.date,
         areaColorFn: (_, __) =>
             charts.MaterialPalette.blue.shadeDefault.lighter,
-        measureFn: (_MoneyDateSeries history, _) => history.money,
+        measureFn: (MoneyDateSeries history, _) => history.money,
         data: seriesGross,
       ),
-      new charts.Series<_MoneyDateSeries, DateTime>(
+      new charts.Series<MoneyDateSeries, DateTime>(
         id: "Valor investido",
         colorFn: (_, __) => charts.MaterialPalette.deepOrange.shadeDefault,
-        domainFn: (_MoneyDateSeries history, _) => history.date,
+        domainFn: (MoneyDateSeries history, _) => history.date,
         dashPatternFn: (_, __) => [2, 2],
-        measureFn: (_MoneyDateSeries history, _) => history.money,
+        measureFn: (MoneyDateSeries history, _) => history.money,
         data: seriesInvested,
       ),
     ];
   }
-
-  void onSelectionChanged(Map<String, dynamic> series) {
-    setState(() {
-      selectedGrossSeries = series['Saldo bruto'];
-      selectedInvestedSeries = series['Valor investido'];
-    });
-  }
-}
-
-class _MoneyDateSeries {
-  final DateTime date;
-  final double money;
-
-  _MoneyDateSeries(this.date, this.money);
 }
