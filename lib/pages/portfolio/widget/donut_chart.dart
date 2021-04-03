@@ -73,7 +73,7 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
   Widget build(BuildContext context) {
     if (widget.typeSeries.first.data.isEmpty) {
       return Center(
-        child: Text("Nenum dado ainda.",
+        child: Text("Nenhum dado ainda.",
             style: CupertinoTheme.of(context).textTheme.textStyle),
       );
     }

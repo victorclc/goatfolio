@@ -5,6 +5,7 @@ import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
 import 'package:goatfolio/common/widget/expansion_tile_custom.dart';
 import 'package:goatfolio/pages/portfolio/widget/donut_chart.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
+import 'package:goatfolio/services/performance/model/stock_history.dart';
 import 'package:goatfolio/services/performance/model/stock_performance.dart';
 import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:provider/provider.dart';
@@ -87,6 +88,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                           items: performance.stocks,
                           colors: colors,
                           totalAmount: performance.grossAmount,
+                          ibovHistory: performance.ibovHistory,
                         ),
                         InvestmentTypeExpansionTile(
                           title: 'FIIs',
@@ -94,6 +96,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                           items: performance.reits,
                           colors: colors,
                           totalAmount: performance.grossAmount,
+                          ibovHistory: performance.ibovHistory,
                         ),
                       ],
                     );
@@ -252,6 +255,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
   final double totalAmount;
   final List<StockPerformance> items;
   final Map<String, Rgb> colors;
+  final List<StockHistory> ibovHistory;
 
   InvestmentTypeExpansionTile(
       {Key key,
@@ -259,7 +263,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
       this.grossAmount,
       this.totalAmount,
       this.items,
-      this.colors})
+      this.colors, this.ibovHistory})
       : super(key: key);
 
   @override
@@ -342,6 +346,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
                 color: color,
                 portfolioTotalAmount: totalAmount,
                 typeTotalAmount: grossAmount,
+                ibovHistory: ibovHistory,
               );
             },
             itemCount: items.length,
@@ -357,13 +362,14 @@ class StockInvestmentSummaryItem extends StatelessWidget {
   final Color color;
   final double portfolioTotalAmount;
   final double typeTotalAmount;
+  final List<StockHistory> ibovHistory;
 
   const StockInvestmentSummaryItem(
       {Key key,
       @required this.performance,
       this.portfolioTotalAmount,
       @required this.color,
-      this.typeTotalAmount})
+      this.typeTotalAmount, this.ibovHistory})
       : super(key: key);
 
   @override
@@ -377,7 +383,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: () {
-        navigateToInvestmentDetails(context, performance, color);
+        navigateToInvestmentDetails(context, performance, color, ibovHistory);
       },
       child: Container(
         child: Column(
