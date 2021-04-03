@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/pressable_card.dart';
+import 'package:goatfolio/pages/summary/screen/highest.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/services/performance/model/stock_performance.dart';
 
@@ -20,7 +21,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
   @override
   void initState() {
     super.initState();
-    lows = widget.performance.stocks
+    lows = (widget.performance.stocks + widget.performance.reits)
         .where((stock) => stock.currentDayChangePercent < 0)
         .toList()
           ..sort((a, b) =>
@@ -49,7 +50,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Ticker",
+                "Ativo",
                 style: textTheme.textStyle.copyWith(fontSize: 16),
               ),
               // Text(
@@ -103,7 +104,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
       height: 226,
       child: PressableCard(
         cardPadding: EdgeInsets.only(left: 4, right: 16, top: 16, bottom: 16),
-        onPressed: () => {},
+        onPressed: () => goToHighestPage(context, widget.performance, sortAscending: true),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

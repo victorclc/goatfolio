@@ -40,10 +40,6 @@ class _PressableCardState extends State<PressableCard>
 
   @override
   Widget build(context) {
-    print("cupertino brightness: ${CupertinoTheme.of(context).brightness}");
-    print("platform brightness: ${MediaQuery.of(context).platformBrightness}");
-    print("highContrast: ${MediaQuery.of(context).highContrast}");
-
     return Listener(
       onPointerDown: (details) {
         if (widget.onPressed != null) {

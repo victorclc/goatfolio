@@ -260,7 +260,6 @@ class _PromptPageState extends State<PromptPage>
   }
 
   void validateInput(String input) {
-    print(input);
     setState(() {
       if (widget.request.validate != null) {
         validInput = widget.request.validate(input);

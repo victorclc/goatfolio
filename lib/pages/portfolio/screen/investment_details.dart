@@ -267,7 +267,6 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
     acumulatedRentability = 0.0;
     print(widget.ibovHistory.length);
     widget.ibovHistory.forEach((element) {
-      print(DateFormat('yyyy-MM-dd').format(element.date));
       if (element.date.year < widget.item.initialDate.year ||
           element.date.year == widget.item.initialDate.year &&
               element.date.month < widget.item.initialDate.month)

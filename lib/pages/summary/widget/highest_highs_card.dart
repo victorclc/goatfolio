@@ -21,7 +21,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
   @override
   void initState() {
     super.initState();
-    highs = widget.performance.stocks
+    highs = (widget.performance.stocks + widget.performance.reits)
         .where((stock) => stock.currentDayChangePercent >= 0)
         .toList()
           ..sort((b, a) =>
@@ -49,7 +49,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Ticker",
+                "Ativo",
                 style: textTheme.textStyle.copyWith(fontSize: 16),
               ),
               // Text(

@@ -33,7 +33,6 @@ class UserService {
       return false;
     }
     _session = await _cognitoUser.getSession();
-    print(_session);
 
     return _session.isValid();
   }

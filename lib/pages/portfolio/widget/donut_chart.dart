@@ -33,7 +33,6 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
           changedListener: (model) {
             setState(() {
               tappedType = model.selectedDatum.first.datum.ticker;
-              print(tappedType);
               stockTapped = !stockTapped;
               mustRebuild = true;
             });

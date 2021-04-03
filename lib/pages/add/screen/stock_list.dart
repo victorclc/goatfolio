@@ -38,7 +38,6 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsList> {
   Future<List<String>> _future;
 
   Future<void> onStockSubmit(Map values) async {
-    print(values);
     final investment = StockInvestment(
       ticker: values['ticker'],
       amount: int.parse(values['amount']),
@@ -107,7 +106,6 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsList> {
                           return CupertinoActivityIndicator();
                         case ConnectionState.done:
                           if (snapshot.hasData) {
-                            print(snapshot.data);
                             final List<String> tickers = snapshot.data..sort();
                             print("abcd"[0]);
                             final Map<String, List<String>> tickersByAlphabet =

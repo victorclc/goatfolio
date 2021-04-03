@@ -175,9 +175,7 @@ class _RentabilityPageState extends State<RentabilityPage> {
     widget.performance.ibovHistory.sort((a, b) => a.date.compareTo(b.date));
     prevMonthTotal = 0.0;
     acumulatedRentability = 0.0;
-    print(widget.performance.ibovHistory.length);
     widget.performance.ibovHistory.forEach((element) {
-      print(DateFormat('yyyy-MM-dd').format(element.date));
       if (element.date.year < widget.performance.initialDate.year ||
           element.date.year == widget.performance.initialDate.year &&
               element.date.month < widget.performance.initialDate.month)
