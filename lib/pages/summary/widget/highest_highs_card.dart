@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/pressable_card.dart';
+import 'package:goatfolio/pages/summary/screen/highest.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/services/performance/model/stock_performance.dart';
 
@@ -100,7 +101,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
       height: 226,
       child: PressableCard(
         cardPadding: EdgeInsets.only(left: 16, right: 4, top: 16, bottom: 16),
-        onPressed: () => {},
+        onPressed: () => goToHighestPage(context, widget.performance),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
