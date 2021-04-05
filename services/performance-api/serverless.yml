@@ -14,13 +14,13 @@ provider:
         - dynamodb:Query
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
-#    - Effect: Allow
-#      Action:
-#        - dynamodb:Query
-#        - dynamodb:GetItem
-#        - dynamodb:PutItem
-#      Resource:
-#        Fn::GetAtt: [ PortfolioTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource:
+        Fn::GetAtt: [ PortfolioTable, Arn ]
     - Effect: Allow
       Action:
         - secretsmanager:GetSecretValue
@@ -86,18 +86,18 @@ resources:
         ProviderARNs:
           - 'Fn::ImportValue': ${self:provider.stage}-GoatfolioAppUserPoolArnOutput
 
-#    PortfolioTable:
-#      Type: 'AWS::DynamoDB::Table'
-#      Properties:
-#        TableName: "Portfolio"
-#        BillingMode: PAY_PER_REQUEST
-#        AttributeDefinitions:
-#          - AttributeName: "subject"
-#            AttributeType: "S"
-#          - AttributeName: "id"
-#            AttributeType: "S"
-#        KeySchema:
-#          - AttributeName: "subject"
-#            KeyType: "HASH"
-#          - AttributeName: "id"
-#            KeyType: "RANGE"
+    PortfolioTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: "Portfolio"
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: "subject"
+            AttributeType: "S"
+          - AttributeName: "ticker"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "subject"
+            KeyType: "HASH"
+          - AttributeName: "ticker"
+            KeyType: "RANGE"
