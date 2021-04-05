@@ -112,8 +112,15 @@ class PerformanceCore:
             proc_timestamp = int(proc.timestamp())
             if proc_timestamp not in timestamps:
                 print(f'fix gap: {proc}')
-                candle = self.market_data.ticker_month_data(ticker, proc.date())
-                position = StockPosition(date=proc, open_price=candle.open, close_price=candle.close,
+                if proc == last:
+                    candle = self.market_data.ticker_intraday_date(ticker)
+                    price = candle.price
+                    _open = None
+                else:
+                    candle = self.market_data.ticker_month_data(ticker, proc.date())
+                    price = candle.close
+                    _open = candle.open
+                position = StockPosition(date=proc, open_price=_open, close_price=price,
                                          amount=history_dict[int(prev.timestamp())].amount)
                 history.append(position)
                 history_dict[proc_timestamp] = position
@@ -169,5 +176,5 @@ class PerformanceCore:
 
 
 if __name__ == '__main__':
-    # investments = InvestmentRepository().find_by_subject('a6ad935c-45bf-4f2c-85ec-1198e5ea044c')
-    print(PerformanceCore().calculate_today_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    investments = InvestmentRepository().find_by_subject('a6ad935c-45bf-4f2c-85ec-1198e5ea044c')
+    print(PerformanceCore().consolidate_portfolio('a6ad935c-45bf-4f2c-85ec-1198e5ea044c', investments, []))
