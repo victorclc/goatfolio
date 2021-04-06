@@ -176,5 +176,5 @@ class PerformanceCore:
 
 
 if __name__ == '__main__':
-    investments = InvestmentRepository().find_by_subject('a6ad935c-45bf-4f2c-85ec-1198e5ea044c')
-    print(PerformanceCore().consolidate_portfolio('a6ad935c-45bf-4f2c-85ec-1198e5ea044c', investments, []))
+    investmentss = InvestmentRepository().find_by_subject('a6ad935c-45bf-4f2c-85ec-1198e5ea044c')
+    print(PerformanceCore().consolidate_portfolio('a6ad935c-45bf-4f2c-85ec-1198e5ea044c', investmentss, []))
