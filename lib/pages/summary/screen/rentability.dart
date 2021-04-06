@@ -4,6 +4,7 @@ import 'package:goatfolio/common/chart/money_date_series.dart';
 import 'package:goatfolio/common/chart/rentability_chart.dart';
 import 'package:goatfolio/common/chart/valorization_chart.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
+import 'package:goatfolio/services/performance/model/portfolio_history.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
@@ -163,25 +164,28 @@ class _RentabilityPageState extends State<RentabilityPage> {
     widget.performance.history.sort((a, b) => a.date.compareTo(b.date));
     double prevMonthTotal = 0.0;
     double acumulatedRentability = 0.0;
-    widget.performance.history.forEach((element) {
+
+    for (PortfolioHistory element in widget.performance.history) {
       final monthTotal = element.grossAmount;
       acumulatedRentability +=
           ((monthTotal) / (prevMonthTotal + element.totalInvested) - 1) * 100;
       prevMonthTotal = monthTotal;
       series.add(MoneyDateSeries(element.date, acumulatedRentability));
-    });
+      print(element.date.toIso8601String());
+    }
+
 
     List<MoneyDateSeries> ibovSeries = [];
     widget.performance.ibovHistory.sort((a, b) => a.date.compareTo(b.date));
     prevMonthTotal = 0.0;
     acumulatedRentability = 0.0;
     widget.performance.ibovHistory.forEach((element) {
-      if (element.date.year < widget.performance.initialDate.year ||
-          element.date.year == widget.performance.initialDate.year &&
-              element.date.month < widget.performance.initialDate.month)
-        print("data antiga");
-      else {
-        print('data nova');
+      // if (element.date.year < widget.performance.initialDate.year ||
+      //     element.date.year == widget.performance.initialDate.year &&
+      //         element.date.month < widget.performance.initialDate.month)
+      //   print("data antiga");
+      // else {
+      //   print('data nova');
         if (prevMonthTotal == 0) {
           prevMonthTotal = element.openPrice;
         }
@@ -191,7 +195,8 @@ class _RentabilityPageState extends State<RentabilityPage> {
         prevMonthTotal = element.closePrice;
         ibovSeries.add(MoneyDateSeries(element.date, acumulatedRentability));
       }
-    });
+    // }
+    );
     return [
       new charts.Series<MoneyDateSeries, DateTime>(
         id: "Rentabilidade",
