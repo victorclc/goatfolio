@@ -89,7 +89,7 @@ Widget buildNavigationPage(UserService userService) {
 void goToNavigationPage(BuildContext context, UserService userService) async {
   await Navigator.pushReplacement(
     context,
-    MaterialPageRoute(
+    CupertinoPageRoute(
       builder: (context) => buildNavigationPage(userService),
     ),
   );
@@ -137,19 +137,51 @@ class InvisibleCupertinoTabBar extends CupertinoTabBar {
 
 class _NavigationWidgetState extends State<NavigationWidget>
     with SingleTickerProviderStateMixin {
-  TabController controller;
+  CupertinoTabController controller;
   bool isKeyboardVisible = false;
+  int currentIndex = 0;
+  List<CupertinoTabView> tabViews;
 
   @override
   void initState() {
     super.initState();
-    controller = new TabController(vsync: this, length: 5);
+    controller = new CupertinoTabController();
 
     KeyboardVisibilityNotification().addNewListener(
       onChange: (bool isVisible) {
         setState(() => isKeyboardVisible = isVisible);
       },
     );
+
+    tabViews = [
+      CupertinoTabView(
+        defaultTitle: SummaryPage.title,
+        builder: (context) {
+          return SummaryPage();
+        },
+        navigatorKey: GlobalKey<NavigatorState>(),
+      ),
+      CupertinoTabView(
+        defaultTitle: PortfolioPage.title,
+        builder: (context) => PortfolioPage(),
+        navigatorKey: GlobalKey<NavigatorState>(),
+      ),
+      CupertinoTabView(
+        defaultTitle: AddPage.title,
+        builder: (context) => AddPage(),
+        navigatorKey: GlobalKey<NavigatorState>(),
+      ),
+      CupertinoTabView(
+        defaultTitle: ExtractPage.title,
+        builder: (context) => ExtractPage(),
+        navigatorKey: GlobalKey<NavigatorState>(),
+      ),
+      CupertinoTabView(
+        defaultTitle: SettingsPage.title,
+        builder: (context) => SettingsPage(),
+        navigatorKey: GlobalKey<NavigatorState>(),
+      )
+    ];
   }
 
   @override
@@ -161,10 +193,18 @@ class _NavigationWidgetState extends State<NavigationWidget>
   @override
   Widget build(context) {
     return CupertinoTabScaffold(
+      controller: controller,
       resizeToAvoidBottomInset: false,
       tabBar: isKeyboardVisible
           ? InvisibleCupertinoTabBar()
           : CupertinoTabBar(
+              onTap: (index) {
+                if (index == currentIndex) {
+                  Navigator.of(tabViews[index].navigatorKey.currentContext)
+                      .popUntil((route) => route.isFirst);
+                }
+                currentIndex = index;
+              },
               items: [
                 BottomNavigationBarItem(
                     label: SummaryPage.title, icon: SummaryPage.icon),
@@ -181,28 +221,15 @@ class _NavigationWidgetState extends State<NavigationWidget>
       tabBuilder: (context, index) {
         switch (index) {
           case 0:
-            return CupertinoTabView(
-              defaultTitle: SummaryPage.title,
-              builder: (context) => SummaryPage(),
-            );
+            return tabViews[0];
           case 1:
-            return CupertinoTabView(
-              defaultTitle: PortfolioPage.title,
-              builder: (context) => PortfolioPage(),
-            );
+            return tabViews[1];
           case 2:
-            return CupertinoTabView(
-                defaultTitle: AddPage.title, builder: (context) => AddPage());
+            return tabViews[2];
           case 3:
-            return CupertinoTabView(
-              defaultTitle: ExtractPage.title,
-              builder: (context) => ExtractPage(),
-            );
+            return tabViews[3];
           case 4:
-            return CupertinoTabView(
-              defaultTitle: SettingsPage.title,
-              builder: (context) => SettingsPage(),
-            );
+            return tabViews[4];
           default:
             assert(false, 'Unexpected tab');
             return null;

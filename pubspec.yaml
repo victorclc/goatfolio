@@ -41,6 +41,7 @@ dependencies:
     path: ../flutter-settings-ui
   url_launcher: ^6.0.2
   mask_text_input_formatter: ^1.2.1
+  package_info: ^2.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -77,6 +78,7 @@ flutter:
     - images/logo/icon.png
     - images/logo/logo.png
     - images/logo/text.png
+    - images/icon/app-icon3.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -7,6 +7,8 @@ import 'package:goatfolio/services/investment/storage/stock_investment.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 
+import 'about_page.dart';
+
 class SettingsPage extends StatelessWidget {
   static const String title = 'Configurações';
   static const Icon icon = Icon(CupertinoIcons.settings);
@@ -23,6 +25,7 @@ class SettingsPage extends StatelessWidget {
             tiles: [
               SettingsTile(
                 title: 'Sobre',
+                onPressed: goToAboutPage,
               ),
               SettingsTile(
                 title: 'Sair',
