@@ -42,18 +42,42 @@ class PerformanceCore:
             for inv in investments:
                 if inv.amount > 0:
                     portfolio.initial_date = min(portfolio.initial_date, inv.date)
-                self.consolidate_stock(stock_consolidated, inv)
+                self._consolidate_stock(stock_consolidated, inv)
             self._fix_stock_history_gap(stock_consolidated.history, ticker)
 
-        self.consolidate_portfolio_summary(portfolio)
+        self._consolidate_portfolio_summary(portfolio)
         self.portfolio_repo.save(portfolio)
 
-    def consolidate_portfolio_summary(self, portfolio: Portfolio):
+    def calculate_today_performance(self, subject):
+        assert subject
+        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
+
+        stocks = []
+        reits = []
+        for stock in portfolio.stocks:
+            data = self.market_data.ticker_intraday_date(stock.ticker)
+            if data.name.startswith('FII '):
+                reits.append(stock)
+            else:
+                stocks.append(stock)
+        stock_performance = self._calculate_stocks_performance(stocks)
+        reit_performance = self._calculate_stocks_performance(reits)
+
+        portfolio.stocks = stocks
+        portfolio.reits = reits
+        self._consolidate_portfolio_summary(portfolio)
+
+        portfolio.stocks, portfolio.stock_gross_amount, portfolio.stock_prev_gross_amount = stock_performance
+        portfolio.reits, portfolio.reit_gross_amount, portfolio.reit_prev_gross_amount = reit_performance
+
+        return portfolio
+
+    def _consolidate_portfolio_summary(self, portfolio: Portfolio):
         all_stocks_history = [item for sublist in [s.history for s in portfolio.all_investments] for item in sublist]
         portfolio_history_map = {}
         portfolio.invested_amount = Decimal(0)
 
-        for stock_position in all_stocks_history:
+        for stock_position in sorted(all_stocks_history, key=lambda h: h.date):
             if stock_position.date not in portfolio_history_map:
                 p_position = PortfolioPosition(stock_position.date)
                 portfolio_history_map[stock_position.date] = p_position
@@ -68,11 +92,12 @@ class PerformanceCore:
         portfolio.history = list(portfolio_history_map.values())
         data = self.market_data.ibov_from_date(portfolio.initial_date)
         if not portfolio.ibov_history:
+            # TODO FIX THIS
             portfolio.ibov_history = [
                 StockPosition(date=datetime(candle.date.year, candle.date.month, candle.date.day),
                               open_price=candle.open, close_price=candle.close) for candle in data]
 
-    def consolidate_stock(self, stock_consolidated: StockConsolidated, inv: StockInvestment):
+    def _consolidate_stock(self, stock_consolidated: StockConsolidated, inv: StockInvestment):
         stock_consolidated.initial_date = min(stock_consolidated.initial_date, inv.date)
         stock_consolidated.add_investment(inv)
 
@@ -108,7 +133,7 @@ class PerformanceCore:
         proc = prev + relativedelta(months=1)
         last = DatetimeUtils.month_first_day_datetime(datetime.now())
 
-        while proc <= last:
+        while proc < last:
             proc_timestamp = int(proc.timestamp())
             if proc_timestamp not in timestamps:
                 print(f'fix gap: {proc}')
@@ -127,30 +152,6 @@ class PerformanceCore:
             prev = proc
             proc = proc + relativedelta(months=1)
 
-    def calculate_today_performance(self, subject):
-        assert subject
-        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
-
-        stocks = []
-        reits = []
-        for stock in portfolio.stocks:
-            data = self.market_data.ticker_intraday_date(stock.ticker)
-            if data.name.startswith('FII '):
-                reits.append(stock)
-            else:
-                stocks.append(stock)
-        stock_performance = self._calculate_stocks_performance(stocks)
-        reit_performance = self._calculate_stocks_performance(reits)
-
-        portfolio.stocks = stocks
-        portfolio.reits = reits
-        self.consolidate_portfolio_summary(portfolio)
-
-        portfolio.stocks, portfolio.stock_gross_amount, portfolio.stock_prev_gross_amount = stock_performance
-        portfolio.reits, portfolio.reit_gross_amount, portfolio.reit_prev_gross_amount = reit_performance
-
-        return portfolio
-
     def _calculate_stocks_performance(self, stocks: List[StockConsolidated]):
         """
             Calculate current position of all stocks, returns a list of stocks without 0 amount positions,
@@ -168,7 +169,7 @@ class PerformanceCore:
                 stock.current_stock_price = data.price
                 stock.current_day_change_percent = data.change
                 self._fix_stock_history_gap(stock.history, stock.ticker)
-                sorted(stock.history, key=lambda h: h.date)[-1].close_price = data.price
+                # sorted(stock.history, key=lambda h: h.date)[-1].close_price = data.price
             else:
                 print(f"REMOVING {stock.ticker}")
                 zeroed_stocks.append(stock)
@@ -176,5 +177,6 @@ class PerformanceCore:
 
 
 if __name__ == '__main__':
-    investmentss = InvestmentRepository().find_by_subject('a6ad935c-45bf-4f2c-85ec-1198e5ea044c')
-    print(PerformanceCore().consolidate_portfolio('a6ad935c-45bf-4f2c-85ec-1198e5ea044c', investmentss, []))
+    # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    # print(PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
+    print(PerformanceCore().calculate_today_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
