@@ -9,8 +9,8 @@ import 'package:goatfolio/services/performance/model/portfolio_performance.dart'
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
 
-void goToRentabilityPage(
-    BuildContext context, PortfolioPerformance performance) async {
+void goToRentabilityPage(BuildContext context,
+    PortfolioPerformance performance) async {
   await Navigator.push(
     context,
     CupertinoPageRoute(
@@ -50,10 +50,14 @@ class _RentabilityPageState extends State<RentabilityPage> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = CupertinoTheme.of(context).textTheme;
+    final textTheme = CupertinoTheme
+        .of(context)
+        .textTheme;
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+        backgroundColor: CupertinoTheme
+            .of(context)
+            .scaffoldBackgroundColor,
         previousPageTitle: "",
         middle: Text('Rentabilidade'),
       ),
@@ -82,17 +86,17 @@ class _RentabilityPageState extends State<RentabilityPage> {
               ),
               totalAmountSeries.first.data.isEmpty
                   ? Center(
-                      child: Text(
-                      'Nenhum dado ainda.',
-                      style: textTheme.textStyle,
-                    ))
+                  child: Text(
+                    'Nenhum dado ainda.',
+                    style: textTheme.textStyle,
+                  ))
                   : selectedTab == 'a'
-                      ? ValorizationChart(
-                          totalAmountSeries: totalAmountSeries,
-                        )
-                      : RentabilityChart(
-                          rentabilitySeries: createRentabilitySeries(),
-                        ),
+                  ? ValorizationChart(
+                totalAmountSeries: totalAmountSeries,
+              )
+                  : RentabilityChart(
+                rentabilitySeries: createRentabilitySeries(),
+              ),
               // SizedBox(
               //   height: 240,
               //   child: totalAmountSeries.first.data.isNotEmpty
@@ -171,8 +175,16 @@ class _RentabilityPageState extends State<RentabilityPage> {
           ((monthTotal) / (prevMonthTotal + element.totalInvested) - 1) * 100;
       prevMonthTotal = monthTotal;
       series.add(MoneyDateSeries(element.date, acumulatedRentability));
-      print(element.date.toIso8601String());
     }
+    print("FINAL");
+    print((widget.performance.grossAmount / prevMonthTotal - 1) * 100);
+    print(acumulatedRentability);
+    final now = DateTime.now();
+    acumulatedRentability +=
+        (widget.performance.grossAmount / prevMonthTotal - 1) * 100;
+    print(acumulatedRentability);
+    series.add(MoneyDateSeries(
+        DateTime(now.year, now.month, 1), acumulatedRentability));
 
 
     List<MoneyDateSeries> ibovSeries = [];
@@ -186,16 +198,16 @@ class _RentabilityPageState extends State<RentabilityPage> {
       //   print("data antiga");
       // else {
       //   print('data nova');
-        if (prevMonthTotal == 0) {
-          prevMonthTotal = element.openPrice;
-        }
-        acumulatedRentability +=
-            (element.closePrice / prevMonthTotal - 1) * 100;
-        print(acumulatedRentability);
-        prevMonthTotal = element.closePrice;
-        ibovSeries.add(MoneyDateSeries(element.date, acumulatedRentability));
+      if (prevMonthTotal == 0) {
+        prevMonthTotal = element.openPrice;
       }
-    // }
+      acumulatedRentability +=
+          (element.closePrice / prevMonthTotal - 1) * 100;
+      print(acumulatedRentability);
+      prevMonthTotal = element.closePrice;
+      ibovSeries.add(MoneyDateSeries(element.date, acumulatedRentability));
+    }
+      // }
     );
     return [
       new charts.Series<MoneyDateSeries, DateTime>(
@@ -203,7 +215,7 @@ class _RentabilityPageState extends State<RentabilityPage> {
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
         domainFn: (MoneyDateSeries history, _) => history.date,
         areaColorFn: (_, __) =>
-            charts.MaterialPalette.blue.shadeDefault.lighter,
+        charts.MaterialPalette.blue.shadeDefault.lighter,
         measureFn: (MoneyDateSeries history, _) => history.money,
         data: series,
       ),
@@ -212,7 +224,7 @@ class _RentabilityPageState extends State<RentabilityPage> {
         colorFn: (_, __) => charts.MaterialPalette.deepOrange.shadeDefault,
         domainFn: (MoneyDateSeries history, _) => history.date,
         areaColorFn: (_, __) =>
-            charts.MaterialPalette.deepOrange.shadeDefault.lighter,
+        charts.MaterialPalette.deepOrange.shadeDefault.lighter,
         measureFn: (MoneyDateSeries history, _) => history.money,
         data: ibovSeries,
       ),
@@ -227,6 +239,9 @@ class _RentabilityPageState extends State<RentabilityPage> {
     widget.performance.history.forEach((element) {
       seriesGross.add(MoneyDateSeries(element.date, element.grossAmount));
     });
+    final now = DateTime.now();
+    seriesGross.add(MoneyDateSeries(
+        DateTime(now.year, now.month, 1), widget.performance.grossAmount));
 
     double investedAmount = 0.0;
     widget.performance.history.forEach((history) {
@@ -234,6 +249,8 @@ class _RentabilityPageState extends State<RentabilityPage> {
 
       seriesInvested.add(MoneyDateSeries(history.date, investedAmount));
     });
+    seriesInvested.add(MoneyDateSeries(
+        DateTime(now.year, now.month, 1), widget.performance.investedAmount));
 
     return [
       new charts.Series<MoneyDateSeries, DateTime>(
@@ -241,7 +258,7 @@ class _RentabilityPageState extends State<RentabilityPage> {
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
         domainFn: (MoneyDateSeries history, _) => history.date,
         areaColorFn: (_, __) =>
-            charts.MaterialPalette.blue.shadeDefault.lighter,
+        charts.MaterialPalette.blue.shadeDefault.lighter,
         measureFn: (MoneyDateSeries history, _) => history.money,
         data: seriesGross,
       ),

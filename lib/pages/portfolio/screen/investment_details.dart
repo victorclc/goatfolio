@@ -216,6 +216,9 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
       seriesGross.add(
           MoneyDateSeries(element.date, element.closePrice * element.amount));
     });
+    final now = DateTime.now();
+    seriesGross.add(MoneyDateSeries(DateTime(now.year, now.month, 1),
+        widget.item.currentAmount * widget.item.currentStockPrice));
 
     double investedAmount = 0.0;
     widget.item.history.forEach((history) {
@@ -226,6 +229,8 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
       }
       seriesInvested.add(MoneyDateSeries(history.date, investedAmount));
     });
+    seriesInvested.add(MoneyDateSeries(
+        DateTime(now.year, now.month, 1), widget.item.currentInvested));
 
     return [
       new charts.Series<MoneyDateSeries, DateTime>(

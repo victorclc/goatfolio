@@ -4,6 +4,7 @@ import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/pressable_card.dart';
 import 'package:goatfolio/pages/summary/screen/rentability.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
+import 'package:http/http.dart';
 
 class RentabilityCard extends StatefulWidget {
   static const String CARD_TITLE = "Rentabilidade";
@@ -74,28 +75,9 @@ class _RentabilityCardState extends State<RentabilityCard> {
                             style: textTheme.textStyle.copyWith(fontSize: 16),
                           ),
                           Text(
-                            moneyFormatter.format(widget
-                                    .performance.history.isEmpty
-                                ? 0.0
-                                : widget.performance.grossAmount -
-                                    widget
-                                        .performance
-                                        .history[
-                                            widget.performance.history.length -
-                                                2]
-                                        .grossAmount),
+                            moneyFormatter.format(getMonthVariation()),
                             style: textTheme.textStyle.copyWith(
-                                color: widget
-                                    .performance.history.isEmpty
-                                    ? Colors.green
-                                    : widget.performance.grossAmount -
-                                            widget
-                                                .performance
-                                                .history[widget.performance
-                                                        .history.length -
-                                                    2]
-                                                .grossAmount >=
-                                        0
+                                color: getMonthVariation() >= 0
                                     ? Colors.green
                                     : Colors.red,
                                 fontSize: 16),
@@ -132,5 +114,13 @@ class _RentabilityCardState extends State<RentabilityCard> {
         ),
       ),
     );
+  }
+
+  double getMonthVariation() {
+    print("ULTIMA DATA ${widget.performance.history.last.date}");
+    return widget.performance.history.isEmpty
+        ? 0.0
+        : widget.performance.grossAmount -
+            widget.performance.history.last.grossAmount;
   }
 }
