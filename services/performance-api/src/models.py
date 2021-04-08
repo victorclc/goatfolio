@@ -74,7 +74,6 @@ class StockConsolidated:
                 return self.history[-1].invested_amount
         return Decimal(0)
 
-
     @property
     def average_price(self):
         return self.total_spend / self.bought_amount if self.bought_amount != 0 else Decimal(0)
@@ -141,3 +140,9 @@ class StockVariation:
     ticker: str
     variation: Decimal
     last_price: Decimal
+
+
+@dataclass
+class PortfolioHistory:
+    history: list
+    ibov_history: list

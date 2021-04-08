@@ -9,7 +9,8 @@ from adapters import InvestmentRepository, MarketData, PortfolioRepository
 from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
-from models import Portfolio, StockConsolidated, StockPosition, PortfolioPosition, StockVariation, PortfolioSummary
+from models import Portfolio, StockConsolidated, StockPosition, PortfolioPosition, StockVariation, PortfolioSummary, \
+    PortfolioHistory
 
 
 class SafePerformanceCore:
@@ -39,9 +40,68 @@ class SafePerformanceCore:
         self.portfolio_repo.save(portfolio)
 
     def get_portfolio_summary(self, subject):
+        # used on summary page
         portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
 
         return PortfolioSummary(*self._calculate_stocks_performance(portfolio.stocks))
+
+    def get_portfolio_history(self, subject):
+        # used to build rentability charts
+        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
+
+        self._fetch_stocks_history_data(portfolio.stocks)
+
+        all_stocks_history = [item for sublist in [s.history for s in portfolio.stocks] for item in sublist]
+        portfolio_history_map = {}
+
+        for stock_position in sorted(all_stocks_history, key=lambda h: h.date):
+            if stock_position.date not in portfolio_history_map:
+                p_position = PortfolioPosition(stock_position.date)
+                portfolio_history_map[stock_position.date] = p_position
+            else:
+                p_position = portfolio_history_map[stock_position.date]
+
+            p_position.total_invested = p_position.total_invested + stock_position.invested_amount
+            if stock_position.amount > 0:
+                p_position.gross_amount = p_position.gross_amount + stock_position.amount * stock_position.close_price
+
+        data = self.market_data.ibov_from_date(portfolio.initial_date)
+        ibov_history = [
+            StockPosition(date=datetime(candle.date.year, candle.date.month, candle.date.day),
+                          open_price=candle.open, close_price=candle.close) for candle in data]
+        return PortfolioHistory(history=list(portfolio_history_map.values()), ibov_history=ibov_history)
+
+    def _fetch_stocks_history_data(self, stocks: List[StockConsolidated]):
+        for stock in stocks:
+            history_dict = {int(h.date.timestamp()): h for h in stock.history}
+            timestamps = list(history_dict.keys())
+            timestamps.sort()
+
+            prev = datetime.fromtimestamp(timestamps[0])
+            proc = prev
+            last = DatetimeUtils.month_first_day_datetime(datetime.now())
+
+            while proc <= last:
+                proc_timestamp = int(proc.timestamp())
+                if proc_timestamp not in timestamps:
+                    position = StockPosition(date=proc, amount=history_dict[int(prev.timestamp())].amount)
+                    stock.history.append(position)
+                    history_dict[proc_timestamp] = position
+
+                if proc == last:
+                    candle = self.market_data.ticker_intraday_date(stock.ticker)
+                    price = candle.price
+                    _open = None
+                else:
+                    candle = self.market_data.ticker_month_data(stock.ticker, proc.date())
+                    price = candle.close
+                    _open = candle.open
+
+                history_dict[proc_timestamp].close_price = price
+                history_dict[proc_timestamp].open_price = _open
+
+                prev = proc
+                proc = proc + relativedelta(months=1)
 
     def _calculate_stocks_performance(self, stocks: List[StockConsolidated]):
         invested_amount = Decimal(0)
@@ -266,4 +326,5 @@ class PerformanceCore:
 if __name__ == '__main__':
     investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
     # print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
-    print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    # print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
