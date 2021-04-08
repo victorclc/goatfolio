@@ -72,6 +72,18 @@ functions:
           arn:
             'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
 
+  performanceSummary:
+    handler: src/handlers.performance_summary_handler
+    events:
+      - http:
+          path: summary
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+
 resources:
   Resources:
     ApiGatewayAuthorizer:

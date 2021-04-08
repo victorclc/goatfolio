@@ -138,12 +138,18 @@ class PortfolioSummary:
     month_variation: Decimal
     stocks_variation: list
 
+    def to_dict(self):
+        return {**self.__dict__, 'stocks_variation': [h.to_dict() for h in self.stocks_variation]}
+
 
 @dataclass
 class StockVariation:
     ticker: str
     variation: Decimal
     last_price: Decimal
+
+    def to_dict(self):
+        return self.__dict__
 
 
 @dataclass
