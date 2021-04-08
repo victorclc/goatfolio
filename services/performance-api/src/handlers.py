@@ -33,6 +33,28 @@ def performance_handler_summary(event, context):
     return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(result.to_dict())}
 
 
+def performance_rentability_handler(event, context):
+    logger.info(f"EVENT: {event}")
+    subject = AWSEventUtils.get_event_subject(event)
+    result = core.get_portfolio_history(subject)
+    return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(result.to_dict())}
+
+
+def performance_portfolio_handler(event, context):
+    logger.info(f"EVENT: {event}")
+    subject = AWSEventUtils.get_event_subject(event)
+    result = core.get_portfolio_list(subject)
+    return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(result.to_dict())}
+
+
+def performance_portfolio_ticker_handler(event, context):
+    logger.info(f"EVENT: {event}")
+    subject = AWSEventUtils.get_event_subject(event)
+    ticker = AWSEventUtils.get_path_param(event, 'ticker')
+    result = core.get_ticker_consolidated_history(subject, ticker)
+    return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(result.to_dict())}
+
+
 def consolidate_portfolio_handler(event, context):
     logger.info(f"EVENT: {event}")
     new_investments, old_investments = [], []
@@ -69,3 +91,11 @@ def _dynamo_stream_to_stock_investment(stream):
                               'subject': stream['subject']['S'],
                               'id': stream['id']['S'],
                               })
+
+
+if __name__ == '__main__':
+    event = {'pathParameters': {'ticker': 'BIDI11'},
+             'requestContext': {'authorizer': {'claims': {'sub': '440b0d96-395d-48bd-aaf2-58dbf7e68274'}}}}
+    print(performance_rentability_handler(event, None))
+    print(performance_portfolio_handler(event, None))
+    print(performance_portfolio_ticker_handler(event, None))

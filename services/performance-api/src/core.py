@@ -10,7 +10,7 @@ from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
 from models import Portfolio, StockConsolidated, StockPosition, PortfolioPosition, StockVariation, PortfolioSummary, \
-    PortfolioHistory, StockSummary, PortfolioList
+    PortfolioHistory, StockSummary, PortfolioList, TickerConsolidatedHistory
 
 
 class SafePerformanceCore:
@@ -110,7 +110,7 @@ class SafePerformanceCore:
 
         self._fetch_stocks_history_data([stock_consolidated])
 
-        return stock_consolidated.history
+        return TickerConsolidatedHistory(stock_consolidated.history)
 
     def _fetch_stocks_history_data(self, stocks: List[StockConsolidated]):
         for stock in stocks:

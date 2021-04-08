@@ -83,6 +83,44 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  performanceRentability:
+    handler: src/handlers.performance_rentability_handler
+    events:
+      - http:
+          path: rentability
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+
+  performancePortfolio:
+    handler: src/handlers.performance_portfolio_handler
+    events:
+      - http:
+          path: portfolio
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+
+  performancePortfolioTicker:
+    handler: src/handlers.performance_portfolio_ticker_handler
+    events:
+      - http:
+          path: portfolio/{ticker}
+          request:
+            parameters:
+              paths:
+                ticker: true
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
 
 resources:
   Resources:

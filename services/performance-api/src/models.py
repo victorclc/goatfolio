@@ -157,6 +157,18 @@ class PortfolioHistory:
     history: list
     ibov_history: list
 
+    def to_dict(self):
+        return {'history': [h.to_dict() for h in self.history],
+                'ibov_history': [h.to_dict() for h in self.ibov_history]}
+
+
+@dataclass
+class TickerConsolidatedHistory:
+    history: list
+
+    def to_dict(self):
+        return {'history': [h.to_dict() for h in self.history]}
+
 
 @dataclass
 class PortfolioList:
@@ -168,6 +180,10 @@ class PortfolioList:
     reits: list
     bdrs: list
 
+    def to_dict(self):
+        return {**self.__dict__, 'stocks': [s.to_dict() for s in self.stocks],
+                'reits': [r.to_dict() for r in self.reits], 'bdrs': [b.to_dict() for b in self.bdrs]}
+
 
 @dataclass
 class StockSummary:
@@ -177,3 +193,6 @@ class StockSummary:
     invested_amount: Decimal
     current_price: Decimal
     gross_amount: Decimal
+
+    def to_dict(self):
+        return self.__dict__
