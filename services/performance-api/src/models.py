@@ -78,6 +78,10 @@ class StockConsolidated:
     def average_price(self):
         return self.total_spend / self.bought_amount if self.bought_amount != 0 else Decimal(0)
 
+    @property
+    def current_invested(self):
+        return self.current_amount * self.average_price
+
     def add_investment(self, investment: StockInvestment):
         if investment.operation == OperationType.BUY:
             self.bought_amount = self.bought_amount + investment.amount
@@ -146,3 +150,24 @@ class StockVariation:
 class PortfolioHistory:
     history: list
     ibov_history: list
+
+
+@dataclass
+class PortfolioList:
+    stock_gross_amount: Decimal
+    reits_gross_amount: Decimal
+    bdr_gross_amount: Decimal
+
+    stocks: list
+    reits: list
+    bdrs: list
+
+
+@dataclass
+class StockSummary:
+    ticker: str
+    amount: Decimal
+    average_price: Decimal
+    invested_amount: Decimal
+    current_price: Decimal
+    gross_amount: Decimal

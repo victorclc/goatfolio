@@ -10,7 +10,7 @@ from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
 from models import Portfolio, StockConsolidated, StockPosition, PortfolioPosition, StockVariation, PortfolioSummary, \
-    PortfolioHistory
+    PortfolioHistory, StockSummary, PortfolioList
 
 
 class SafePerformanceCore:
@@ -70,6 +70,39 @@ class SafePerformanceCore:
             StockPosition(date=datetime(candle.date.year, candle.date.month, candle.date.day),
                           open_price=candle.open, close_price=candle.close) for candle in data]
         return PortfolioHistory(history=list(portfolio_history_map.values()), ibov_history=ibov_history)
+
+    def get_portfolio_list(self, subject):
+        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
+
+        stocks = []
+        reits = []
+        bdrs = []
+        stock_gross_amount = Decimal(0)
+        reit_gross_amount = Decimal(0)
+        bdr_gross_amount = Decimal(0)
+
+        for stock in portfolio.stocks:
+            if stock.current_amount <= 0:
+                continue
+
+            data = self.market_data.ticker_intraday_date(stock.ticker)
+            if data.name.startswith('FII '):
+                reits.append(
+                    StockSummary(stock.ticker, stock.current_amount, stock.average_price, stock.current_invested,
+                                 data.price, data.price * stock.current_amount))
+                reit_gross_amount = reit_gross_amount + data.price * stock.current_amount
+            elif int(stock.ticker[4:]) >= 30:
+                bdrs.append(
+                    StockSummary(stock.ticker, stock.current_amount, stock.average_price, stock.current_invested,
+                                 data.price, data.price * stock.current_amount))
+                bdr_gross_amount = bdr_gross_amount + data.price * stock.current_amount
+            else:
+                stocks.append(
+                    StockSummary(stock.ticker, stock.current_amount, stock.average_price, stock.current_invested,
+                                 data.price, data.price * stock.current_amount))
+                stock_gross_amount = stock_gross_amount + data.price * stock.current_amount
+
+        return PortfolioList(stock_gross_amount, reit_gross_amount, bdr_gross_amount, stocks, reits, bdrs)
 
     def _fetch_stocks_history_data(self, stocks: List[StockConsolidated]):
         for stock in stocks:
@@ -327,4 +360,5 @@ if __name__ == '__main__':
     investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
     # print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
     # print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    # print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    print(SafePerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
