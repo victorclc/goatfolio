@@ -35,7 +35,8 @@ class Portfolio:
     def to_dict(self):
         return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
                 'stocks': [s.to_dict() for s in self.stocks], 'reits': [s.to_dict() for s in self.reits],
-                'history': [h.to_dict() for h in self.history], 'ibov_history': [i.to_dict() for i in self.ibov_history]}
+                'history': [h.to_dict() for h in self.history],
+                'ibov_history': [i.to_dict() for i in self.ibov_history]}
 
 
 @dataclass
@@ -53,6 +54,26 @@ class StockConsolidated:
     @property
     def current_amount(self):
         return self.bought_amount - self.sold_amount
+
+    @property
+    def prev_month_amount(self):
+        if self.history:
+            now = datetime.now()
+            if self.history[-1].date.year == now.year and self.history[-1].date.month == now.month:
+                if len(self.history) >= 2:
+                    return self.history[-2].amount
+            else:
+                return self.history[-1].amount
+        return Decimal(0)
+
+    @property
+    def value_invested_current_month(self):
+        if self.history:
+            now = datetime.now()
+            if self.history[-1].date.year == now.year and self.history[-1].date.month == now.month:
+                return self.history[-1].invested_amount
+        return Decimal(0)
+
 
     @property
     def average_price(self):
@@ -73,14 +94,14 @@ class StockConsolidated:
 
     def to_dict(self):
         return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
-                'history': [h.to_dict() for h in self.history]}
+                'history': sorted([h.to_dict() for h in self.history], key=lambda h: h.date)}
 
 
 @dataclass
 class StockPosition:
     date: datetime
-    open_price: Decimal
-    close_price: Decimal
+    open_price: Decimal = field(default_factory=lambda: Decimal(0))
+    close_price: Decimal = field(default_factory=lambda: Decimal(0))
     amount: Decimal = field(default_factory=lambda: Decimal(0))
     invested_amount: Decimal = field(default_factory=lambda: Decimal(0))
 
@@ -104,3 +125,19 @@ class PortfolioPosition:
 
     def to_dict(self):
         return {**self.__dict__, 'date': int(self.date.timestamp())}
+
+
+@dataclass
+class PortfolioSummary:
+    invested_amount: Decimal
+    gross_amount: Decimal
+    day_variation: Decimal
+    month_variation: Decimal
+    stocks_variation: list
+
+
+@dataclass
+class StockVariation:
+    ticker: str
+    variation: Decimal
+    last_price: Decimal

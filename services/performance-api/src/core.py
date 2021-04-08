@@ -9,7 +9,95 @@ from adapters import InvestmentRepository, MarketData, PortfolioRepository
 from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
-from models import Portfolio, StockConsolidated, StockPosition, PortfolioPosition
+from models import Portfolio, StockConsolidated, StockPosition, PortfolioPosition, StockVariation, PortfolioSummary
+
+
+class SafePerformanceCore:
+    def __init__(self):
+        self.portfolio_repo = PortfolioRepository()
+        self.market_data = MarketData()
+
+    def consolidate_portfolio(self, subject, new_investments, old_investments):
+        for inv in old_investments:
+            inv.amount = -1 * inv.amount
+        investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
+                                  key=lambda i: i.ticker)
+
+        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
+        for ticker, investments in investments_map:
+            stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
+            if not stock_consolidated:
+                stock_consolidated = StockConsolidated(ticker=ticker)
+                portfolio.stocks.append(stock_consolidated)
+
+            investments = sorted(list(investments), key=lambda i: i.date)
+            for inv in investments:
+                if inv.amount > 0:
+                    portfolio.initial_date = min(portfolio.initial_date, inv.date)
+                self._consolidate_stock(stock_consolidated, inv)
+
+        self.portfolio_repo.save(portfolio)
+
+    def get_portfolio_summary(self, subject):
+        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
+
+        return PortfolioSummary(*self._calculate_stocks_performance(portfolio.stocks))
+
+    def _calculate_stocks_performance(self, stocks: List[StockConsolidated]):
+        invested_amount = Decimal(0)
+        gross_amount = Decimal(0)
+        prev_day_gross_amount = Decimal(0)
+        prev_month_gross_amount = Decimal(0)
+        month_variation = Decimal(0)
+        stock_variation = []
+
+        now = datetime.now()
+        prev_month_start = datetime(now.year, now.month, 1) - relativedelta(months=1)
+        for stock in stocks:
+            if stock.current_amount <= 0:
+                continue
+            invested_amount = invested_amount + sum(s.invested_amount for s in stock.history)
+
+            data = self.market_data.ticker_intraday_date(stock.ticker)
+            gross_amount = gross_amount + stock.current_amount * data.price
+            prev_day_gross_amount = prev_day_gross_amount + stock.current_amount * data.prev_close_price
+            prev_month_amount = stock.prev_month_amount
+            if prev_month_amount > 0:
+                month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start)
+                prev_month_gross_amount = prev_month_gross_amount + month_data.close * prev_month_amount
+                month_variation = month_variation - stock.value_invested_current_month
+
+            stock_variation.append(StockVariation(stock.ticker, data.change, data.price))
+
+        day_variation = gross_amount - prev_day_gross_amount
+        month_variation = month_variation + gross_amount - prev_month_gross_amount
+        return invested_amount, gross_amount, day_variation, month_variation, stock_variation
+
+    @staticmethod
+    def _consolidate_stock(stock_consolidated: StockConsolidated, inv: StockInvestment):
+        stock_consolidated.initial_date = min(stock_consolidated.initial_date, inv.date)
+        stock_consolidated.add_investment(inv)
+
+        month_date = DatetimeUtils.month_first_day_datetime(inv.date)
+        h_position = next((position for position in stock_consolidated.history if position.date == month_date), {})
+        if not h_position:
+            prev_positions = sorted([position for position in stock_consolidated.history if position.date < month_date],
+                                    key=lambda p: p.date)
+            amount = prev_positions[-1].amount if prev_positions else Decimal(0)
+
+            h_position = StockPosition(date=month_date, amount=amount, invested_amount=Decimal(0))
+            stock_consolidated.history.append(h_position)
+
+        if inv.operation == OperationType.BUY:
+            h_position.amount = h_position.amount + inv.amount
+            h_position.invested_amount = h_position.invested_amount + inv.amount * inv.price
+        else:
+            h_position.invested_amount = h_position.invested_amount - inv.amount * stock_consolidated.average_price
+            h_position.amount = h_position.amount - inv.amount
+
+        inv_amount = (inv.amount if inv.operation == OperationType.BUY else - inv.amount)
+        for position in [position for position in stock_consolidated.history if position.date > month_date]:
+            position.amount = position.amount + inv_amount
 
 
 class PerformanceCore:
@@ -90,12 +178,11 @@ class PerformanceCore:
             if stock_position.amount > 0:
                 p_position.gross_amount = p_position.gross_amount + stock_position.amount * stock_position.close_price
         portfolio.history = list(portfolio_history_map.values())
+
         data = self.market_data.ibov_from_date(portfolio.initial_date)
-        if not portfolio.ibov_history:
-            # TODO FIX THIS
-            portfolio.ibov_history = [
-                StockPosition(date=datetime(candle.date.year, candle.date.month, candle.date.day),
-                              open_price=candle.open, close_price=candle.close) for candle in data]
+        portfolio.ibov_history = [
+            StockPosition(date=datetime(candle.date.year, candle.date.month, candle.date.day),
+                          open_price=candle.open, close_price=candle.close) for candle in data]
 
     def _consolidate_stock(self, stock_consolidated: StockConsolidated, inv: StockInvestment):
         stock_consolidated.initial_date = min(stock_consolidated.initial_date, inv.date)
@@ -133,7 +220,7 @@ class PerformanceCore:
         proc = prev + relativedelta(months=1)
         last = DatetimeUtils.month_first_day_datetime(datetime.now())
 
-        while proc < last:
+        while proc <= last:
             proc_timestamp = int(proc.timestamp())
             if proc_timestamp not in timestamps:
                 print(f'fix gap: {proc}')
@@ -169,7 +256,7 @@ class PerformanceCore:
                 stock.current_stock_price = data.price
                 stock.current_day_change_percent = data.change
                 self._fix_stock_history_gap(stock.history, stock.ticker)
-                # sorted(stock.history, key=lambda h: h.date)[-1].close_price = data.price
+                sorted(stock.history, key=lambda h: h.date)[-1].close_price = data.price
             else:
                 print(f"REMOVING {stock.ticker}")
                 zeroed_stocks.append(stock)
@@ -177,6 +264,6 @@ class PerformanceCore:
 
 
 if __name__ == '__main__':
-    # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-    # print(PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
-    print(PerformanceCore().calculate_today_performance('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    # print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
+    print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
