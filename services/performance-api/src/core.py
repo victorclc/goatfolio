@@ -104,6 +104,14 @@ class SafePerformanceCore:
 
         return PortfolioList(stock_gross_amount, reit_gross_amount, bdr_gross_amount, stocks, reits, bdrs)
 
+    def get_ticker_consolidated_history(self, subject, ticker):
+        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
+        stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
+
+        self._fetch_stocks_history_data([stock_consolidated])
+
+        return stock_consolidated.history
+
     def _fetch_stocks_history_data(self, stocks: List[StockConsolidated]):
         for stock in stocks:
             history_dict = {int(h.date.timestamp()): h for h in stock.history}
@@ -361,4 +369,5 @@ if __name__ == '__main__':
     # print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
     # print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    print(SafePerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    # print(SafePerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    print(SafePerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
