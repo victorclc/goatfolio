@@ -26,7 +26,7 @@ def get_performance_handler(event, context):
         return {'statusCode': HTTPStatus.BAD_REQUEST, 'body': JsonUtils.dump({"message": str(ex)})}
 
 
-def performance_handler_summary(event, context):
+def performance_summary_handler(event, context):
     logger.info(f"EVENT: {event}")
     subject = AWSEventUtils.get_event_subject(event)
     result = core.get_portfolio_summary(subject)
