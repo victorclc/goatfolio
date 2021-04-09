@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:goatfolio/common/http/interceptor/logging.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
+import 'package:goatfolio/services/performance/model/portfolio_history.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
 import 'package:http/http.dart';
@@ -34,5 +35,14 @@ class PerformanceClient {
         await _client.get(url, headers: {'Authorization': accessToken});
 
     return PortfolioSummary.fromJson(jsonDecode(response.body));
+  }
+
+  Future<PortfolioHistory> getPortfolioRentabilityHistory() async {
+    String accessToken = await userService.getSessionToken();
+    String url = baseUrl + "performance/rentability";
+    final Response response =
+        await _client.get(url, headers: {'Authorization': accessToken});
+
+    return PortfolioHistory.fromJson(jsonDecode(response.body));
   }
 }

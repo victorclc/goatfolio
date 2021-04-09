@@ -4,10 +4,13 @@ import 'package:goatfolio/common/chart/money_date_series.dart';
 import 'package:goatfolio/common/chart/rentability_chart.dart';
 import 'package:goatfolio/common/chart/valorization_chart.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
-import 'package:goatfolio/services/performance/model/portfolio_history.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:goatfolio/services/authentication/service/cognito.dart';
+import 'package:goatfolio/services/performance/client/performance_client.dart';
+import 'package:goatfolio/services/performance/model/portfolio_history.dart';
 import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 void goToRentabilityPage(BuildContext context, PortfolioSummary summary) async {
   await Navigator.push(
@@ -29,21 +32,30 @@ class RentabilityPage extends StatefulWidget {
 
 class _RentabilityPageState extends State<RentabilityPage> {
   final dateFormat = DateFormat('MMMM', 'pt_BR');
+  PerformanceClient _client;
   String selectedTab;
   MoneyDateSeries selectedGrossSeries;
   MoneyDateSeries selectedInvestedSeries;
+  Future<PortfolioHistory> _futureHistory;
 
   void initState() {
     super.initState();
+    final userService = Provider.of<UserService>(context, listen: false);
+    _client = PerformanceClient(userService);
+    _futureHistory = _client.getPortfolioRentabilityHistory();
     selectedTab = 'a';
   }
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = CupertinoTheme.of(context).textTheme;
+    final textTheme = CupertinoTheme
+        .of(context)
+        .textTheme;
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+        backgroundColor: CupertinoTheme
+            .of(context)
+            .scaffoldBackgroundColor,
         previousPageTitle: "",
         middle: Text('Rentabilidade'),
       ),
@@ -71,12 +83,12 @@ class _RentabilityPageState extends State<RentabilityPage> {
                 ),
               ),
               selectedTab == 'a'
-                      ? ValorizationChart(
-                          totalAmountSeries: createTotalAmountSeries(),
-                        )
-                      : RentabilityChart(
-                          rentabilitySeries: createRentabilitySeries(),
-                        ),
+                  ? ValorizationChart(
+                totalAmountSeries: createTotalAmountSeries(),
+              )
+                  : RentabilityChart(
+                rentabilitySeries: createRentabilitySeries(),
+              ),
               // SizedBox(
               //   height: 240,
               //   child: totalAmountSeries.first.data.isNotEmpty
@@ -132,8 +144,8 @@ class _RentabilityPageState extends State<RentabilityPage> {
                         widget.summary.investedAmount),
                     style: textTheme.textStyle.copyWith(
                         color: widget.summary.grossAmount -
-                                    widget.summary.investedAmount >=
-                                0
+                            widget.summary.investedAmount >=
+                            0
                             ? Colors.green
                             : Colors.red),
                   ),
@@ -213,46 +225,44 @@ class _RentabilityPageState extends State<RentabilityPage> {
     return null;
   }
 
-  List<charts.Series<MoneyDateSeries, DateTime>> createTotalAmountSeries() {
-    // List<MoneyDateSeries> seriesGross = [];
-    // List<MoneyDateSeries> seriesInvested = [];
-    //
-    // widget.summary.history.sort((a, b) => a.date.compareTo(b.date));
-    // widget.summary.history.forEach((element) {
-    //   seriesGross.add(MoneyDateSeries(element.date, element.grossAmount));
-    // });
-    // final now = DateTime.now();
-    // seriesGross.add(MoneyDateSeries(
-    //     DateTime(now.year, now.month, 1), widget.summary.grossAmount));
-    //
-    // double investedAmount = 0.0;
-    // widget.summary.history.forEach((history) {
-    //   investedAmount += history.totalInvested;
-    //
-    //   seriesInvested.add(MoneyDateSeries(history.date, investedAmount));
-    // });
-    // seriesInvested.add(MoneyDateSeries(
-    //     DateTime(now.year, now.month, 1), widget.summary.investedAmount));
-    //
-    // return [
-    //   new charts.Series<MoneyDateSeries, DateTime>(
-    //     id: "Saldo bruto",
-    //     colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-    //     domainFn: (MoneyDateSeries history, _) => history.date,
-    //     areaColorFn: (_, __) =>
-    //         charts.MaterialPalette.blue.shadeDefault.lighter,
-    //     measureFn: (MoneyDateSeries history, _) => history.money,
-    //     data: seriesGross,
-    //   ),
-    //   new charts.Series<MoneyDateSeries, DateTime>(
-    //     id: "Valor investido",
-    //     colorFn: (_, __) => charts.MaterialPalette.deepOrange.shadeDefault,
-    //     domainFn: (MoneyDateSeries history, _) => history.date,
-    //     dashPatternFn: (_, __) => [2, 2],
-    //     measureFn: (MoneyDateSeries history, _) => history.money,
-    //     data: seriesInvested,
-    //   ),
-    // ];
-    return null;
+  Future<List<charts.Series<MoneyDateSeries, DateTime>>> createTotalAmountSeries() async {
+    PortfolioHistory portfolioHistory = await _futureHistory;
+    List<MoneyDateSeries> seriesGross = [];
+    List<MoneyDateSeries> seriesInvested = [];
+
+    portfolioHistory.history.sort((a, b) => a.date.compareTo(b.date));
+
+    double investedAmount = 0.0;
+    portfolioHistory.history.forEach((element) {
+      investedAmount += element.totalInvested;
+      seriesInvested.add(MoneyDateSeries(element.date, investedAmount));
+      seriesGross.add(MoneyDateSeries(element.date, element.grossAmount));
+    });
+
+    final now = DateTime.now();
+    seriesGross.add(MoneyDateSeries(
+        DateTime(now.year, now.month, 1), widget.summary.grossAmount));
+    seriesInvested.add(MoneyDateSeries(
+        DateTime(now.year, now.month, 1), widget.summary.investedAmount));
+
+    return [
+      new charts.Series<MoneyDateSeries, DateTime>(
+        id: "Saldo bruto",
+        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        domainFn: (MoneyDateSeries history, _) => history.date,
+        areaColorFn: (_, __) =>
+        charts.MaterialPalette.blue.shadeDefault.lighter,
+        measureFn: (MoneyDateSeries history, _) => history.money,
+        data: seriesGross,
+      ),
+      new charts.Series<MoneyDateSeries, DateTime>(
+        id: "Valor investido",
+        colorFn: (_, __) => charts.MaterialPalette.deepOrange.shadeDefault,
+        domainFn: (MoneyDateSeries history, _) => history.date,
+        dashPatternFn: (_, __) => [2, 2],
+        measureFn: (MoneyDateSeries history, _) => history.money,
+        data: seriesInvested,
+      ),
+    ];
   }
 }

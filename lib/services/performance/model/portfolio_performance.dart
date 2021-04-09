@@ -1,5 +1,5 @@
-import 'package:goatfolio/services/performance/model/portfolio_history.dart';
-import 'package:goatfolio/services/performance/model/stock_history.dart';
+import 'package:goatfolio/services/performance/model/portfolio_position.dart';
+import 'package:goatfolio/services/performance/model/stock_position.dart';
 import 'package:goatfolio/services/performance/model/stock_performance.dart';
 
 class PortfolioPerformance {
@@ -11,8 +11,8 @@ class PortfolioPerformance {
   DateTime initialDate;
   List<StockPerformance> stocks;
   List<StockPerformance> reits;
-  List<PortfolioHistory> history;
-  List<StockHistory> ibovHistory;
+  List<PortfolioPosition> history;
+  List<StockPosition> ibovHistory;
 
   get grossAmount => stockGrossAmount + reitGrossAmount;
 
@@ -34,10 +34,10 @@ class PortfolioPerformance {
             .map<StockPerformance>((json) => StockPerformance.fromJson(json))
             .toList(),
         history = json['history']
-            .map<PortfolioHistory>((json) => PortfolioHistory.fromJson(json))
+            .map<PortfolioPosition>((json) => PortfolioPosition.fromJson(json))
             .toList(),
         ibovHistory = json['ibov_history']
-            .map<StockHistory>((json) => StockHistory.fromJson(json))
+            .map<StockPosition>((json) => StockPosition.fromJson(json))
             .toList(),
         reits = json['reits']
             .map<StockPerformance>((json) => StockPerformance.fromJson(json))

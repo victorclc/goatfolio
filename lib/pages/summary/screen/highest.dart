@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
-import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
-import 'package:goatfolio/services/performance/model/stock_performance.dart';
 import 'package:goatfolio/services/performance/model/stock_variation.dart';
 
 void goToHighestPage(

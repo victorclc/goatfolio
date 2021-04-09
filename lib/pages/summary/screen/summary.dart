@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:goatfolio/pages/summary/widget/highest_highs_card.dart';
 import 'package:goatfolio/pages/summary/widget/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/widget/rentability_card.dart';
-import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
 import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:provider/provider.dart';

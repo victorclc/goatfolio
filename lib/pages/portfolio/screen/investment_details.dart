@@ -5,13 +5,13 @@ import 'package:goatfolio/common/chart/rentability_chart.dart';
 import 'package:goatfolio/common/chart/valorization_chart.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 
-import 'package:goatfolio/services/performance/model/stock_history.dart';
+import 'package:goatfolio/services/performance/model/stock_position.dart';
 import 'package:goatfolio/services/performance/model/stock_performance.dart';
 import 'package:intl/intl.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 void navigateToInvestmentDetails(BuildContext context, StockPerformance item,
-    Color color, List<StockHistory> ibovHistory) {
+    Color color, List<StockPosition> ibovHistory) {
   Navigator.of(context).push<void>(
     CupertinoPageRoute(
       builder: (context) => InvestmentDetails(
@@ -28,7 +28,7 @@ class InvestmentDetails extends StatefulWidget {
   final String title;
   final StockPerformance item;
   final Color color;
-  final List<StockHistory> ibovHistory;
+  final List<StockPosition> ibovHistory;
 
   const InvestmentDetails(
       {Key key, this.item, this.title, this.color, this.ibovHistory})
@@ -116,13 +116,13 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
                   },
                 ),
               ),
-              selectedTab == 'a'
-                  ? ValorizationChart(
-                      totalAmountSeries: totalAmountSeries,
-                    )
-                  : RentabilityChart(
-                      rentabilitySeries: createRentabilitySeries(),
-                    ),
+              // selectedTab == 'a'
+              //     ? ValorizationChart(
+              //         totalAmountSeries: totalAmountSeries,
+              //       )
+              //     : RentabilityChart(
+              //         rentabilitySeries: createRentabilitySeries(),
+              //       ),
               SizedBox(
                 height: 16,
               ),

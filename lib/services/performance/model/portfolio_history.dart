@@ -1,10 +1,15 @@
+import 'package:goatfolio/services/performance/model/portfolio_position.dart';
+import 'package:goatfolio/services/performance/model/stock_position.dart';
+
 class PortfolioHistory {
-  DateTime date;
-  double totalInvested;
-  double grossAmount;
+  List<PortfolioPosition> history;
+  List<StockPosition> ibovHistory;
 
   PortfolioHistory.fromJson(Map<String, dynamic> json)
-      : date = DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000),
-        totalInvested = json['total_invested'],
-        grossAmount = json['gross_amount'];
+      : history = json['history']
+            .map<PortfolioPosition>((json) => PortfolioPosition.fromJson(json))
+            .toList(),
+        ibovHistory = json['ibov_history']
+            .map<StockPosition>((json) => StockPosition.fromJson(json))
+            .toList();
 }
