@@ -3,29 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/pressable_card.dart';
 import 'package:goatfolio/pages/summary/screen/highest.dart';
-import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
-import 'package:goatfolio/services/performance/model/stock_performance.dart';
+import 'package:goatfolio/services/performance/model/stock_variation.dart';
 
 class HighestHighsCard extends StatefulWidget {
-  final PortfolioPerformance performance;
+  final List<StockVariation> stocksVariation;
 
-  const HighestHighsCard(this.performance, {Key key}) : super(key: key);
+  const HighestHighsCard(this.stocksVariation, {Key key}) : super(key: key);
 
   @override
   _HighestHighsState createState() => _HighestHighsState();
 }
 
 class _HighestHighsState extends State<HighestHighsCard> {
-  List<StockPerformance> highs;
+  List<StockVariation> highs;
 
   @override
   void initState() {
     super.initState();
-    highs = (widget.performance.stocks + widget.performance.reits)
-        .where((stock) => stock.currentDayChangePercent >= 0)
+    highs = widget.stocksVariation
+        .where((stock) => stock.variation >= 0)
         .toList()
           ..sort((b, a) =>
-              a.currentDayChangePercent.compareTo(b.currentDayChangePercent));
+              a.variation.compareTo(b.variation));
   }
 
   Widget buildTopFive() {
@@ -69,14 +68,14 @@ class _HighestHighsState extends State<HighestHighsCard> {
       ),
     );
     for (int i = 0; i < listSize; i++) {
-      StockPerformance stock = highs[i];
+      StockVariation stock = highs[i];
       list.add(Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(stock.ticker, style: textTheme.textStyle.copyWith(fontSize: 14)),
           // Text(moneyFormatter.format(stock.currentStockPrice)),
           Text(
-            percentFormatter.format(stock.currentDayChangePercent / 100),
+            percentFormatter.format(stock.variation / 100),
             style:
                 textTheme.textStyle.copyWith(fontSize: 14, color: Colors.green),
           ),
@@ -101,7 +100,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
       height: 226,
       child: PressableCard(
         cardPadding: EdgeInsets.only(left: 16, right: 4, top: 16, bottom: 16),
-        onPressed: () => goToHighestPage(context, widget.performance),
+        onPressed: () => goToHighestPage(context, widget.stocksVariation),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

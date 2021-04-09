@@ -60,12 +60,12 @@ class _SummaryPageState extends State<SummaryPage> {
                           return Column(
                             children: [
                               RentabilityCard(summary),
-                              // Row(
-                              //   children: [
-                              //     Expanded(child: HighestHighsCard(summary)),
-                              //     Expanded(child: LowestLowsCard(summary)),
-                              //   ],
-                              // ),
+                              Row(
+                                children: [
+                                  Expanded(child: HighestHighsCard(summary.stocksVariation)),
+                                  Expanded(child: LowestLowsCard(summary.stocksVariation)),
+                                ],
+                              ),
                             ],
                           );
                         }
