@@ -1,5 +1,5 @@
 
-import 'package:goatfolio/services/performance/model/stock_history.dart';
+import 'package:goatfolio/services/performance/model/stock_position.dart';
 
 class StockPerformance {
   String ticker;
@@ -10,7 +10,7 @@ class StockPerformance {
   double totalSpend;
   double totalSold;
   double currentDayChangePercent;
-  List<StockHistory> history;
+  List<StockPosition> history;
 
   get currentAmount => boughtAmount - soldAmount;
   get averagePrice => totalSpend / boughtAmount;
@@ -27,6 +27,6 @@ class StockPerformance {
         totalSold = json['total_sold'],
         currentDayChangePercent = json['current_day_change_percent'],
         history = json['history']
-            .map<StockHistory>((json) => StockHistory.fromJson(json))
+            .map<StockPosition>((json) => StockPosition.fromJson(json))
             .toList();
 }

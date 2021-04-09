@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:goatfolio/pages/summary/widget/highest_highs_card.dart';
 import 'package:goatfolio/pages/summary/widget/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/widget/rentability_card.dart';
-import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
+import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
 import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +16,11 @@ class SummaryPage extends StatefulWidget {
 }
 
 class _SummaryPageState extends State<SummaryPage> {
-  PortfolioPerformance performance;
+  PortfolioSummary summary;
+
+  void initState() {
+    super.initState();
+  }
 
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -40,7 +44,7 @@ class _SummaryPageState extends State<SummaryPage> {
                 FutureBuilder(
                   future: Provider.of<PortfolioPerformanceNotifier>(context,
                           listen: true)
-                      .future,
+                      .futureSummary,
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.none:
@@ -50,14 +54,15 @@ class _SummaryPageState extends State<SummaryPage> {
                         return CupertinoActivityIndicator();
                       case ConnectionState.done:
                         if (snapshot.hasData) {
-                          performance = snapshot.data;
+                          summary = snapshot.data;
+                          print(summary);
                           return Column(
                             children: [
-                              RentabilityCard(performance),
+                              RentabilityCard(summary),
                               Row(
                                 children: [
-                                  Expanded(child: HighestHighsCard(performance)),
-                                  Expanded(child: LowestLowsCard(performance)),
+                                  Expanded(child: HighestHighsCard(summary.stocksVariation)),
+                                  Expanded(child: LowestLowsCard(summary.stocksVariation)),
                                 ],
                               ),
                             ],

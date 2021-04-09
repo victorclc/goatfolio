@@ -1,24 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
-import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
-import 'package:goatfolio/services/performance/model/stock_performance.dart';
+import 'package:goatfolio/services/performance/model/stock_variation.dart';
 
 void goToHighestPage(
-    BuildContext context, PortfolioPerformance performance, {bool sortAscending = false}) async {
+    BuildContext context, List<StockVariation> stocksVariation, {bool sortAscending = false}) async {
   await Navigator.push(
     context,
     CupertinoPageRoute(
-      builder: (context) => HighestPage(performance: performance, startAscending: sortAscending),
+      builder: (context) => HighestPage(stocksVariation: stocksVariation, startAscending: sortAscending),
     ),
   );
 }
 
 class HighestPage extends StatefulWidget {
-  final PortfolioPerformance performance;
+  final List<StockVariation> stocksVariation;
   final bool startAscending;
 
-  const HighestPage({Key key, this.performance, this.startAscending}) : super(key: key);
+  const HighestPage({Key key, this.stocksVariation, this.startAscending}) : super(key: key);
 
   @override
   _HighestPageState createState() => _HighestPageState();
@@ -27,7 +26,7 @@ class HighestPage extends StatefulWidget {
 class _HighestPageState extends State<HighestPage> {
   int sortColumnIndex;
   bool sortAscending;
-  List<StockPerformance> allStocks;
+  List<StockVariation> allStocks;
 
   @override
   void initState() {
@@ -37,8 +36,8 @@ class _HighestPageState extends State<HighestPage> {
     allStocks = sortByVariation(widget.startAscending);
   }
 
-  List<StockPerformance> sortByTicker(bool ascending) {
-    return (widget.performance.stocks + widget.performance.reits)
+  List<StockVariation> sortByTicker(bool ascending) {
+    return widget.stocksVariation
       ..sort((b, a) {
         if (ascending)
           return b.ticker.compareTo(a.ticker);
@@ -47,23 +46,23 @@ class _HighestPageState extends State<HighestPage> {
       });
   }
 
-  List<StockPerformance> sortByPrice(bool ascending) {
-    return (widget.performance.stocks + widget.performance.reits)
+  List<StockVariation> sortByPrice(bool ascending) {
+    return  widget.stocksVariation
       ..sort((b, a) {
         if (ascending)
-          return b.currentStockPrice.compareTo(a.currentStockPrice);
+          return b.lastPrice.compareTo(a.lastPrice);
         else
-          return a.currentStockPrice.compareTo(b.currentStockPrice);
+          return a.lastPrice.compareTo(b.lastPrice);
       });
   }
 
-  List<StockPerformance> sortByVariation(bool ascending) {
-    return (widget.performance.stocks + widget.performance.reits)
+  List<StockVariation> sortByVariation(bool ascending) {
+    return  widget.stocksVariation
       ..sort((b, a) {
         if (ascending)
-          return b.currentDayChangePercent.compareTo(a.currentDayChangePercent);
+          return b.variation.compareTo(a.variation);
         else
-          return a.currentDayChangePercent.compareTo(b.currentDayChangePercent);
+          return a.variation.compareTo(b.variation);
       });
   }
 
@@ -131,17 +130,17 @@ class _HighestPageState extends State<HighestPage> {
                               placeholder: true),
                           DataCell(
                             Text(
-                              moneyFormatter.format(e.currentStockPrice),
+                              moneyFormatter.format(e.lastPrice),
                               style: textTheme.textStyle.copyWith(fontSize: 16),
                             ),
                           ),
                           DataCell(
                             Text(
                               percentFormatter
-                                  .format(e.currentDayChangePercent / 100),
+                                  .format(e.variation / 100),
                               style: textTheme.textStyle.copyWith(
                                   fontSize: 16,
-                                  color: e.currentDayChangePercent >= 0
+                                  color: e.variation >= 0
                                       ? Colors.green
                                       : Colors.red),
                             ),
@@ -150,37 +149,5 @@ class _HighestPageState extends State<HighestPage> {
                     .toList(),
               )),
         )));
-  }
-
-  Widget buildList(BuildContext context) {
-    final textTheme = CupertinoTheme.of(context).textTheme;
-    List<Widget> children = [];
-    final stocks = widget.performance.stocks
-      ..sort((b, a) =>
-          a.currentDayChangePercent.compareTo(b.currentDayChangePercent));
-
-    stocks.forEach(
-      (s) {
-        children.add(Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(s.ticker, style: textTheme.textStyle.copyWith(fontSize: 14)),
-            Text(moneyFormatter.format(s.currentStockPrice)),
-            Text(
-              percentFormatter.format(s.currentDayChangePercent / 100),
-              style: textTheme.textStyle
-                  .copyWith(fontSize: 14, color: Colors.green),
-            ),
-          ],
-        ));
-        children.add(SizedBox(
-          height: 32,
-        ));
-      },
-    );
-
-    return Column(
-      children: children,
-    );
   }
 }

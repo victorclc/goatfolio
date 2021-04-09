@@ -1,8 +1,10 @@
 import 'dart:convert';
-
 import 'package:goatfolio/common/http/interceptor/logging.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
-import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
+import 'package:goatfolio/services/performance/model/portfolio_history.dart';
+import 'package:goatfolio/services/performance/model/portfolio_list.dart';
+import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
+import 'package:goatfolio/services/performance/model/ticker_consolidated_history.dart';
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_client_with_interceptor.dart';
 
@@ -16,13 +18,40 @@ class PerformanceClient {
             interceptors: [LoggingInterceptor()],
             requestTimeout: Duration(seconds: 30));
 
-  Future<PortfolioPerformance> getPortfolioPerformance() async {
+  Future<PortfolioList> getPortfolioPerformance() async {
     String accessToken = await userService.getSessionToken();
-    String url = baseUrl + "performance/monthly";
+    String url = baseUrl + "performance/portfolio";
     final Response response =
         await _client.get(url, headers: {'Authorization': accessToken});
-    final performance = jsonDecode(response.body);
 
-    return PortfolioPerformance.fromJson(performance);
+    return PortfolioList.fromJson(jsonDecode(response.body));
+  }
+
+  Future<PortfolioSummary> getPortfolioSummary() async {
+    String accessToken = await userService.getSessionToken();
+    String url = baseUrl + "performance/summary";
+    final Response response =
+        await _client.get(url, headers: {'Authorization': accessToken});
+
+    return PortfolioSummary.fromJson(jsonDecode(response.body));
+  }
+
+  Future<PortfolioHistory> getPortfolioRentabilityHistory() async {
+    String accessToken = await userService.getSessionToken();
+    String url = baseUrl + "performance/rentability";
+    final Response response =
+        await _client.get(url, headers: {'Authorization': accessToken});
+
+    return PortfolioHistory.fromJson(jsonDecode(response.body));
+  }
+
+  Future<TickerConsolidatedHistory> getTickerConsolidatedHistory(
+      String ticker) async {
+    String accessToken = await userService.getSessionToken();
+    String url = baseUrl + "performance/portfolio/$ticker";
+    final Response response =
+        await _client.get(url, headers: {'Authorization': accessToken});
+
+    return TickerConsolidatedHistory.fromJson(jsonDecode(response.body));
   }
 }

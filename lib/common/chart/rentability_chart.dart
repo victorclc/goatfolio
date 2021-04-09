@@ -24,8 +24,8 @@ class _RentabilityChartState extends State<RentabilityChart> {
   @override
   void initState() {
     super.initState();
-    selectedGrossSeries = widget.rentabilitySeries.first.data.last;
-    selectedIbovSeries = widget.rentabilitySeries.last.data.last;
+    // selectedGrossSeries = widget.rentabilitySeries.first.data.last;
+    // selectedIbovSeries = widget.rentabilitySeries.last.data.last;
   }
 
   void onSelectionChanged(Map<String, dynamic> series) {
@@ -51,7 +51,9 @@ class _RentabilityChartState extends State<RentabilityChart> {
                 style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
               ),
               Text(
-                percentFormatter.format(selectedGrossSeries.money / 100),
+                selectedGrossSeries != null
+                    ? percentFormatter.format(selectedGrossSeries.money / 100)
+                    : percentFormatter.format(0),
                 style: textTheme.textStyle
                     .copyWith(fontSize: 28, fontWeight: FontWeight.w500),
               ),
@@ -60,12 +62,16 @@ class _RentabilityChartState extends State<RentabilityChart> {
                 style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
               ),
               Text(
-                percentFormatter.format(selectedIbovSeries.money / 100),
+                selectedIbovSeries != null
+                    ? percentFormatter.format(selectedIbovSeries.money / 100)
+                    : percentFormatter.format(0),
                 style: textTheme.textStyle
                     .copyWith(fontSize: 20, fontWeight: FontWeight.w500),
               ),
               Text(
-                '${dateFormat.format(selectedGrossSeries.date).capitalize()} de ${selectedGrossSeries.date.year}',
+                selectedGrossSeries != null
+                    ? '${dateFormat.format(selectedGrossSeries.date).capitalize()} de ${selectedGrossSeries.date.year}'
+                    : '${dateFormat.format(DateTime.now()).capitalize()} de ${DateTime.now().year}',
                 style: textTheme.tabLabelTextStyle
                     .copyWith(fontSize: 16, fontWeight: FontWeight.w400),
               ),
@@ -74,10 +80,17 @@ class _RentabilityChartState extends State<RentabilityChart> {
         ),
         SizedBox(
           height: 240,
-          child: LinearChart(
-            widget.rentabilitySeries,
-            onSelectionChanged: onSelectionChanged,
-          ),
+          child: widget.rentabilitySeries != null
+              ? LinearChart(
+                  widget.rentabilitySeries,
+                  onSelectionChanged: onSelectionChanged,
+                )
+              : Center(
+                  child: Text(
+                    "Nenhum dado ainda.",
+                    style: textTheme.textStyle,
+                  ),
+                ),
         ),
       ],
     );

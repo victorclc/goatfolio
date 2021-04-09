@@ -3,29 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/pressable_card.dart';
 import 'package:goatfolio/pages/summary/screen/highest.dart';
-import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
-import 'package:goatfolio/services/performance/model/stock_performance.dart';
+import 'package:goatfolio/services/performance/model/stock_variation.dart';
 
 class LowestLowsCard extends StatefulWidget {
-  final PortfolioPerformance performance;
+  final List<StockVariation> stocksVariation;
 
-  const LowestLowsCard(this.performance, {Key key}) : super(key: key);
+  const LowestLowsCard(this.stocksVariation, {Key key}) : super(key: key);
 
   @override
   _LowestLowsCardState createState() => _LowestLowsCardState();
 }
 
 class _LowestLowsCardState extends State<LowestLowsCard> {
-  List<StockPerformance> lows;
+  List<StockVariation> lows;
 
   @override
   void initState() {
     super.initState();
-    lows = (widget.performance.stocks + widget.performance.reits)
-        .where((stock) => stock.currentDayChangePercent < 0)
+    lows = widget.stocksVariation
+        .where((stock) => stock.variation < 0)
         .toList()
           ..sort((a, b) =>
-              a.currentDayChangePercent.compareTo(b.currentDayChangePercent));
+              a.variation.compareTo(b.variation));
   }
 
   Widget buildTopFive(BuildContext context) {
@@ -70,7 +69,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
       ),
     );
     for (int i = 0; i < listSize; i++) {
-      StockPerformance stock = lows[i];
+      StockVariation stock = lows[i];
       list.add(Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -79,7 +78,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
             style: textTheme.textStyle.copyWith(fontSize: 14),
           ),
           Text(
-            percentFormatter.format(stock.currentDayChangePercent / 100),
+            percentFormatter.format(stock.variation / 100),
             style:
                 textTheme.textStyle.copyWith(fontSize: 14, color: Colors.red),
           ),
@@ -104,7 +103,7 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
       height: 226,
       child: PressableCard(
         cardPadding: EdgeInsets.only(left: 4, right: 16, top: 16, bottom: 16),
-        onPressed: () => goToHighestPage(context, widget.performance, sortAscending: true),
+        onPressed: () => goToHighestPage(context, widget.stocksVariation, sortAscending: true),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
