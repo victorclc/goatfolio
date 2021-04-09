@@ -173,7 +173,7 @@ class TickerConsolidatedHistory:
 @dataclass
 class PortfolioList:
     stock_gross_amount: Decimal
-    reits_gross_amount: Decimal
+    reit_gross_amount: Decimal
     bdr_gross_amount: Decimal
 
     stocks: list
