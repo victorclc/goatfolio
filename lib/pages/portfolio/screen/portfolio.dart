@@ -4,9 +4,11 @@ import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
 import 'package:goatfolio/common/widget/expansion_tile_custom.dart';
 import 'package:goatfolio/pages/portfolio/widget/donut_chart.dart';
+import 'package:goatfolio/services/performance/model/portfolio_list.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/services/performance/model/stock_position.dart';
 import 'package:goatfolio/services/performance/model/stock_performance.dart';
+import 'package:goatfolio/services/performance/model/stock_summary.dart';
 import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +28,7 @@ class PortfolioPage extends StatefulWidget {
 class _PortfolioPageState extends State<PortfolioPage> {
   Map<String, Rgb> colors = Map();
 
-  PortfolioPerformance performance;
+  PortfolioList portfolioList;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +43,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
           FutureBuilder(
             future:
                 Provider.of<PortfolioPerformanceNotifier>(context, listen: true)
-                    .future,
+                    .futureList,
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.none:
@@ -51,7 +53,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                   return CupertinoActivityIndicator();
                 case ConnectionState.done:
                   if (snapshot.hasData) {
-                    performance = snapshot.data;
+                    portfolioList = snapshot.data;
                     return Column(
                       children: [
                         Container(
@@ -84,19 +86,19 @@ class _PortfolioPageState extends State<PortfolioPage> {
                         ),
                         InvestmentTypeExpansionTile(
                           title: 'Ações/ETFs',
-                          grossAmount: performance.stockGrossAmount,
-                          items: performance.stocks,
+                          grossAmount: portfolioList.stockGrossAmount,
+                          items: portfolioList.stocks,
                           colors: colors,
-                          totalAmount: performance.grossAmount,
-                          ibovHistory: performance.ibovHistory,
+                          totalAmount: portfolioList.grossAmount,
+                          ibovHistory: portfolioList.ibovHistory,
                         ),
                         InvestmentTypeExpansionTile(
                           title: 'FIIs',
-                          grossAmount: performance.reitGrossAmount,
-                          items: performance.reits,
+                          grossAmount: portfolioList.reitGrossAmount,
+                          items: portfolioList.reits,
                           colors: colors,
-                          totalAmount: performance.grossAmount,
-                          ibovHistory: performance.ibovHistory,
+                          totalAmount: portfolioList.grossAmount,
+                          ibovHistory: portfolioList.ibovHistory,
                         ),
                       ],
                     );
@@ -137,15 +139,15 @@ class _PortfolioPageState extends State<PortfolioPage> {
   }
 
   List<charts.Series<TickerTotals, String>> buildStockSeries() {
-    final stocks = performance.stocks;
+    final stocks = portfolioList.stocks;
     List<TickerTotals> data = stocks.map((p) {
       final color = Rgb.random();
       colors[p.ticker] = color;
-      if (p.currentAmount <= 0) {
+      if (p.amount <= 0) {
         return null;
       }
       return TickerTotals(
-          p.ticker, p.currentAmount * p.currentStockPrice, color);
+          p.ticker, p.grossAmount, color);
     }).toList()
       ..removeWhere((element) => element == null);
     return [
@@ -164,15 +166,15 @@ class _PortfolioPageState extends State<PortfolioPage> {
   }
 
   List<charts.Series<TickerTotals, String>> buildReitSeries() {
-    final stocks = performance.reits;
+    final stocks = portfolioList.reits;
     List<TickerTotals> data = stocks.map((p) {
       final color = Rgb.random();
       colors[p.ticker] = color;
-      if (p.currentAmount <= 0) {
+      if (p.amount <= 0) {
         return null;
       }
       return TickerTotals(
-          p.ticker, p.currentAmount * p.currentStockPrice, color);
+          p.ticker, p.grossAmount, color);
     }).toList()
       ..removeWhere((element) => element == null);
     return [
@@ -193,15 +195,15 @@ class _PortfolioPageState extends State<PortfolioPage> {
   List<charts.Series<TickerTotals, String>> buildSubtypeSeries() {
     List<TickerTotals> data = [];
 
-    if (performance.stockGrossAmount > 0) {
+    if (portfolioList.stockGrossAmount > 0) {
       colors['Ações/ETFs'] = Rgb.random();
       data.add(TickerTotals(
-          'Ações/ETFs', performance.stockGrossAmount, colors['Ações/ETFs']));
+          'Ações/ETFs', portfolioList.stockGrossAmount, colors['Ações/ETFs']));
     }
-    if (performance.reitGrossAmount > 0) {
+    if (portfolioList.reitGrossAmount > 0) {
       colors['FIIs'] = Rgb.random();
       data.add(
-          TickerTotals('FIIs', performance.reitGrossAmount, colors['FIIs']));
+          TickerTotals('FIIs', portfolioList.reitGrossAmount, colors['FIIs']));
     }
 
     return [
@@ -253,7 +255,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
   final String title;
   final double grossAmount;
   final double totalAmount;
-  final List<StockPerformance> items;
+  final List<StockSummary> items;
   final Map<String, Rgb> colors;
   final List<StockPosition> ibovHistory;
 
@@ -342,7 +344,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
               var color = rgb.toColor();
 
               return StockInvestmentSummaryItem(
-                performance: item,
+                summary: item,
                 color: color,
                 portfolioTotalAmount: totalAmount,
                 typeTotalAmount: grossAmount,
@@ -358,7 +360,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
 }
 
 class StockInvestmentSummaryItem extends StatelessWidget {
-  final StockPerformance performance;
+  final StockSummary summary;
   final Color color;
   final double portfolioTotalAmount;
   final double typeTotalAmount;
@@ -366,7 +368,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
 
   const StockInvestmentSummaryItem(
       {Key key,
-      @required this.performance,
+      @required this.summary,
       this.portfolioTotalAmount,
       @required this.color,
       this.typeTotalAmount, this.ibovHistory})
@@ -376,14 +378,14 @@ class StockInvestmentSummaryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
 
-    final currentValue = performance.currentAmount *
-        (performance.currentStockPrice != null
-            ? performance.currentStockPrice
+    final currentValue = summary.amount *
+        (summary.currentPrice != null
+            ? summary.currentPrice
             : 0.0);
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: () {
-        navigateToInvestmentDetails(context, performance, color, ibovHistory);
+        navigateToInvestmentDetails(context, summary, color, ibovHistory);
       },
       child: Container(
         child: Column(
@@ -399,7 +401,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                     color: color,
                   ),
                   Text(
-                    " ${performance.ticker.replaceAll('.SA', '')}",
+                    " ${summary.ticker.replaceAll('.SA', '')}",
                     style: textTheme.textStyle.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -438,10 +440,10 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                 ),
                 Text(
                   moneyFormatter
-                      .format(currentValue - performance.currentInvested),
+                      .format(currentValue - summary.investedAmount),
                   style: textTheme.textStyle.copyWith(
                       fontSize: 16,
-                      color: currentValue - performance.currentInvested < 0
+                      color: currentValue - summary.investedAmount < 0
                           ? Colors.red
                           : Colors.green),
                   // style: coloredStyle,
@@ -463,8 +465,8 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  percentFormatter.format((performance.currentStockPrice *
-                          performance.currentAmount) /
+                  percentFormatter.format((summary.currentPrice *
+                          summary.amount) /
                       typeTotalAmount),
                   style: textTheme.textStyle.copyWith(fontSize: 16),
                 ),
@@ -482,8 +484,8 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  percentFormatter.format((performance.currentStockPrice *
-                          performance.currentAmount) /
+                  percentFormatter.format((summary.currentPrice *
+                          summary.amount) /
                       portfolioTotalAmount),
                   style: textTheme.textStyle.copyWith(fontSize: 16),
                 ),
