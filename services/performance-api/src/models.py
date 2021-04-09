@@ -97,7 +97,7 @@ class StockConsolidated:
 
     def to_dict(self):
         return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
-                'history': sorted([h.to_dict() for h in self.history], key=lambda h: h.date)}
+                'history': sorted([h.to_dict() for h in self.history], key=lambda h: h['date'])}
 
 
 @dataclass

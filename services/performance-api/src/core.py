@@ -365,9 +365,9 @@ class PerformanceCore:
 
 
 if __name__ == '__main__':
-    investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-    # print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
+    investmentss = InvestmentRepository().find_by_subject('632d0404-53ba-4010-a0c7-b577696f717e')
+    print(SafePerformanceCore().consolidate_portfolio('632d0404-53ba-4010-a0c7-b577696f717e', investmentss, []))
     # print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    print(SafePerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
+    # print(SafePerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
