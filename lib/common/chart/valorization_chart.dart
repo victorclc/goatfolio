@@ -24,8 +24,8 @@ class _ValorizationChartState extends State<ValorizationChart> {
   @override
   void initState() {
     super.initState();
-    selectedGrossSeries = widget.totalAmountSeries.first.data.last;
-    selectedInvestedSeries = widget.totalAmountSeries.last.data.last;
+    // selectedGrossSeries = widget.totalAmountSeries.first.data.last;
+    // selectedInvestedSeries = widget.totalAmountSeries.last.data.last;
   }
 
   void onSelectionChanged(Map<String, dynamic> series) {
@@ -51,7 +51,9 @@ class _ValorizationChartState extends State<ValorizationChart> {
                 style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
               ),
               Text(
-                moneyFormatter.format(selectedGrossSeries.money),
+                selectedGrossSeries != null
+                    ? moneyFormatter.format(selectedGrossSeries.money)
+                    : moneyFormatter.format(0),
                 style: textTheme.textStyle
                     .copyWith(fontSize: 28, fontWeight: FontWeight.w500),
               ),
@@ -60,12 +62,16 @@ class _ValorizationChartState extends State<ValorizationChart> {
                 style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
               ),
               Text(
-                moneyFormatter.format(selectedInvestedSeries.money),
+                selectedInvestedSeries != null
+                    ? moneyFormatter.format(selectedInvestedSeries.money)
+                    : moneyFormatter.format(0),
                 style: textTheme.textStyle
                     .copyWith(fontSize: 20, fontWeight: FontWeight.w500),
               ),
               Text(
-                '${dateFormat.format(selectedGrossSeries.date).capitalize()} de ${selectedGrossSeries.date.year}',
+                selectedGrossSeries != null
+                    ? '${dateFormat.format(selectedGrossSeries.date).capitalize()} de ${selectedGrossSeries.date.year}'
+                    : '${dateFormat.format(DateTime.now()).capitalize()} de ${DateTime.now().year}',
                 style: textTheme.tabLabelTextStyle
                     .copyWith(fontSize: 16, fontWeight: FontWeight.w400),
               ),
@@ -74,10 +80,17 @@ class _ValorizationChartState extends State<ValorizationChart> {
         ),
         SizedBox(
           height: 240,
-          child: LinearChart(
-            widget.totalAmountSeries,
-            onSelectionChanged: onSelectionChanged,
-          ),
+          child: widget.totalAmountSeries != null
+              ? LinearChart(
+                  widget.totalAmountSeries,
+                  onSelectionChanged: onSelectionChanged,
+                )
+              : Center(
+                  child: Text(
+                    "Nenhum dado ainda.",
+                    style: textTheme.textStyle,
+                  ),
+                ),
         ),
       ],
     );
