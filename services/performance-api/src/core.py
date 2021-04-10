@@ -166,7 +166,7 @@ class SafePerformanceCore:
             if prev_month_amount > 0:
                 month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start)
                 prev_month_gross_amount = prev_month_gross_amount + month_data.close * prev_month_amount
-                month_variation = month_variation - stock.value_invested_current_month
+            month_variation = month_variation - stock.value_invested_current_month
 
             stock_variation.append(StockVariation(stock.ticker, data.change, data.price))
 
@@ -366,7 +366,7 @@ class PerformanceCore:
 
 if __name__ == '__main__':
     investmentss = InvestmentRepository().find_by_subject('632d0404-53ba-4010-a0c7-b577696f717e')
-    print(SafePerformanceCore().consolidate_portfolio('632d0404-53ba-4010-a0c7-b577696f717e', investmentss, []))
+    print(SafePerformanceCore().consolidate_portfolio('632d0404-53ba-4010-a0c7-b577696f717e', [],  investmentss))
     # print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
