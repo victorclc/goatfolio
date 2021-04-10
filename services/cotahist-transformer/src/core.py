@@ -30,7 +30,7 @@ class CotaHistTransformerCore:
                 data = B3DailySeries(line)
                 if data.codigo_bdi not in [BDICodes.STOCK, BDICodes.FII, BDICodes.ETF]:
                     continue
-                series.append(data.row)
+                series.append(data)
 
         self.repo.save(series)
         self.bucket.move_file_to_archive(bucket_name, file_path)
