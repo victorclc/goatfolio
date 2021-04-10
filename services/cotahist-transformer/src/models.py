@@ -38,6 +38,18 @@ class B3DailySeries:
         self.codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel = line[230:242]
         self.numero_distribuicao_papel = line[242:245]
 
+    @staticmethod
+    def columns_names():
+        return ['ticker', 'candle_date', 'company_name', 'open_price', 'close_price', 'average_price', 'max_price',
+                'min_price', 'best_ask', 'best_bid', 'volume', 'isin_code']
+
+    @property
+    def row(self):
+        return [self.codigo_negociacao, self.data_pregao, self.nome_resumido_empresa_emissora, self.preco_abertura,
+                self.preco_ultimo, self.preco_medio, self.preco_maximo, self.preco_minimo,
+                self.preco_melhor_oferta_compra, self.preco_melhor_oferta_venda, self.numero_de_negocios,
+                self.codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel]
+
     def create_statement(self):
         return f'INSERT INTO b3_daily_chart ' \
                f'(ticker, candle_date, company_name, open_price, close_price, average_price, max_price, min_price, best_ask, best_bid, volume) values ' \
