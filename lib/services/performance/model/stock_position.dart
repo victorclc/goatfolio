@@ -6,7 +6,7 @@ class StockPosition {
   double investedAmount;
 
   StockPosition.fromJson(Map<String, dynamic> json)
-      : date = DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000),
+      : date = DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000, isUtc: true),
         openPrice = json['open_price'],
         closePrice = json['close_price'],
         amount = json['amount'],

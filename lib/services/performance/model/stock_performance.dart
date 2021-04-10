@@ -19,7 +19,7 @@ class StockPerformance {
   StockPerformance.fromJson(Map<String, dynamic> json)
       : ticker = json['ticker'],
         initialDate =
-        DateTime.fromMillisecondsSinceEpoch(json['initial_date'] * 1000),
+        DateTime.fromMillisecondsSinceEpoch(json['initial_date'] * 1000, isUtc: true),
         currentStockPrice = json['current_stock_price'],
         boughtAmount = json['bought_amount'],
         soldAmount = json['sold_amount'],

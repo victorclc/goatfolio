@@ -38,7 +38,7 @@ class StockInvestment {
   StockInvestment.fromJson(Map<String, dynamic> json)
       : type = json['type'],
         operation = json['operation'],
-        date = DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000),
+        date = DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000, isUtc: true),
         broker = json['broker'],
         id = json['id'],
         subject = json['subject'],

@@ -4,7 +4,7 @@ class PortfolioPosition {
   double grossAmount;
 
   PortfolioPosition.fromJson(Map<String, dynamic> json)
-      : date = DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000),
+      : date = DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000, isUtc: true),
         totalInvested = json['total_invested'],
         grossAmount = json['gross_amount'];
 }

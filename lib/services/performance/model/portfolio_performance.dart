@@ -29,7 +29,7 @@ class PortfolioPerformance {
         prevStockGrossAmount = json['stock_prev_gross_amount'],
         prevReitGrossAmount = json['reit_prev_gross_amount'],
         initialDate =
-            DateTime.fromMillisecondsSinceEpoch(json['initial_date'] * 1000),
+            DateTime.fromMillisecondsSinceEpoch(json['initial_date'] * 1000, isUtc: true),
         stocks = json['stocks']
             .map<StockPerformance>((json) => StockPerformance.fromJson(json))
             .toList(),
