@@ -24,6 +24,7 @@ class CotaHistTransformerCore:
         downloaded_path = self.bucket.download_file(bucket_name, file_path)
         series = []
         with open(downloaded_path, 'r') as fp:
+            logger.info(f'Reading file: {downloaded_path}')
             for line in fp:
                 if line.startswith('99COTAHIST') or line.startswith('00COTAHIST'):
                     continue
@@ -31,7 +32,7 @@ class CotaHistTransformerCore:
                 if data.codigo_bdi not in [BDICodes.STOCK, BDICodes.FII, BDICodes.ETF]:
                     continue
                 series.append(data)
-
+        logger.info(f'Finish reading.')
         self.repo.save(series)
         self.bucket.move_file_to_archive(bucket_name, file_path)
 

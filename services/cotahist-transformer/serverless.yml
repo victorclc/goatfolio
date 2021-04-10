@@ -46,6 +46,12 @@ custom:
 functions:
   transformCotaHist:
     handler: handlers.transform_cota_hist_handler
+    securityGroupIds:
+      - sg-15f9666f
+    subnetIds:
+      - subnet-0bf5cf71
+      - subnet-35caa879
+      - subnet-addc10c6
     events:
       - s3:
           bucket: ${self:provider.stage}-b3cotahist
@@ -54,3 +60,20 @@ functions:
             - prefix: monthly/
             - suffix: .TXT
 
+resources:
+  Resources:
+    AWSLambdaVPCAccessExecutionRole:
+      Type: AWS::IAM::ManagedPolicy
+      Properties:
+        Description: Creating policy for vpc connetion.
+        Roles:
+          - { "Ref": "IamRoleLambdaExecution" }
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - ec2:CreateNetworkInterface
+                - ec2:DescribeNetworkInterfaces
+                - ec2:DeleteNetworkInterface
+              Resource: "*"
