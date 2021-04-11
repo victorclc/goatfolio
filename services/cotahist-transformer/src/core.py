@@ -32,7 +32,7 @@ class CotaHistTransformerCore:
                 min_price = min([i.preco_minimo for i in investments])
                 average_price = (sum([i.preco_medio for i in investments]) / len(investments)).quantize(Decimal('0.01'))
                 volume = sum([i.numero_de_negocios for i in investments])
-                date = datetime.strptime(investments[0].data_pregao[:7] + '-01', '%Y-%m-%d')
+                date = datetime.strptime(investments[0].data_pregao[:7] + '-01', '%Y-%m-%d').date()
                 isin_code = investments[0].codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel
 
                 data = B3CotaHistData()
