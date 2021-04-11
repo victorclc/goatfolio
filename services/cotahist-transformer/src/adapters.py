@@ -61,5 +61,5 @@ class CotaHistRepository:
     def save(self, series: List[B3CotaHistData]):
         dataframe = DataFrame([s.row for s in series], columns=B3CotaHistData.columns_names())
         logger.info('Saving to database')
-        dataframe.to_sql('b3_monthly_chart', con=self._engine, if_exists='append', index=False)
+        dataframe.to_sql('b3_monthly_chart', con=self._get_engine(), if_exists='append', index=False)
         logger.info('Saved on database')
