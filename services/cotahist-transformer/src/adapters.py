@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import List
 
 import boto3 as boto3
@@ -16,17 +17,23 @@ logger.setLevel(logging.INFO)
 class B3CotaHistBucket:
     def __init__(self):
         self.s3 = boto3.client('s3')
+        self._downloaded_files = []
 
     def download_file(self, bucket, file_path):
         destination = f"/tmp/{file_path.split('/')[-1]}"
         logger.info(f'Downloading to: {destination}')
         self.s3.download_file(bucket, file_path, destination)
         logger.info(f'Download finish')
+        self._downloaded_files.append(destination)
         return destination
 
     def move_file_to_archive(self, bucket, file_path):
         self.s3.copy_object(Bucket=bucket, CopySource=f'{bucket}/{file_path}', Key=f"archive/{file_path}")
         self.s3.delete_object(Bucket=bucket, Key=file_path)
+
+    def clean_up(self):
+        for file in self._downloaded_files:
+            os.system(f'rm -f {file}')
 
 
 class CotaHistRepository:
