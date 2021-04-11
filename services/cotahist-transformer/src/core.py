@@ -13,8 +13,11 @@ logger.setLevel(logging.INFO)
 
 class CotaHistTransformerCore:
     def __init__(self):
+        logger.info('Importing bucket')
         self.bucket = B3CotaHistBucket()
+        logger.info('Importing repo')
         self.repo = CotaHistRepository()
+        logger.info('Imported')
 
     def transform_cota_hist(self, bucket_name, file_path):
         daily_series = self._load_series_from_file(bucket_name, file_path)

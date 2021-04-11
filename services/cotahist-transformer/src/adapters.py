@@ -6,7 +6,7 @@ import boto3 as boto3
 
 from goatcommons.utils import JsonUtils
 from models import B3CotaHistData
-import pandas as pd
+from pandas import DataFrame
 from sqlalchemy import create_engine
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -59,7 +59,7 @@ class CotaHistRepository:
         return self._engine
 
     def save(self, series: List[B3CotaHistData]):
-        dataframe = pd.DataFrame([s.row for s in series], columns=B3CotaHistData.columns_names())
+        dataframe = DataFrame([s.row for s in series], columns=B3CotaHistData.columns_names())
         logger.info('Saving to database')
         dataframe.to_sql('b3_monthly_chart', con=self._engine, if_exists='append', index=False)
         logger.info('Saved on database')
