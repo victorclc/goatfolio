@@ -56,7 +56,13 @@ functions:
     events:
       - s3:
           bucket: ${self:provider.stage}-b3cotahist
-          event: s3:ObjectCreated:*
+          event: s3:ObjectCreated:Put
+          rules:
+            - prefix: monthly/
+            - suffix: .TXT
+      - s3:
+          bucket: ${self:provider.stage}-b3cotahist
+          event: s3:ObjectCreated:CompleteMultipartUpload
           rules:
             - prefix: monthly/
             - suffix: .TXT
