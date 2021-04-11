@@ -4,7 +4,7 @@ from typing import List
 import boto3 as boto3
 
 from goatcommons.utils import JsonUtils
-from models import B3DailySeries
+from models import B3CotaHistData
 import pandas as pd
 from sqlalchemy import create_engine
 
@@ -43,6 +43,8 @@ class CotaHistRepository:
         self._engine = create_engine(
             f'postgresql://{self._username}:{self._password}@{self._host}:{self._port}/marketdata')
 
-    def save(self, series: List[B3DailySeries]):
-        dataframe = pd.DataFrame([s.row for s in series], columns=B3DailySeries.columns_names())
-        dataframe.to_sql('test_monthly_data', con=self._engine, if_exists='append')
+    def save(self, series: List[B3CotaHistData]):
+        dataframe = pd.DataFrame([s.row for s in series], columns=B3CotaHistData.columns_names())
+        logger.info('Saving to database')
+        dataframe.to_sql('teste_monthly_and_yearly_monthly_chart', con=self._engine, if_exists='append', index=False)
+        logger.info('Saved on database')

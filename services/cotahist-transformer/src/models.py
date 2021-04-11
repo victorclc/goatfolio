@@ -7,8 +7,54 @@ class BDICodes:
     ETF = '14'
 
 
-class B3DailySeries:
-    def __init__(self, line: str):
+class B3CotaHistData:
+    def __init__(self):
+        self.codigo_negociacao = None
+        self.data_pregao = None
+        self.nome_resumido_empresa_emissora = None
+        self.preco_abertura = None
+        self.preco_ultimo = None
+        self.preco_medio = None
+        self.preco_maximo = None
+        self.preco_minimo = None
+        self.preco_melhor_oferta_compra = None
+        self.preco_melhor_oferta_venda = None
+        self.numero_de_negocios = None
+        self.codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel = None
+
+        self.tipo_registro = None
+        self.codigo_bdi = None
+        self.tipo_mercado = None
+        self.especificacao_papel = None
+        self.prazo_dias_mercado_a_termo = None
+        self.moeda_referencia = None
+        self.quantidade_total_titulos_negociados = None
+        self.volume_total_titulos_negociados = None
+        self.preco_exercicio_mercado_opcoes_ou_valor_contrato_mercado_termo_secundario = None
+        self.indicador_correcao_precos_exercicios_ou_valores_contrato_mercado_termo_secundario = None
+        self.data_vencimento_mercado_opcoes_ou_termo = None
+        self.fator_de_cotacao = None
+        self.preco_exercicio_para_opcoes_referenciadas_em_dolar = None
+        self.numero_distribuicao_papel = None
+
+    def load_essentials(self, codigo_negociacao, data_pregao, nome_resumido_empresa_emissora, preco_abertura,
+                        preco_ultimo,
+                        preco_medio, preco_maximo, preco_minimo, preco_melhor_oferta_compra, preco_melhor_oferta_venda,
+                        numero_de_negocios, codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel):
+        self.codigo_negociacao = codigo_negociacao
+        self.data_pregao = data_pregao
+        self.nome_resumido_empresa_emissora = nome_resumido_empresa_emissora
+        self.preco_abertura = preco_abertura
+        self.preco_ultimo = preco_ultimo
+        self.preco_medio = preco_medio
+        self.preco_maximo = preco_maximo
+        self.preco_minimo = preco_minimo
+        self.preco_melhor_oferta_compra = preco_melhor_oferta_compra
+        self.preco_melhor_oferta_venda = preco_melhor_oferta_venda
+        self.numero_de_negocios = numero_de_negocios
+        self.codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel = codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel
+
+    def load_line(self, line: str):
         self.tipo_registro = line[0:2]
         self.data_pregao = f'{line[2:6]}-{line[6:8]}-{line[8:10]}'
         self.codigo_bdi = line[10:12]
