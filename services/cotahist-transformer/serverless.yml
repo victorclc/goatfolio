@@ -2,6 +2,7 @@ service: cotahist-transformer
 
 provider:
   name: aws
+  memorySize: 2048
   region: us-east-2
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
