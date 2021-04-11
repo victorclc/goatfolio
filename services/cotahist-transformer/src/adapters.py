@@ -32,6 +32,7 @@ class B3CotaHistBucket:
 class CotaHistRepository:
     def __init__(self):
         _secrets_client = boto3.client("secretsmanager")
+        # TODO put secret id on env variaable
         secret = JsonUtils.load(_secrets_client.get_secret_value(
             SecretId='rds-db-credentials/cluster-B7EKYQNIWMBMYI6I6DNK6ICBEE/postgres')['SecretString'])
 
@@ -46,5 +47,5 @@ class CotaHistRepository:
     def save(self, series: List[B3CotaHistData]):
         dataframe = pd.DataFrame([s.row for s in series], columns=B3CotaHistData.columns_names())
         logger.info('Saving to database')
-        dataframe.to_sql('teste_monthly_and_yearly_monthly_chart', con=self._engine, if_exists='append', index=False)
+        dataframe.to_sql('b3_monthly_chart', con=self._engine, if_exists='append', index=False)
         logger.info('Saved on database')
