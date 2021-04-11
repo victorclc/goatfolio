@@ -48,8 +48,15 @@ class CotaHistRepository:
         self._port = secret['port']
         self._host = secret['host']
 
-        self._engine = create_engine(
-            f'postgresql://{self._username}:{self._password}@{self._host}:{self._port}/marketdata')
+        self._engine = None
+
+    def _get_engine(self):
+        if self._engine is None:
+            logger.info('Creating engine')
+            self._engine = create_engine(
+                f'postgresql://{self._username}:{self._password}@{self._host}:{self._port}/marketdata')
+            logger.info('Engine created')
+        return self._engine
 
     def save(self, series: List[B3CotaHistData]):
         dataframe = pd.DataFrame([s.row for s in series], columns=B3CotaHistData.columns_names())
