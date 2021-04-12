@@ -54,7 +54,7 @@ functions:
         - sg-15f9666f
       subnetIds:
         - subnet-0525b98aa3176a425
-        - subnet-0f2a8d4b2c04a5b6a
+#        - subnet-0f2a8d4b2c04a5b6a
     events:
       - s3:
           bucket: ${self:provider.stage}-b3cotahist
