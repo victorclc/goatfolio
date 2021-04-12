@@ -43,14 +43,12 @@ class CotaHistTransformerCore:
                                      min_price, None, None, volume, isin_code)
                 monthly_series.append(data)
 
-        print(monthly_series)
-        # self.repo.save(monthly_series)
-        # self.bucket.move_file_to_archive(bucket_name, file_path)
-        # self.bucket.clean_up()
+        self.repo.save(monthly_series)
+        self.bucket.move_file_to_archive(bucket_name, file_path)
+        self.bucket.clean_up()
 
     def _load_series_from_file(self, bucket_name, file_path):
-        # downloaded_path = self.bucket.download_file(bucket_name, file_path)
-        downloaded_path = 'C:\\Users\\victorclc\\Downloads\\COTAHIST_A2012.txt'
+        downloaded_path = self.bucket.download_file(bucket_name, file_path)
         series = []
         with open(downloaded_path, 'r') as fp:
             logger.info(f'Reading file: {downloaded_path}')
