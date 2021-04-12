@@ -50,17 +50,24 @@ class CotaHistTransformerCore:
     def _load_series_from_file(self, bucket_name, file_path):
         downloaded_path = self.bucket.download_file(bucket_name, file_path)
         series = []
-        with open(downloaded_path, 'r') as fp:
-            logger.info(f'Reading file: {downloaded_path}')
-            for line in fp:
-                if line.startswith('99COTAHIST') or line.startswith('00COTAHIST'):
-                    continue
-                data = B3CotaHistData()
-                data.load_line(line)
-                if data.codigo_bdi not in [BDICodes.STOCK, BDICodes.FII, BDICodes.ETF]:
-                    continue
-                series.append(data)
-        logger.info(f'Finish reading.')
+        count = 0
+
+        try:
+            with open(downloaded_path, 'r') as fp:
+                logger.info(f'Reading file: {downloaded_path}')
+                for line in fp:
+                    count = count + 1
+                    if line.startswith('99COTAHIST') or line.startswith('00COTAHIST'):
+                        continue
+                    data = B3CotaHistData()
+                    data.load_line(line)
+                    if data.codigo_bdi not in [BDICodes.STOCK, BDICodes.FII, BDICodes.ETF]:
+                        continue
+                    series.append(data)
+            logger.info(f'Finish reading.')
+        except UnicodeDecodeError as ex:
+            logger.info(f'Last processed line: {count}')
+            raise ex
         return series
 
 
