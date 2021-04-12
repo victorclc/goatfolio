@@ -39,10 +39,11 @@ class B3CotaHistBucket:
 class CotaHistRepository:
     def __init__(self):
         _secrets_client = boto3.client("secretsmanager")
+        logger.info('loading secret')
         # TODO put secret id on env variaable
         secret = JsonUtils.load(_secrets_client.get_secret_value(
             SecretId='rds-db-credentials/cluster-B7EKYQNIWMBMYI6I6DNK6ICBEE/postgres')['SecretString'])
-
+        logger.info('Secret loaded')
         self._username = secret['username']
         self._password = secret['password']
         self._port = secret['port']
