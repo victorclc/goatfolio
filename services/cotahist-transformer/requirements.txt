@@ -11,3 +11,5 @@ s3transfer==0.3.6
 six==1.15.0
 SQLAlchemy==1.4.7
 urllib3==1.26.4
+
+requests~=2.25.1
