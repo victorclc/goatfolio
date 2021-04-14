@@ -7,8 +7,6 @@ provider:
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
   timeout: 60
-  tracing:
-    lambda: true
   environment:
     PYTHONPATH: "src:libs"
   iamRoleStatements:
