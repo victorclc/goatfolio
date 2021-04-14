@@ -42,7 +42,7 @@ class CorporateEventsCore:
             table.columns = ['proventos', 'codigo_isin', 'deliberado_em', 'negocios_com_ate',
                              'fator_de_grupamento_perc', 'ativo_emitido', 'observacoes']
 
-            table.to_sql('b3_corporate_events', con=self.repo.get_engine(), if_exists='append')
+            table.to_sql('b3_corporate_events', con=self.repo.get_engine(), if_exists='append', index=False)
 
         self.bucket.move_file_to_archive(bucket_name, file_path)
         self.bucket.clean_up()
