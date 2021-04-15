@@ -100,7 +100,7 @@ functions:
     events:
       - sqs:
           arn:
-            'Fn::ImportValue': ${self:provider.stage}-AddInvestmentQueueArn
+            Fn::GetAtt: [ AddInvestmentQueue, Arn ]
 
 resources:
   Resources:
@@ -132,6 +132,7 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: AddInvestmentQueueDLQ
+
   Outputs:
     AddInvestmentQueueArn:
       Value:
