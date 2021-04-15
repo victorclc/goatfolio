@@ -95,6 +95,13 @@ functions:
   batchAddInvestments:
     handler: src/handlers.batch_add_investments_handler
 
+  asyncAddInvestment:
+    handler: src/handlers.async_add_investment_handler
+    events:
+      - sqs:
+          arn:
+            'Fn::ImportValue': ${self:provider.stage}-AddInvestmentQueueArn
+
 resources:
   Resources:
     ApiGatewayAuthorizer:
@@ -108,3 +115,26 @@ resources:
         Type: COGNITO_USER_POOLS
         ProviderARNs:
           - 'Fn::ImportValue': ${self:provider.stage}-GoatfolioAppUserPoolArnOutput
+
+  AddInvestmentQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "CeiImportResultDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+      QueueName: CeiImportResult
+      VisibilityTimeout: 300
+
+  AddInvestmentQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: CeiImportResultDLQ
+
+  CeiImportRequestQueueArn:
+    Value:
+      Fn::GetAtt: [ AddInvestmentQueue, Arn ]
+    Export:
+      Name: ${self:provider.stage}-AddInvestmentQueueArn

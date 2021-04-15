@@ -92,3 +92,11 @@ def batch_add_investments_handler(event, context):
     except Exception as e:
         traceback.print_exc()
         raise e
+
+
+def async_add_investment_handler(event, context):
+    logger.info(f"EVENT: {event}")
+    for message in event['Records']:
+        logger.info(f'Processing message: {message}')
+        request = InvestmentRequest(**JsonUtils.load(message['body']))
+        core.add(request.subject, request)

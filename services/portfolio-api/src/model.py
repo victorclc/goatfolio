@@ -7,3 +7,4 @@ from goatcommons.constants import InvestmentsType
 class InvestmentRequest:
     type: InvestmentsType
     investment: dict
+    subject: str = None
