@@ -42,6 +42,14 @@ class CorporateEventsCore:
             table.columns = ['proventos', 'codigo_isin', 'deliberado_em', 'negocios_com_ate',
                              'fator_de_grupamento_perc', 'ativo_emitido', 'observacoes']
 
+            for i, row in table.iterrows():
+                sql = f"DELETE FROM b3_corporate_events WHERE codigo_isin = '{row.codigo_isin}' " \
+                      f"and proventos = '{row.proventos}' and deliberado_em = '{row.deliberado_em}' " \
+                      f"and negocios_com_ate = '{row.negocios_com_ate}' and ativo_emitiro = '{row.ativo_emitido}'" \
+                      f"and fator_de_grupamento_perc = '{row.fator_de_grupamento_perc}'"
+                engine = self.repo.get_engine()
+                engine.execute(sql)
+
             table.to_sql('b3_corporate_events', con=self.repo.get_engine(), if_exists='append', index=False)
 
         self.bucket.move_file_to_archive(bucket_name, file_path)
