@@ -60,6 +60,7 @@ class _PreFixedInvestmentBase:
 
 @dataclass
 class StockInvestment(Investment, _StockInvestmentsBase):
+    alias_ticker: str = ''
 
     def __post_init__(self):
         if not isinstance(self.date, datetime):
