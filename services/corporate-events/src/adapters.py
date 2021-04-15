@@ -29,12 +29,17 @@ class InvestmentRepository:
 
 class B3CorporateEventsData:
     URL = 'https://sistemaswebb3-listados.b3.com.br/dividensOtherCorpActProxy/DivOtherCorpActCall/GetListDivOtherCorpActions/eyJsYW5ndWFnZSI6InB0LWJyIn0='
-    DATE_FORMAT = '13/%m/%Y'
+    DATE_FORMAT = '%d/%m/%Y'
+    ALTERNATIVE_DATE_FORMAT = '%m/%d/%Y'  # for some reason sometimes de API return day/month/year and other times month/day/year
 
     def get_updated_corporate_events_link(self, date) -> List[CorporateEventData]:
         data = requests.get(self.URL, verify=False).json()
         logger.info(f'b3 corporate events response: {data}')
         filtered_data = list(filter(lambda i: i['date'] == date.strftime(self.DATE_FORMAT), data))
+        if not filtered_data:
+            logger.info('trying alternative date format')
+            filtered_data = list(
+                filter(lambda i: i['date'] == date.strftime(self.ALTERNATIVE_DATE_FORMAT), data))
 
         if not filtered_data:
             logger.info(f'No corporate events for {date.strftime(self.DATE_FORMAT)}')
@@ -71,7 +76,6 @@ class B3CorporateEventsBucket:
 class CorporateEventsRepository:
     def __init__(self):
         _secrets_client = boto3.client("secretsmanager")
-        logger.info('loading secret')
         secret = JsonUtils.load(_secrets_client.get_secret_value(
             SecretId='rds-db-credentials/cluster-B7EKYQNIWMBMYI6I6DNK6ICBEE/postgres')['SecretString'])
         self._username = secret['username']
@@ -83,8 +87,6 @@ class CorporateEventsRepository:
 
     def get_engine(self):
         if self._engine is None:
-            logger.info('Creating engine')
             self._engine = create_engine(
                 f'postgresql://{self._username}:{self._password}@{self._host}:{self._port}/marketdata')
-            logger.info('Engine created')
         return self._engine

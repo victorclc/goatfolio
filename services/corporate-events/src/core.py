@@ -1,4 +1,5 @@
 import logging
+import os
 from datetime import datetime
 from itertools import groupby
 
@@ -27,7 +28,8 @@ class CorporateEventsCore:
             count = 0
             for table in tables:
                 csv_name = f'{data.code_cvm}-{today.strftime("%Y%m%d")}-{count}.csv'
-                table.to_csv(f's3://dev-b3-corporate-events/new/{csv_name}')  # TODO GET BUCKET NAME FROM ENV VARIABLE
+                table.to_csv(
+                    f's3://{os.getenv("CORPORATE_BUCKET")}/new/{csv_name}')
                 count = count + 1
 
     def process_corporate_events_file(self, bucket_name, file_path):
