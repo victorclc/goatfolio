@@ -1,11 +1,16 @@
 import logging
 
-from datetime import datetime
+from datetime import datetime, date
+from decimal import Decimal
 from itertools import groupby
 from io import StringIO
 import pandas as pd
+from dateutil.relativedelta import relativedelta
 
-from adapters import B3CorporateEventsData, B3CorporateEventsBucket, CorporateEventsRepository
+from adapters import B3CorporateEventsData, B3CorporateEventsBucket, CorporateEventsRepository, InvestmentRepository, \
+    AsyncPortfolioQueue
+from goatcommons.constants import OperationType, InvestmentsType
+from goatcommons.models import StockInvestment
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
@@ -17,6 +22,8 @@ class CorporateEventsCore:
         self.b3 = B3CorporateEventsData()
         self.bucket = B3CorporateEventsBucket()
         self.repo = CorporateEventsRepository()
+        self.investments_repo = InvestmentRepository()
+        self.async_portfolio = AsyncPortfolioQueue()
 
     def download_today_corporate_events(self):
         today = datetime.now().date()
@@ -58,29 +65,60 @@ class CorporateEventsCore:
         self.bucket.clean_up()
 
     def check_corporate_events(self, subject, investments):
-        # TODO  validar se investimento adicionado eh do tipo SPLIT ou GROUP ou qualquer outra coisa desse servico
-
+        investments = filter(lambda i: i.operation not in [OperationType.SPLIT, OperationType.GROUP], investments)
         investments_map = groupby(sorted(investments, key=lambda i: i.ticker), key=lambda i: i.ticker)
 
         for ticker, investments in investments_map:
-            print(ticker)
+            if ticker != 'MGLU3':
+                continue
             investments = list(investments)
             oldest = min([i.date for i in investments])
-            newer = max([i.date for i in investments])
-            print(oldest)
-            print(newer)
-        # agrupar por ticker
-        # pegar maior e menor data de investimento do ticker
-        # fazer query na b3_corporate_eventes
-        # se retornou algo
-        # buscar investimentos na tabela Investment
-        # calcular valor do split ou group
-        # adicionar na tabela investimentos de um jeito que identifica q eh um split ou group
+
+            isin_code = self.repo.get_isin_code_from_ticker(ticker)
+            events = self.repo.get_corporate_events(isin_code, oldest)
+            if events:
+                all_ticker_investments = self.investments_repo.find_by_subject_and_ticker(subject, ticker)
+
+                for event in events:
+                    affected_investments = list(
+                        filter(lambda i: i.date <= event.negocios_com_ate, all_ticker_investments))
+                    amount = Decimal(0)
+                    for inv in affected_investments:
+                        if inv.operation == OperationType.BUY:
+                            amount = amount + inv.amount
+                        else:
+                            amount = amount - inv.amount
+
+                    if event.proventos == 'DESDOBRAMENTO':
+                        split_investment = self._handle_split_event(subject, event, ticker, amount)
+                        all_ticker_investments.append(split_investment)
+                        self.async_portfolio.send(subject, split_investment)
+                    elif event.proventos == 'GRUPAMENTO':
+                        self._handle_group_event()
+                    elif event.proventos == 'INCORPORACAO':
+                        self._handle_incorporation_event()
+
+    def _handle_split_event(self, subject, event, ticker, amount):
+        factor = event.fator_de_grupamento_perc / 100
+        _id = f"{ticker}{event.proventos}{event.deliberado_em.strftime('%Y%m%d')}{event.negocios_com_ate.strftime('%Y%m%d')}{event.fator_de_grupamento_perc}"
+        split_investment = StockInvestment(amount=amount * factor, price=Decimal(0), ticker=ticker,
+                                           operation=OperationType.SPLIT,
+                                           date=event.negocios_com_ate + relativedelta(days=1),
+                                           type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
+        return split_investment
+
+    def _handle_group_event(self):
+        pass
+
+    def _handle_incorporation_event(self):
+        pass
+#${self:provider.stage}-AddInvestmentQueueArn
+    # adicionar na tabela investimentos de um jeito que identifica q eh um split ou group
 
 
 if __name__ == '__main__':
-    # invs = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-    CorporateEventsCore().download_today_corporate_events()
+    invs = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    CorporateEventsCore().check_corporate_events('440b0d96-395d-48bd-aaf2-58dbf7e68274', invs)
     # data = JsonUtils.dump({"cnpj": "0", "identifierFund": "RBRM", "typeFund": 7}).encode('UTF-8')
     # base64_bytes = base64.b64encode(data)
     # base64_message = base64_bytes.decode('ascii')

@@ -26,6 +26,12 @@ provider:
         - s3:PutObject
         - s3:DeleteObject
       Resource: arn:aws:s3:::${self:provider.stage}-b3-corporate-events/*
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+        - sqs:GetQueueUrl
+      Resource:
+        'Fn::ImportValue': ${self:provider.stage}-AddInvestmentQueueArn
 
 package:
   exclude:
