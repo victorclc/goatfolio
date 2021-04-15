@@ -44,7 +44,7 @@ class CorporateEventsCore:
             for i, row in table.iterrows():
                 sql = f"DELETE FROM b3_corporate_events WHERE codigo_isin = '{row.codigo_isin}' " \
                       f"and proventos = '{row.proventos}' and deliberado_em = '{row.deliberado_em}' " \
-                      f"and negocios_com_ate = '{row.negocios_com_ate}' and ativo_emitiro = '{row.ativo_emitido}'" \
+                      f"and negocios_com_ate = '{row.negocios_com_ate}' and ativo_emitido = '{row.ativo_emitido}'" \
                       f"and fator_de_grupamento_perc = '{row.fator_de_grupamento_perc}'"
                 engine = self.repo.get_engine()
                 engine.execute(sql)
