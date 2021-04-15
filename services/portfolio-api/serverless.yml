@@ -125,7 +125,7 @@ resources:
             - "CeiImportResultDLQ"
             - "Arn"
         maxReceiveCount: 5
-      QueueName: CeiImportResult
+      QueueName: AddInvestmentQueue
       VisibilityTimeout: 300
 
   AddInvestmentQueueDLQ:
