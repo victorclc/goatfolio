@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+from io import StringIO
 from typing import List
 
 import boto3 as boto3
@@ -55,6 +56,7 @@ class B3CorporateEventsBucket:
     def __init__(self):
         self.s3 = boto3.client('s3')
         self._downloaded_files = []
+        self.bucket_name = os.getenv('CORPORATE_BUCKET')
 
     def download_file(self, bucket, file_path):
         destination = f"/tmp/{file_path.split('/')[-1]}"
@@ -63,6 +65,9 @@ class B3CorporateEventsBucket:
         logger.info(f'Download finish')
         self._downloaded_files.append(destination)
         return destination
+
+    def put(self, buffer: StringIO, file_name):
+        self.s3.put_object(Body=buffer.getvalue(), Bucket=self.bucket_name, Key=f'new/{file_name}')
 
     def move_file_to_archive(self, bucket, file_path):
         self.s3.copy_object(Bucket=bucket, CopySource=f'{bucket}/{file_path}', Key=f"archive/{file_path}")

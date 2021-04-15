@@ -1,8 +1,8 @@
 import logging
-import os
+
 from datetime import datetime
 from itertools import groupby
-
+from io import StringIO
 import pandas as pd
 
 from adapters import B3CorporateEventsData, B3CorporateEventsBucket, CorporateEventsRepository
@@ -28,9 +28,9 @@ class CorporateEventsCore:
             count = 0
             for table in tables:
                 csv_name = f'{data.code_cvm}-{today.strftime("%Y%m%d")}-{count}.csv'
-                logger.info(f"full bucket path: s3://{os.getenv('CORPORATE_BUCKET')}/new/{csv_name}'")
-                table.to_csv(
-                    f's3://{os.getenv("CORPORATE_BUCKET")}/new/{csv_name}')
+                csv_buffer = StringIO()
+                table.to_csv(csv_buffer)
+                self.bucket.put(csv_buffer, csv_name)
                 count = count + 1
 
     def process_corporate_events_file(self, bucket_name, file_path):
