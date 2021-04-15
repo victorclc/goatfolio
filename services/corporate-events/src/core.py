@@ -28,6 +28,7 @@ class CorporateEventsCore:
             count = 0
             for table in tables:
                 csv_name = f'{data.code_cvm}-{today.strftime("%Y%m%d")}-{count}.csv'
+                logger.info(f"full bucket path: s3://{os.getenv('CORPORATE_BUCKET')}/new/{csv_name}'")
                 table.to_csv(
                     f's3://{os.getenv("CORPORATE_BUCKET")}/new/{csv_name}')
                 count = count + 1
