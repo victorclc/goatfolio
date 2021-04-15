@@ -122,7 +122,7 @@ resources:
       RedrivePolicy:
         deadLetterTargetArn:
           Fn::GetAtt:
-            - "CeiImportResultDLQ"
+            - "AddInvestmentQueueDLQ"
             - "Arn"
         maxReceiveCount: 5
       QueueName: AddInvestmentQueue
@@ -131,7 +131,7 @@ resources:
   AddInvestmentQueueDLQ:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: CeiImportResultDLQ
+      QueueName: AddInvestmentQueueDLQ
 
   CeiImportRequestQueueArn:
     Value:
