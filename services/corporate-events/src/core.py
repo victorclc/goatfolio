@@ -1,4 +1,5 @@
 import logging
+import math
 
 from datetime import datetime, date
 from decimal import Decimal
@@ -94,7 +95,9 @@ class CorporateEventsCore:
                         all_ticker_investments.append(split_investment)
                         self.async_portfolio.send(subject, split_investment)
                     elif event.proventos == 'GRUPAMENTO':
-                        self._handle_group_event()
+                        group_investment = self._handle_group_event(subject, event, ticker, amount)
+                        all_ticker_investments.append(group_investment)
+                        self.async_portfolio.send(subject, group_investment)
                     elif event.proventos == 'INCORPORACAO':
                         self._handle_incorporation_event()
 
@@ -107,13 +110,20 @@ class CorporateEventsCore:
                                            type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
         return split_investment
 
-    def _handle_group_event(self):
-        pass
+    def _handle_group_event(self, subject, event, ticker, amount):
+        _id = f"{ticker}{event.proventos}{event.deliberado_em.strftime('%Y%m%d')}{event.negocios_com_ate.strftime('%Y%m%d')}{event.fator_de_grupamento_perc}"
+        group_investment = StockInvestment(amount=Decimal(amount - math.ceil(amount * event.fator_de_grupamento_perc)),
+                                           price=Decimal(0), ticker=ticker, operation=OperationType.GROUP,
+                                           date=event.negocios_com_ate + relativedelta(days=1),
+                                           type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
+        return group_investment
 
     def _handle_incorporation_event(self):
         pass
-#${self:provider.stage}-AddInvestmentQueueArn
-    # adicionar na tabela investimentos de um jeito que identifica q eh um split ou group
+
+
+# ${self:provider.stage}-AddInvestmentQueueArn
+# adicionar na tabela investimentos de um jeito que identifica q eh um split ou group
 
 
 if __name__ == '__main__':
