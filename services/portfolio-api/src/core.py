@@ -25,7 +25,8 @@ class InvestmentCore:
         assert subject
         investment = InvestmentUtils.load_model_by_type(request.type, request.investment)
         assert investment.date <= datetime.now(), 'invalid date'
-        investment.id = str(uuid4())
+        if not investment.id:
+            investment.id = str(uuid4())
         investment.subject = subject
 
         self.repo.save(investment)
