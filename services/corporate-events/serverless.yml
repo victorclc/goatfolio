@@ -57,3 +57,8 @@ functions:
           rules:
             - prefix: new/
             - suffix: .csv
+
+  downloadTodayCorporateEvents:
+    handler: handlers.download_today_corporate_events_handler
+    events:
+      - schedule: cron(0 23 ? * MON-FRI *)

@@ -34,12 +34,16 @@ class B3CorporateEventsData:
     def get_updated_corporate_events_link(self, date) -> List[CorporateEventData]:
         data = requests.get(self.URL, verify=False).json()
         logger.info(f'b3 corporate events response: {data}')
-        filtered_data = list(filter(lambda i: i['date'] == date.strftime(self.DATE_FORMAT), data))[0]
+        filtered_data = list(filter(lambda i: i['date'] == date.strftime(self.DATE_FORMAT), data))
+
+        if not filtered_data:
+            logger.info(f'No corporate events for {date.strftime(self.DATE_FORMAT)}')
+            return []
         return list(map(
             lambda i: CorporateEventData(company_name=i['companyName'], trading_name=i['tradingName'], code=i['code'],
                                          segment=i['segment'], code_cvm=i['codeCvm'],
                                          url=re.sub(r'en-US$', 'pt-BR', i['url'])),
-            filtered_data['results']))
+            filtered_data[0]['results']))
 
 
 class B3CorporateEventsBucket:

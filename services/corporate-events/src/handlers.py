@@ -10,6 +10,12 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+def download_today_corporate_events_handler(event, context):
+    logger.info(f'EVENT: {event}')
+    core = CorporateEventsCore()
+    core.download_today_corporate_events()
+
+
 def process_corporate_events_file_handler(event, context):
     logger.info(f'EVENT: {event}')
     core = CorporateEventsCore()
