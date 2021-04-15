@@ -4,6 +4,8 @@ from enum import Enum
 class OperationType:
     BUY = "BUY"
     SELL = "SELL"
+    SPLIT = "SPLIT"
+    GROUP = 'GROUP'
 
 
 class InvestmentsType:

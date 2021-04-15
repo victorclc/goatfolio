@@ -63,7 +63,7 @@ class StockInvestment(Investment, _StockInvestmentsBase):
 
     def __post_init__(self):
         if not isinstance(self.date, datetime):
-            self.date = datetime.fromtimestamp(float(self.date))
+            self.date = datetime.utcfromtimestamp(float(self.date))
         if not isinstance(self.amount, Decimal):
             self.amount = Decimal(self.amount).quantize(Decimal('0.01'))
         if not isinstance(self.price, Decimal):
