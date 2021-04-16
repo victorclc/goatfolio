@@ -127,11 +127,6 @@ class CorporateEventsCore:
         factor = Decimal(event.fator_de_grupamento_perc / 100)
         _id = self._create_id_from_corp_event(ticker, event)
 
-        logger.info(f'Handeling incorporation event for ticker {ticker}')
-        logger.info(f'AMOUNT = {amount}')
-        logger.info(f'FACTOR = {factor}')
-        logger.info(f'AFFECTED_INVESMENTS = {affected_investments}')
-        logger.info(f'NEW TICKER = {new_ticker}')
 
         if factor > 1:
             incorp_investment = StockInvestment(amount=amount * factor, price=Decimal(0), ticker=ticker,
@@ -141,7 +136,7 @@ class CorporateEventsCore:
         elif factor < 1:
             incorp_investment = StockInvestment(
                 amount=amount - Decimal(
-                    math.ceil((amount * Decimal(event.fator_de_grupamento_perc)).quantize(Decimal('0.01')))),
+                    math.ceil((amount * Decimal(factor)).quantize(Decimal('0.01')))),
                 price=Decimal(0),
                 ticker=ticker, operation=OperationType.INCORP_SUB, alias_ticker=new_ticker,
                 date=event.negocios_com_ate + relativedelta(days=1),
@@ -153,7 +148,6 @@ class CorporateEventsCore:
                 date=event.negocios_com_ate + relativedelta(days=1),
                 type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
 
-        logger.info(f'INCORP INVESTMENT: {incorp_investment}')
         self.async_portfolio.send(subject, incorp_investment)
         for investment in affected_investments:
             investment.alias_ticker = new_ticker
