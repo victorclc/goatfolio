@@ -77,3 +77,8 @@ functions:
           type: dynamodb
           arn:
             'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
+    vpc:
+      securityGroupIds:
+        - sg-15f9666f
+      subnetIds:
+        - subnet-0525b98aa3176a425
