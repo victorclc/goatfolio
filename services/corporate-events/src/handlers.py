@@ -26,10 +26,11 @@ def process_corporate_events_file_handler(event, context):
         core.process_corporate_events_file(bucket, file_path)
 
 
-def consolidate_portfolio_handler(event, context):
+def check_for_applicable_corporate_events_handler(event, context):
     logger.info(f"EVENT: {event}")
     new_investments, old_investments = [], []
     subject = None
+    core = CorporateEventsCore()
     try:
         for record in event['Records']:
             dynamodb = record['dynamodb']
@@ -43,7 +44,8 @@ def consolidate_portfolio_handler(event, context):
                 old = _dynamo_stream_to_stock_investment(dynamodb['OldImage'])
                 assert old.subject == subject, 'DIFFERENT SUBJECTS IN THE SAME STREAM'
                 old_investments.append(old)
-        # core.consolidate_portfolio(subject, new_investments, old_investments)
+
+        core.check_for_applicable_corporate_events(subject, new_investments + old_investments)
     except Exception:
         print(f'CAUGHT EXCEPTION')
         traceback.print_exc()
