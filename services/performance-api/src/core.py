@@ -192,8 +192,12 @@ class SafePerformanceCore:
             stock_consolidated.history.append(h_position)
 
         if inv.operation in [OperationType.BUY, OperationType.SPLIT, OperationType.INCORP_ADD]:
+            # TODO maybe break this if becaus split and incorp add dont change the invested_amount
+            # buy as the investment price of this kind of operation is 0, staying like this wont cause a problem
             h_position.amount = h_position.amount + inv.amount
             h_position.invested_amount = h_position.invested_amount + inv.amount * inv.price
+        elif inv.operation in [OperationType.GROUP, OperationType.INCORP_SUB]:
+            h_position.amount = h_position.amount - inv.amount
         else:
             h_position.invested_amount = h_position.invested_amount - inv.amount * stock_consolidated.average_price
             h_position.amount = h_position.amount - inv.amount

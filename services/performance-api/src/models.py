@@ -87,6 +87,8 @@ class StockConsolidated:
         if investment.operation in [OperationType.BUY, OperationType.SPLIT, OperationType.INCORP_ADD]:
             self.bought_amount = self.bought_amount + investment.amount
             self.total_spend = self.total_spend + investment.amount * investment.price
+        elif investment.operation in [OperationType.GROUP, OperationType.INCORP_SUB]:
+            self.bought_amount = self.bought_amount - investment.amount
         else:
             self.sold_amount = self.sold_amount + investment.amount
             self.total_sold = self.total_sold + investment.amount * investment.price
