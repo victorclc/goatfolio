@@ -39,11 +39,13 @@ class MarketData:
                             Decimal((result['regularMarketChangePercent']) * 100).quantize(Decimal('0.01')),
                             result['shortName'])
 
-    def ticker_monthly_data(self, ticker, date_from=None):
+    def ticker_monthly_data(self, ticker, date_from=None, alias_ticker=''):
         if ticker in self.history_cache:
             return self.history_cache[ticker]
-
-        sql = f'SELECT candle_date, open_price, close_price from b3_monthly_chart where ticker = \'{ticker}\' order by candle_date'
+        if alias_ticker:
+            sql = f'SELECT candle_date, open_price, close_price from b3_monthly_chart where ticker in (\'{ticker}\', \'{alias_ticker}\') order by candle_date'
+        else:
+            sql = f'SELECT candle_date, open_price, close_price from b3_monthly_chart where ticker = \'{ticker}\' order by candle_date'
         query_response = self.aurora_data.execute_statement(sql)
         result = list()
         for record in query_response['records']:
@@ -69,11 +71,11 @@ class MarketData:
 
         return result
 
-    def ticker_month_data(self, ticker, _date):
+    def ticker_month_data(self, ticker, _date, alias_ticker=''):
         """
             Gets candle(open, close) for the entire date.year/date.month
         """
-        data = self.ticker_monthly_data(ticker)
+        data = self.ticker_monthly_data(ticker, alias_ticker=alias_ticker)
         date_from = date(_date.year, _date.month, 1)
 
         return list(filter(lambda m: m.date == date_from, data))[0]

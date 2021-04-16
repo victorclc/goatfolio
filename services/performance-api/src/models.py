@@ -42,6 +42,7 @@ class Portfolio:
 @dataclass
 class StockConsolidated:
     ticker: str
+    alias_ticker: str = ''
     initial_date: datetime = datetime.max
     history: list = field(default_factory=list)
     current_stock_price: Decimal = field(default_factory=lambda: Decimal(0))
