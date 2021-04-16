@@ -84,7 +84,7 @@ class StockConsolidated:
         return self.current_amount * self.average_price
 
     def add_investment(self, investment: StockInvestment):
-        if investment.operation in [OperationType.BUY, OperationType.SPLIT]:
+        if investment.operation in [OperationType.BUY, OperationType.SPLIT, OperationType.INCORP_ADD]:
             self.bought_amount = self.bought_amount + investment.amount
             self.total_spend = self.total_spend + investment.amount * investment.price
         else:

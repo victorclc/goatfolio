@@ -191,14 +191,15 @@ class SafePerformanceCore:
             h_position = StockPosition(date=month_date, amount=amount, invested_amount=Decimal(0))
             stock_consolidated.history.append(h_position)
 
-        if inv.operation in [OperationType.BUY, OperationType.SPLIT]:
+        if inv.operation in [OperationType.BUY, OperationType.SPLIT, OperationType.INCORP_ADD]:
             h_position.amount = h_position.amount + inv.amount
             h_position.invested_amount = h_position.invested_amount + inv.amount * inv.price
         else:
             h_position.invested_amount = h_position.invested_amount - inv.amount * stock_consolidated.average_price
             h_position.amount = h_position.amount - inv.amount
 
-        inv_amount = (inv.amount if inv.operation in [OperationType.BUY, OperationType.SPLIT] else - inv.amount)
+        inv_amount = (inv.amount if inv.operation in [OperationType.BUY, OperationType.SPLIT,
+                                                      OperationType.INCORP_ADD] else - inv.amount)
         for position in [position for position in stock_consolidated.history if position.date > month_date]:
             position.amount = position.amount + inv_amount
 
