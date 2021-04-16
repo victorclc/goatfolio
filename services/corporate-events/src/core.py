@@ -93,7 +93,8 @@ class CorporateEventsCore:
                         all_ticker_investments.append(group_inv)
                     elif event.proventos == 'INCORPORACAO':
                         incorp_inv = self._handle_incorporation_event(subject, event, ticker, affected_investments)
-                        all_ticker_investments.append(incorp_inv)
+                        if incorp_inv:
+                            all_ticker_investments.append(incorp_inv)
                     else:
                         logger.warning(f'No implementation for event type of {event.proventos}')
 
@@ -127,20 +128,31 @@ class CorporateEventsCore:
         factor = Decimal(event.fator_de_grupamento_perc / 100)
         _id = self._create_id_from_corp_event(ticker, event)
 
+        logger.info(f'Handeling incorporation event for ticker {ticker}')
+        logger.info(f'AMOUNT = {amount}')
+        logger.info(f'FACTOR = {factor}')
+        logger.info(f'AFFECTED_INVESMENTS = {affected_investments}')
+        logger.info(f'NEW TICKER = {new_ticker}')
+
+        if amount <= 0:
+            return
+
         if factor > 1:
             incorp_investment = StockInvestment(amount=amount * factor, price=Decimal(0), ticker=ticker,
-                                                operation=OperationType.INCORP_ADD,
+                                                operation=OperationType.INCORP_ADD, alias_ticker=new_ticker,
                                                 date=event.negocios_com_ate + relativedelta(days=1),
                                                 type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
         elif factor < 1:
             incorp_investment = StockInvestment(
-                amount=amount - Decimal(math.ceil(amount * Decimal(event.fator_de_grupamento_perc))), price=Decimal(0),
-                ticker=ticker, operation=OperationType.INCORP_SUB,
+                amount=amount - Decimal(
+                    math.ceil((amount * Decimal(event.fator_de_grupamento_perc)).quantize(Decimal('0.01')))),
+                price=Decimal(0),
+                ticker=ticker, operation=OperationType.INCORP_SUB, alias_ticker=new_ticker,
                 date=event.negocios_com_ate + relativedelta(days=1),
                 type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
         else:
             incorp_investment = StockInvestment(
-                amount=Decimal(0), price=Decimal(0),
+                amount=Decimal(0), price=Decimal(0), alias_ticker=new_ticker,
                 ticker=ticker, operation=OperationType.INCORP_ADD,
                 date=event.negocios_com_ate + relativedelta(days=1),
                 type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
@@ -160,7 +172,7 @@ class CorporateEventsCore:
     def _affected_investments_amount(affected_investments):
         amount = Decimal(0)
         for inv in affected_investments:
-            if inv.operation == OperationType.BUY:
+            if inv.operation in [OperationType.BUY, OperationType.SPLIT, OperationType.INCORP_ADD]:
                 amount = amount + inv.amount
             else:
                 amount = amount - inv.amount
