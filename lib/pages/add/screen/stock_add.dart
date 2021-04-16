@@ -313,7 +313,7 @@ class _StockAddState extends State<StockAdd> {
         price: getDoubleFromMoneyFormat(_priceController.text),
         type: 'STOCK',
         operation: widget.buyOperation ? 'BUY' : 'SELL',
-        date: DateFormat('dd/MM/yyyy').parse(_dateController.text),
+        date: DateFormat('dd/MM/yyyy').parse(_dateController.text, true),
         broker: _brokerController.text,
         costs: getDoubleFromMoneyFormat(
             _costsController.text.isNotEmpty ? _costsController.text : '0.0'));
