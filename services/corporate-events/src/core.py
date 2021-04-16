@@ -98,7 +98,7 @@ class CorporateEventsCore:
 
     def _handle_split_event(self, subject, event, ticker, affected_investments):
         amount = self._affected_investments_amount(affected_investments)
-        factor = event.fator_de_grupamento_perc / 100
+        factor = Decimal(event.fator_de_grupamento_perc / 100)
         _id = self._create_id_from_corp_event(ticker, event)
         split_investment = StockInvestment(amount=amount * factor, price=Decimal(0), ticker=ticker,
                                            operation=OperationType.SPLIT,
@@ -112,10 +112,11 @@ class CorporateEventsCore:
     def _handle_group_event(self, subject, event, ticker, affected_investments):
         amount = self._affected_investments_amount(affected_investments)
         _id = self._create_id_from_corp_event(ticker, event)
-        group_investment = StockInvestment(amount=Decimal(amount - math.ceil(amount * event.fator_de_grupamento_perc)),
-                                           price=Decimal(0), ticker=ticker, operation=OperationType.GROUP,
-                                           date=event.negocios_com_ate + relativedelta(days=1),
-                                           type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
+        group_investment = StockInvestment(
+            amount=Decimal(amount - Decimal(math.ceil(amount * Decimal(event.fator_de_grupamento_perc)))),
+            price=Decimal(0), ticker=ticker, operation=OperationType.GROUP,
+            date=event.negocios_com_ate + relativedelta(days=1),
+            type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
 
         self.async_portfolio.send(subject, group_investment)
 
