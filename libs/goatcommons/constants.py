@@ -6,6 +6,8 @@ class OperationType:
     SELL = "SELL"
     SPLIT = "SPLIT"
     GROUP = 'GROUP'
+    INCORP_ADD = 'INCORP_ADD'
+    INCORP_SUB = 'INCORP_SUB'
 
 
 class InvestmentsType:

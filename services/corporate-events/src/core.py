@@ -68,7 +68,7 @@ class CorporateEventsCore:
 
     def check_for_applicable_corporate_events(self, subject, investments):
         investments = filter(
-            lambda i: i.operation not in [OperationType.SPLIT, OperationType.GROUP] and not i.alias_ticker,
+            lambda i: i.operation in [OperationType.BUY, OperationType.SELL] and not i.alias_ticker,
             investments)
         investments_map = groupby(sorted(investments, key=lambda i: i.ticker), key=lambda i: i.ticker)
 
@@ -86,13 +86,14 @@ class CorporateEventsCore:
                         filter(lambda i: i.date <= event.negocios_com_ate, all_ticker_investments))
 
                     if event.proventos == 'DESDOBRAMENTO':
-                        split_investment = self._handle_split_event(subject, event, ticker, affected_investments)
-                        all_ticker_investments.append(split_investment)
+                        split_inv = self._handle_split_event(subject, event, ticker, affected_investments)
+                        all_ticker_investments.append(split_inv)
                     elif event.proventos == 'GRUPAMENTO':
-                        group_investment = self._handle_group_event(subject, event, ticker, affected_investments)
-                        all_ticker_investments.append(group_investment)
+                        group_inv = self._handle_group_event(subject, event, ticker, affected_investments)
+                        all_ticker_investments.append(group_inv)
                     elif event.proventos == 'INCORPORACAO':
-                        self._handle_incorporation_event(subject, event, affected_investments)
+                        incorp_inv = self._handle_incorporation_event(subject, event, ticker, affected_investments)
+                        all_ticker_investments.append(incorp_inv)
                     else:
                         logger.warning(f'No implementation for event type of {event.proventos}')
 
@@ -106,7 +107,6 @@ class CorporateEventsCore:
                                            type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
 
         self.async_portfolio.send(subject, split_investment)
-
         return split_investment
 
     def _handle_group_event(self, subject, event, ticker, affected_investments):
@@ -119,14 +119,38 @@ class CorporateEventsCore:
             type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
 
         self.async_portfolio.send(subject, group_investment)
-
         return group_investment
 
-    def _handle_incorporation_event(self, subject, event, affected_investments: List[StockInvestment]):
+    def _handle_incorporation_event(self, subject, event, ticker, affected_investments: List[StockInvestment]):
         new_ticker = self.repo.get_ticker_from_isin_code(event.ativo_emitido)
+        amount = self._affected_investments_amount(affected_investments)
+        factor = Decimal(event.fator_de_grupamento_perc / 100)
+        _id = self._create_id_from_corp_event(ticker, event)
+
+        if factor > 1:
+            incorp_investment = StockInvestment(amount=amount * factor, price=Decimal(0), ticker=ticker,
+                                                operation=OperationType.INCORP_ADD,
+                                                date=event.negocios_com_ate + relativedelta(days=1),
+                                                type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
+        elif factor < 1:
+            incorp_investment = StockInvestment(
+                amount=amount - Decimal(math.ceil(amount * Decimal(event.fator_de_grupamento_perc))), price=Decimal(0),
+                ticker=ticker, operation=OperationType.INCORP_SUB,
+                date=event.negocios_com_ate + relativedelta(days=1),
+                type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
+        else:
+            incorp_investment = StockInvestment(
+                amount=Decimal(0), price=Decimal(0),
+                ticker=ticker, operation=OperationType.INCORP_ADD,
+                date=event.negocios_com_ate + relativedelta(days=1),
+                type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
+
+        self.async_portfolio.send(subject, incorp_investment)
         for investment in affected_investments:
             investment.alias_ticker = new_ticker
             self.async_portfolio.send(subject, investment)
+
+        return incorp_investment
 
     @staticmethod
     def _create_id_from_corp_event(ticker, event):
