@@ -32,6 +32,11 @@ provider:
         - sqs:GetQueueUrl
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-AddInvestmentQueueArn
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource:
+        - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
 
 package:
   exclude:
