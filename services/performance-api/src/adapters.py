@@ -58,8 +58,8 @@ class MarketData:
         series = []
         for row in result:
             candle_date = row[0]
-            open_price = row[1]
-            close_price = row[2]
+            open_price = Decimal(row[1])
+            close_price = Decimal(row[2])
             series.append(MonthData(candle_date, open_price, close_price, 0))
 
         return series
@@ -85,16 +85,13 @@ class MarketData:
         for row in result:
             if result.rowcount == 2:
                 if row[3] == ticker:
-                    open_price = row[1]
+                    open_price = Decimal(row[1])
                 else:
-                    close_price = row[2]
+                    close_price = Decimal(row[2])
             else:
-                open_price = row[1]
-                close_price = row[2]
+                open_price = Decimal(row[1])
+                close_price = Decimal(row[2])
 
-        if ticker == 'TIET11':
-            # TODO REMOVE THIS IF
-            print(ticker, MonthData(date_from, open_price, close_price, 0))
         return MonthData(date_from, open_price, close_price, 0)
 
 
