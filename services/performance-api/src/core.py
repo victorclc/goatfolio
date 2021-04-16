@@ -113,36 +113,38 @@ class SafePerformanceCore:
         return TickerConsolidatedHistory(stock_consolidated.history)
 
     def _fetch_stocks_history_data(self, stocks: List[StockConsolidated]):
-        for stock in stocks:
-            history_dict = {int(h.date.timestamp()): h for h in stock.history}
-            timestamps = list(history_dict.keys())
-            timestamps.sort()
+        with self.market_data.get_engine().connect() as conn:
+            for stock in stocks:
+                history_dict = {int(h.date.timestamp()): h for h in stock.history}
+                timestamps = list(history_dict.keys())
+                timestamps.sort()
 
-            prev = datetime.fromtimestamp(timestamps[0])
-            proc = prev
-            last = DatetimeUtils.month_first_day_datetime(datetime.now())
+                prev = datetime.fromtimestamp(timestamps[0])
+                proc = prev
+                last = DatetimeUtils.month_first_day_datetime(datetime.now())
 
-            while proc <= last:
-                proc_timestamp = int(proc.timestamp())
-                if proc_timestamp not in timestamps:
-                    position = StockPosition(date=proc, amount=history_dict[int(prev.timestamp())].amount)
-                    stock.history.append(position)
-                    history_dict[proc_timestamp] = position
+                while proc <= last:
+                    proc_timestamp = int(proc.timestamp())
+                    if proc_timestamp not in timestamps:
+                        position = StockPosition(date=proc, amount=history_dict[int(prev.timestamp())].amount)
+                        stock.history.append(position)
+                        history_dict[proc_timestamp] = position
 
-                if proc == last:
-                    candle = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
-                    price = candle.price
-                    _open = None
-                else:
-                    candle = self.market_data.ticker_month_data(stock.ticker, proc.date(), stock.alias_ticker)
-                    price = candle.close
-                    _open = candle.open
+                    if proc == last:
+                        candle = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
+                        price = candle.price
+                        _open = None
+                    else:
+                        candle = self.market_data.ticker_month_data(stock.ticker, proc.date(), stock.alias_ticker,
+                                                                    conn=conn)
+                        price = candle.close
+                        _open = candle.open
 
-                history_dict[proc_timestamp].close_price = price
-                history_dict[proc_timestamp].open_price = _open
+                    history_dict[proc_timestamp].close_price = price
+                    history_dict[proc_timestamp].open_price = _open
 
-                prev = proc
-                proc = proc + relativedelta(months=1)
+                    prev = proc
+                    proc = proc + relativedelta(months=1)
 
     def _calculate_stocks_performance(self, stocks: List[StockConsolidated]):
         invested_amount = Decimal(0)
@@ -154,24 +156,26 @@ class SafePerformanceCore:
 
         now = datetime.now()
         prev_month_start = datetime(now.year, now.month, 1) - relativedelta(months=1)
-        for stock in stocks:
-            if stock.current_amount <= 0:
-                continue
-            invested_amount = invested_amount + sum(s.invested_amount for s in stock.history)
+        with self.market_data.get_engine().connect() as conn:
+            for stock in stocks:
+                if stock.current_amount <= 0:
+                    continue
+                invested_amount = invested_amount + sum(s.invested_amount for s in stock.history)
 
-            data = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
-            gross_amount = gross_amount + stock.current_amount * data.price
-            prev_day_gross_amount = prev_day_gross_amount + stock.current_amount * data.prev_close_price
-            prev_month_amount = stock.prev_month_amount
-            if prev_month_amount > 0:
-                month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start, stock.alias_ticker)
-                prev_month_gross_amount = prev_month_gross_amount + month_data.close * prev_month_amount
-            month_variation = month_variation - stock.value_invested_current_month
+                data = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
+                gross_amount = gross_amount + stock.current_amount * data.price
+                prev_day_gross_amount = prev_day_gross_amount + stock.current_amount * data.prev_close_price
+                prev_month_amount = stock.prev_month_amount
+                if prev_month_amount > 0:
+                    month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start, stock.alias_ticker,
+                                                                    conn)
+                    prev_month_gross_amount = prev_month_gross_amount + month_data.close * prev_month_amount
+                month_variation = month_variation - stock.value_invested_current_month
 
-            stock_variation.append(StockVariation(stock.alias_ticker or stock.ticker, data.change, data.price))
+                stock_variation.append(StockVariation(stock.alias_ticker or stock.ticker, data.change, data.price))
 
-        day_variation = gross_amount - prev_day_gross_amount
-        month_variation = month_variation + gross_amount - prev_month_gross_amount
+            day_variation = gross_amount - prev_day_gross_amount
+            month_variation = month_variation + gross_amount - prev_month_gross_amount
         return invested_amount, gross_amount, day_variation, month_variation, stock_variation
 
     @staticmethod
@@ -212,7 +216,7 @@ if __name__ == '__main__':
     investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
     # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
     # print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
-    print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    # print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    # print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))

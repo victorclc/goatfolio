@@ -6,11 +6,11 @@ from typing import List
 
 import boto3
 from boto3.dynamodb.conditions import Key
+from sqlalchemy import create_engine
 from yahooquery import Ticker
 
-from auroradata.aurora import AuroraData
 from goatcommons.models import Investment
-from goatcommons.utils import InvestmentUtils
+from goatcommons.utils import InvestmentUtils, JsonUtils
 from models import Portfolio
 
 # logging.basicConfig(level=logging.DEBUG)
@@ -21,12 +21,22 @@ MonthData = namedtuple('MonthlyData', 'date open close change')
 
 class MarketData:
     def __init__(self):
+        _secrets_client = boto3.client("secretsmanager")
+        secret = JsonUtils.load(_secrets_client.get_secret_value(
+            SecretId='rds-db-credentials/cluster-B7EKYQNIWMBMYI6I6DNK6ICBEE/postgres')['SecretString'])
+        self._username = secret['username']
+        self._password = secret['password']
+        self._port = secret['port']
+        self._host = secret['host']
+
         self.yahoo_ticker = None
-        self.history_cache = {}
-        secret = "arn:aws:secretsmanager:us-east-2:831967415635:secret:rds-db-credentials/cluster-B7EKYQNIWMBMYI6I6DNK6ICBEE/postgres-z9xJqf"
-        cluster = "arn:aws:rds:us-east-2:831967415635:cluster:serverless-goatfolio-dev-marketdatardscluster-dq6ryzdhjru0"
-        database = "marketdata"
-        self.aurora_data = AuroraData(cluster, secret, database)
+        self._engine = None
+
+    def get_engine(self):
+        if self._engine is None:
+            self._engine = create_engine(
+                f'postgresql://{self._username}:{self._password}@{self._host}:{self._port}/marketdata')
+        return self._engine
 
     def ticker_intraday_date(self, ticker: str):
         if self.yahoo_ticker is None:
@@ -39,46 +49,53 @@ class MarketData:
                             Decimal((result['regularMarketChangePercent']) * 100).quantize(Decimal('0.01')),
                             result['shortName'])
 
-    def ticker_monthly_data(self, ticker, date_from=None, alias_ticker=''):
-        if ticker in self.history_cache:
-            return self.history_cache[ticker]
-        if alias_ticker:
-            sql = f'SELECT candle_date, open_price, close_price from b3_monthly_chart where ticker in (\'{ticker}\', \'{alias_ticker}\') order by candle_date'
-        else:
-            sql = f'SELECT candle_date, open_price, close_price from b3_monthly_chart where ticker = \'{ticker}\' order by candle_date'
-        query_response = self.aurora_data.execute_statement(sql)
-        result = list()
-        for record in query_response['records']:
-            candle_date = date.fromisoformat(record[0]['stringValue'])
-            open_price = Decimal(record[1]['stringValue'])
-            close_price = Decimal(record[2]['stringValue'])
-            result.append(MonthData(candle_date, open_price, close_price, 0))
-        print(result)
-        self.history_cache[ticker] = result
-
-        return result
-
-    def ibov_from_date(self, date_from):
+    def ibov_from_date(self, date_from, conn=None):
+        if not conn:
+            conn = self.get_engine()
         sql = f"SELECT candle_date, open_price, close_price from b3_monthly_chart where ticker = 'IBOVESPA' and candle_date >= '{date_from.strftime('%Y-%m-01')}'order by candle_date"
-        query_response = self.aurora_data.execute_statement(sql)
-        result = list()
-        for record in query_response['records']:
-            candle_date = date.fromisoformat(record[0]['stringValue'])
-            open_price = Decimal(record[1]['stringValue'])
-            close_price = Decimal(record[2]['stringValue'])
-            result.append(MonthData(candle_date, open_price, close_price, 0))
-        print(result)
+        result = conn.execute(sql)
 
-        return result
+        series = []
+        for row in result:
+            candle_date = row[0]
+            open_price = row[1]
+            close_price = row[2]
+            series.append(MonthData(candle_date, open_price, close_price, 0))
 
-    def ticker_month_data(self, ticker, _date, alias_ticker=''):
+        return series
+
+    def ticker_month_data(self, ticker, _date, alias_ticker='', conn=None):
         """
             Gets candle(open, close) for the entire date.year/date.month
         """
-        data = self.ticker_monthly_data(ticker, alias_ticker=alias_ticker)
+        if not conn:
+            conn = self.get_engine()
         date_from = date(_date.year, _date.month, 1)
 
-        return list(filter(lambda m: m.date == date_from, data))[0]
+        if alias_ticker:
+            sql = f"SELECT candle_date, open_price, close_price, ticker from b3_monthly_chart where ticker in ('{ticker}', '{alias_ticker}') and candle_date = '{date_from.strftime('%Y-%m-%d')}'"
+        else:
+            sql = f"SELECT candle_date, open_price, close_price, ticker from b3_monthly_chart where ticker = '{ticker}' and candle_date = '{date_from.strftime('%Y-%m-%d')}'"
+
+        result = conn.execute(sql)
+
+        open_price = Decimal(0)
+        close_price = Decimal(0)
+
+        for row in result:
+            if result.rowcount == 2:
+                if row[3] == ticker:
+                    open_price = row[1]
+                else:
+                    close_price = row[2]
+            else:
+                open_price = row[1]
+                close_price = row[2]
+
+        if ticker == 'TIET11':
+            # TODO REMOVE THIS IF
+            print(ticker, MonthData(date_from, open_price, close_price, 0))
+        return MonthData(date_from, open_price, close_price, 0)
 
 
 class InvestmentRepository:

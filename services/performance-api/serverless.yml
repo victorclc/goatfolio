@@ -6,6 +6,11 @@ provider:
   region: us-east-2
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
+  vpc:
+    securityGroupIds:
+      - sg-15f9666f
+    subnetIds:
+      - subnet-0525b98aa3176a425
   environment:
     PYTHONPATH: "src:libs"
   iamRoleStatements:
@@ -36,7 +41,6 @@ package:
     - tests/**
   include:
     - ../../libs/goatcommons/**
-    - ../../libs/auroradata/**
 
 plugins:
   - serverless-python-requirements
