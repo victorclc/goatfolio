@@ -93,8 +93,7 @@ class CorporateEventsCore:
                         all_ticker_investments.append(group_inv)
                     elif event.proventos == 'INCORPORACAO':
                         incorp_inv = self._handle_incorporation_event(subject, event, ticker, affected_investments)
-                        if incorp_inv:
-                            all_ticker_investments.append(incorp_inv)
+                        all_ticker_investments.append(incorp_inv)
                     else:
                         logger.warning(f'No implementation for event type of {event.proventos}')
 
@@ -134,9 +133,6 @@ class CorporateEventsCore:
         logger.info(f'AFFECTED_INVESMENTS = {affected_investments}')
         logger.info(f'NEW TICKER = {new_ticker}')
 
-        if amount <= 0:
-            return
-
         if factor > 1:
             incorp_investment = StockInvestment(amount=amount * factor, price=Decimal(0), ticker=ticker,
                                                 operation=OperationType.INCORP_ADD, alias_ticker=new_ticker,
@@ -157,6 +153,7 @@ class CorporateEventsCore:
                 date=event.negocios_com_ate + relativedelta(days=1),
                 type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
 
+        logger.info(f'INCORP INVESTMENT: {incorp_investment}')
         self.async_portfolio.send(subject, incorp_investment)
         for investment in affected_investments:
             investment.alias_ticker = new_ticker
