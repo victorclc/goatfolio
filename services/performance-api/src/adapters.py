@@ -88,7 +88,7 @@ class MarketData:
             else:
                 open_price = Decimal(row[1])
                 close_price = Decimal(row[2])
-            response_map['%Y%m01'] = MonthData(candle_date, open_price, close_price, 0)
+            response_map[candle_date.strftime('%Y%m01')] = MonthData(candle_date, open_price, close_price, 0)
 
         return response_map
 
