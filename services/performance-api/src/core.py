@@ -127,6 +127,7 @@ class SafePerformanceCore:
                 monthly_map = self.market_data.ticker_monthly_data_from(stock.ticker, stock.initial_date,
                                                                         stock.alias_ticker, conn)
 
+                logger.info(f'Monthly Map: {monthly_map}')
                 prev = datetime.fromtimestamp(timestamps[0])
                 proc = prev
                 last = DatetimeUtils.month_first_day_datetime(datetime.now())
