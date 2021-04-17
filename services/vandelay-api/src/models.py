@@ -28,8 +28,8 @@ class CEIImportResult:
 class Import:
     subject: str
     datetime: int
-    username: str
     status: str
+    username: str = None
     payload: str = None
     error_message: str = None
 
