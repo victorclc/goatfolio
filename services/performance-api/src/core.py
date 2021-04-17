@@ -90,10 +90,8 @@ class SafePerformanceCore:
             if stock.current_amount <= 0:
                 continue
 
-            if stock.alias_ticker:
-                data = self.market_data.ticker_intraday_date(stock.alias_ticker)
-            else:
-                data = self.market_data.ticker_intraday_date(stock.ticker)
+            data = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
+
             if data.name.startswith('FII '):
                 reits.append(
                     StockSummary(stock.ticker, stock.current_amount, stock.average_price, stock.current_invested,
