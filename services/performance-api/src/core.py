@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from decimal import Decimal
 from itertools import groupby
@@ -11,6 +12,10 @@ from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
 from models import Portfolio, StockConsolidated, StockPosition, PortfolioPosition, StockVariation, PortfolioSummary, \
     PortfolioHistory, StockSummary, PortfolioList, TickerConsolidatedHistory
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class SafePerformanceCore:
@@ -119,6 +124,9 @@ class SafePerformanceCore:
                 timestamps = list(history_dict.keys())
                 timestamps.sort()
 
+                monthly_map = self.market_data.ticker_monthly_data_from(stock.ticker, stock.initial_date,
+                                                                        stock.alias_ticker, conn)
+
                 prev = datetime.fromtimestamp(timestamps[0])
                 proc = prev
                 last = DatetimeUtils.month_first_day_datetime(datetime.now())
@@ -135,10 +143,11 @@ class SafePerformanceCore:
                         price = candle.price
                         _open = None
                     else:
-                        candle = self.market_data.ticker_month_data(stock.ticker, proc.date(), stock.alias_ticker,
-                                                                    conn=conn)
-                        price = candle.close
-                        _open = candle.open
+                        candle = monthly_map[proc.strftime('%Y%m01')]
+                        if not candle:
+                            logger.info(f'CANDLE MISSING: {stock.ticker} {proc}')
+                        price = candle.close if candle else Decimal(0)
+                        _open = candle.open if candle else Decimal(0)
 
                     history_dict[proc_timestamp].close_price = price
                     history_dict[proc_timestamp].open_price = _open
@@ -215,8 +224,8 @@ class SafePerformanceCore:
 if __name__ == '__main__':
     investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
     # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
-    # print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
+    print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
     # print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    # print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))

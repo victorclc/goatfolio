@@ -64,6 +64,34 @@ class MarketData:
 
         return series
 
+    def ticker_monthly_data_from(self, ticker, date_from, alias_ticker='', conn=None):
+        if not conn:
+            conn = self.get_engine()
+        if alias_ticker:
+            sql = f"SELECT candle_date, open_price, close_price, ticker from b3_monthly_chart where ticker in ('{ticker}', '{alias_ticker}') and candle_date >= '{date_from.strftime('%Y-%m-01')}'"
+        else:
+            sql = f"SELECT candle_date, open_price, close_price, ticker from b3_monthly_chart where ticker = '{ticker}' and candle_date >= '{date_from.strftime('%Y-%m-01')}'"
+
+        result = conn.execute(sql)
+
+        response_map = {}
+
+        for row in result:
+            candle_date = row[0]
+            if candle_date.strftime('%Y%m01') in response_map:
+                if row['3'] == ticker:
+                    open_price = Decimal(row[2])
+                    close_price = response_map[candle_date.strftime('%Y%m01')].close
+                else:
+                    close_price = Decimal(row[2])
+                    open_price = response_map[candle_date.strftime('%Y%m01')].open
+            else:
+                open_price = Decimal(row[1])
+                close_price = Decimal(row[2])
+            response_map['%Y%m01'] = MonthData(date_from, open_price, close_price, 0)
+
+        return response_map
+
     def ticker_month_data(self, ticker, _date, alias_ticker='', conn=None):
         """
             Gets candle(open, close) for the entire date.year/date.month
