@@ -87,7 +87,7 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
                       color: widget.color,
                     ),
                     Text(
-                      " ${widget.item.ticker.replaceAll('.SA', '')}",
+                      " ${widget.item.currentTickerName.replaceAll('.SA', '')}",
                       style: textTheme.textStyle.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
