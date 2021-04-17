@@ -191,6 +191,7 @@ class PortfolioList:
 @dataclass
 class StockSummary:
     ticker: str
+    alias_ticker: str
     amount: Decimal
     average_price: Decimal
     invested_amount: Decimal

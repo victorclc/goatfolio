@@ -29,7 +29,7 @@ class SafePerformanceCore:
         investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
                                   key=lambda i: i.ticker)
 
-        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
+        portfolio = Portfolio(subject=subject)
         for ticker, investments in investments_map:
             stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
             if not stock_consolidated:
@@ -94,17 +94,17 @@ class SafePerformanceCore:
 
             if data.name.startswith('FII '):
                 reits.append(
-                    StockSummary(stock.ticker, stock.current_amount, stock.average_price, stock.current_invested,
+                    StockSummary(stock.ticker, stock.alias_ticker, stock.current_amount, stock.average_price, stock.current_invested,
                                  data.price, data.price * stock.current_amount))
                 reit_gross_amount = reit_gross_amount + data.price * stock.current_amount
             elif int(stock.ticker[4:]) >= 30:
                 bdrs.append(
-                    StockSummary(stock.ticker, stock.current_amount, stock.average_price, stock.current_invested,
+                    StockSummary(stock.ticker, stock.alias_ticker, stock.current_amount, stock.average_price, stock.current_invested,
                                  data.price, data.price * stock.current_amount))
                 bdr_gross_amount = bdr_gross_amount + data.price * stock.current_amount
             else:
                 stocks.append(
-                    StockSummary(stock.ticker, stock.current_amount, stock.average_price, stock.current_invested,
+                    StockSummary(stock.ticker, stock.alias_ticker, stock.current_amount, stock.average_price, stock.current_invested,
                                  data.price, data.price * stock.current_amount))
                 stock_gross_amount = stock_gross_amount + data.price * stock.current_amount
 

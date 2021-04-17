@@ -1,5 +1,6 @@
 import logging
 import re
+import traceback
 from datetime import datetime
 from decimal import Decimal
 
@@ -38,6 +39,7 @@ class CEICrawlerCore:
             response.payload = investments
         except Exception as e:
             logger.exception('CAUGHT EXCEPTION')
+            traceback.print_exc()
             response.status = ImportStatus.ERROR
             response.payload = JsonUtils.dump({"error_message": str(e)})
         self.queue.send(response)
