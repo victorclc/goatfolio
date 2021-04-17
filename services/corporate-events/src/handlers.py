@@ -28,24 +28,26 @@ def process_corporate_events_file_handler(event, context):
 
 def check_for_applicable_corporate_events_handler(event, context):
     logger.info(f"EVENT: {event}")
-    new_investments, old_investments = [], []
-    subject = None
+    investments_by_subject = {}
     core = CorporateEventsCore()
     try:
         for record in event['Records']:
             dynamodb = record['dynamodb']
-            if subject is None:
-                subject = dynamodb['Keys']['subject']['S']
+            subject = dynamodb['Keys']['subject']['S']
+            if subject not in investments_by_subject:
+                investments_by_subject[subject] = {'old_investments': [], 'new_investments': []}
+            new_investments = investments_by_subject[subject]['new_investments']
+            old_investments = investments_by_subject[subject]['old_investments']
             if 'NewImage' in dynamodb:
                 new = _dynamo_stream_to_stock_investment(dynamodb['NewImage'])
-                assert new.subject == subject, 'DIFFERENT SUBJECTS IN THE SAME STREAM'
                 new_investments.append(new)
             if 'OldImage' in dynamodb:
                 old = _dynamo_stream_to_stock_investment(dynamodb['OldImage'])
-                assert old.subject == subject, 'DIFFERENT SUBJECTS IN THE SAME STREAM'
                 old_investments.append(old)
-
-        core.check_for_applicable_corporate_events(subject, new_investments + old_investments)
+        for subject, investment in investments_by_subject.items():
+            new_investments = investments_by_subject[subject]['new_investments']
+            old_investments = investments_by_subject[subject]['old_investments']
+            core.check_for_applicable_corporate_events(subject, new_investments + old_investments)
     except Exception:
         print(f'CAUGHT EXCEPTION')
         traceback.print_exc()
