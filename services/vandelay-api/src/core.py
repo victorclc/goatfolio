@@ -26,6 +26,7 @@ class CEICore:
         self.portfolio = portfolio
 
     def import_request(self, subject, request):
+        logger.info(f'Processing import request from {subject}')
         self._validate_request(subject, request)
 
         now = int(datetime.now().timestamp())

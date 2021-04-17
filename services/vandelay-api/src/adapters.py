@@ -22,6 +22,7 @@ class ImportsRepository:
 
     def save(self, _import: Import):
         data = asdict(_import)
+        data.pop('username')
         logger.info(f'Saving import: {data}')
         self._table.put_item(Item=data)
 

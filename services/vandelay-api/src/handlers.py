@@ -14,7 +14,6 @@ core = CEICore()
 
 
 def cei_import_request_handler(event, context):
-    logger.info(f'EVENT: {event}')
     try:
         request = CEIInboundRequest(**JsonUtils.load(event['body']))
         subject = AWSEventUtils.get_event_subject(event)
