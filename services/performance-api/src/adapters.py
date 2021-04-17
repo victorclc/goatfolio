@@ -79,7 +79,7 @@ class MarketData:
         for row in result:
             candle_date = row[0]
             if candle_date.strftime('%Y%m01') in response_map:
-                if row['3'] == ticker:
+                if row[3] == ticker:
                     open_price = Decimal(row[2])
                     close_price = response_map[candle_date.strftime('%Y%m01')].close
                 else:
