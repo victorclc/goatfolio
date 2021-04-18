@@ -85,8 +85,7 @@ class _ExtractPageState extends State<ExtractPage> {
     offset = 0;
     _future = getInvestments();
     await _future;
-    setState(() {
-    });
+    setState(() {});
   }
 
   @override
@@ -253,7 +252,16 @@ class _ExtractPageState extends State<ExtractPage> {
         child: Column(
           children: [
             Container(
-              color: CupertinoTheme.of(context).scaffoldBackgroundColor,
+              decoration: BoxDecoration(
+                color:CupertinoTheme.of(context).scaffoldBackgroundColor ,
+                border: Border(
+                  bottom: BorderSide(
+                    color: Color(0x4D000000),
+                    width: 0.0, // One physical pixel.
+                    style: BorderStyle.solid,
+                  ),
+                ),
+              ),
               padding: EdgeInsets.all(16),
               child: CupertinoSearchTextField(
                 controller: searchController,
@@ -271,12 +279,6 @@ class _ExtractPageState extends State<ExtractPage> {
                 },
               ),
             ),
-            Container(
-                color: CupertinoTheme.of(context).scaffoldBackgroundColor,
-                child: Divider(
-                  height: 8,
-                  color: Colors.grey.shade300,
-                ))
           ],
         ),
       ),
@@ -298,14 +300,12 @@ class _LoadingError extends StatelessWidget {
         SizedBox(
           height: 32,
         ),
-        Text("Tivemos um problema ao carregar",
-            style: textTheme.textStyle),
+        Text("Tivemos um problema ao carregar", style: textTheme.textStyle),
         Text(" as transações.", style: textTheme.textStyle),
         SizedBox(
           height: 8,
         ),
-        Text("Toque para tentar novamente.",
-            style: textTheme.textStyle),
+        Text("Toque para tentar novamente.", style: textTheme.textStyle),
         CupertinoButton(
           padding: EdgeInsets.all(0),
           child: Icon(
