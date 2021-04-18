@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 from goatcommons.decorators import enforce_types
@@ -64,7 +64,7 @@ class StockInvestment(Investment, _StockInvestmentsBase):
 
     def __post_init__(self):
         if not isinstance(self.date, datetime):
-            self.date = datetime.utcfromtimestamp(float(self.date))
+            self.date = datetime.fromtimestamp(float(self.date), tz=timezone.utc)
         if not isinstance(self.amount, Decimal):
             self.amount = Decimal(self.amount).quantize(Decimal('0.01'))
         if not isinstance(self.price, Decimal):
