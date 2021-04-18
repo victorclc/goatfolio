@@ -29,7 +29,7 @@ class SafePerformanceCore:
         investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
                                   key=lambda i: i.ticker)
 
-        portfolio = Portfolio(subject=subject)
+        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
         for ticker, investments in investments_map:
             stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
             if not stock_consolidated:
@@ -181,7 +181,7 @@ class SafePerformanceCore:
                     month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start, stock.alias_ticker,
                                                                     conn)
                     prev_month_gross_amount = prev_month_gross_amount + month_data.close * prev_month_amount
-                month_variation = month_variation - stock.value_invested_current_month
+                month_variation = month_variation - stock.value_invested_current_month # TODO - o q comprei no mes, nao - investido
 
                 stock_variation.append(StockVariation(stock.alias_ticker or stock.ticker, data.change, data.price))
 
