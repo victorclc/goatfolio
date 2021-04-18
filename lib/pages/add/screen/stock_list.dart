@@ -6,7 +6,8 @@ import 'package:goatfolio/pages/add/screen/stock_add.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
-import 'package:goatfolio/services/investment/storage/stock_investment.dart';
+import 'package:goatfolio/services/performance/model/portfolio_list.dart';
+import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 
@@ -28,14 +29,13 @@ class InvestmentsList extends StatefulWidget {
       : super(key: key);
 
   @override
-  _InvestmentsLisPrototypetState createState() =>
-      _InvestmentsLisPrototypetState();
+  _InvestmentsListState createState() =>
+      _InvestmentsListState();
 }
 
-class _InvestmentsLisPrototypetState extends State<InvestmentsList> {
-  StockInvestmentStorage storage;
+class _InvestmentsListState extends State<InvestmentsList> {
   StockInvestmentService service;
-  Future<List<String>> _future;
+  Future<PortfolioList> _future;
 
   Future<void> onStockSubmit(Map values) async {
     final investment = StockInvestment(
@@ -50,7 +50,6 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsList> {
       operation: widget.buyOperation ? "BUY" : "SELL",
     );
     try {
-      print("DENTRO DO TRY");
       await service.addInvestment(investment);
     } catch (Exception) {
       await DialogUtils.showErrorDialog(
@@ -65,9 +64,50 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsList> {
   void initState() {
     super.initState();
     final userService = Provider.of<UserService>(context, listen: false);
-    storage = StockInvestmentStorage();
     service = StockInvestmentService(userService);
-    _future = storage.getDistinctTickers();
+    _future =
+        Provider.of<PortfolioListNotifier>(context, listen: false).futureList;
+  }
+
+  List<SettingsSection> buildAlphabetSections(PortfolioList portfolio) {
+    final stocks = (portfolio.stocks + portfolio.reits + portfolio.bdrs)
+        .map((s) => s.ticker)
+        .toList()
+          ..sort();
+    final Map<String, List<String>> tickersByAlphabet = Map();
+
+    for (String ticker in stocks) {
+      if (!tickersByAlphabet.containsKey(ticker[0])) {
+        tickersByAlphabet.putIfAbsent(ticker[0], () => []);
+      }
+      tickersByAlphabet[ticker[0]].add(ticker);
+    }
+
+    final List<SettingsSection> sections = [];
+    for (String letter in tickersByAlphabet.keys) {
+      sections.add(
+        SettingsSection(
+          title: letter,
+          tiles: tickersByAlphabet[letter]
+              .map(
+                (ticker) => SettingsTile(
+                  title: ticker,
+                  onPressed: (context) =>
+                      ModalUtils.showDragableModalBottomSheet(
+                          context,
+                          StockAdd(
+                            ticker: ticker,
+                            buyOperation: widget.buyOperation,
+                            userService: Provider.of<UserService>(context,
+                                listen: false),
+                          )),
+                ),
+              )
+              .toList(),
+        ),
+      );
+    }
+    return sections;
   }
 
   @override
@@ -106,47 +146,9 @@ class _InvestmentsLisPrototypetState extends State<InvestmentsList> {
                           return CupertinoActivityIndicator();
                         case ConnectionState.done:
                           if (snapshot.hasData) {
-                            final List<String> tickers = snapshot.data..sort();
-                            print("abcd"[0]);
-                            final Map<String, List<String>> tickersByAlphabet =
-                                Map();
-                            for (String ticker in tickers) {
-                              if (!tickersByAlphabet.containsKey(ticker[0])) {
-                                tickersByAlphabet.putIfAbsent(
-                                    ticker[0], () => []);
-                              }
-                              tickersByAlphabet[ticker[0]].add(ticker);
-                            }
-                            final List<SettingsSection> sections = [];
-                            for (String letter in tickersByAlphabet.keys) {
-                              sections.add(
-                                SettingsSection(
-                                  title: letter,
-                                  tiles: tickersByAlphabet[letter]
-                                      .map(
-                                        (ticker) => SettingsTile(
-                                          title: ticker,
-                                          onPressed: (context) => ModalUtils
-                                              .showDragableModalBottomSheet(
-                                                  context,
-                                                  StockAdd(
-                                                    ticker: ticker,
-                                                    buyOperation:
-                                                        widget.buyOperation,
-                                                    userService: Provider.of<
-                                                            UserService>(
-                                                        context,
-                                                        listen: false),
-                                                  )),
-                                        ),
-                                      )
-                                      .toList(),
-                                ),
-                              );
-                            }
                             return Expanded(
                                 child: SettingsList(
-                              sections: sections,
+                              sections: buildAlphabetSections(snapshot.data),
                             ));
                           }
                       }

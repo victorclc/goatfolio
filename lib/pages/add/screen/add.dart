@@ -23,10 +23,6 @@ class AddPage extends StatelessWidget {
             Expanded(
               child: SettingsList(
                 shrinkWrap: true,
-                lightBackgroundColor:
-                    CupertinoTheme.of(context).brightness != Brightness.light
-                        ? CupertinoTheme.of(context).scaffoldBackgroundColor
-                        : null,
                 physics: NeverScrollableScrollPhysics(),
                 sections: [
                   SettingsSection(
