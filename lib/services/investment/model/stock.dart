@@ -9,6 +9,7 @@ class StockInvestment {
   String ticker;
   int amount;
   double price;
+  String aliasTicker;
 
   StockInvestment(
       {this.ticker,
@@ -38,14 +39,16 @@ class StockInvestment {
   StockInvestment.fromJson(Map<String, dynamic> json)
       : type = json['type'],
         operation = json['operation'],
-        date = DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000, isUtc: true),
+        date = DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000,
+            isUtc: true),
         broker = json['broker'],
         id = json['id'],
         subject = json['subject'],
         ticker = json['ticker'],
         amount = json['amount'].toInt(),
         price = json['price'],
-        costs = json['costs'];
+        costs = json['costs'],
+        aliasTicker = json['alias_ticker'];
 
   Map<String, dynamic> toJson() => {
         'type': type,
@@ -57,5 +60,6 @@ class StockInvestment {
         'price': price,
         'amount': amount,
         'costs': costs,
+        'alias_ticker': aliasTicker
       };
 }

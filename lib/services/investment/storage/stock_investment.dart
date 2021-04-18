@@ -16,8 +16,8 @@ Future<Database> initDatabase() async {
           "costs real, "
           "ticker text, "
           "amount integer, "
-          "price real"
-          "alias_ticker"
+          "price real,"
+          "alias_ticker text"
           ")");
     },
   );
@@ -80,8 +80,8 @@ class StockInvestmentStorage {
   Future<List<StockInvestment>> getAll([int limit, int offset]) async {
     final db = await database;
 
-    final List<Map<String, dynamic>> maps = await db.query(
-        TABLE_NAME, orderBy: 'DATE DESC', limit: limit, offset: offset);
+    final List<Map<String, dynamic>> maps = await db.query(TABLE_NAME,
+        orderBy: 'DATE DESC', limit: limit, offset: offset);
 
     return List.generate(maps.length, (i) {
       return StockInvestment.fromJson(maps[i]);
@@ -91,7 +91,8 @@ class StockInvestmentStorage {
   Future<List<StockInvestment>> getByTicker(String ticker) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(TABLE_NAME,
-        orderBy: 'DATE DESC', where: "ticker like '$ticker%'");
+        orderBy: 'DATE DESC',
+        where: "ticker like '$ticker%' or alias_ticker like '$ticker%'");
 
     return List.generate(maps.length, (i) {
       return StockInvestment.fromJson(maps[i]);
@@ -113,12 +114,11 @@ class StockInvestmentStorage {
   //   });
   // }
 
-
   Future<List<String>> getDistinctTickers() async {
     final tickerColumn = "ticker";
     final db = await database;
     final List<Map<String, dynamic>> maps =
-    await db.query(TABLE_NAME, distinct: true, columns: [tickerColumn]);
+        await db.query(TABLE_NAME, distinct: true, columns: [tickerColumn]);
 
     print("Maps: $maps");
     return List.generate(maps.length, (i) {
