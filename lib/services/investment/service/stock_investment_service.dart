@@ -44,6 +44,7 @@ class StockInvestmentService {
   Future<void> refreshInvestments() async {
     debugPrint("Refreshing investments");
     List<StockInvestment> investments = await portfolioClient.getInvestments();
+    await storage.deleteAll();
     investments.forEach((i) async => await storage.insert(i));
   }
 

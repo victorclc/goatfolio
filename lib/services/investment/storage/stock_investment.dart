@@ -17,6 +17,7 @@ Future<Database> initDatabase() async {
           "ticker text, "
           "amount integer, "
           "price real"
+          "alias_ticker"
           ")");
     },
   );
@@ -123,5 +124,10 @@ class StockInvestmentStorage {
     return List.generate(maps.length, (i) {
       return maps[i][tickerColumn] as String;
     });
+  }
+
+  Future<void> deleteAll() async {
+    final db = await database;
+    await db.delete(TABLE_NAME);
   }
 }

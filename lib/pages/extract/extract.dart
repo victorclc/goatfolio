@@ -83,8 +83,9 @@ class _ExtractPageState extends State<ExtractPage> {
   Future<void> onRefresh() async {
     await stockService.refreshInvestments();
     offset = 0;
+    _future = getInvestments();
+    await _future;
     setState(() {
-      _future = getInvestments();
     });
   }
 
