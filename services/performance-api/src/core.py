@@ -132,9 +132,9 @@ class SafePerformanceCore:
                                                                         stock.alias_ticker, conn)
 
                 logger.info(f'Monthly Map: {monthly_map}')
-                prev = datetime.fromtimestamp(timestamps[0])
+                prev = datetime.utcfromtimestamp(timestamps[0])
                 proc = prev
-                last = DatetimeUtils.month_first_day_datetime(datetime.now())
+                last = DatetimeUtils.month_first_day_datetime(datetime.utcnow())
 
                 while proc <= last:
                     proc_timestamp = int(proc.timestamp())
