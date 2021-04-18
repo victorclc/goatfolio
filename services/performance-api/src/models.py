@@ -72,7 +72,15 @@ class StockConsolidated:
         if self.history:
             now = datetime.now()
             if self.history[-1].date.year == now.year and self.history[-1].date.month == now.month:
-                return self.history[-1].invested_amount
+                return self.history[-1].invested_value
+        return Decimal(0)
+
+    @property
+    def sold_amount_current_month(self):
+        if self.history:
+            now = datetime.now()
+            if self.history[-1].date.year == now.year and self.history[-1].date.month == now.month:
+                return self.history[-1].sold_amount
         return Decimal(0)
 
     @property
@@ -109,7 +117,11 @@ class StockPosition:
     open_price: Decimal = field(default_factory=lambda: Decimal(0))
     close_price: Decimal = field(default_factory=lambda: Decimal(0))
     amount: Decimal = field(default_factory=lambda: Decimal(0))
-    invested_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    sold_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    bought_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    invested_value: Decimal = field(default_factory=lambda: Decimal(0))
+    sold_value: Decimal = field(default_factory=lambda: Decimal(0))
+    realized_profit: Decimal = field(default_factory=lambda: Decimal(0))
 
     def __post_init__(self):
         if not isinstance(self.date, datetime):

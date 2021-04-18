@@ -6,7 +6,7 @@ from typing import List
 
 from dateutil.relativedelta import relativedelta
 
-from adapters import InvestmentRepository, MarketData, PortfolioRepository
+from adapters import MarketData, PortfolioRepository
 from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
@@ -66,7 +66,7 @@ class SafePerformanceCore:
             else:
                 p_position = portfolio_history_map[stock_position.date]
 
-            p_position.total_invested = p_position.total_invested + stock_position.invested_amount
+            p_position.total_invested = p_position.total_invested + stock_position.invested_value - stock_position.sold_value
             if stock_position.amount > 0:
                 p_position.gross_amount = p_position.gross_amount + stock_position.amount * stock_position.close_price
 
@@ -94,17 +94,20 @@ class SafePerformanceCore:
 
             if data.name.startswith('FII '):
                 reits.append(
-                    StockSummary(stock.ticker, stock.alias_ticker, stock.current_amount, stock.average_price, stock.current_invested,
+                    StockSummary(stock.ticker, stock.alias_ticker, stock.current_amount, stock.average_price,
+                                 stock.current_invested,
                                  data.price, data.price * stock.current_amount))
                 reit_gross_amount = reit_gross_amount + data.price * stock.current_amount
             elif int(stock.ticker[4:]) >= 30:
                 bdrs.append(
-                    StockSummary(stock.ticker, stock.alias_ticker, stock.current_amount, stock.average_price, stock.current_invested,
+                    StockSummary(stock.ticker, stock.alias_ticker, stock.current_amount, stock.average_price,
+                                 stock.current_invested,
                                  data.price, data.price * stock.current_amount))
                 bdr_gross_amount = bdr_gross_amount + data.price * stock.current_amount
             else:
                 stocks.append(
-                    StockSummary(stock.ticker, stock.alias_ticker, stock.current_amount, stock.average_price, stock.current_invested,
+                    StockSummary(stock.ticker, stock.alias_ticker, stock.current_amount, stock.average_price,
+                                 stock.current_invested,
                                  data.price, data.price * stock.current_amount))
                 stock_gross_amount = stock_gross_amount + data.price * stock.current_amount
 
@@ -171,7 +174,7 @@ class SafePerformanceCore:
             for stock in stocks:
                 if stock.current_amount <= 0:
                     continue
-                invested_amount = invested_amount + sum(s.invested_amount for s in stock.history)
+                invested_amount = invested_amount + sum(s.invested_value - s.sold_value for s in stock.history)
 
                 data = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
                 gross_amount = gross_amount + stock.current_amount * data.price
@@ -180,8 +183,10 @@ class SafePerformanceCore:
                 if prev_month_amount > 0:
                     month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start, stock.alias_ticker,
                                                                     conn)
+                    if stock.sold_amount_current_month > 0:
+                        prev_month_amount = prev_month_amount - stock.sold_amount_current_month
                     prev_month_gross_amount = prev_month_gross_amount + month_data.close * prev_month_amount
-                month_variation = month_variation - stock.value_invested_current_month # TODO - o q comprei no mes, nao - investido
+                month_variation = month_variation - stock.value_invested_current_month
 
                 stock_variation.append(StockVariation(stock.alias_ticker or stock.ticker, data.change, data.price))
 
@@ -203,18 +208,23 @@ class SafePerformanceCore:
                                     key=lambda p: p.date)
             amount = prev_positions[-1].amount if prev_positions else Decimal(0)
 
-            h_position = StockPosition(date=month_date, amount=amount, invested_amount=Decimal(0))
+            h_position = StockPosition(date=month_date, amount=amount, invested_value=Decimal(0))
             stock_consolidated.history.append(h_position)
 
-        if inv.operation in [OperationType.BUY, OperationType.SPLIT, OperationType.INCORP_ADD]:
-            # TODO maybe break this if becaus split and incorp add dont change the invested_amount
-            # buy as the investment price of this kind of operation is 0, staying like this wont cause a problem
+        if inv.operation == OperationType.BUY:
+            h_position.bought_amount = h_position.bought_amount + inv.amount
             h_position.amount = h_position.amount + inv.amount
-            h_position.invested_amount = h_position.invested_amount + inv.amount * inv.price
-        elif inv.operation in [OperationType.GROUP, OperationType.INCORP_SUB]:
+            h_position.invested_value = h_position.invested_value + inv.amount * inv.price
+        elif inv.operation == OperationType.SELL:
+            h_position.sold_amount = h_position.sold_amount + inv.amount
+            h_position.sold_value = h_position.sold_value + inv.amount * stock_consolidated.average_price
+            h_position.realized_profit = h_position.realized_profit + inv.amount * inv.price - h_position.sold_value
             h_position.amount = h_position.amount - inv.amount
-        else:
-            h_position.invested_amount = h_position.invested_amount - inv.amount * stock_consolidated.average_price
+        elif inv.operation in [OperationType.SPLIT,
+                               OperationType.INCORP_ADD]:
+            # POSSIBLE BUG HERE, when calculating previous month variation
+            h_position.amount = h_position.amount + inv.amount
+        elif inv.operation in [OperationType.GROUP, OperationType.INCORP_SUB]:
             h_position.amount = h_position.amount - inv.amount
 
         inv_amount = (inv.amount if inv.operation in [OperationType.BUY, OperationType.SPLIT,
@@ -224,10 +234,10 @@ class SafePerformanceCore:
 
 
 if __name__ == '__main__':
-    investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
     # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
-    print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
-    # print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    # print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
+    print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
