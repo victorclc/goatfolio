@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 import json
 
@@ -66,4 +66,4 @@ class InvestmentUtils:
 class DatetimeUtils:
     @staticmethod
     def month_first_day_datetime(_date: datetime):
-        return datetime(_date.year, _date.month, 1)
+        return datetime(_date.year, _date.month, 1, tzinfo=timezone.utc)

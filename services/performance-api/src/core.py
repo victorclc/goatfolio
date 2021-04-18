@@ -1,12 +1,12 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from itertools import groupby
 from typing import List
 
 from dateutil.relativedelta import relativedelta
 
-from adapters import MarketData, PortfolioRepository
+from adapters import MarketData, PortfolioRepository, InvestmentRepository
 from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
@@ -72,7 +72,7 @@ class SafePerformanceCore:
 
         data = self.market_data.ibov_from_date(portfolio.initial_date)
         ibov_history = [
-            StockPosition(date=datetime(candle.date.year, candle.date.month, candle.date.day),
+            StockPosition(date=datetime(candle.date.year, candle.date.month, candle.date.day, tzinfo=timezone.utc),
                           open_price=candle.open, close_price=candle.close) for candle in data]
         return PortfolioHistory(history=list(portfolio_history_map.values()), ibov_history=ibov_history)
 
@@ -132,10 +132,9 @@ class SafePerformanceCore:
                                                                         stock.alias_ticker, conn)
 
                 logger.info(f'Monthly Map: {monthly_map}')
-                prev = datetime.utcfromtimestamp(timestamps[0])
+                prev = datetime.fromtimestamp(timestamps[0], tz=timezone.utc)
                 proc = prev
                 last = DatetimeUtils.month_first_day_datetime(datetime.utcnow())
-
                 while proc <= last:
                     proc_timestamp = int(proc.timestamp())
                     if proc_timestamp not in timestamps:
@@ -169,7 +168,7 @@ class SafePerformanceCore:
         stock_variation = []
 
         now = datetime.now()
-        prev_month_start = datetime(now.year, now.month, 1) - relativedelta(months=1)
+        prev_month_start = datetime(now.year, now.month, 1, tzinfo=timezone.utc) - relativedelta(months=1)
         with self.market_data.get_engine().connect() as conn:
             for stock in stocks:
                 if stock.current_amount <= 0:
@@ -237,7 +236,7 @@ if __name__ == '__main__':
     # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
     # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
     # print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
-    print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    # print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    # print(SafePerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
+    print(SafePerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BBAS3'))

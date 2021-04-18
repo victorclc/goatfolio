@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 from goatcommons.constants import OperationType
@@ -26,7 +26,7 @@ class Portfolio:
 
     def __post_init__(self):
         if not isinstance(self.initial_date, datetime):
-            self.initial_date = datetime.utcfromtimestamp(float(self.initial_date))
+            self.initial_date = datetime.fromtimestamp(float(self.initial_date), tz=timezone.utc)
         self.stocks = [StockConsolidated(**s) for s in self.stocks]
         self.reits = [StockConsolidated(**s) for s in self.reits]
         self.history = [PortfolioPosition(**p) for p in self.history]
@@ -103,7 +103,7 @@ class StockConsolidated:
 
     def __post_init__(self):
         if not isinstance(self.initial_date, datetime):
-            self.initial_date = datetime.utcfromtimestamp(float(self.initial_date))
+            self.initial_date = datetime.fromtimestamp(float(self.initial_date), tz=timezone.utc)
         self.history = [StockPosition(**h) for h in self.history]
 
     def to_dict(self):
@@ -125,7 +125,7 @@ class StockPosition:
 
     def __post_init__(self):
         if not isinstance(self.date, datetime):
-            self.date = datetime.utcfromtimestamp(float(self.date))
+            self.date = datetime.fromtimestamp(float(self.date), tz=timezone.utc)
 
     def to_dict(self):
         return {**self.__dict__, 'date': int(self.date.timestamp())}
@@ -139,7 +139,7 @@ class PortfolioPosition:
 
     def __post_init__(self):
         if not isinstance(self.date, datetime):
-            self.date = datetime.utcfromtimestamp(float(self.date))
+            self.date = datetime.fromtimestamp(float(self.date), tz=timezone.utc)
 
     def to_dict(self):
         return {**self.__dict__, 'date': int(self.date.timestamp())}
