@@ -10,6 +10,7 @@ import 'package:goatfolio/pages/settings/screen/settings_page.dart';
 import 'package:goatfolio/pages/summary/screen/summary.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
+import 'package:goatfolio/services/performance/notifier/portfolio_summary_notifier.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:provider/provider.dart';
 
@@ -81,7 +82,9 @@ Widget buildNavigationPage(UserService userService) {
         create: (context) => userService,
       ),
       ChangeNotifierProvider(
-          create: (_) => PortfolioPerformanceNotifier(userService)),
+          create: (_) => PortfolioListNotifier(userService)),
+      ChangeNotifierProvider(
+          create: (_) => PortfolioSummaryNotifier(userService))
     ],
   );
 }

@@ -15,4 +15,12 @@ class PortfolioSummary {
         stocksVariation = json['stocks_variation']
             .map<StockVariation>((json) => StockVariation.fromJson(json))
             .toList();
+
+  void copy(PortfolioSummary other) {
+    investedAmount = other.investedAmount;
+    grossAmount = other.grossAmount;
+    dayVariation = other.dayVariation;
+    monthVariation = other.monthVariation;
+    stocksVariation = other.stocksVariation;
+  }
 }

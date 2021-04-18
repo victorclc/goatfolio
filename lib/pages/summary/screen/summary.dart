@@ -5,6 +5,7 @@ import 'package:goatfolio/pages/summary/widget/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/widget/rentability_card.dart';
 import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
 import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
+import 'package:goatfolio/services/performance/notifier/portfolio_summary_notifier.dart';
 import 'package:provider/provider.dart';
 
 class SummaryPage extends StatefulWidget {
@@ -19,6 +20,7 @@ class _SummaryPageState extends State<SummaryPage> {
   PortfolioSummary summary;
 
   void initState() {
+    Provider.of<PortfolioListNotifier>(context, listen: false);
     super.initState();
   }
 
@@ -30,11 +32,12 @@ class _SummaryPageState extends State<SummaryPage> {
           backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
           border: null,
         ),
-        CupertinoSliverRefreshControl(
-          onRefresh: () async =>
-              Provider.of<PortfolioPerformanceNotifier>(context, listen: false)
-                  .updatePerformance(),
-        ),
+        CupertinoSliverRefreshControl(onRefresh: () async {
+          Provider.of<PortfolioListNotifier>(context, listen: false)
+              .updatePerformance();
+          await Provider.of<PortfolioSummaryNotifier>(context, listen: false)
+              .updatePerformance();
+        }),
         SliverSafeArea(
           top: false,
           sliver: SliverPadding(
@@ -42,7 +45,7 @@ class _SummaryPageState extends State<SummaryPage> {
             sliver: SliverList(
               delegate: SliverChildListDelegate.fixed([
                 FutureBuilder(
-                  future: Provider.of<PortfolioPerformanceNotifier>(context,
+                  future: Provider.of<PortfolioSummaryNotifier>(context,
                           listen: true)
                       .futureSummary,
                   builder: (context, snapshot) {
@@ -61,8 +64,12 @@ class _SummaryPageState extends State<SummaryPage> {
                               RentabilityCard(summary),
                               Row(
                                 children: [
-                                  Expanded(child: HighestHighsCard(summary.stocksVariation)),
-                                  Expanded(child: LowestLowsCard(summary.stocksVariation)),
+                                  Expanded(
+                                      child: HighestHighsCard(
+                                          summary.stocksVariation)),
+                                  Expanded(
+                                      child: LowestLowsCard(
+                                          summary.stocksVariation)),
                                 ],
                               ),
                             ],
@@ -78,8 +85,7 @@ class _SummaryPageState extends State<SummaryPage> {
                         ),
                         Text("Tivemos um problema ao carregar",
                             style: textTheme.textStyle),
-                        Text(" as informações.",
-                            style: textTheme.textStyle),
+                        Text(" as informações.", style: textTheme.textStyle),
                         SizedBox(
                           height: 8,
                         ),
@@ -92,7 +98,7 @@ class _SummaryPageState extends State<SummaryPage> {
                             size: 32,
                           ),
                           onPressed: () {
-                            Provider.of<PortfolioPerformanceNotifier>(context,
+                            Provider.of<PortfolioSummaryNotifier>(context,
                                     listen: false)
                                 .updatePerformance();
                           },

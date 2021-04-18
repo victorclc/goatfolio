@@ -1,15 +1,23 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/services/performance/model/portfolio_list.dart';
 
 class DonutAutoLabelChart extends StatefulWidget {
+  final PortfolioList portfolioList;
   final List<charts.Series> typeSeries;
   final List<charts.Series> stocksSeries;
   final List<charts.Series> reitsSeries;
+  final List<charts.Series> bdrsSeries;
   final bool animate;
 
   DonutAutoLabelChart(
-      {this.animate, this.typeSeries, this.stocksSeries, this.reitsSeries});
+      {this.animate,
+      this.typeSeries,
+      this.stocksSeries,
+      this.reitsSeries,
+      this.bdrsSeries,
+      this.portfolioList});
 
   @override
   _DonutAutoLabelChartState createState() => _DonutAutoLabelChartState();
@@ -20,6 +28,12 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
   bool stockTapped = false;
   bool mustRebuild = false;
   String tappedType;
+  double grossAmount;
+
+  void initState() {
+    super.initState();
+    grossAmount = widget.portfolioList.grossAmount;
+  }
 
   Widget buildChart(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
@@ -65,7 +79,14 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
     if (!stockTapped) {
       return widget.typeSeries;
     }
-    return 'FIIs' == tappedType ? widget.reitsSeries : widget.stocksSeries;
+    switch (tappedType) {
+      case 'FIIs':
+        return widget.reitsSeries;
+      case 'BDRs':
+        return widget.bdrsSeries;
+      default:
+        return widget.stocksSeries;
+    }
   }
 
   @override
@@ -76,7 +97,10 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
             style: CupertinoTheme.of(context).textTheme.textStyle),
       );
     }
-    if (chart == null || mustRebuild) {
+    if (chart == null ||
+        mustRebuild ||
+        grossAmount != widget.portfolioList.grossAmount) {
+      grossAmount = widget.portfolioList.grossAmount;
       mustRebuild = false;
       chart = buildChart(context);
     }

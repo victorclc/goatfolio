@@ -5,9 +5,7 @@ import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
 import 'package:goatfolio/common/widget/expansion_tile_custom.dart';
 import 'package:goatfolio/pages/portfolio/widget/donut_chart.dart';
 import 'package:goatfolio/services/performance/model/portfolio_list.dart';
-import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/services/performance/model/stock_position.dart';
-import 'package:goatfolio/services/performance/model/stock_performance.dart';
 import 'package:goatfolio/services/performance/model/stock_summary.dart';
 import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:provider/provider.dart';
@@ -37,12 +35,12 @@ class _PortfolioPageState extends State<PortfolioPage> {
     return CupertinoSliverPage(
         largeTitle: PortfolioPage.title,
         onRefresh: () async =>
-            Provider.of<PortfolioPerformanceNotifier>(context, listen: false)
+            Provider.of<PortfolioListNotifier>(context, listen: false)
                 .updatePerformance(),
         children: [
           FutureBuilder(
             future:
-                Provider.of<PortfolioPerformanceNotifier>(context, listen: true)
+                Provider.of<PortfolioListNotifier>(context, listen: true)
                     .futureList,
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
@@ -69,9 +67,11 @@ class _PortfolioPageState extends State<PortfolioPage> {
                           height: 240,
                           width: double.infinity,
                           child: DonutAutoLabelChart(
+                            portfolioList: portfolioList,
                             typeSeries: buildSubtypeSeries(),
                             stocksSeries: buildStockSeries(),
                             reitsSeries: buildReitSeries(),
+                            bdrsSeries: buildBdrSeries()
                           ),
                         ),
                         SizedBox(
@@ -88,6 +88,14 @@ class _PortfolioPageState extends State<PortfolioPage> {
                           title: 'Ações/ETFs',
                           grossAmount: portfolioList.stockGrossAmount,
                           items: portfolioList.stocks,
+                          colors: colors,
+                          totalAmount: portfolioList.grossAmount,
+                          ibovHistory: portfolioList.ibovHistory,
+                        ),
+                        InvestmentTypeExpansionTile(
+                          title: 'BDRs',
+                          grossAmount: portfolioList.bdrGrossAmount,
+                          items: portfolioList.bdrs,
                           colors: colors,
                           totalAmount: portfolioList.grossAmount,
                           ibovHistory: portfolioList.ibovHistory,
@@ -126,7 +134,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       size: 32,
                     ),
                     onPressed: () {
-                      Provider.of<PortfolioPerformanceNotifier>(context,
+                      Provider.of<PortfolioListNotifier>(context,
                               listen: false)
                           .updatePerformance();
                     },
@@ -147,7 +155,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
         return null;
       }
       return TickerTotals(
-          p.ticker, p.grossAmount, color);
+          p.currentTickerName, p.grossAmount, color);
     }).toList()
       ..removeWhere((element) => element == null);
     return [
@@ -192,6 +200,33 @@ class _PortfolioPageState extends State<PortfolioPage> {
     ];
   }
 
+  List<charts.Series<TickerTotals, String>> buildBdrSeries() {
+    final stocks = portfolioList.bdrs;
+    List<TickerTotals> data = stocks.map((p) {
+      final color = Rgb.random();
+      colors[p.ticker] = color;
+      if (p.amount <= 0) {
+        return null;
+      }
+      return TickerTotals(
+          p.currentTickerName, p.grossAmount, color);
+    }).toList()
+      ..removeWhere((element) => element == null);
+    return [
+      new charts.Series<TickerTotals, String>(
+        id: 'bdrs',
+        domainFn: (TickerTotals totals, _) => totals.ticker,
+        measureFn: (TickerTotals totals, _) => totals.total,
+        data: data,
+        colorFn: (totals, _) => charts.Color(
+            r: totals.color.r, g: totals.color.g, b: totals.color.b),
+        // Set a label accessor to control the text of the arc label.
+        labelAccessorFn: (TickerTotals totals, _) =>
+        '${totals.ticker.replaceAll('.SA', '')}',
+      )
+    ];
+  }
+
   List<charts.Series<TickerTotals, String>> buildSubtypeSeries() {
     List<TickerTotals> data = [];
 
@@ -204,6 +239,12 @@ class _PortfolioPageState extends State<PortfolioPage> {
       colors['FIIs'] = Rgb.random();
       data.add(
           TickerTotals('FIIs', portfolioList.reitGrossAmount, colors['FIIs']));
+    }
+
+    if (portfolioList.bdrGrossAmount > 0) {
+      colors['BDRs'] = Rgb.random();
+      data.add(
+          TickerTotals('BDRs', portfolioList.reitGrossAmount, colors['BDRs']));
     }
 
     return [
@@ -401,7 +442,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                     color: color,
                   ),
                   Text(
-                    " ${summary.ticker.replaceAll('.SA', '')}",
+                    " ${summary.currentTickerName.replaceAll('.SA', '')}",
                     style: textTheme.textStyle.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

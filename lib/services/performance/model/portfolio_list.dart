@@ -29,4 +29,13 @@ class PortfolioList {
         bdrs = json['bdrs']
             .map<StockSummary>((json) => StockSummary.fromJson(json))
             .toList();
+
+  void copy(PortfolioList other) {
+    stockGrossAmount = other.stockGrossAmount;
+    reitGrossAmount = other.reitGrossAmount;
+    bdrGrossAmount = other.bdrGrossAmount;
+    stocks = other.stocks;
+    reits = other.reits;
+    bdrs = other.bdrs;
+  }
 }
