@@ -23,7 +23,7 @@ class ExtractDetails extends StatelessWidget {
         leading: Container(),
         middle: Text("Detalhes"),
         backgroundColor:
-            MediaQuery.of(context).platformBrightness == Brightness.light
+            CupertinoTheme.of(context).brightness == Brightness.light
                 ? CupertinoTheme.of(context).scaffoldBackgroundColor
                 : CupertinoTheme.of(context).barBackgroundColor,
         border: Border(),

@@ -14,6 +14,8 @@ import 'package:goatfolio/services/performance/notifier/portfolio_summary_notifi
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:provider/provider.dart';
 
+import 'common/theme/theme_changer.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final cognitoClientId = '4eq433usu00k6m0as28srbsber';
@@ -46,29 +48,32 @@ class GoatfolioApp extends StatelessWidget {
 
   @override
   Widget build(context) {
-    return MaterialApp(
-      title: 'Goatfolio',
-      theme: ThemeData(),
-      darkTheme: ThemeData.light(),
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [const Locale('pt', 'BR')],
-      builder: (context, child) {
-        return CupertinoTheme(
-          data: CupertinoThemeData(),
-          child: Material(child: child),
-        );
-      },
-      home: Scaffold(
-        body: hasValidSession
-            ? buildNavigationPage(userService)
-            : LoginPage(
-                userService: userService,
-                onLoggedOn: goToNavigationPage,
-              ),
+    return ChangeNotifierProvider<ThemeChanger>(
+      create: (_) => ThemeChanger(CupertinoThemeData.raw(Brightness.dark, null, null, null, null, null)),
+      child: MaterialApp(
+        title: 'Goatfolio',
+        theme: ThemeData(),
+        darkTheme: ThemeData.light(),
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: [const Locale('pt', 'BR')],
+        builder: (context, child) {
+          return CupertinoTheme(
+            data: Provider.of<ThemeChanger>(context).themeData,
+            child: Material(child: child),
+          );
+        },
+        home: Scaffold(
+          body: hasValidSession
+              ? buildNavigationPage(userService)
+              : LoginPage(
+                  userService: userService,
+                  onLoggedOn: goToNavigationPage,
+                ),
+        ),
       ),
     );
   }

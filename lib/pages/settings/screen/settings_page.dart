@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/main.dart';
 import 'package:goatfolio/pages/login/screen/login.dart';
+import 'package:goatfolio/pages/settings/screen/theme_page.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/storage/stock_investment.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +24,10 @@ class SettingsPage extends StatelessWidget {
         sections: [
           SettingsSection(
             tiles: [
+              SettingsTile(
+                title: 'Aparência',
+                onPressed: goToThemePage,
+              ),
               SettingsTile(
                 title: 'Sobre',
                 onPressed: goToAboutPage,
