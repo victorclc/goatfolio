@@ -22,10 +22,7 @@ class ExtractDetails extends StatelessWidget {
       navigationBar: CupertinoNavigationBar(
         leading: Container(),
         middle: Text("Detalhes"),
-        backgroundColor:
-            CupertinoTheme.of(context).brightness == Brightness.light
-                ? CupertinoTheme.of(context).scaffoldBackgroundColor
-                : CupertinoTheme.of(context).barBackgroundColor,
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         border: Border(),
         trailing: CupertinoButton(
           padding: EdgeInsets.all(0),
@@ -98,6 +95,9 @@ class ExtractDetails extends StatelessWidget {
                                     textTheme.textStyle.copyWith(fontSize: 14)))
                         : Container(),
                   ],
+                ),
+                SizedBox(
+                  height: 40,
                 ),
                 Padding(
                   padding: const EdgeInsets.all(32.0),
