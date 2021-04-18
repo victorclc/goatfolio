@@ -227,19 +227,26 @@ class _PortfolioPageState extends State<PortfolioPage> {
   List<charts.Series<TickerTotals, String>> buildSubtypeSeries() {
     List<TickerTotals> data = [];
 
+
+    // #5c36ad
+    // #ec1a72
+    // #ff8c12
+    final stockColor = Color(0x5c36ad);
     if (portfolioList.stockGrossAmount > 0) {
-      colors['Ações/ETFs'] = Rgb.random();
+      colors['Ações/ETFs'] = Rgb(stockColor.red, stockColor.green, stockColor.blue);
       data.add(TickerTotals(
           'Ações/ETFs', portfolioList.stockGrossAmount, colors['Ações/ETFs']));
     }
+    final reitColor = Color(0xf52d6f);
     if (portfolioList.reitGrossAmount > 0) {
-      colors['FIIs'] = Rgb.random();
+      colors['FIIs'] = Rgb(reitColor.red, reitColor.green, reitColor.blue);
       data.add(
           TickerTotals('FIIs', portfolioList.reitGrossAmount, colors['FIIs']));
     }
 
+    final bdrColor = Color(0xffa514);
     if (portfolioList.bdrGrossAmount > 0) {
-      colors['BDRs'] = Rgb.random();
+      colors['BDRs'] =  Rgb(bdrColor.red, bdrColor.green, bdrColor.blue);
       data.add(
           TickerTotals('BDRs', portfolioList.reitGrossAmount, colors['BDRs']));
     }
