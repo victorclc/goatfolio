@@ -220,17 +220,12 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
       if (element.amount == 0) {
         investedAmount = 0;
       } else {
-        investedAmount += element.investedAmount;
+        investedAmount += element.investedValue - element.soldValue;
       }
       seriesInvested.add(MoneyDateSeries(element.date, investedAmount));
       seriesGross.add(
           MoneyDateSeries(element.date, element.closePrice * element.amount));
     });
-    final now = DateTime.now();
-    seriesGross.add(MoneyDateSeries(
-        DateTime(now.year, now.month, 1), widget.item.grossAmount));
-    seriesInvested.add(MoneyDateSeries(
-        DateTime(now.year, now.month, 1), widget.item.investedAmount));
 
     return [
       new charts.Series<MoneyDateSeries, DateTime>(
