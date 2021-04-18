@@ -24,9 +24,12 @@ class CupertinoSliverPage extends StatelessWidget {
             largeTitle: Text(largeTitle),
             backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
           ),
-          CupertinoSliverRefreshControl(
-            onRefresh: onRefresh,
-          ),
+          onRefresh != null
+              ? CupertinoSliverRefreshControl(
+                  onRefresh: onRefresh,
+                )
+              : SliverList(
+                  delegate: SliverChildListDelegate.fixed([Container()])),
           SliverSafeArea(
             top: false,
             sliver: SliverPadding(

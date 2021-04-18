@@ -34,9 +34,6 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
     return CupertinoSliverPage(
         largeTitle: PortfolioPage.title,
-        onRefresh: () async =>
-            Provider.of<PortfolioListNotifier>(context, listen: false)
-                .updatePerformance(),
         children: [
           FutureBuilder(
             future:
