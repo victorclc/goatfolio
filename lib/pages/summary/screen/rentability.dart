@@ -54,7 +54,7 @@ class _RentabilityPageState extends State<RentabilityPage> {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         previousPageTitle: "",
-        middle: Text('Rentabilidade'),
+        middle: Text('Evolução'),
       ),
       child: SafeArea(
         child: Padding(
