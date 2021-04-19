@@ -114,6 +114,7 @@ class _InvestmentsListState extends State<InvestmentsList> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
+          backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
           previousPageTitle: "",
           trailing: widget.buyOperation
               ? IconButton(

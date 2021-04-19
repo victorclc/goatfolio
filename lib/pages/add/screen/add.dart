@@ -16,7 +16,9 @@ class AddPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(),
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      ),
       child: SafeArea(
         child: Column(
           children: [

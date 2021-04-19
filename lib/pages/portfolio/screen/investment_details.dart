@@ -248,63 +248,71 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
     ];
   }
 
-  Future<List<charts.Series<MoneyDateSeries, DateTime>>> createRentabilitySeries() async{
-    // List<MoneyDateSeries> series = [];
-    // widget.item.history.sort((a, b) => a.date.compareTo(b.date));
-    // double prevMonthTotal = 0.0;
-    // double acumulatedRentability = 0.0;
-    // widget.item.history.forEach((element) {
-    //   final monthTotal = element.amount * element.closePrice;
-    //   acumulatedRentability +=
-    //       ((monthTotal) / (prevMonthTotal + element.investedAmount) - 1) * 100;
-    //   prevMonthTotal = monthTotal;
-    //   series.add(MoneyDateSeries(element.date, acumulatedRentability));
-    // });
-    //
-    // List<MoneyDateSeries> ibovSeries = [];
-    // widget.ibovHistory.sort((a, b) => a.date.compareTo(b.date));
-    // prevMonthTotal = 0.0;
-    // acumulatedRentability = 0.0;
-    // print(widget.ibovHistory.length);
-    // widget.ibovHistory.forEach((element) {
-    //   if (element.date.year < widget.item.initialDate.year ||
-    //       element.date.year == widget.item.initialDate.year &&
-    //           element.date.month < widget.item.initialDate.month)
-    //     print("data antiga");
-    //   else {
-    //     print('data nova');
-    //     if (prevMonthTotal == 0) {
-    //       prevMonthTotal = element.openPrice;
-    //     }
-    //     acumulatedRentability +=
-    //         (element.closePrice / prevMonthTotal - 1) * 100;
-    //     print(acumulatedRentability);
-    //     prevMonthTotal = element.closePrice;
-    //     ibovSeries.add(MoneyDateSeries(element.date, acumulatedRentability));
-    //   }
-    // });
-    //
-    // return [
-    //   new charts.Series<MoneyDateSeries, DateTime>(
-    //     id: "Rentabilidade",
-    //     colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-    //     domainFn: (MoneyDateSeries history, _) => history.date,
-    //     areaColorFn: (_, __) =>
-    //         charts.MaterialPalette.blue.shadeDefault.lighter,
-    //     measureFn: (MoneyDateSeries history, _) => history.money,
-    //     data: series,
-    //   ),
-    //   new charts.Series<MoneyDateSeries, DateTime>(
-    //     id: "IBOV",
-    //     colorFn: (_, __) => charts.MaterialPalette.deepOrange.shadeDefault,
-    //     domainFn: (MoneyDateSeries history, _) => history.date,
-    //     areaColorFn: (_, __) =>
-    //         charts.MaterialPalette.deepOrange.shadeDefault.lighter,
-    //     measureFn: (MoneyDateSeries history, _) => history.money,
-    //     data: ibovSeries,
-    //   ),
-    // ];
-    return null;
+  Future<List<charts.Series<MoneyDateSeries, DateTime>>>
+      createRentabilitySeries() async {
+    TickerConsolidatedHistory tickerHistory = await _futureHistory;
+
+    tickerHistory.history.sort((a, b) => a.date.compareTo(b.date));
+
+    final DateTime initialDate = tickerHistory.history.first.date;
+    List<MoneyDateSeries> series = [];
+
+    double prevMonthTotal = 0.0;
+    double acumulatedRentability = 0.0;
+    StockPosition prev;
+    tickerHistory.history.forEach((element) {
+      final monthTotal = element.amount * element.closePrice;
+      if (element.soldAmount > 0 && prev != null) {
+        prevMonthTotal -= element.soldAmount * prev.closePrice;
+      }
+      acumulatedRentability +=
+          ((monthTotal) / (prevMonthTotal + element.investedValue) - 1) * 100;
+      prevMonthTotal = monthTotal;
+      prev = element;
+      series.add(MoneyDateSeries(element.date, acumulatedRentability));
+    });
+
+    List<MoneyDateSeries> ibovSeries = [];
+    prevMonthTotal = 0.0;
+    acumulatedRentability = 0.0;
+
+    widget.ibovHistory
+        .where((element) => element.date.compareTo(initialDate) >= 0)
+        .toList()
+          ..sort((a, b) => a.date.compareTo(b.date))
+          ..forEach(
+            (element) {
+              if (prevMonthTotal == 0) {
+                prevMonthTotal = element.openPrice;
+              }
+              acumulatedRentability +=
+                  (element.closePrice / prevMonthTotal - 1) * 100;
+              prevMonthTotal = element.closePrice;
+              ibovSeries
+                  .add(MoneyDateSeries(element.date, acumulatedRentability));
+            },
+          );
+
+    return [
+      new charts.Series<MoneyDateSeries, DateTime>(
+        id: "Rentabilidade",
+        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        domainFn: (MoneyDateSeries history, _) => history.date,
+        areaColorFn: (_, __) =>
+            charts.MaterialPalette.blue.shadeDefault.lighter,
+        measureFn: (MoneyDateSeries history, _) => history.money,
+        data: series,
+      ),
+      new charts.Series<MoneyDateSeries, DateTime>(
+        id: "IBOV",
+        colorFn: (_, __) => charts.MaterialPalette.deepOrange.shadeDefault,
+        domainFn: (MoneyDateSeries history, _) => history.date,
+        areaColorFn: (_, __) =>
+            charts.MaterialPalette.deepOrange.shadeDefault.lighter,
+        measureFn: (MoneyDateSeries history, _) => history.money,
+        data: ibovSeries,
+      ),
+    ];
   }
 
   Widget _buildContentRow(String key, String value,
@@ -327,6 +335,7 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
       navigationBar: CupertinoNavigationBar(
         previousPageTitle: "",
         middle: Text(widget.title),
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
       ),
       child: _buildBody(),
     );
