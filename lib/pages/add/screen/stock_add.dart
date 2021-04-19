@@ -164,7 +164,7 @@ class _StockAddState extends State<StockAdd> {
                         .copyWith(fontWeight: FontWeight.w400),
                   ),
                 ),
-                placeholder: "Corretora (opcional)",
+                placeholder: "Corretora",
               ),
               CupertinoTextField(
                 controller: _amountController,
