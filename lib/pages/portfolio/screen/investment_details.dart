@@ -248,7 +248,7 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
     ];
   }
 
-  List<charts.Series<MoneyDateSeries, DateTime>> createRentabilitySeries() {
+  Future<List<charts.Series<MoneyDateSeries, DateTime>>> createRentabilitySeries() async{
     // List<MoneyDateSeries> series = [];
     // widget.item.history.sort((a, b) => a.date.compareTo(b.date));
     // double prevMonthTotal = 0.0;
