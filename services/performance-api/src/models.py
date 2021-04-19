@@ -195,9 +195,12 @@ class PortfolioList:
     reits: list
     bdrs: list
 
+    ibov_history: list
+
     def to_dict(self):
         return {**self.__dict__, 'stocks': [s.to_dict() for s in self.stocks],
-                'reits': [r.to_dict() for r in self.reits], 'bdrs': [b.to_dict() for b in self.bdrs]}
+                'reits': [r.to_dict() for r in self.reits], 'bdrs': [b.to_dict() for b in self.bdrs],
+                'ibov_history': [i.to_dict() for i in self.ibov_history]}
 
 
 @dataclass

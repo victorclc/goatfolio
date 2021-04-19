@@ -29,7 +29,7 @@ class SafePerformanceCore:
         investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
                                   key=lambda i: i.ticker)
 
-        portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
+        portfolio = Portfolio(subject=subject)
         for ticker, investments in investments_map:
             stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
             if not stock_consolidated:
@@ -111,6 +111,11 @@ class SafePerformanceCore:
                                  data.price, data.price * stock.current_amount))
                 stock_gross_amount = stock_gross_amount + data.price * stock.current_amount
 
+        data = self.market_data.ibov_from_date(portfolio.initial_date)
+        ibov_history = [
+            StockPosition(date=datetime(candle.date.year, candle.date.month, candle.date.day, tzinfo=timezone.utc),
+                          open_price=candle.open, close_price=candle.close) for candle in data]
+
         return PortfolioList(stock_gross_amount, reit_gross_amount, bdr_gross_amount, stocks, reits, bdrs)
 
     def get_ticker_consolidated_history(self, subject, ticker):
@@ -135,6 +140,7 @@ class SafePerformanceCore:
                 prev = datetime.fromtimestamp(timestamps[0], tz=timezone.utc)
                 proc = prev
                 last = DatetimeUtils.month_first_day_datetime(datetime.utcnow())
+
                 while proc <= last:
                     proc_timestamp = int(proc.timestamp())
                     if proc_timestamp not in timestamps:
@@ -178,6 +184,7 @@ class SafePerformanceCore:
                 data = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
                 gross_amount = gross_amount + stock.current_amount * data.price
                 prev_day_gross_amount = prev_day_gross_amount + stock.current_amount * data.prev_close_price
+
                 prev_month_amount = stock.prev_month_amount
                 if prev_month_amount > 0:
                     month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start, stock.alias_ticker,
@@ -219,11 +226,11 @@ class SafePerformanceCore:
             h_position.sold_value = h_position.sold_value + inv.amount * stock_consolidated.average_price
             h_position.realized_profit = h_position.realized_profit + inv.amount * inv.price - h_position.sold_value
             h_position.amount = h_position.amount - inv.amount
-        elif inv.operation in [OperationType.SPLIT,
-                               OperationType.INCORP_ADD]:
-            # POSSIBLE BUG HERE, when calculating previous month variation
+        elif inv.operation in [OperationType.SPLIT, OperationType.INCORP_ADD]:
+            # TODO POSSIBLE BUG HERE, when calculating previous month variation
             h_position.amount = h_position.amount + inv.amount
         elif inv.operation in [OperationType.GROUP, OperationType.INCORP_SUB]:
+            # TODO POSSIBLE BUG HERE, when calculating previous month variation
             h_position.amount = h_position.amount - inv.amount
 
         inv_amount = (inv.amount if inv.operation in [OperationType.BUY, OperationType.SPLIT,
@@ -233,10 +240,10 @@ class SafePerformanceCore:
 
 
 if __name__ == '__main__':
-    # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
     # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
-    # print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
+    print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
     # print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    print(SafePerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BBAS3'))
+    # print(SafePerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BBAS3'))
