@@ -8,13 +8,9 @@ class PortfolioList {
   List<StockSummary> stocks;
   List<StockSummary> reits;
   List<StockSummary> bdrs;
+  List<StockPosition> ibovHistory;
 
   get grossAmount => stockGrossAmount + reitGrossAmount + bdrGrossAmount;
-
-  get ibovHistory {
-    List<StockPosition> ibov = [];
-    return ibov;
-  }
 
   PortfolioList.fromJson(Map<String, dynamic> json)
       : stockGrossAmount = json['stock_gross_amount'],
@@ -28,6 +24,9 @@ class PortfolioList {
             .toList(),
         bdrs = json['bdrs']
             .map<StockSummary>((json) => StockSummary.fromJson(json))
+            .toList(),
+        ibovHistory = json['ibov_history']
+            .map<StockPosition>((json) => StockPosition.fromJson(json))
             .toList();
 
   void copy(PortfolioList other) {
