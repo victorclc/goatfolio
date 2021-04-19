@@ -116,7 +116,7 @@ class SafePerformanceCore:
             StockPosition(date=datetime(candle.date.year, candle.date.month, candle.date.day, tzinfo=timezone.utc),
                           open_price=candle.open, close_price=candle.close) for candle in data]
 
-        return PortfolioList(stock_gross_amount, reit_gross_amount, bdr_gross_amount, stocks, reits, bdrs)
+        return PortfolioList(stock_gross_amount, reit_gross_amount, bdr_gross_amount, stocks, reits, bdrs, ibov_history)
 
     def get_ticker_consolidated_history(self, subject, ticker):
         portfolio = self.portfolio_repo.find(subject) or Portfolio(subject=subject)
