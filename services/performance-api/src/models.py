@@ -14,7 +14,7 @@ class Portfolio:
     stock_prev_gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
     reit_gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
     reit_prev_gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
-    initial_date: datetime = datetime.max
+    initial_date: datetime = datetime(datetime.max.year, datetime.max.month, datetime.max.day, tzinfo=timezone.utc)
     stocks: list = field(default_factory=list)  # todo list type hint
     reits: list = field(default_factory=list)
     history: list = field(default_factory=list)
@@ -43,7 +43,7 @@ class Portfolio:
 class StockConsolidated:
     ticker: str
     alias_ticker: str = ''
-    initial_date: datetime = datetime.max
+    initial_date: datetime = datetime(datetime.max.year, datetime.max.month, datetime.max.day, tzinfo=timezone.utc)
     history: list = field(default_factory=list)
     current_stock_price: Decimal = field(default_factory=lambda: Decimal(0))
     current_day_change_percent: Decimal = field(default_factory=lambda: Decimal(0))
