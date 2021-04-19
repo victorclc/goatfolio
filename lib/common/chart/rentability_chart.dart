@@ -109,7 +109,7 @@ class _RentabilityChartState extends State<RentabilityChart> {
                   buildHeader(),
                   SizedBox(
                     height: 240,
-                    child: BarChart(
+                    child: LinearChart(
                       snapshot.data,
                       onSelectionChanged: onSelectionChanged,
                     ),
