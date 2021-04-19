@@ -13,6 +13,7 @@ import 'package:goatfolio/services/performance/notifier/portfolio_performance_no
 import 'package:goatfolio/services/performance/notifier/portfolio_summary_notifier.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'common/theme/theme_changer.dart';
 
@@ -25,7 +26,7 @@ void main() async {
   final userService =
       UserService(cognitoUserPoolId, cognitoClientId, cognitoIdentityPoolId);
   final hasValidSession = await userService.init();
-
+  SharedPreferences prefs = await SharedPreferences.getInstance();
   final configuredApp = new AppConfig(
     cognitoClientId: cognitoClientId,
     cognitoUserPoolId: cognitoUserPoolId,
@@ -33,6 +34,7 @@ void main() async {
     child: new GoatfolioApp(
       hasValidSession: hasValidSession,
       userService: userService,
+      prefs: prefs
     ),
   );
 
@@ -42,14 +44,15 @@ void main() async {
 class GoatfolioApp extends StatelessWidget {
   final bool hasValidSession;
   final UserService userService;
+  final SharedPreferences prefs;
 
-  const GoatfolioApp({Key key, this.hasValidSession, this.userService})
+  const GoatfolioApp({Key key, this.hasValidSession, this.userService, this.prefs})
       : super(key: key);
 
   @override
   Widget build(context) {
     return ChangeNotifierProvider<ThemeChanger>(
-      create: (_) => ThemeChanger(CupertinoThemeData.raw(Brightness.dark, null, null, null, null, null)),
+      create: (_) => ThemeChanger(prefs),
       child: MaterialApp(
         title: 'Goatfolio',
         theme: ThemeData(),

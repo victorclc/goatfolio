@@ -20,14 +20,32 @@ class ThemePage extends StatefulWidget {
 }
 
 class _ThemePageState extends State<ThemePage> {
-  bool automaticTheme = true;
+  bool automaticTheme = false;
   bool lightTheme = false;
   bool darkTheme = false;
 
+  ThemeChanger themeChanger;
+
+  @override
+  void initState() {
+    super.initState();
+    themeChanger = Provider.of<ThemeChanger>(context, listen: false);
+
+    switch (themeChanger.configuredTheme) {
+      case ThemeChanger.CFG_DARK_VALUE:
+        darkTheme = true;
+        break;
+      case ThemeChanger.CFG_LIGHT_VALUE:
+        lightTheme = true;
+        break;
+      default:
+        automaticTheme = true;
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final themeChanger = Provider.of<ThemeChanger>(context, listen: false);
-
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         previousPageTitle: "",
@@ -49,7 +67,7 @@ class _ThemePageState extends State<ThemePage> {
                       automaticTheme = true;
                       lightTheme = false;
                       darkTheme = false;
-                      themeChanger.setTheme(CupertinoThemeData());
+                      themeChanger.setValue(ThemeChanger.CFG_AUTOMATIC_VALUE);
                     });
                   },
                 ),
@@ -63,20 +81,24 @@ class _ThemePageState extends State<ThemePage> {
                       automaticTheme = false;
                       lightTheme = true;
                       darkTheme = false;
-                      themeChanger.setBrightness(Brightness.light);
+                      themeChanger.setValue(ThemeChanger.CFG_LIGHT_VALUE);
                     });
                   },
                 ),
                 SettingsTile(
                   title: 'Escuro',
-                  trailing:
-                      darkTheme ? Icon(CupertinoIcons.check_mark, size: 18,) : Container(),
+                  trailing: darkTheme
+                      ? Icon(
+                          CupertinoIcons.check_mark,
+                          size: 18,
+                        )
+                      : Container(),
                   onPressed: (_) {
                     setState(() {
                       automaticTheme = false;
                       lightTheme = false;
                       darkTheme = true;
-                      themeChanger.setBrightness(Brightness.dark);
+                      themeChanger.setValue(ThemeChanger.CFG_DARK_VALUE);
                     });
                   },
                 ),

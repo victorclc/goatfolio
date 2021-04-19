@@ -19,6 +19,7 @@ class SettingsPage extends StatelessWidget {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text(title),
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
       ),
       child: SettingsList(
         sections: [
