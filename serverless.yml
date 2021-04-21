@@ -97,20 +97,20 @@ resources:
       Properties:
         QueueName: CeiImportResultDLQ
 
-    MarketDataRDSCluster:
-      Type: AWS::RDS::DBCluster
-      Properties:
-        MasterUsername: ${self:provider.dbmasteruser}
-        MasterUserPassword: ${self:provider.dbmasterpassword}
-        EnableHttpEndpoint: true
-        DatabaseName: marketdata
-        Engine: aurora-postgresql
-        EngineMode: serverless
-        ScalingConfiguration:
-          AutoPause: true
-          MaxCapacity: 4
-          MinCapacity: 2
-          SecondsUntilAutoPause: 900
+#    MarketDataRDSCluster:
+#      Type: AWS::RDS::DBCluster
+#      Properties:
+#        MasterUsername: ${self:provider.dbmasteruser}
+#        MasterUserPassword: ${self:provider.dbmasterpassword}
+#        EnableHttpEndpoint: true
+#        DatabaseName: marketdata
+#        Engine: aurora-postgresql
+#        EngineMode: serverless
+#        ScalingConfiguration:
+#          AutoPause: true
+#          MaxCapacity: 4
+#          MinCapacity: 2
+#          SecondsUntilAutoPause: 900
 
   Outputs:
     GoatfolioAppUserPoolArnOutput:
