@@ -13,12 +13,21 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - secretsmanager:GetSecretValue
-      Resource: "arn:aws:secretsmanager:us-east-2:831967415635:secret:rds-db-credentials/cluster-B7EKYQNIWMBMYI6I6DNK6ICBEE/postgres-z9xJqf"
+        - dynamodb:Query
+        - dynamodb:BatchWriteItem
+      Resource:
+        - Fn::GetAtt: [ PortfolioTable, Arn ]
+        - !Sub '${PortfolioTable.Arn}/index/*'
     - Effect: Allow
       Action:
-        - rds-data:BatchExecuteStatement
-      Resource: "arn:aws:rds:us-east-2:831967415635:cluster:serverless-goatfolio-dev-marketdatardscluster-dq6ryzdhjru0"
+        - dynamodb:Query
+      Resource:
+        - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
+        - !Sub
+          - '${TickerInfoArn}/index/*'
+          - { TickerInfoArn:
+                Fn::ImportValue:
+                  !Sub ${ self:provider.stage }-TickerInfoTableArnOutput }
     - Effect: Allow
       Action:
         - s3:ListBucket
@@ -57,15 +66,10 @@ custom:
 functions:
   processCorporateEventsFile:
     handler: handlers.process_corporate_events_file_handler
-    vpc:
-      securityGroupIds:
-        - sg-15f9666f
-      subnetIds:
-        - subnet-0525b98aa3176a425
     events:
       - s3:
           bucket: ${self:provider.stage}-b3-corporate-events
-          event: s3:ObjectCreated:Put
+          event: s3:ObjectCreated:*
           rules:
             - prefix: new/
             - suffix: .csv
@@ -82,8 +86,43 @@ functions:
           type: dynamodb
           arn:
             'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
-    vpc:
-      securityGroupIds:
-        - sg-15f9666f
-      subnetIds:
-        - subnet-0525b98aa3176a425
+
+resources:
+  Resources:
+    CorporateEventsTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: "CorporateEvents"
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: "id"
+            AttributeType: "S"
+          - AttributeName: "isin_code"
+            AttributeType: "S"
+          - AttributeName: "with_date"
+            AttributeType: "S"
+          - AttributeName: "type"
+              AttributeType: "S"
+        KeySchema:
+          - AttributeName: "type"
+            KeyType: "HASH"
+          - AttributeName: "id"
+            KeyType: "RANGE"
+        LocalSecondaryIndexes:
+          - IndexName: typeDateLocalIndex
+            KeySchema:
+              - AttributeName: "type"
+                KeyType: "HASH"
+              - AttributeName: "with_date"
+                KeyType: "RANGE"
+            Projection:
+              ProjectionType: ALL
+        GlobalSecondaryIndexes:
+          - IndexName: isinDateGlobalIndex
+            KeySchema:
+              - AttributeName: "isin_code"
+                KeyType: "HASH"
+              - AttributeName: "with_date"
+                KeyType: "RANGE"
+            Projection:
+              ProjectionType: ALL

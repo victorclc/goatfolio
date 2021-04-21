@@ -10,9 +10,10 @@ import pandas as pd
 from dateutil.relativedelta import relativedelta
 
 from adapters import B3CorporateEventsData, B3CorporateEventsBucket, CorporateEventsRepository, InvestmentRepository, \
-    AsyncPortfolioQueue
+    AsyncPortfolioQueue, TickerInfoRepository
 from goatcommons.constants import OperationType, InvestmentsType
 from goatcommons.models import StockInvestment
+from model import EarningsInAssetCorporateEvent
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
@@ -24,6 +25,7 @@ class CorporateEventsCore:
         self.b3 = B3CorporateEventsData()
         self.bucket = B3CorporateEventsBucket()
         self.repo = CorporateEventsRepository()
+        self.ticker_info = TickerInfoRepository()
         self.investments_repo = InvestmentRepository()
         self.async_portfolio = AsyncPortfolioQueue()
 
@@ -50,18 +52,13 @@ class CorporateEventsCore:
                                   'Negócios com até', '% / Fator de Grupamento', 'Ativo Emitido',
                                   'Observações'}:
             table.drop('Unnamed: 0', inplace=True, axis=1)
-            table.columns = ['proventos', 'codigo_isin', 'deliberado_em', 'negocios_com_ate',
-                             'fator_de_grupamento_perc', 'ativo_emitido', 'observacoes']
+            table.columns = ['type', 'isin_code', 'deliberate_on', 'with_date', 'grouping_factor', 'emitted_asset',
+                             'observations']
+            for row in table.iterrows():
+                row.with_date = datetime.strptime(row.with_date, '%d/%m/%Y').strftime('%Y%m%d')
+                row.deliberate_on = datetime.strptime(row.deliberate_on, '%d/%m/%Y').strftime('%Y%m%d')
 
-            for i, row in table.iterrows():
-                sql = f"DELETE FROM b3_corporate_events WHERE codigo_isin = '{row.codigo_isin}' " \
-                      f"and proventos = '{row.proventos}' and deliberado_em = '{row.deliberado_em}' " \
-                      f"and negocios_com_ate = '{row.negocios_com_ate}' and ativo_emitido = '{row.ativo_emitido}'" \
-                      f"and fator_de_grupamento_perc = '{row.fator_de_grupamento_perc}'"
-                engine = self.repo.get_engine()
-                engine.execute(sql)
-
-            table.to_sql('b3_corporate_events', con=self.repo.get_engine(), if_exists='append', index=False)
+            self.repo.batch_save([EarningsInAssetCorporateEvent(**row) for row in table.to_dict('records')])
 
         self.bucket.move_file_to_archive(bucket_name, file_path)
         self.bucket.clean_up()
@@ -75,35 +72,35 @@ class CorporateEventsCore:
         for ticker, investments in investments_map:
             investments = list(investments)
             oldest = min([i.date for i in investments])
-            isin_code = self.repo.get_isin_code_from_ticker(ticker)
-            events = self.repo.get_corporate_events(isin_code, oldest)
+            isin_code = self.ticker_info.isin_code_from_ticker(ticker)
+            events = self.repo.corporate_events_from(isin_code, oldest)
 
             if events:
                 all_ticker_investments = self.investments_repo.find_by_subject_and_ticker(subject, ticker)
 
                 for event in events:
                     affected_investments = list(
-                        filter(lambda i: i.date <= event.negocios_com_ate, all_ticker_investments))
+                        filter(lambda i, with_date=event.with_date: i.date <= with_date, all_ticker_investments))
 
-                    if event.proventos == 'DESDOBRAMENTO':
+                    if event.type == 'DESDOBRAMENTO':
                         split_inv = self._handle_split_event(subject, event, ticker, affected_investments)
                         all_ticker_investments.append(split_inv)
-                    elif event.proventos == 'GRUPAMENTO':
+                    elif event.type == 'GRUPAMENTO':
                         group_inv = self._handle_group_event(subject, event, ticker, affected_investments)
                         all_ticker_investments.append(group_inv)
-                    elif event.proventos == 'INCORPORACAO':
+                    elif event.type == 'INCORPORACAO':
                         incorp_inv = self._handle_incorporation_event(subject, event, ticker, affected_investments)
                         all_ticker_investments.append(incorp_inv)
                     else:
-                        logger.warning(f'No implementation for event type of {event.proventos}')
+                        logger.warning(f'No implementation for event type of {event.type}')
 
     def _handle_split_event(self, subject, event, ticker, affected_investments):
         amount = self._affected_investments_amount(affected_investments)
-        factor = Decimal(event.fator_de_grupamento_perc / 100)
+        factor = Decimal(event.grouping_factor / 100)
         _id = self._create_id_from_corp_event(ticker, event)
         split_investment = StockInvestment(amount=amount * factor, price=Decimal(0), ticker=ticker,
                                            operation=OperationType.SPLIT,
-                                           date=event.negocios_com_ate + relativedelta(days=1),
+                                           date=event.with_date + relativedelta(days=1),
                                            type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
 
         self.async_portfolio.send(subject, split_investment)
@@ -112,26 +109,27 @@ class CorporateEventsCore:
     def _handle_group_event(self, subject, event, ticker, affected_investments):
         amount = self._affected_investments_amount(affected_investments)
         _id = self._create_id_from_corp_event(ticker, event)
+        factor = Decimal(event.grouping_factor / 100)
         group_investment = StockInvestment(
-            amount=Decimal(amount - Decimal(math.ceil(amount * Decimal(event.fator_de_grupamento_perc)))),
+            amount=amount - Decimal(
+                math.ceil((amount * Decimal(factor)).quantize(Decimal('0.01')))),
             price=Decimal(0), ticker=ticker, operation=OperationType.GROUP,
-            date=event.negocios_com_ate + relativedelta(days=1),
+            date=event.with_date + relativedelta(days=1),
             type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
 
         self.async_portfolio.send(subject, group_investment)
         return group_investment
 
     def _handle_incorporation_event(self, subject, event, ticker, affected_investments: List[StockInvestment]):
-        new_ticker = self.repo.get_ticker_from_isin_code(event.ativo_emitido)
+        new_ticker = self.ticker_info.ticker_from_isin_code(event.emitted_asset)
         amount = self._affected_investments_amount(affected_investments)
-        factor = Decimal(event.fator_de_grupamento_perc / 100)
+        factor = Decimal(event.grouping_factor / 100)
         _id = self._create_id_from_corp_event(ticker, event)
-
 
         if factor > 1:
             incorp_investment = StockInvestment(amount=amount * factor, price=Decimal(0), ticker=ticker,
                                                 operation=OperationType.INCORP_ADD, alias_ticker=new_ticker,
-                                                date=event.negocios_com_ate + relativedelta(days=1),
+                                                date=event.with_date + relativedelta(days=1),
                                                 type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
         elif factor < 1:
             incorp_investment = StockInvestment(
@@ -139,13 +137,13 @@ class CorporateEventsCore:
                     math.ceil((amount * Decimal(factor)).quantize(Decimal('0.01')))),
                 price=Decimal(0),
                 ticker=ticker, operation=OperationType.INCORP_SUB, alias_ticker=new_ticker,
-                date=event.negocios_com_ate + relativedelta(days=1),
+                date=event.with_date + relativedelta(days=1),
                 type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
         else:
             incorp_investment = StockInvestment(
                 amount=Decimal(0), price=Decimal(0), alias_ticker=new_ticker,
                 ticker=ticker, operation=OperationType.INCORP_ADD,
-                date=event.negocios_com_ate + relativedelta(days=1),
+                date=event.with_date + relativedelta(days=1),
                 type=InvestmentsType.STOCK, broker='', subject=subject, id=_id)
 
         self.async_portfolio.send(subject, incorp_investment)
@@ -157,7 +155,7 @@ class CorporateEventsCore:
 
     @staticmethod
     def _create_id_from_corp_event(ticker, event):
-        return f"{ticker}{event.proventos}{event.deliberado_em.strftime('%Y%m%d')}{event.negocios_com_ate.strftime('%Y%m%d')}{event.fator_de_grupamento_perc}"
+        return f"{ticker}{event.type}{event.deliberate_on.strftime('%Y%m%d')}{event.with_date.strftime('%Y%m%d')}{event.emitted_asset}"
 
     @staticmethod
     def _affected_investments_amount(affected_investments):

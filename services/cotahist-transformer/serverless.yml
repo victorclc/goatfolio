@@ -14,14 +14,6 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - secretsmanager:GetSecretValue
-      Resource: "arn:aws:secretsmanager:us-east-2:831967415635:secret:rds-db-credentials/cluster-B7EKYQNIWMBMYI6I6DNK6ICBEE/postgres-z9xJqf"
-    - Effect: Allow
-      Action:
-        - rds-data:BatchExecuteStatement
-      Resource: "arn:aws:rds:us-east-2:831967415635:cluster:serverless-goatfolio-dev-marketdatardscluster-dq6ryzdhjru0"
-    - Effect: Allow
-      Action:
         - s3:ListBucket
         - s3:GetObject
         - s3:PutObject
