@@ -91,7 +91,7 @@ class CorporateEventsRepository:
 
     def corporate_events_from(self, isin_code, date):
         result = self.__table.query(IndexName='isinDateGlobalIndex',
-                                    KeyConditionExpression=Key('isin_code').eq(isin_code) & Key('with_date').lte(
+                                    KeyConditionExpression=Key('isin_code').eq(isin_code) & Key('with_date').gte(
                                         date.strftime('%Y%m%d')))
         return list(map(lambda i: EarningsInAssetCorporateEvent(**i), result['Items']))
 

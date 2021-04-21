@@ -170,9 +170,9 @@ class CorporateEventsCore:
 
 
 if __name__ == '__main__':
-    # invs = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-    # CorporateEventsCore().check_for_applicable_corporate_events('440b0d96-395d-48bd-aaf2-58dbf7e68274', invs)
-    CorporateEventsCore().process_corporate_events_file(None, None)
+    invs = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    CorporateEventsCore().check_for_applicable_corporate_events('440b0d96-395d-48bd-aaf2-58dbf7e68274', invs)
+    # CorporateEventsCore().process_corporate_events_file(None, None)
     # data = JsonUtils.dump({"cnpj": "0", "identifierFund": "RBRM", "typeFund": 7}).encode('UTF-8')
     # base64_bytes = base64.b64encode(data)
     # base64_message = base64_bytes.decode('ascii')

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 from goatcommons.constants import InvestmentsType
@@ -28,9 +28,9 @@ class EarningsInAssetCorporateEvent:
 
     def __post_init__(self):
         if type(self.with_date) is not datetime:
-            self.with_date = datetime.strptime(self.with_date, '%Y%m%d')
+            self.with_date = datetime.strptime(self.with_date, '%Y%m%d').replace(tzinfo=timezone.utc)
         if type(self.deliberate_on) is not datetime:
-            self.deliberate_on = datetime.strptime(self.deliberate_on, '%Y%m%d')
+            self.deliberate_on = datetime.strptime(self.deliberate_on, '%Y%m%d').replace(tzinfo=timezone.utc)
         if self.id is None:
             self.id = f"{self.isin_code}{self.type}{self.deliberate_on.strftime('%Y%m%d')}{int(self.grouping_factor)}{self.emitted_asset}{self.with_date.strftime('%Y%m%d')}"
         if type(self.grouping_factor) is not Decimal:
