@@ -16,20 +16,27 @@ class CompanyCorporateEventsData:
 
 
 @dataclass
-class CorporateEvent:
-    proventos: str
-    codigo_isin: str
-    deliberado_em: datetime
-    negocios_com_ate: datetime
-    fator_de_grupamento_perc: Decimal
-    ativo_emitido: str
-    observacoes: str
+class EarningsInAssetCorporateEvent:
+    type: str
+    isin_code: str
+    deliberate_on: datetime
+    with_date: datetime
+    grouping_factor: Decimal
+    emitted_asset: str
+    observations: str
+    id: str = None
 
     def __post_init__(self):
-        if type(self.negocios_com_ate) is not datetime:
-            self.negocios_com_ate = datetime.strptime(self.negocios_com_ate, '%d/%m/%Y')
-        if type(self.deliberado_em) is not datetime:
-            self.deliberado_em = datetime.strptime(self.deliberado_em, '%d/%m/%Y')
+        if type(self.with_date) is not datetime:
+            self.with_date = datetime.strptime(self.with_date, '%Y%m%d')
+        if type(self.deliberate_on) is not datetime:
+            self.deliberate_on = datetime.strptime(self.deliberate_on, '%Y%m%d')
+        if self.id is None:
+            self.id = f"{self.isin_code}{self.type}{self.deliberate_on.strftime('%Y%m%d')}{self.emitted_asset}{self.with_date.strftime('%Y%m%d')}"
+
+    def to_dict(self):
+        return {**self.__dict__, 'with_date': self.with_date.strftime('%Y%m%d'),
+                'deliberate_on': self.deliberate_on.strftime('%Y%m%d')}
 
 
 @dataclass

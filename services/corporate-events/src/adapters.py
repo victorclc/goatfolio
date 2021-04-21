@@ -2,19 +2,17 @@ import logging
 import os
 import re
 from dataclasses import asdict
-from decimal import Decimal
 from io import StringIO
 from typing import List
 
 import boto3 as boto3
 import requests
 from boto3.dynamodb.conditions import Key, Attr
-from sqlalchemy import create_engine
 
 from goatcommons.constants import InvestmentsType
 from goatcommons.models import Investment, StockInvestment
 from goatcommons.utils import InvestmentUtils, JsonUtils
-from model import CompanyCorporateEventsData, CorporateEvent, AsyncInvestmentAddRequest
+from model import CompanyCorporateEventsData, EarningsInAssetCorporateEvent, AsyncInvestmentAddRequest
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
@@ -89,41 +87,33 @@ class B3CorporateEventsBucket:
 
 class CorporateEventsRepository:
     def __init__(self):
-        _secrets_client = boto3.client("secretsmanager")
-        secret = JsonUtils.load(_secrets_client.get_secret_value(
-            SecretId='rds-db-credentials/cluster-B7EKYQNIWMBMYI6I6DNK6ICBEE/postgres')['SecretString'])
-        self._username = secret['username']
-        self._password = secret['password']
-        self._port = secret['port']
-        self._host = secret['host']
+        self.__table = boto3.resource('dynamodb').Table('CorporateEvents')
 
-        self._engine = None
+    def corporate_events_from(self, isin_code, date):
+        result = self.__table.query(IndexName='isinDateGlobalIndex',
+                                    KeyConditionExpression=Key('isin_code').eq(isin_code) & Key('with_date').lte(
+                                        date.strftime('%Y%m%d')))
+        return list(map(lambda i: EarningsInAssetCorporateEvent(**i), result['Items']))
 
-    def get_engine(self):
-        if self._engine is None:
-            self._engine = create_engine(
-                f'postgresql://{self._username}:{self._password}@{self._host}:{self._port}/marketdata')
-        return self._engine
+    def batch_save(self, records):
+        with self.__table.batch_writer() as batch:
+            for record in records:
+                batch.put_item(Item=record.to_dict())
 
-    def get_isin_code_from_ticker(self, ticker):
-        engine = self.get_engine()
-        result = engine.execute(f"SELECT isin_code FROM b3_monthly_chart where ticker = '{ticker}' limit 1")
-        for row in result:
-            return row[0]
 
-    def get_ticker_from_isin_code(self, isin_code):
-        engine = self.get_engine()
-        result = engine.execute(f"SELECT ticker FROM b3_monthly_chart where isin_code = '{isin_code}' limit 1")
-        for row in result:
-            return row[0]
+class TickerInfoRepository:
+    def __init__(self):
+        self.__table = boto3.resource('dynamodb').Table('TickerInfo')
 
-    def get_corporate_events(self, isin_code, date):
-        engine = self.get_engine()
-        result = engine.execute(
-            f"SELECT proventos, codigo_isin, deliberado_em, negocios_com_ate, fator_de_grupamento_perc, ativo_emitido, observacoes "
-            f"FROM b3_corporate_events where codigo_isin = '{isin_code}'")
-        events = list(map(lambda data: CorporateEvent(*data), result))
-        return list(sorted(filter(lambda e: e.negocios_com_ate >= date, events), key=lambda e: e.negocios_com_ate))
+    def isin_code_from_ticker(self, ticker):
+        result = self.__table.query(KeyConditionExpression=Key('ticker').eq(ticker))
+        if result['Items']:
+            return result['Items'][0]['isin']
+
+    def ticker_from_isin_code(self, isin_code):
+        result = self.__table.query(IndexName='isinGlobalIndex', KeyConditionExpression=Key('isin').eq(isin_code))
+        if result['Items']:
+            return result['Items'][0]['ticker']
 
 
 class AsyncPortfolioQueue:
