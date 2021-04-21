@@ -111,7 +111,7 @@ class CorporateEventsCore:
     def _handle_group_event(self, subject, event, ticker, affected_investments):
         amount = self._affected_investments_amount(affected_investments)
         _id = self._create_id_from_corp_event(ticker, event)
-        factor = Decimal(event.grouping_factor / 100)
+        factor = event.grouping_factor
         group_investment = StockInvestment(
             amount=amount - Decimal(
                 math.ceil((amount * Decimal(factor)).quantize(Decimal('0.01')))),
