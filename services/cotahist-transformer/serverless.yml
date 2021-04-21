@@ -66,7 +66,7 @@ functions:
     events:
       - s3:
           bucket: ${self:provider.stage}-b3cotahist
-          event: s3:ObjectCreated:Put
+          event: s3:ObjectCreated:*
           rules:
             - prefix: monthly/
             - suffix: .TXT

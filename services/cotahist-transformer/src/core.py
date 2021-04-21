@@ -43,10 +43,15 @@ class CotaHistTransformerCore:
                                      min_price, None, None, volume, isin_code)
                 monthly_series.append(data)
                 if ticker not in infos:
-                    infos[ticker] = isin_code
+                    infos[ticker] = {
+                        'ticker': ticker,
+                        'isin': isin_code,
+                        'bdi': investments[0].codigo_bdi,
+                        'company_name': investments[0].nome_resumido_empresa_emissora
+                    }
 
         self.repo.batch_save(monthly_series)
-        self.info_repo.batch_save([{'ticker': ticker, 'isin': isin} for ticker, isin in infos.items()])
+        self.info_repo.batch_save(list(infos.values()))
         self.bucket.move_file_to_archive(bucket_name, file_path)
         self.bucket.clean_up()
 
