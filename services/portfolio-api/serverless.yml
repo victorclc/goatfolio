@@ -17,7 +17,7 @@ provider:
       Resource:
         - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
         - 'arn:aws:dynamodb:us-east-2:831967415635:table/Investments/index/subjectDateGlobalIndex'
-
+# TODO FIX SUBJECTDATEGLOBAL hardcoded
 package:
   exclude:
     - .cache/**
