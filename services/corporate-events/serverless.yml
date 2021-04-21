@@ -26,7 +26,7 @@ provider:
         - !Sub
           - '${TickerInfoArn}/index/*'
           - { TickerInfoArn:
-                Fn::ImportValue:
+                'Fn::ImportValue':
                   !Sub '${self:provider.stage}-TickerInfoTableArnOutput' }
     - Effect: Allow
       Action:
