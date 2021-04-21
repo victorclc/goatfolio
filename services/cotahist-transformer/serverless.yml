@@ -61,8 +61,6 @@ custom:
     cacheLocation: '.cache/'
 
 functions:
-  testRequest:
-    handler: handlers.test_request_handler
   transformCotaHist:
     handler: handlers.transform_cota_hist_handler
     events:
