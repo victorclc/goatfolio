@@ -83,6 +83,7 @@ class CorporateEventsCore:
                     affected_investments = list(
                         filter(lambda i, with_date=event.with_date: i.date <= with_date, all_ticker_investments))
 
+                    logger.info(f'applicable event: {event}')
                     if event.type == 'DESDOBRAMENTO':
                         split_inv = self._handle_split_event(subject, event, ticker, affected_investments)
                         all_ticker_investments.append(split_inv)

@@ -34,7 +34,7 @@ class EarningsInAssetCorporateEvent:
         if self.id is None:
             self.id = f"{self.isin_code}{self.type}{self.deliberate_on.strftime('%Y%m%d')}{int(self.grouping_factor)}{self.emitted_asset}{self.with_date.strftime('%Y%m%d')}"
         if type(self.grouping_factor) is not Decimal:
-            self.grouping_factor = Decimal(self.grouping_factor).quantize(Decimal('0.000001'))
+            self.grouping_factor = Decimal(self.grouping_factor).quantize(Decimal('0.00000000001'))
         if type(self.observations) is not str:
             self.observations = ''
         if type(self.emitted_asset) is not str:
