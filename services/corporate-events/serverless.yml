@@ -100,7 +100,7 @@ resources:
           - AttributeName: "with_date"
             AttributeType: "S"
           - AttributeName: "type"
-              AttributeType: "S"
+            AttributeType: "S"
         KeySchema:
           - AttributeName: "type"
             KeyType: "HASH"
