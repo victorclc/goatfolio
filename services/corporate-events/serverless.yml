@@ -27,7 +27,7 @@ provider:
           - '${TickerInfoArn}/index/*'
           - { TickerInfoArn:
                 Fn::ImportValue:
-                  !Sub ${ self:provider.stage }-TickerInfoTableArnOutput }
+                  !Sub '${self:provider.stage}-TickerInfoTableArnOutput' }
     - Effect: Allow
       Action:
         - s3:ListBucket
