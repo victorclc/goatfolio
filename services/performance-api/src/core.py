@@ -72,8 +72,8 @@ class SafePerformanceCore:
 
         data = self.market_data.ibov_from_date(portfolio.initial_date)
         ibov_history = [
-            StockPosition(date=datetime(candle.date.year, candle.date.month, candle.date.day, tzinfo=timezone.utc),
-                          open_price=candle.open, close_price=candle.close) for candle in data]
+            StockPosition(date=candle.candle_date, open_price=candle.open_price, close_price=candle.close_price) for
+            candle in data]
         return PortfolioHistory(history=list(portfolio_history_map.values()), ibov_history=ibov_history)
 
     def get_portfolio_list(self, subject):
