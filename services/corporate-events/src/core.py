@@ -54,11 +54,12 @@ class CorporateEventsCore:
             table.drop('Unnamed: 0', inplace=True, axis=1)
             table.columns = ['type', 'isin_code', 'deliberate_on', 'with_date', 'grouping_factor', 'emitted_asset',
                              'observations']
-            for row in table.iterrows():
-                row.with_date = datetime.strptime(row.with_date, '%d/%m/%Y').strftime('%Y%m%d')
-                row.deliberate_on = datetime.strptime(row.deliberate_on, '%d/%m/%Y').strftime('%Y%m%d')
 
-            self.repo.batch_save([EarningsInAssetCorporateEvent(**row) for row in table.to_dict('records')])
+            records = table.to_dict('records')
+            for record in records:
+                record['with_date'] = datetime.strptime(record['with_date'], '%d/%m/%Y').strftime('%Y%m%d')
+                record['deliberate_on'] = datetime.strptime(record['deliberate_on'], '%d/%m/%Y').strftime('%Y%m%d')
+            self.repo.batch_save([EarningsInAssetCorporateEvent(**row) for row in records])
 
         self.bucket.move_file_to_archive(bucket_name, file_path)
         self.bucket.clean_up()
@@ -169,8 +170,9 @@ class CorporateEventsCore:
 
 
 if __name__ == '__main__':
-    invs = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-    CorporateEventsCore().check_for_applicable_corporate_events('440b0d96-395d-48bd-aaf2-58dbf7e68274', invs)
+    # invs = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    # CorporateEventsCore().check_for_applicable_corporate_events('440b0d96-395d-48bd-aaf2-58dbf7e68274', invs)
+    CorporateEventsCore().process_corporate_events_file(None, None)
     # data = JsonUtils.dump({"cnpj": "0", "identifierFund": "RBRM", "typeFund": 7}).encode('UTF-8')
     # base64_bytes = base64.b64encode(data)
     # base64_message = base64_bytes.decode('ascii')
