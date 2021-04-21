@@ -17,15 +17,21 @@ provider:
         - dynamodb:BatchWriteItem
       Resource:
         - Fn::GetAtt: [ CorporateEventsTable, Arn ]
-        - !Sub '${CorporateEventsTable.Arn}/index/*'
+        - Fn::Join:
+            - ''
+            -
+              - Fn::GetAtt: [ CorporateEventsTable, Arn ]
+              - 'index/*'
     - Effect: Allow
       Action:
         - dynamodb:Query
       Resource:
         - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
-        - !Sub
-          - '${TickerInfoArn}/index/*'
-          - { TickerInfoArn: !ImportValue '${self:provider.stage}-TickerInfoTableArnOutput'}
+        - Fn::Join:
+            - ''
+            -
+              - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
+              - 'index/*'
     - Effect: Allow
       Action:
         - s3:ListBucket
