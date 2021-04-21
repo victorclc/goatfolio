@@ -4,10 +4,7 @@ from typing import List
 
 import boto3 as boto3
 
-from goatcommons.utils import JsonUtils
 from models import B3CotaHistData
-from pandas import DataFrame
-from sqlalchemy import create_engine
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
@@ -38,29 +35,25 @@ class B3CotaHistBucket:
 
 class CotaHistRepository:
     def __init__(self):
-        _secrets_client = boto3.client("secretsmanager")
-        logger.info('loading secret')
-        # TODO put secret id on env variaable
-        secret = JsonUtils.load(_secrets_client.get_secret_value(
-            SecretId='rds-db-credentials/cluster-B7EKYQNIWMBMYI6I6DNK6ICBEE/postgres')['SecretString'])
-        logger.info('Secret loaded')
-        self._username = secret['username']
-        self._password = secret['password']
-        self._port = secret['port']
-        self._host = secret['host']
+        self.__table = boto3.resource('dynamodb').Table('MarketData')
 
-        self._engine = None
+    def save(self, data: B3CotaHistData):
+        self.__table.put_item(Item=data.to_dict())
 
-    def _get_engine(self):
-        if self._engine is None:
-            logger.info('Creating engine')
-            self._engine = create_engine(
-                f'postgresql://{self._username}:{self._password}@{self._host}:{self._port}/marketdata')
-            logger.info('Engine created')
-        return self._engine
+    def batch_save(self, series: List[B3CotaHistData]):
+        with self.__table.batch_writer() as batch:
+            for data in series:
+                batch.put_item(Item=data.to_dict())
 
-    def save(self, series: List[B3CotaHistData]):
-        dataframe = DataFrame([s.row for s in series], columns=B3CotaHistData.columns_names())
-        logger.info('Saving to database')
-        dataframe.to_sql('b3_monthly_chart', con=self._get_engine(), if_exists='append', index=False)
-        logger.info('Saved on database')
+
+class TickerInfoRepository:
+    def __init__(self):
+        self.__table = boto3.resource('dynamodb').Table('TickerInfo')
+
+    def save(self, info: dict):
+        self.__table.put_item(Item=info)
+
+    def batch_save(self, infos: List[dict]):
+        with self.__table.batch_writer() as batch:
+            for info in infos:
+                batch.put_item(Item=info)

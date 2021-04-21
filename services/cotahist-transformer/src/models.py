@@ -89,6 +89,16 @@ class B3CotaHistData:
         return ['ticker', 'candle_date', 'company_name', 'open_price', 'close_price', 'average_price', 'max_price',
                 'min_price', 'best_ask', 'best_bid', 'volume', 'isin_code']
 
+    def to_dict(self):
+        return {
+            'ticker': self.codigo_negociacao, 'candle_date': self.data_pregao,
+            'company_name': self.nome_resumido_empresa_emissora, 'open_price': self.preco_abertura,
+            'close_price': self.preco_ultimo, 'average_price': self.preco_medio, 'max_price': self.preco_maximo,
+            'min_price': self.preco_minimo, 'best_ask': self.preco_melhor_oferta_compra,
+            'best_bid': self.preco_melhor_oferta_venda, 'volume': self.numero_de_negocios,
+            'isin_code': self.codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel
+        }
+
     @property
     def row(self):
         return [self.codigo_negociacao, self.data_pregao, self.nome_resumido_empresa_emissora, self.preco_abertura,

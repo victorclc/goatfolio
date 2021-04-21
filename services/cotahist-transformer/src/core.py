@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import Decimal
 from itertools import groupby
 
-from adapters import B3CotaHistBucket, CotaHistRepository
+from adapters import B3CotaHistBucket, CotaHistRepository, TickerInfoRepository
 from models import B3CotaHistData, BDICodes
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -13,15 +13,15 @@ logger.setLevel(logging.INFO)
 
 class CotaHistTransformerCore:
     def __init__(self):
-        logger.info('Importing bucket')
         self.bucket = B3CotaHistBucket()
-        logger.info('Importing repo')
         self.repo = CotaHistRepository()
-        logger.info('Imported')
+        self.info_repo = TickerInfoRepository()
 
     def transform_cota_hist(self, bucket_name, file_path):
         daily_series = self._load_series_from_file(bucket_name, file_path)
         monthly_series = []
+        infos = {}
+
         for ticker, all_investments in groupby(sorted(daily_series, key=lambda e: e.codigo_negociacao),
                                                key=lambda e: e.codigo_negociacao):
             all_investments = list(sorted(all_investments, key=lambda i: i.data_pregao))
@@ -35,15 +35,18 @@ class CotaHistTransformerCore:
                 min_price = min([i.preco_minimo for i in investments])
                 average_price = (sum([i.preco_medio for i in investments]) / len(investments)).quantize(Decimal('0.01'))
                 volume = sum([i.numero_de_negocios for i in investments])
-                date = datetime.strptime(investments[0].data_pregao[:7] + '-01', '%Y-%m-%d').date()
+                date = datetime.strptime(investments[0].data_pregao[:7] + '-01', '%Y-%m-%d').strftime('%Y%m%d')
                 isin_code = investments[0].codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel
 
                 data = B3CotaHistData()
                 data.load_essentials(ticker, date, company_name, open_price, close_price, average_price, max_price,
                                      min_price, None, None, volume, isin_code)
                 monthly_series.append(data)
+                if ticker not in infos:
+                    infos[ticker] = isin_code
 
-        self.repo.save(monthly_series)
+        self.repo.batch_save(monthly_series)
+        self.info_repo.batch_save([{'ticker': ticker, 'isin': isin} for ticker, isin in infos.items()])
         self.bucket.move_file_to_archive(bucket_name, file_path)
         self.bucket.clean_up()
 

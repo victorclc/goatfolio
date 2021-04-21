@@ -27,6 +27,20 @@ provider:
         - s3:PutObject
         - s3:DeleteObject
       Resource: arn:aws:s3:::${self:provider.stage}-b3cotahist/*
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:PutItem
+        - dynamodb:BatchWriteItem
+      Resource:
+        Fn::GetAtt: [ MarketDataTable, Arn ]
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:PutItem
+        - dynamodb:BatchWriteItem
+      Resource:
+        Fn::GetAtt: [ TickerInfoTable, Arn ]
 
 
 package:
@@ -51,12 +65,6 @@ functions:
     handler: handlers.test_request_handler
   transformCotaHist:
     handler: handlers.transform_cota_hist_handler
-    vpc:
-      securityGroupIds:
-        - sg-15f9666f
-      subnetIds:
-        - subnet-0525b98aa3176a425
-#        - subnet-0f2a8d4b2c04a5b6a
     events:
       - s3:
           bucket: ${self:provider.stage}-b3cotahist
@@ -88,3 +96,52 @@ resources:
                 - ec2:DescribeNetworkInterfaces
                 - ec2:DeleteNetworkInterface
               Resource: "*"
+
+    MarketDataTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: "MarketData"
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: "ticker"
+            AttributeType: "S"
+          - AttributeName: "candle_date"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "ticker"
+            KeyType: "HASH"
+          - AttributeName: "candle_date"
+            KeyType: "RANGE"
+
+    TickerInfoTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: "TickerInfo"
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: "ticker"
+            AttributeType: "S"
+          - AttributeName: "isin"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "ticker"
+            KeyType: "HASH"
+        GlobalSecondaryIndexes:
+          - IndexName: isinGlobalIndex
+            KeySchema:
+              - AttributeName: "isin"
+                KeyType: "HASH"
+            Projection:
+              ProjectionType: ALL
+
+  Outputs:
+    MarketDataTableArnOutput:
+      Value:
+        Fn::GetAtt: [ MarketDataTable, Arn ]
+      Export:
+        Name: ${self:provider.stage}-MarketDataTableArnOutput
+    TickerInfoTableArnOutput:
+      Value:
+        Fn::GetAtt: [ TickerInfoTable, Arn ]
+      Export:
+        Name: ${self:provider.stage}-TickerInfoTableArnOutput
