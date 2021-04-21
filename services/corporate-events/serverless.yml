@@ -16,8 +16,8 @@ provider:
         - dynamodb:Query
         - dynamodb:BatchWriteItem
       Resource:
-        - Fn::GetAtt: [ PortfolioTable, Arn ]
-        - !Sub '${PortfolioTable.Arn}/index/*'
+        - Fn::GetAtt: [ CorporateEventsTable, Arn ]
+        - !Sub '${CorporateEventsTable.Arn}/index/*'
     - Effect: Allow
       Action:
         - dynamodb:Query
