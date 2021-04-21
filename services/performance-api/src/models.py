@@ -215,3 +215,22 @@ class StockSummary:
 
     def to_dict(self):
         return self.__dict__
+
+
+@dataclass
+class CandleData:
+    ticker: str
+    candle_date: datetime
+    average_price: Decimal
+    close_price: Decimal
+    company_name: str
+    isin_code: str
+    open_price: Decimal
+    volume: Decimal
+    max_price: Decimal = None
+    min_price: Decimal = None
+
+    def __post_init__(self):
+        if not isinstance(self.candle_date, datetime):
+            tmp_date = datetime.strptime(self.candle_date, '%Y%m%d')
+            self.candle_date = datetime(tmp_date.year, tmp_date.month, tmp_date.day, tzinfo=timezone.utc)
