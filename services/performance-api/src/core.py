@@ -6,7 +6,7 @@ from typing import List
 
 from dateutil.relativedelta import relativedelta
 
-from adapters import MarketData, PortfolioRepository
+from adapters import MarketData, PortfolioRepository, InvestmentRepository
 from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
@@ -202,6 +202,7 @@ class SafePerformanceCore:
     def _consolidate_stock(stock_consolidated: StockConsolidated, inv: StockInvestment):
         stock_consolidated.initial_date = min(stock_consolidated.initial_date, inv.date)
         stock_consolidated.add_investment(inv)
+
         if inv.alias_ticker:
             stock_consolidated.alias_ticker = inv.alias_ticker
 
@@ -238,10 +239,10 @@ class SafePerformanceCore:
 
 
 if __name__ == '__main__':
-    # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
     # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
-    # print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
+    print(SafePerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
     # print(SafePerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(SafePerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    print(SafePerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BBAS3'))
+    # print(SafePerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BBAS3'))
