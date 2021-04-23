@@ -1,3 +1,4 @@
+import logging
 import math
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -8,8 +9,13 @@ from dateutil.relativedelta import relativedelta
 
 from adapters import PortfolioRepository, MarketData, InvestmentRepository
 from goatcommons.models import StockInvestment
-from models import Portfolio, StockConsolidated, PortfolioSummary, StockVariation
+from goatcommons.utils import DatetimeUtils
+from models import Portfolio, StockConsolidated, PortfolioSummary, StockVariation, PortfolioPosition, PortfolioHistory
 from new_models import DoublyLinkedList, StockPosition, StockPositionWrapper
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class PerformanceCore:
@@ -52,6 +58,8 @@ class PerformanceCore:
             stock_consolidated.history.append(h_position)
         else:
             h_position.add_investment(inv)
+
+        # TODO check if h_position values are all zero, if they are remove it from the list
 
     def get_portfolio_summary(self, subject):
         portfolio = self.repo.find(subject) or Portfolio(subject=subject)
@@ -107,9 +115,76 @@ class PerformanceCore:
             doubly.append(h)
         return doubly
 
+    def get_portfolio_history(self, subject):
+        portfolio = self.repo.find(subject) or Portfolio(subject=subject)
+
+        portfolio_history_map = {}
+        for stock in portfolio.stocks:
+            wrappers = self._fetch_stocks_history_data(stock)
+            current = wrappers.head
+
+            while current:
+                if current.data.date not in portfolio_history_map:
+                    p_position = PortfolioPosition(current.data.date)
+                    portfolio_history_map[current.data.date] = p_position
+                else:
+                    p_position = portfolio_history_map[current.data.date]
+
+                p_position.total_invested = p_position.total_invested + current.node_invested_value
+                if current.amount > 0:
+                    p_position.gross_amount = p_position.gross_amount + current.gross_amount
+                current = current.next
+
+        data = self.market_data.ibov_from_date(portfolio.initial_date)
+        ibov_history = [
+            StockPosition(date=candle.candle_date, close_price=candle.close_price) for
+            candle in data]
+        return PortfolioHistory(history=list(portfolio_history_map.values()), ibov_history=ibov_history)
+
+    def _fetch_stocks_history_data(self, stock: StockConsolidated):
+
+        sorted_history = sorted(stock.history, key=lambda h: h.date)
+        grouped_positions = self._group_stock_position_per_month(sorted_history)
+
+        monthly_map = self.market_data.ticker_monthly_data_from(stock.ticker, stock.initial_date,
+                                                                stock.alias_ticker)
+        wrappers = self._create_stock_position_wrapper(grouped_positions)
+        current = wrappers.head
+
+        proc = current.data.date
+        last = DatetimeUtils.month_first_day_datetime(datetime.utcnow())
+
+        while proc <= last:
+            if proc == last:
+                candle = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
+                price = candle.price
+            else:
+                candle = monthly_map[proc.strftime('%Y%m01')]
+                if not candle:
+                    logger.info(f'CANDLE MISSING: {stock.ticker} {proc}')
+                price = candle.close if candle else Decimal(0)
+
+            current.data.close_price = price
+            proc = proc + relativedelta(months=1)
+
+            if current.next:
+                if current.next.data.date != proc:
+                    new = StockPosition(proc)
+                    grouped_positions.append(new)
+                    wrappers.insert(current, new)
+                current = current.next
+            elif proc <= last:
+                new = StockPosition(proc)
+                grouped_positions.append(new)
+                wrappers.insert(current, new)
+                current = current.next
+
+        return wrappers
+
 
 if __name__ == '__main__':
-    # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
     # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
     # print(PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
     print(PerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    print(PerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))

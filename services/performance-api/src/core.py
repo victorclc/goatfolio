@@ -11,7 +11,7 @@ from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
 from models import Portfolio, StockConsolidated, StockPosition, PortfolioPosition, StockVariation, PortfolioSummary, \
-    PortfolioHistory, StockSummary, PortfolioList, TickerConsolidatedHistory
+    PortfolioHistory, StockSummary, PortfolioList, TickerConsolidatedHistory, StockPositionA
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
@@ -72,7 +72,7 @@ class SafePerformanceCore:
 
         data = self.market_data.ibov_from_date(portfolio.initial_date)
         ibov_history = [
-            StockPosition(date=candle.candle_date, open_price=candle.open_price, close_price=candle.close_price) for
+            StockPositionA(date=candle.candle_date, open_price=candle.open_price, close_price=candle.close_price) for
             candle in data]
         return PortfolioHistory(history=list(portfolio_history_map.values()), ibov_history=ibov_history)
 
@@ -113,7 +113,7 @@ class SafePerformanceCore:
 
         data = self.market_data.ibov_from_date(portfolio.initial_date)
         ibov_history = [
-            StockPosition(date=candle.candle_date, open_price=candle.open_price, close_price=candle.close_price) for
+            StockPositionA(date=candle.candle_date, open_price=candle.open_price, close_price=candle.close_price) for
             candle in data]
 
         return PortfolioList(stock_gross_amount, reit_gross_amount, bdr_gross_amount, stocks, reits, bdrs, ibov_history)
@@ -144,7 +144,7 @@ class SafePerformanceCore:
             while proc <= last:
                 proc_timestamp = int(proc.timestamp())
                 if proc_timestamp not in timestamps:
-                    position = StockPosition(date=proc, amount=history_dict[int(prev.timestamp())].amount)
+                    position = StockPositionA(date=proc, amount=history_dict[int(prev.timestamp())].amount)
                     stock.history.append(position)
                     history_dict[proc_timestamp] = position
 
