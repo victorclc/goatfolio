@@ -1,9 +1,15 @@
+import math
+from datetime import datetime, timezone
 from decimal import Decimal
 from itertools import groupby
+from typing import List
 
-from adapters import PortfolioRepository, MarketData
+from dateutil.relativedelta import relativedelta
+
+from adapters import PortfolioRepository, MarketData, InvestmentRepository
 from goatcommons.models import StockInvestment
-from models import Portfolio, StockConsolidated, StockPosition
+from models import Portfolio, StockConsolidated, PortfolioSummary, StockVariation
+from new_models import DoublyLinkedList, StockPosition, StockPositionWrapper
 
 
 class PerformanceCore:
@@ -17,9 +23,11 @@ class PerformanceCore:
         investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
                                   key=lambda i: i.ticker)
 
-        portfolio = self.repo.find(subject) or Portfolio(subject=subject)
+        # TODO UNCOMENT THIS portfolio = self.repo.find(subject) or Portfolio(subject=subject)
+        portfolio = Portfolio(subject=subject)
         for ticker, investments in investments_map:
-            stock_consolidated = next((stock for stock in portfolio.stocks if stock.ticker == ticker), {})
+            stock_consolidated = next(
+                (stock for stock in portfolio.stocks if stock.ticker == ticker or stock.alias_ticker == ticker), {})
             if not stock_consolidated:
                 stock_consolidated = StockConsolidated(ticker=ticker)
                 portfolio.stocks.append(stock_consolidated)
@@ -30,41 +38,78 @@ class PerformanceCore:
                     portfolio.initial_date = min(portfolio.initial_date, inv.date)
                 self._consolidate_stock(stock_consolidated, inv)
 
+        self.repo.save(portfolio)
+
     @staticmethod
     def _consolidate_stock(stock_consolidated: StockConsolidated, inv: StockInvestment):
         stock_consolidated.initial_date = min(stock_consolidated.initial_date, inv.date)
-        stock_consolidated.add_investment(inv)
-
         if inv.alias_ticker:
             stock_consolidated.alias_ticker = inv.alias_ticker
 
         h_position = next((position for position in stock_consolidated.history if position.date == inv.date), {})
-
         if not h_position:
-            prev_positions = sorted([position for position in stock_consolidated.history if position.date < month_date],
-                                    key=lambda p: p.date)
-            amount = prev_positions[-1].amount if prev_positions else Decimal(0)
-
-            h_position = StockPosition(date=month_date, amount=amount, invested_value=Decimal(0))
+            h_position = StockPosition.from_stock_investment(inv)
             stock_consolidated.history.append(h_position)
+        else:
+            h_position.add_investment(inv)
 
-        if inv.operation == OperationType.BUY:
-            h_position.bought_amount = h_position.bought_amount + inv.amount
-            h_position.amount = h_position.amount + inv.amount
-            h_position.invested_value = h_position.invested_value + inv.amount * inv.price
-        elif inv.operation == OperationType.SELL:
-            h_position.sold_amount = h_position.sold_amount + inv.amount
-            h_position.sold_value = h_position.sold_value + inv.amount * stock_consolidated.average_price
-            h_position.realized_profit = h_position.realized_profit + inv.amount * inv.price - h_position.sold_value
-            h_position.amount = h_position.amount - inv.amount
-        elif inv.operation in [OperationType.SPLIT, OperationType.INCORP_ADD]:
-            # TODO POSSIBLE BUG HERE, when calculating previous month variation
-            h_position.amount = h_position.amount + inv.amount
-        elif inv.operation in [OperationType.GROUP, OperationType.INCORP_SUB]:
-            # TODO POSSIBLE BUG HERE, when calculating previous month variation
-            h_position.amount = h_position.amount - inv.amount
+    def get_portfolio_summary(self, subject):
+        portfolio = self.repo.find(subject) or Portfolio(subject=subject)
 
-        inv_amount = (inv.amount if inv.operation in [OperationType.BUY, OperationType.SPLIT,
-                                                      OperationType.INCORP_ADD] else - inv.amount)
-        for position in [position for position in stock_consolidated.history if position.date > month_date]:
-            position.amount = position.amount + inv_amount
+        gross_amount = Decimal(0)
+        invested_amount = Decimal(0)
+        day_variation = Decimal(0)
+        prev_month_adj_gross_amount = Decimal(0)
+        month_variation = Decimal(0)
+        stock_variation = []
+
+        prev_month_start = datetime.now(tz=timezone.utc).replace(day=1) - relativedelta(months=1)
+        for stock in portfolio.stocks:
+            sorted_history = sorted(stock.history, key=lambda h: h.date)
+            grouped_positions = self._group_stock_position_per_month(sorted_history)
+            current = self._create_stock_position_wrapper(grouped_positions).tail
+            if current.amount <= 0:
+                continue
+
+            data = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
+            gross_amount = gross_amount + current.amount * data.price
+            day_variation = day_variation + current.amount * (data.price - data.prev_close_price)
+            invested_amount = invested_amount + current.current_invested_value
+
+            previous = current.prev
+            if previous and previous.amount > 0:
+                month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start, stock.alias_ticker)
+                if current.data.sold_amount > 0:
+                    prev_month_amount = round(current.current_invested_value / previous.average_price)
+                else:
+                    prev_month_amount = previous.amount
+                prev_month_adj_gross_amount = prev_month_adj_gross_amount + prev_month_amount * month_data.close
+            month_variation = month_variation - current.data.bought_value
+            stock_variation.append(StockVariation(stock.alias_ticker or stock.ticker, data.change, data.price))
+
+        month_variation = month_variation + gross_amount - prev_month_adj_gross_amount
+        return PortfolioSummary(invested_amount, gross_amount, day_variation, month_variation, stock_variation)
+
+    @staticmethod
+    def _group_stock_position_per_month(stock_positions):
+        grouped_positions = []
+        for date, positions in groupby(stock_positions, key=lambda p: p.date.replace(day=1)):
+            grouped = StockPosition(date, 0, 0, 0, 0)
+            for position in positions:
+                grouped = grouped + position
+            grouped_positions.append(grouped)
+        return grouped_positions
+
+    @staticmethod
+    def _create_stock_position_wrapper(positions):
+        doubly = DoublyLinkedList()
+        for h in positions:
+            doubly.append(h)
+        return doubly
+
+
+if __name__ == '__main__':
+    # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
+    # print(PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
+    print(PerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))

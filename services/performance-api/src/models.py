@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
+from new_models import StockPosition
 
 
 @dataclass
@@ -112,7 +113,7 @@ class StockConsolidated:
 
 
 @dataclass
-class StockPosition:
+class StockPositionA:
     date: datetime
     open_price: Decimal = field(default_factory=lambda: Decimal(0))
     close_price: Decimal = field(default_factory=lambda: Decimal(0))

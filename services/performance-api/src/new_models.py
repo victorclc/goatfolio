@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
-from dateutil.relativedelta import relativedelta
+from goatcommons.constants import OperationType
+from goatcommons.models import StockInvestment
 
 
 @dataclass
@@ -14,10 +15,66 @@ class StockPosition:
     sold_value: Decimal
 
     def __post_init__(self):
+        if type(self.date) is not datetime:
+            self.date = datetime.fromtimestamp(self.date, tz=timezone.utc)
+
         self.sold_amount = Decimal(self.sold_amount).quantize(Decimal('0.01'))
         self.bought_amount = Decimal(self.bought_amount).quantize(Decimal('0.01'))
         self.bought_value = Decimal(self.bought_value).quantize(Decimal('0.01'))
         self.sold_value = Decimal(self.sold_value).quantize(Decimal('0.01'))
+
+    def __add__(self, other):
+        sold_amount = self.sold_amount + other.sold_amount
+        bought_amount = self.bought_amount + other.bought_amount
+        bought_value = self.bought_value + other.bought_value
+        sold_value = self.sold_value + other.sold_value
+
+        return StockPosition(self.date, sold_amount, bought_amount, bought_value, sold_value)
+
+    @staticmethod
+    def from_stock_investment(investment: StockInvestment):
+        sold_amount = 0
+        sold_value = 0
+        bought_amount = 0
+        bought_value = 0
+        date = investment.date
+
+        if investment.operation == OperationType.BUY:
+            bought_amount = investment.amount
+            bought_value = investment.amount * investment.price
+        elif investment.operation == OperationType.SELL:
+            sold_amount = investment.amount
+            sold_value = investment.amount * investment.price
+        elif investment.operation in [OperationType.SPLIT, OperationType.INCORP_ADD]:
+            bought_amount = investment.amount
+        elif investment.operation in [OperationType.GROUP, OperationType.INCORP_SUB]:
+            sold_amount = investment.amount
+        return StockPosition(date, sold_amount, bought_amount, bought_value, sold_value)
+
+    def add_investment(self, investment):
+        sold_amount = 0
+        sold_value = 0
+        bought_amount = 0
+        bought_value = 0
+
+        if investment.operation == OperationType.BUY:
+            bought_amount = investment.amount
+            bought_value = investment.amount * investment.price
+        elif investment.operation == OperationType.SELL:
+            sold_amount = investment.amount
+            sold_value = investment.amount * investment.price
+        elif investment.operation in [OperationType.SPLIT, OperationType.INCORP_ADD]:
+            bought_amount = investment.amount
+        elif investment.operation in [OperationType.GROUP, OperationType.INCORP_SUB]:
+            sold_amount = investment.amount
+
+        self.sold_amount = self.sold_amount + sold_amount
+        self.sold_value = self.sold_value + sold_value
+        self.bought_amount = self.bought_amount + bought_amount
+        self.bought_value = self.bought_value + bought_value
+
+    def to_dict(self):
+        return {**self.__dict__, 'date': int(self.date.timestamp())}
 
 
 class StockPositionWrapper:
@@ -112,6 +169,7 @@ class DoublyLinkedList:
         if self.head is None:
             new_node.prev = None
             self.head = new_node
+            self.tail = new_node
             return
 
         last = self.head
@@ -120,6 +178,14 @@ class DoublyLinkedList:
         last.next = new_node
         new_node.prev = last
         self.tail = new_node
+
+    def find(self, func):
+        curr = self.head
+        while curr:
+            if func(curr):
+                return curr
+            curr = curr.next
+        return None
 
     @staticmethod
     def list_print(node):
