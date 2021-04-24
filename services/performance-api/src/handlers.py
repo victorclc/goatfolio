@@ -5,13 +5,13 @@ from http import HTTPStatus
 
 from goatcommons.models import StockInvestment
 from goatcommons.utils import AWSEventUtils, JsonUtils
-from core import SafePerformanceCore
+from core import PerformanceCore
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-core = SafePerformanceCore()
+core = PerformanceCore()
 
 
 def performance_summary_handler(event, context):
