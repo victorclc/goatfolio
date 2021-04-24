@@ -219,3 +219,13 @@ class CandleData:
         if not isinstance(self.candle_date, datetime):
             tmp_date = datetime.strptime(self.candle_date, '%Y%m%d')
             self.candle_date = datetime(tmp_date.year, tmp_date.month, tmp_date.day, tzinfo=timezone.utc)
+
+
+@dataclass
+class BenchmarkPosition:
+    date: datetime
+    open: Decimal
+    close: Decimal
+
+    def to_dict(self):
+        return {**self.__dict__, 'date': int(self.date.timestamp())}

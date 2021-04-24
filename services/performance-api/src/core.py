@@ -9,7 +9,7 @@ from adapters import PortfolioRepository, MarketData
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
 from models import Portfolio, StockConsolidated, StockPosition, StockVariation, PortfolioSummary, PortfolioPosition, \
-    PortfolioHistory, StockSummary, PortfolioList, TickerConsolidatedHistory
+    PortfolioHistory, StockSummary, PortfolioList, TickerConsolidatedHistory, BenchmarkPosition
 from wrappers import PositionDoublyLinkedList
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -135,9 +135,7 @@ class PerformanceCore:
                 current = current.next
 
         data = self.market_data.ibov_from_date(portfolio.initial_date)
-        ibov_history = [
-            StockPosition(date=candle.candle_date, close_price=candle.close_price) for
-            candle in data]
+        ibov_history = [BenchmarkPosition(candle.candle_date, candle.open_price, candle.close_price) for candle in data]
         return PortfolioHistory(history=list(portfolio_history_map.values()), ibov_history=ibov_history)
 
     def _fetch_stocks_history_data(self, stock: StockConsolidated):
@@ -215,7 +213,7 @@ class PerformanceCore:
                 stock_gross_amount = stock_gross_amount + data.price * amount
 
         data = self.market_data.ibov_from_date(portfolio.initial_date)
-        ibov_history = [StockPosition(date=candle.candle_date, close_price=candle.close_price) for candle in data]
+        ibov_history = [BenchmarkPosition(candle.candle_date, candle.open_price, candle.close_price) for candle in data]
 
         return PortfolioList(stock_gross_amount, reit_gross_amount, bdr_gross_amount, stocks, reits, bdrs, ibov_history)
 
@@ -231,7 +229,6 @@ class PerformanceCore:
             current = current.next
 
         return TickerConsolidatedHistory(consolidated)
-
 
 # if __name__ == '__main__':
 # # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
