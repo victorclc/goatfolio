@@ -8,6 +8,28 @@ import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
 import 'package:intl/intl.dart';
 
+const BorderSide _kDefaultRoundedBorderSide = BorderSide(
+  color: CupertinoDynamicColor.withBrightness(
+    color: Color(0x33000000),
+    darkColor: Color(0x33FFFFFF),
+  ),
+  style: BorderStyle.solid,
+  width: 0.0,
+);
+
+const Border _kDefaultRoundedBorder = Border(
+  bottom: _kDefaultRoundedBorderSide,
+);
+
+const BoxDecoration _kDefaultRoundedBorderDecoration = BoxDecoration(
+  color: CupertinoDynamicColor.withBrightness(
+    color: CupertinoColors.white,
+    darkColor: CupertinoColors.black,
+  ),
+  border: _kDefaultRoundedBorder,
+  // borderRadius: BorderRadius.all(Radius.circular(5.0)),
+);
+
 class StockAdd extends StatefulWidget {
   final bool buyOperation;
   final UserService userService;
@@ -70,7 +92,8 @@ class _StockAddState extends State<StockAdd> {
       _amountController.text = '${widget.amount}';
     }
     if (widget.price != null) {
-      _priceController.text = moneyInputFormatter.format(widget.price.toStringAsFixed(2));
+      _priceController.text =
+          moneyInputFormatter.format(widget.price.toStringAsFixed(2));
     }
     if (widget.date != null) {
       _dateController.text = DateFormat('dd/MM/yyyy').format(widget.date);
@@ -130,7 +153,7 @@ class _StockAddState extends State<StockAdd> {
                 onChanged: (something) {
                   setState(() {});
                 },
-                decoration: BoxDecoration(),
+                decoration: _kDefaultRoundedBorderDecoration,
                 textInputAction: TextInputAction.next,
                 inputFormatters: [UpperCaseTextFormatter()],
                 keyboardType: TextInputType.text,
@@ -147,6 +170,7 @@ class _StockAddState extends State<StockAdd> {
               ),
               CupertinoTextField(
                 controller: _brokerController,
+                decoration: _kDefaultRoundedBorderDecoration,
                 autofocus: widget.ticker != null && widget.broker == null
                     ? true
                     : false,
@@ -171,7 +195,7 @@ class _StockAddState extends State<StockAdd> {
                 onChanged: (something) {
                   setState(() {});
                 },
-                decoration: BoxDecoration(),
+                decoration: _kDefaultRoundedBorderDecoration,
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
                 prefix: Container(
@@ -188,6 +212,7 @@ class _StockAddState extends State<StockAdd> {
               ),
               CupertinoTextField(
                 controller: _priceController,
+                decoration: _kDefaultRoundedBorderDecoration,
                 onChanged: (something) {
                   setState(() {});
                 },
@@ -210,7 +235,7 @@ class _StockAddState extends State<StockAdd> {
                 onChanged: (something) {
                   setState(() {});
                 },
-                decoration: BoxDecoration(),
+                decoration: _kDefaultRoundedBorderDecoration,
                 inputFormatters: [dateInputFormatter],
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
@@ -227,6 +252,7 @@ class _StockAddState extends State<StockAdd> {
               ),
               CupertinoTextField(
                 controller: _costsController,
+                decoration: _kDefaultRoundedBorderDecoration,
                 onChanged: (something) {
                   setState(() {});
                 },
