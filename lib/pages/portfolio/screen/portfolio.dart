@@ -32,115 +32,107 @@ class _PortfolioPageState extends State<PortfolioPage> {
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
 
-    return CupertinoSliverPage(
-        largeTitle: PortfolioPage.title,
-        children: [
-          FutureBuilder(
-            future:
-                Provider.of<PortfolioListNotifier>(context, listen: true)
-                    .futureList,
-            builder: (context, snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.none:
-                case ConnectionState.active:
-                  break;
-                case ConnectionState.waiting:
-                  return CupertinoActivityIndicator();
-                case ConnectionState.done:
-                  if (snapshot.hasData) {
-                    portfolioList = snapshot.data;
-                    return Column(
-                      children: [
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          padding:
-                              EdgeInsets.only(left: 16, bottom: 16, top: 8),
-                          child: Text(
-                            "Alocação",
-                            style: textTheme.navTitleTextStyle,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 240,
-                          width: double.infinity,
-                          child: DonutAutoLabelChart(
-                            portfolioList: portfolioList,
-                            typeSeries: buildSubtypeSeries(),
-                            stocksSeries: buildStockSeries(),
-                            reitsSeries: buildReitSeries(),
-                            bdrsSeries: buildBdrSeries()
-                          ),
-                        ),
-                        SizedBox(
-                          height: 16,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Divider(
-                            height: 0,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        InvestmentTypeExpansionTile(
-                          title: 'Ações/ETFs',
-                          grossAmount: portfolioList.stockGrossAmount,
-                          items: portfolioList.stocks,
-                          colors: colors,
-                          totalAmount: portfolioList.grossAmount,
-                          ibovHistory: portfolioList.ibovHistory,
-                        ),
-                        InvestmentTypeExpansionTile(
-                          title: 'BDRs',
-                          grossAmount: portfolioList.bdrGrossAmount,
-                          items: portfolioList.bdrs,
-                          colors: colors,
-                          totalAmount: portfolioList.grossAmount,
-                          ibovHistory: portfolioList.ibovHistory,
-                        ),
-                        InvestmentTypeExpansionTile(
-                          title: 'FIIs',
-                          grossAmount: portfolioList.reitGrossAmount,
-                          items: portfolioList.reits,
-                          colors: colors,
-                          totalAmount: portfolioList.grossAmount,
-                          ibovHistory: portfolioList.ibovHistory,
-                        ),
-                      ],
-                    );
-                  }
-              }
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 32,
-                  ),
-                  Text("Tivemos um problema ao carregar",
-                      style: textTheme.textStyle),
-                  Text(" as informações.",
-                      style: textTheme.textStyle),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Text("Toque para tentar novamente.",
-                      style: textTheme.textStyle),
-                  CupertinoButton(
-                    padding: EdgeInsets.all(0),
-                    child: Icon(
-                      Icons.refresh_outlined,
-                      size: 32,
+    return CupertinoSliverPage(largeTitle: PortfolioPage.title, children: [
+      FutureBuilder(
+        future: Provider.of<PortfolioListNotifier>(context, listen: true)
+            .futureList,
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.active:
+              break;
+            case ConnectionState.waiting:
+              return CupertinoActivityIndicator();
+            case ConnectionState.done:
+              if (snapshot.hasData) {
+                portfolioList = snapshot.data;
+                return Column(
+                  children: [
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      padding: EdgeInsets.only(left: 16, bottom: 16, top: 8),
+                      child: Text(
+                        "Alocação",
+                        style: textTheme.navTitleTextStyle,
+                      ),
                     ),
-                    onPressed: () {
-                      Provider.of<PortfolioListNotifier>(context,
-                              listen: false)
-                          .updatePerformance();
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
-        ]);
+                    SizedBox(
+                      height: 240,
+                      width: double.infinity,
+                      child: DonutAutoLabelChart(
+                          portfolioList: portfolioList,
+                          typeSeries: buildSubtypeSeries(),
+                          stocksSeries: buildStockSeries(),
+                          reitsSeries: buildReitSeries(),
+                          bdrsSeries: buildBdrSeries()),
+                    ),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Divider(
+                        height: 0,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    InvestmentTypeExpansionTile(
+                      title: 'Ações/ETFs',
+                      grossAmount: portfolioList.stockGrossAmount,
+                      items: portfolioList.stocks,
+                      colors: colors,
+                      totalAmount: portfolioList.grossAmount,
+                      ibovHistory: portfolioList.ibovHistory,
+                    ),
+                    InvestmentTypeExpansionTile(
+                      title: 'BDRs',
+                      grossAmount: portfolioList.bdrGrossAmount,
+                      items: portfolioList.bdrs,
+                      colors: colors,
+                      totalAmount: portfolioList.grossAmount,
+                      ibovHistory: portfolioList.ibovHistory,
+                    ),
+                    InvestmentTypeExpansionTile(
+                      title: 'FIIs',
+                      grossAmount: portfolioList.reitGrossAmount,
+                      items: portfolioList.reits,
+                      colors: colors,
+                      totalAmount: portfolioList.grossAmount,
+                      ibovHistory: portfolioList.ibovHistory,
+                    ),
+                  ],
+                );
+              }
+          }
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 32,
+              ),
+              Text("Tivemos um problema ao carregar",
+                  style: textTheme.textStyle),
+              Text(" as informações.", style: textTheme.textStyle),
+              SizedBox(
+                height: 8,
+              ),
+              Text("Toque para tentar novamente.", style: textTheme.textStyle),
+              CupertinoButton(
+                padding: EdgeInsets.all(0),
+                child: Icon(
+                  Icons.refresh_outlined,
+                  size: 32,
+                ),
+                onPressed: () {
+                  Provider.of<PortfolioListNotifier>(context, listen: false)
+                      .updatePerformance();
+                },
+              ),
+            ],
+          );
+        },
+      ),
+    ]);
   }
 
   List<charts.Series<TickerTotals, String>> buildStockSeries() {
@@ -151,8 +143,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
       if (p.amount <= 0) {
         return null;
       }
-      return TickerTotals(
-          p.currentTickerName, p.grossAmount, color);
+      return TickerTotals(p.currentTickerName, p.grossAmount, color);
     }).toList()
       ..removeWhere((element) => element == null);
     return [
@@ -178,8 +169,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
       if (p.amount <= 0) {
         return null;
       }
-      return TickerTotals(
-          p.ticker, p.grossAmount, color);
+      return TickerTotals(p.ticker, p.grossAmount, color);
     }).toList()
       ..removeWhere((element) => element == null);
     return [
@@ -205,8 +195,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
       if (p.amount <= 0) {
         return null;
       }
-      return TickerTotals(
-          p.currentTickerName, p.grossAmount, color);
+      return TickerTotals(p.currentTickerName, p.grossAmount, color);
     }).toList()
       ..removeWhere((element) => element == null);
     return [
@@ -219,7 +208,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
             r: totals.color.r, g: totals.color.g, b: totals.color.b),
         // Set a label accessor to control the text of the arc label.
         labelAccessorFn: (TickerTotals totals, _) =>
-        '${totals.ticker.replaceAll('.SA', '')}',
+            '${totals.ticker.replaceAll('.SA', '')}',
       )
     ];
   }
@@ -227,15 +216,15 @@ class _PortfolioPageState extends State<PortfolioPage> {
   List<charts.Series<TickerTotals, String>> buildSubtypeSeries() {
     List<TickerTotals> data = [];
 
-
     // #5c36ad
     // #ec1a72
     // #ff8c12
     final stockColor = Color(0x5c36ad);
     if (portfolioList.stockGrossAmount > 0) {
-      colors['Ações/ETFs'] = Rgb(stockColor.red, stockColor.green, stockColor.blue);
+      colors['Ações/ETFs'] =
+          Rgb(stockColor.red, stockColor.green, stockColor.blue);
       data.add(TickerTotals(
-          'Ações/ETFs', portfolioList.stockGrossAmount, colors['Ações/ETFs']));
+          'Ações\ne ETFs', portfolioList.stockGrossAmount, colors['Ações/ETFs']));
     }
     final reitColor = Color(0xf52d6f);
     if (portfolioList.reitGrossAmount > 0) {
@@ -246,7 +235,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
     final bdrColor = Color(0xffa514);
     if (portfolioList.bdrGrossAmount > 0) {
-      colors['BDRs'] =  Rgb(bdrColor.red, bdrColor.green, bdrColor.blue);
+      colors['BDRs'] = Rgb(bdrColor.red, bdrColor.green, bdrColor.blue);
       data.add(
           TickerTotals('BDRs', portfolioList.reitGrossAmount, colors['BDRs']));
     }
@@ -257,10 +246,8 @@ class _PortfolioPageState extends State<PortfolioPage> {
         domainFn: (TickerTotals totals, _) => totals.ticker,
         measureFn: (TickerTotals totals, _) => totals.total,
         data: data,
-        colorFn: (totals, _) => charts.Color(
-            r: colors[totals.ticker].r,
-            g: colors[totals.ticker].g,
-            b: colors[totals.ticker].b),
+        colorFn: (totals, _) =>
+            charts.ColorUtil.fromDartColor(totals.color.toColor()),
         // Set a label accessor to control the text of the arc label.
         labelAccessorFn: (TickerTotals totals, _) =>
             '${totals.ticker.replaceAll('.SA', '')}',
@@ -310,7 +297,8 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
       this.grossAmount,
       this.totalAmount,
       this.items,
-      this.colors, this.ibovHistory})
+      this.colors,
+      this.ibovHistory})
       : super(key: key);
 
   @override
@@ -416,7 +404,8 @@ class StockInvestmentSummaryItem extends StatelessWidget {
       @required this.summary,
       this.portfolioTotalAmount,
       @required this.color,
-      this.typeTotalAmount, this.ibovHistory})
+      this.typeTotalAmount,
+      this.ibovHistory})
       : super(key: key);
 
   @override
@@ -424,9 +413,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
     final textTheme = CupertinoTheme.of(context).textTheme;
 
     final currentValue = summary.amount *
-        (summary.currentPrice != null
-            ? summary.currentPrice
-            : 0.0);
+        (summary.currentPrice != null ? summary.currentPrice : 0.0);
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: () {
@@ -484,8 +471,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  moneyFormatter
-                      .format(currentValue - summary.investedAmount),
+                  moneyFormatter.format(currentValue - summary.investedAmount),
                   style: textTheme.textStyle.copyWith(
                       fontSize: 16,
                       color: currentValue - summary.investedAmount < 0
@@ -510,9 +496,9 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  percentFormatter.format((summary.currentPrice *
-                          summary.amount) /
-                      typeTotalAmount),
+                  percentFormatter.format(
+                      (summary.currentPrice * summary.amount) /
+                          typeTotalAmount),
                   style: textTheme.textStyle.copyWith(fontSize: 16),
                 ),
               ],
@@ -529,9 +515,9 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  percentFormatter.format((summary.currentPrice *
-                          summary.amount) /
-                      portfolioTotalAmount),
+                  percentFormatter.format(
+                      (summary.currentPrice * summary.amount) /
+                          portfolioTotalAmount),
                   style: textTheme.textStyle.copyWith(fontSize: 16),
                 ),
               ],
