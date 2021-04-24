@@ -1,5 +1,6 @@
-import 'package:goatfolio/services/performance/model/stock_position.dart';
 import 'package:goatfolio/services/performance/model/stock_summary.dart';
+
+import 'benchmark_position.dart';
 
 class PortfolioList {
   double stockGrossAmount;
@@ -8,7 +9,7 @@ class PortfolioList {
   List<StockSummary> stocks;
   List<StockSummary> reits;
   List<StockSummary> bdrs;
-  List<StockPosition> ibovHistory;
+  List<BenchmarkPosition> ibovHistory;
 
   get grossAmount => stockGrossAmount + reitGrossAmount + bdrGrossAmount;
 
@@ -26,7 +27,7 @@ class PortfolioList {
             .map<StockSummary>((json) => StockSummary.fromJson(json))
             .toList(),
         ibovHistory = json['ibov_history']
-            .map<StockPosition>((json) => StockPosition.fromJson(json))
+            .map<BenchmarkPosition>((json) => BenchmarkPosition.fromJson(json))
             .toList();
 
   void copy(PortfolioList other) {

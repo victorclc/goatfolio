@@ -4,8 +4,8 @@ import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
 import 'package:goatfolio/common/widget/expansion_tile_custom.dart';
 import 'package:goatfolio/pages/portfolio/widget/donut_chart.dart';
+import 'package:goatfolio/services/performance/model/benchmark_position.dart';
 import 'package:goatfolio/services/performance/model/portfolio_list.dart';
-import 'package:goatfolio/services/performance/model/stock_position.dart';
 import 'package:goatfolio/services/performance/model/stock_summary.dart';
 import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:provider/provider.dart';
@@ -302,7 +302,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
   final double totalAmount;
   final List<StockSummary> items;
   final Map<String, Rgb> colors;
-  final List<StockPosition> ibovHistory;
+  final List<BenchmarkPosition> ibovHistory;
 
   InvestmentTypeExpansionTile(
       {Key key,
@@ -409,7 +409,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
   final Color color;
   final double portfolioTotalAmount;
   final double typeTotalAmount;
-  final List<StockPosition> ibovHistory;
+  final List<BenchmarkPosition> ibovHistory;
 
   const StockInvestmentSummaryItem(
       {Key key,

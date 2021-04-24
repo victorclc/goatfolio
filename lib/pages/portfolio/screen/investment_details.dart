@@ -6,8 +6,9 @@ import 'package:goatfolio/common/chart/valorization_chart.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/client/performance_client.dart';
+import 'package:goatfolio/services/performance/model/benchmark_position.dart';
 
-import 'package:goatfolio/services/performance/model/stock_position.dart';
+import 'package:goatfolio/services/performance/model/stock_consolidated_position.dart';
 import 'package:goatfolio/services/performance/model/stock_summary.dart';
 import 'package:goatfolio/services/performance/model/ticker_consolidated_history.dart';
 import 'package:intl/intl.dart';
@@ -15,7 +16,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:provider/provider.dart';
 
 void navigateToInvestmentDetails(BuildContext context, StockSummary item,
-    Color color, List<StockPosition> ibovHistory) {
+    Color color, List<BenchmarkPosition> ibovHistory) {
   Navigator.of(context).push<void>(
     CupertinoPageRoute(
       builder: (context) => InvestmentDetails(
@@ -32,7 +33,7 @@ class InvestmentDetails extends StatefulWidget {
   final String title;
   final StockSummary item;
   final Color color;
-  final List<StockPosition> ibovHistory;
+  final List<BenchmarkPosition> ibovHistory;
 
   const InvestmentDetails(
       {Key key, this.item, this.title, this.color, this.ibovHistory})
@@ -215,16 +216,9 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
     List<MoneyDateSeries> seriesInvested = [];
 
     tickerHistory.history.sort((a, b) => a.date.compareTo(b.date));
-    double investedAmount = 0.0;
     tickerHistory.history.forEach((element) {
-      if (element.amount == 0) {
-        investedAmount = 0;
-      } else {
-        investedAmount += element.investedValue - element.soldValue;
-      }
-      seriesInvested.add(MoneyDateSeries(element.date, investedAmount));
-      seriesGross.add(
-          MoneyDateSeries(element.date, element.closePrice * element.amount));
+      seriesInvested.add(MoneyDateSeries(element.date, element.investedValue));
+      seriesGross.add(MoneyDateSeries(element.date, element.grossValue));
     });
 
     return [
@@ -257,23 +251,14 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
     final DateTime initialDate = tickerHistory.history.first.date;
     List<MoneyDateSeries> series = [];
 
-    double prevMonthTotal = 0.0;
     double acumulatedRentability = 0.0;
-    StockPosition prev;
     tickerHistory.history.forEach((element) {
-      final monthTotal = element.amount * element.closePrice;
-      if (element.soldAmount > 0 && prev != null) {
-        prevMonthTotal -= element.soldAmount * prev.closePrice;
-      }
-      acumulatedRentability +=
-          ((monthTotal) / (prevMonthTotal + element.investedValue) - 1) * 100;
-      prevMonthTotal = monthTotal;
-      prev = element;
+      acumulatedRentability += element.variationPerc;
       series.add(MoneyDateSeries(element.date, acumulatedRentability));
     });
 
     List<MoneyDateSeries> ibovSeries = [];
-    prevMonthTotal = 0.0;
+    double prevMonthTotal = 0.0;
     acumulatedRentability = 0.0;
 
     widget.ibovHistory
@@ -283,11 +268,11 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
           ..forEach(
             (element) {
               if (prevMonthTotal == 0) {
-                prevMonthTotal = element.openPrice;
+                prevMonthTotal = element.open;
               }
               acumulatedRentability +=
-                  (element.closePrice / prevMonthTotal - 1) * 100;
-              prevMonthTotal = element.closePrice;
+                  (element.close / prevMonthTotal - 1) * 100;
+              prevMonthTotal = element.close;
               ibovSeries
                   .add(MoneyDateSeries(element.date, acumulatedRentability));
             },

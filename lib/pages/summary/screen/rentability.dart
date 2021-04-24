@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/chart/money_date_series.dart';
-import 'package:goatfolio/common/chart/rentability_chart.dart';
 import 'package:goatfolio/common/chart/valorization_chart.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
@@ -130,9 +129,9 @@ class _RentabilityPageState extends State<RentabilityPage> {
     double acumulatedRentability = 0.0;
 
     for (PortfolioPosition element in portfolioHistory.history) {
-      final monthTotal = element.grossAmount;
+      final monthTotal = element.grossValue;
       acumulatedRentability =
-          ((monthTotal) / (prevMonthTotal + element.totalInvested) - 1) * 100;
+          ((monthTotal) / (prevMonthTotal + element.investedValue) - 1) * 100;
       prevMonthTotal = monthTotal;
       series.add(MoneyDateSeries(element.date, acumulatedRentability));
     }
@@ -158,11 +157,11 @@ class _RentabilityPageState extends State<RentabilityPage> {
       // else {
       //   print('data nova');
       if (prevMonthTotal == 0) {
-        prevMonthTotal = element.openPrice;
+        prevMonthTotal = element.open;
       }
-      acumulatedRentability = (element.closePrice / prevMonthTotal - 1) * 100;
+      acumulatedRentability = (element.close / prevMonthTotal - 1) * 100;
 
-      prevMonthTotal = element.closePrice;
+      prevMonthTotal = element.close;
       ibovSeries.add(MoneyDateSeries(element.date, acumulatedRentability));
     }
         // }
@@ -201,9 +200,9 @@ class _RentabilityPageState extends State<RentabilityPage> {
 
     double investedAmount = 0.0;
     portfolioHistory.history.forEach((element) {
-      investedAmount += element.totalInvested;
+      investedAmount += element.investedValue;
       seriesInvested.add(MoneyDateSeries(element.date, investedAmount));
-      seriesGross.add(MoneyDateSeries(element.date, element.grossAmount));
+      seriesGross.add(MoneyDateSeries(element.date, element.grossValue));
     });
 
     final now = DateTime.now();

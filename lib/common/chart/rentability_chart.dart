@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:goatfolio/common/formatter/brazil.dart';
-import 'package:goatfolio/common/widget/bar_chart.dart';
 import 'package:goatfolio/common/widget/linear_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:goatfolio/common/extension/string.dart';
