@@ -237,3 +237,6 @@ class StockConsolidatedPosition:
     gross_value: Decimal
     invested_value: Decimal
     variation_perc: Decimal
+
+    def to_dict(self):
+        return {**self.__dict__, 'date': int(self.date.timestamp())}
