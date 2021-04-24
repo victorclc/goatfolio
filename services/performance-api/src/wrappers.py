@@ -65,7 +65,7 @@ class StockPositionWrapper:
         return (self.gross_sold_value - self.invested_sold_value).quantize(Decimal('0.01'))
 
     @property
-    def gross_amount(self):
+    def gross_value(self):
         return self.amount * self.data.close_price
 
 

@@ -9,7 +9,8 @@ from adapters import PortfolioRepository, MarketData
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
 from models import Portfolio, StockConsolidated, StockPosition, StockVariation, PortfolioSummary, PortfolioPosition, \
-    PortfolioHistory, StockSummary, PortfolioList, TickerConsolidatedHistory, BenchmarkPosition
+    PortfolioHistory, StockSummary, PortfolioList, TickerConsolidatedHistory, BenchmarkPosition, \
+    StockConsolidatedPosition
 from wrappers import PositionDoublyLinkedList
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -129,9 +130,9 @@ class PerformanceCore:
                 else:
                     p_position = portfolio_history_map[current.data.date]
 
-                p_position.total_invested = p_position.total_invested + current.node_invested_value
+                p_position.invested_value = p_position.invested_value + current.node_invested_value
                 if current.amount > 0:
-                    p_position.gross_amount = p_position.gross_amount + current.gross_amount
+                    p_position.gross_value = p_position.gross_value + current.gross_value
                 current = current.next
 
         data = self.market_data.ibov_from_date(portfolio.initial_date)
@@ -225,7 +226,8 @@ class PerformanceCore:
         current = wrappers.head
         consolidated = []
         while current:
-            consolidated.append(current.data)
+            consolidated.append(
+                StockConsolidatedPosition(current.data.date, current.gross_value, current.current_invested_value))
             current = current.next
 
         return TickerConsolidatedHistory(consolidated)

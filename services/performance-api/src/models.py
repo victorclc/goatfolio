@@ -119,8 +119,8 @@ class StockConsolidated:
 @dataclass
 class PortfolioPosition:
     date: datetime
-    total_invested: Decimal = field(default_factory=lambda: Decimal(0))
-    gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    invested_value: Decimal = field(default_factory=lambda: Decimal(0))
+    gross_value: Decimal = field(default_factory=lambda: Decimal(0))
 
     def __post_init__(self):
         if not isinstance(self.date, datetime):
@@ -229,3 +229,10 @@ class BenchmarkPosition:
 
     def to_dict(self):
         return {**self.__dict__, 'date': int(self.date.timestamp())}
+
+
+@dataclass
+class StockConsolidatedPosition:
+    date: datetime
+    gross_value: Decimal
+    invested_value: Decimal
