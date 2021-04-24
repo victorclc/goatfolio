@@ -222,12 +222,18 @@ class _ExpansionTileCustomState extends State<ExpansionTileCustom> with SingleTi
               onTap: _handleTap,
               contentPadding: widget.tilePadding,
               leading: widget.leading,
-              title: widget.title,
-              subtitle: widget.subtitle,
-              trailing: widget.trailing ?? RotationTransition(
-                turns: _iconTurns,
-                child: const Icon(Icons.expand_more),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  widget.title,
+                  widget.trailing ?? RotationTransition(
+                    turns: _iconTurns,
+                    child: const Icon(Icons.expand_more),
+                  ),
+                ],
               ),
+              subtitle: widget.subtitle,
+
             ),
           ),
           ClipRect(

@@ -223,8 +223,8 @@ class _PortfolioPageState extends State<PortfolioPage> {
     if (portfolioList.stockGrossAmount > 0) {
       colors['Ações/ETFs'] =
           Rgb(stockColor.red, stockColor.green, stockColor.blue);
-      data.add(TickerTotals(
-          'Ações\ne ETFs', portfolioList.stockGrossAmount, colors['Ações/ETFs']));
+      data.add(TickerTotals('Ações\ne ETFs', portfolioList.stockGrossAmount,
+          colors['Ações/ETFs']));
     }
     final reitColor = Color(0xf52d6f);
     if (portfolioList.reitGrossAmount > 0) {
@@ -290,6 +290,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
   final List<StockSummary> items;
   final Map<String, Rgb> colors;
   final List<BenchmarkPosition> ibovHistory;
+  final bool initiallyExpanded;
 
   InvestmentTypeExpansionTile(
       {Key key,
@@ -298,7 +299,8 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
       this.totalAmount,
       this.items,
       this.colors,
-      this.ibovHistory})
+      this.ibovHistory,
+      this.initiallyExpanded = false})
       : super(key: key);
 
   @override
@@ -308,64 +310,81 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8),
       child: ExpansionTileCustom(
-        initiallyExpanded: true,
+        initiallyExpanded: initiallyExpanded,
         childrenPadding: EdgeInsets.only(left: 8, right: 8),
         tilePadding: EdgeInsets.zero,
-        title: Row(
+        title: Column(
           children: [
-            Container(
-              width: 4,
-              height: 14,
-              color: colors.containsKey(title)
-                  ? colors[title].toColor()
-                  : Rgb.random().toColor(),
-            ),
-            Text(
-              ' ' + title,
-              style: textTheme.navTitleTextStyle,
+            Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 14,
+                  color: colors.containsKey(title)
+                      ? colors[title].toColor()
+                      : Rgb.random().toColor(),
+                ),
+                Text(
+                  ' ' + title,
+                  style: textTheme.navTitleTextStyle,
+                ),
+              ],
             ),
           ],
         ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          "Total em carteira",
+                          style: textTheme.textStyle.copyWith(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      moneyFormatter.format(grossAmount),
+                      style: textTheme.textStyle.copyWith(fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          "% do portfolio",
+                          style: textTheme.textStyle.copyWith(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    // 100000 100
+                    // 34000   x
+                    Text(
+                      percentFormatter.format(
+                          totalAmount == 0 ? 0.0 : grossAmount / totalAmount),
+                      style: textTheme.textStyle.copyWith(fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Text(
-                    "Total em carteira",
-                    style: textTheme.textStyle.copyWith(fontSize: 16),
-                  ),
-                ],
-              ),
-              Text(
-                moneyFormatter.format(grossAmount),
-                style: textTheme.textStyle.copyWith(fontSize: 16),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Text(
-                    "% do portfolio",
-                    style: textTheme.textStyle.copyWith(fontSize: 16),
-                  ),
-                ],
-              ),
-              // 100000 100
-              // 34000   x
-              Text(
-                percentFormatter
-                    .format(totalAmount == 0 ? 0.0 : grossAmount / totalAmount),
-                style: textTheme.textStyle.copyWith(fontSize: 16),
-              ),
-            ],
-          ),
           SizedBox(
-            height: 24,
+            height: 8,
           ),
           ListView.builder(
             padding: EdgeInsets.zero,
