@@ -135,13 +135,9 @@ class _RentabilityPageState extends State<RentabilityPage> {
       prevMonthTotal = monthTotal;
       series.add(MoneyDateSeries(element.date, acumulatedRentability));
     }
-    print("FINAL");
-    print((widget.summary.grossAmount / prevMonthTotal - 1) * 100);
-    print(acumulatedRentability);
     final now = DateTime.now();
     acumulatedRentability +=
         (widget.summary.grossAmount / prevMonthTotal - 1) * 100;
-    print(acumulatedRentability);
     series.add(MoneyDateSeries(
         DateTime(now.year, now.month, 1), acumulatedRentability));
 

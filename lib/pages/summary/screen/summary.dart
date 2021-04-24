@@ -33,8 +33,6 @@ class _SummaryPageState extends State<SummaryPage> {
           border: null,
         ),
         CupertinoSliverRefreshControl(onRefresh: () async {
-          print(' BRIGHNESS');
-        print(CupertinoTheme.of(context).brightness);
           Provider.of<PortfolioListNotifier>(context, listen: false)
               .updatePerformance();
           await Provider.of<PortfolioSummaryNotifier>(context, listen: false)
@@ -60,7 +58,6 @@ class _SummaryPageState extends State<SummaryPage> {
                       case ConnectionState.done:
                         if (snapshot.hasData) {
                           summary = snapshot.data;
-                          print(summary);
                           return Column(
                             children: [
                               RentabilityCard(summary),
