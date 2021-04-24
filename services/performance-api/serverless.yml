@@ -52,17 +52,6 @@ custom:
     createRoute53Record: false
 
 functions:
-  getPerformance:
-    handler: src/handlers.get_performance_handler
-    events:
-      - http:
-          path: monthly
-          method: get
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
-
   consolidatePortfolio:
     handler: src/handlers.consolidate_portfolio_handler
     events:
