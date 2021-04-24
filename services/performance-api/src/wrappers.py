@@ -61,12 +61,36 @@ class StockPositionWrapper:
         return self.data.bought_value - self.data.sold_amount * self.average_price
 
     @property
+    def node_invested_sold_value(self):
+        return self.data.sold_amount * self.average_price
+
+    @property
     def realized_profit(self):
         return (self.gross_sold_value - self.invested_sold_value).quantize(Decimal('0.01'))
 
     @property
     def gross_value(self):
         return self.amount * self.data.close_price
+
+    @property
+    def prev_adjusted_gross_value(self):
+        if self.prev and self.prev.amount > 0:
+            if self.data.sold_amount > 0:
+                prev_month_amount = self.prev.amount - round(self.node_invested_sold_value / self.prev.average_price)
+            else:
+                prev_month_amount = self.prev.amount
+            return prev_month_amount * self.prev.data.close_price
+        return 0
+
+    @property
+    def month_variation_percent(self):
+        if self.prev and self.prev.amount > 0:
+            prev_gross_value = self.prev_adjusted_gross_value + self.data.bought_value
+        else:
+            prev_gross_value = self.current_invested_value
+        if prev_gross_value > 0:
+            return ((self.gross_value * 100 / prev_gross_value) - 100).quantize(Decimal('0.01'))
+        return 0
 
 
 class PositionDoublyLinkedList:

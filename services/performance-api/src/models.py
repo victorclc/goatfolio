@@ -236,3 +236,4 @@ class StockConsolidatedPosition:
     date: datetime
     gross_value: Decimal
     invested_value: Decimal
+    variation_perc: Decimal

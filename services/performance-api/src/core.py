@@ -87,11 +87,9 @@ class PerformanceCore:
             previous = current.prev
             if previous and previous.amount > 0:
                 month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start, stock.alias_ticker)
-                if current.data.sold_amount > 0:
-                    prev_month_amount = round(current.current_invested_value / previous.average_price)
-                else:
-                    prev_month_amount = previous.amount
-                prev_month_adj_gross_amount = prev_month_adj_gross_amount + prev_month_amount * month_data.close
+                previous.data.close_price = month_data.close
+                prev_month_adj_gross_amount = prev_month_adj_gross_amount + current.prev_adjusted_gross_value
+
             month_variation = month_variation - current.data.bought_value
             stock_variation.append(StockVariation(stock.alias_ticker or stock.ticker, data.change, data.price))
 
@@ -227,7 +225,8 @@ class PerformanceCore:
         consolidated = []
         while current:
             consolidated.append(
-                StockConsolidatedPosition(current.data.date, current.gross_value, current.current_invested_value))
+                StockConsolidatedPosition(current.data.date, current.gross_value, current.current_invested_value,
+                                          current.month_variation_percent))
             current = current.next
 
         return TickerConsolidatedHistory(consolidated)
