@@ -90,6 +90,9 @@ class StockPosition:
         self.bought_amount = self.bought_amount + bought_amount
         self.bought_value = self.bought_value + bought_value
 
+    def is_empty(self):
+        return not self.sold_amount and not self.bought_amount and not self.bought_value and not self.sold_value
+
     def to_dict(self):
         return {**self.__dict__, 'date': int(self.date.timestamp())}
 

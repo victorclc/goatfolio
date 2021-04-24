@@ -28,7 +28,7 @@ class PerformanceCore:
         investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
                                   key=lambda i: i.ticker)
 
-        portfolio = self.repo.find(subject) or Portfolio(subject=subject)
+        portfolio = Portfolio(subject=subject)
         for ticker, investments in investments_map:
             stock_consolidated = next(
                 (stock for stock in portfolio.stocks if stock.ticker == ticker or stock.alias_ticker == ticker), {})
@@ -57,7 +57,8 @@ class PerformanceCore:
         else:
             h_position.add_investment(inv)
 
-        # TODO check if h_position values are all zero, if they are remove it from the list
+        if h_position.is_empty():
+            stock_consolidated.history.remove(h_position)
 
     def get_portfolio_summary(self, subject):
         portfolio = self.repo.find(subject) or Portfolio(subject=subject)
@@ -230,3 +231,13 @@ class PerformanceCore:
             current = current.next
 
         return TickerConsolidatedHistory(consolidated)
+
+
+# if __name__ == '__main__':
+# # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+# # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
+# # print(PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
+# # print(PerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+# # print(PerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+# # print(PerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+# # print(PerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))

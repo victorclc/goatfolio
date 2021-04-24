@@ -38,7 +38,7 @@ def performance_portfolio_handler(event, context):
 def performance_portfolio_ticker_handler(event, context):
     logger.info(f"EVENT: {event}")
     subject = AWSEventUtils.get_event_subject(event)
-    ticker = AWSEventUtils.get_path_param(event, 'ticker')
+    ticker = AWSEventUtils.get_path_param(event, 'ticker').upper()
     result = core.get_ticker_consolidated_history(subject, ticker)
     return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(result.to_dict())}
 
