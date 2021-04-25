@@ -47,6 +47,7 @@ class _ThemePageState extends State<ThemePage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         previousPageTitle: "",
         middle: Text("Aparência"),
       ),

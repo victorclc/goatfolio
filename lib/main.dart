@@ -114,8 +114,8 @@ class NavigationWidget extends StatefulWidget {
 class InvisibleCupertinoTabBar extends CupertinoTabBar {
   static const dummyIcon = Icon(IconData(0x0020));
 
-  InvisibleCupertinoTabBar()
-      : super(
+  InvisibleCupertinoTabBar(backGroundColor)
+      : super(backgroundColor: backGroundColor,
           items: [
             BottomNavigationBarItem(icon: dummyIcon),
             BottomNavigationBarItem(icon: dummyIcon),
@@ -137,7 +137,7 @@ class InvisibleCupertinoTabBar extends CupertinoTabBar {
     int currentIndex,
     ValueChanged<int> onTap,
   }) =>
-      InvisibleCupertinoTabBar();
+      InvisibleCupertinoTabBar(backgroundColor);
 
   @override
   Size get preferredSize => const Size.square(0);
@@ -207,7 +207,7 @@ class _NavigationWidgetState extends State<NavigationWidget>
       controller: controller,
       resizeToAvoidBottomInset: false,
       tabBar: isKeyboardVisible
-          ? InvisibleCupertinoTabBar()
+          ? InvisibleCupertinoTabBar(CupertinoTheme.of(context).scaffoldBackgroundColor)
           : CupertinoTabBar(
               onTap: (index) {
                 if (index == currentIndex) {

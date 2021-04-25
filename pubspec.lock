@@ -7,7 +7,7 @@ packages:
       name: amazon_cognito_identity_dart_2
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.25+3"
+    version: "0.1.25+4"
   async:
     dependency: transitive
     description:
@@ -174,7 +174,7 @@ packages:
       name: logging
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.1"
   mask_text_input_formatter:
     dependency: "direct main"
     description:
@@ -244,7 +244,7 @@ packages:
       name: path_provider_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   pedantic:
     dependency: transitive
     description:
@@ -272,7 +272,7 @@ packages:
       name: process
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.1.0"
+    version: "4.2.1"
   progress_indicators:
     dependency: "direct main"
     description:
@@ -417,7 +417,7 @@ packages:
       name: url_launcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.0.2"
+    version: "6.0.3"
   url_launcher_linux:
     dependency: transitive
     description:
@@ -466,7 +466,7 @@ packages:
       name: win32
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.4"
+    version: "2.0.5"
   xdg_directories:
     dependency: transitive
     description:

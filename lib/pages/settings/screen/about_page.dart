@@ -16,6 +16,7 @@ class AboutPage extends StatelessWidget {
     final textTheme = CupertinoTheme.of(context).textTheme;
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         previousPageTitle: "",
         middle: Text("Sobre"),
       ),

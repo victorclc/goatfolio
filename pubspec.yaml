@@ -55,9 +55,9 @@ dev_dependencies:
 #  flutter_native_splash: ^1.1.2
 
 flutter_native_splash:
-#  color: "#42a5f5"
-#  image: "images/splash/splash-screen3.png"
-  background_image: "images/splash/splash-screen3.png"
+#  color: "#FFFFFF"
+  image: "images/logo/icon_500.png"
+  background_image: "images/splash/light-background.png"
 
 flutter_icons:
   android: true
@@ -76,7 +76,9 @@ flutter:
   assets:
     - images/app_logo.png
     - images/splash/splash-screen3.png
+    - images/splash/light-background.png
     - images/logo/icon.png
+    - images/logo/icon_500.png
     - images/logo/logo.png
     - images/logo/text.png
     - images/icon/app-icon3.png
