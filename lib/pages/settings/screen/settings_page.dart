@@ -141,7 +141,7 @@ class SettingsPage extends StatelessWidget {
                                 .textStyle
                                 .copyWith(
                                     fontWeight: FontWeight.normal, fontSize: 16),
-                            title: 'Aparência',
+                            title: 'Tema',
                             onPressed: goToThemePage,
                           ),
                           SettingsTile(

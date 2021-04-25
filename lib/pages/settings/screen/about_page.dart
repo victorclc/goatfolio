@@ -94,8 +94,10 @@ class _AboutPageState extends State<AboutPage> {
                       child: SingleChildScrollView(
                         child: SettingsList(
                           backgroundColor: Platform.isAndroid
-                              ? CupertinoTheme.of(context)
-                                  .scaffoldBackgroundColor
+                              ? CupertinoThemeHelper.currentBrightness(context) ==
+                              Brightness.light
+                              ? CupertinoTheme.of(context).scaffoldBackgroundColor
+                              : Color.fromRGBO(28, 28, 30, 1)
                               : null,
                           physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
