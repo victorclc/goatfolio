@@ -5,16 +5,16 @@ import 'package:goatfolio/pages/login/screen/login.dart';
 import 'package:goatfolio/pages/settings/screen/theme_page.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/storage/stock_investment.dart';
+import 'package:launch_review/launch_review.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'about_page.dart';
+import 'notifications_page.dart';
 
 class SettingsPage extends StatelessWidget {
   static const String title = 'Configurações';
   static const Icon icon = Icon(CupertinoIcons.settings);
-  final String _contactUrl = 'mailto:contato@goatfolio.com.br?subject=Teste&body=Isso%20eh%20uma%20mensagem%20de%20teste';
 
   @override
   Widget build(BuildContext context) {
@@ -32,15 +32,27 @@ class SettingsPage extends StatelessWidget {
                 onPressed: goToThemePage,
               ),
               SettingsTile(
-                title: 'Contato',
-                onPressed: (_) => _launchURL(),
+                title: 'Notificações',
+                onPressed: goToNotificationsPage,
               ),
               SettingsTile(
                 title: 'Sobre',
                 onPressed: goToAboutPage,
               ),
               SettingsTile(
+                title: 'Avalie-nos',
+                onPressed: (_) async => await LaunchReview.launch(),
+              ),
+            ],
+          ),
+          SettingsSection(
+            tiles: [
+              SettingsTile(
                 title: 'Sair',
+                leading: Icon(
+                  Icons.exit_to_app_rounded,
+                  color: Colors.redAccent,
+                ),
                 titleTextStyle:
                     TextStyle(fontSize: 16, color: Colors.redAccent),
                 onPressed: (BuildContext context) async {
@@ -59,12 +71,9 @@ class SettingsPage extends StatelessWidget {
                 },
               ),
             ],
-          ),
+          )
         ],
       ),
     );
   }
-
-  void _launchURL() async =>
-      await canLaunch(_contactUrl) ? await launch(_contactUrl) : throw 'Could not launch $_contactUrl';
 }
