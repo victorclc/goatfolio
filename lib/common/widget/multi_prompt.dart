@@ -160,7 +160,6 @@ class _PromptPageState extends State<PromptPage>
   bool submitting = false;
   bool isProcessing = false;
 
-
   @override
   void initState() {
     super.initState();
@@ -204,12 +203,14 @@ class _PromptPageState extends State<PromptPage>
                 widget.request.hint ?? Container(),
                 Container(
                   width: double.infinity,
-                  child: TextField(
+                  child: TextFormField(
                     controller: controller,
                     focusNode: focusNode,
                     obscureText: widget.request.hideText,
                     autofillHints: widget.request.autoFillHints,
                     keyboardType: widget.request.keyboardType,
+                    validator: widget.request.validateMessages,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     onChanged: validateInput,
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
                     decoration: new InputDecoration(
@@ -238,20 +239,20 @@ class _PromptPageState extends State<PromptPage>
             child: submitting
                 ? JumpingText("...")
                 : Text(
-              "CONTINUAR",
-              style: TextStyle(fontSize: 16),
-            ),
+                    "CONTINUAR",
+                    style: TextStyle(fontSize: 16),
+                  ),
             onPressed: validInput
                 ? () {
-              if (isProcessing) {
-                return;
-              }
-              isProcessing = true;
-              PromptPage.previousInput = controller.text;
-              widget.onSubmitted(
-                  widget.request.attrName, controller.text);
-              isProcessing = false;
-            }
+                    if (isProcessing) {
+                      return;
+                    }
+                    isProcessing = true;
+                    PromptPage.previousInput = controller.text;
+                    widget.onSubmitted(
+                        widget.request.attrName, controller.text);
+                    isProcessing = false;
+                  }
                 : null,
           ),
         ),
@@ -282,6 +283,7 @@ class PromptRequest {
   final List<String> autoFillHints;
   final Function validate;
   final bool hideText;
+  final Function validateMessages;
 
   PromptRequest({
     this.attrName,
@@ -292,5 +294,6 @@ class PromptRequest {
     this.autoFillHints,
     this.validate,
     this.hideText = false,
+    this.validateMessages,
   });
 }

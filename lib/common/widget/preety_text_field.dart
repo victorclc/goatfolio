@@ -67,6 +67,8 @@ class PrettyTextField extends StatelessWidget {
         focusNode: focusNode,
         obscureText: hideText,
         autofillHints: autoFillHints,
+
+
         decoration: new InputDecoration(
           contentPadding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
           border: new OutlineInputBorder(),
