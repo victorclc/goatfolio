@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/common/helper/theme_helper.dart';
 
 class PressableCard extends StatefulWidget {
   const PressableCard({this.onPressed, this.child, this.cardPadding});
@@ -77,7 +78,7 @@ class _PressableCardState extends State<PressableCard>
                       ((1 - elevationAnimation.value) * 10 + 10) * flatten,
                   borderRadius: BorderRadius.circular(12 * flatten),
                   clipBehavior: Clip.antiAlias,
-                  color: CupertinoTheme.of(context).brightness ==
+                  color: CupertinoThemeHelper.currentBrightness(context) ==
                           Brightness.light
                       ? CupertinoTheme.of(context).scaffoldBackgroundColor
                       : CupertinoTheme.of(context).barBackgroundColor,
