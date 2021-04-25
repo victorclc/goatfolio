@@ -19,50 +19,37 @@ class AddPage extends StatelessWidget {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
       ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SettingsList(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                sections: [
-                  SettingsSection(
-                    title: "RENDA VARIÁVEL",
-                    // subtitle: Text("RENDA VARIAVEL"),
-                    // titlePadding: EdgeInsets.all(0),
-                    // subtitlePadding: EdgeInsets.all(0),
-                    tiles: [
-                      SettingsTile(
-                        title: 'Importar automaticamente (CEI)',
-                        onPressed: (context) =>
-                            ModalUtils.showDragableModalBottomSheet(
-                          context,
-                          CeiLoginPage(
-                              userService: Provider.of<UserService>(context,
-                                  listen: false)),
-                        ),
-                      ),
-                      SettingsTile(
-                        title: 'Operação de compra',
-                        onPressed: (context) =>
-                            goToInvestmentList(context, true),
-                      ),
-                      SettingsTile(
-                        title: 'Operação de venda',
-                        onPressed: (context) =>
-                            goToInvestmentList(context, false),
-                      ),
-                    ],
-                  ),
-                  SettingsSection(
-                    tiles: [],
-                  ),
-                ],
+      child: SettingsList(
+        sections: [
+          SettingsSection(
+            title: "RENDA VARIÁVEL",
+            tiles: [
+              SettingsTile(
+                title: 'Importar automaticamente (CEI)',
+                onPressed: (context) =>
+                    ModalUtils.showDragableModalBottomSheet(
+                  context,
+                  CeiLoginPage(
+                      userService: Provider.of<UserService>(context,
+                          listen: false)),
+                ),
               ),
-            ),
-          ],
-        ),
+              SettingsTile(
+                title: 'Operação de compra',
+                onPressed: (context) =>
+                    goToInvestmentList(context, true),
+              ),
+              SettingsTile(
+                title: 'Operação de venda',
+                onPressed: (context) =>
+                    goToInvestmentList(context, false),
+              ),
+            ],
+          ),
+          SettingsSection(
+            tiles: [],
+          ),
+        ],
       ),
     );
   }
