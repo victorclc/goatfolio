@@ -28,18 +28,22 @@ class SettingsPage extends StatelessWidget {
           SettingsSection(
             tiles: [
               SettingsTile(
+                titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                 title: 'Aparência',
                 onPressed: goToThemePage,
               ),
               SettingsTile(
+                titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                 title: 'Notificações',
                 onPressed: goToNotificationsPage,
               ),
               SettingsTile(
+                titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                 title: 'Sobre',
                 onPressed: goToAboutPage,
               ),
               SettingsTile(
+                titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                 title: 'Avalie-nos',
                 onPressed: (_) async => await LaunchReview.launch(),
               ),

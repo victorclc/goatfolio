@@ -20,12 +20,14 @@ class AddPage extends StatelessWidget {
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
       ),
       child: SettingsList(
+
         sections: [
           SettingsSection(
             title: "RENDA VARIÁVEL",
             tiles: [
               SettingsTile(
                 title: 'Importar automaticamente (CEI)',
+                titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                 onPressed: (context) =>
                     ModalUtils.showDragableModalBottomSheet(
                   context,
@@ -36,11 +38,13 @@ class AddPage extends StatelessWidget {
               ),
               SettingsTile(
                 title: 'Operação de compra',
+                titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                 onPressed: (context) =>
                     goToInvestmentList(context, true),
               ),
               SettingsTile(
                 title: 'Operação de venda',
+                titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                 onPressed: (context) =>
                     goToInvestmentList(context, false),
               ),
