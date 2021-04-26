@@ -119,6 +119,8 @@ class PerformanceCore:
         portfolio_history_map = {}
         for stock in portfolio.stocks:
             wrappers = self._fetch_stocks_history_data(stock)
+            if not wrappers:
+                continue
             current = wrappers.head
 
             while current:
@@ -143,6 +145,9 @@ class PerformanceCore:
         monthly_map = self.market_data.ticker_monthly_data_from(stock.ticker, stock.initial_date, stock.alias_ticker)
         wrappers = self._create_stock_position_wrapper_list(grouped_positions)
         current = wrappers.head
+
+        if not current:
+            return []
 
         proc = current.data.date
         last = DatetimeUtils.month_first_day_datetime(datetime.utcnow())
@@ -186,6 +191,8 @@ class PerformanceCore:
 
         for stock in portfolio.stocks:
             current = self._create_stock_position_wrapper_list(stock.history).tail
+            if not current:
+                continue
             amount = current.amount
             if amount <= 0:
                 continue
@@ -231,11 +238,12 @@ class PerformanceCore:
 
         return TickerConsolidatedHistory(consolidated)
 
+
 if __name__ == '__main__':
     # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-# investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
-#     print(PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
+    # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
+    #     print(PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
     print(PerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-# print(PerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-# print(PerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-# print(PerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
+    print(PerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    print(PerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    print(PerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
