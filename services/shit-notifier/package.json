@@ -1,0 +1,15 @@
+{
+  "name": "shit-notifier",
+  "version": "1.0.0",
+  "description": "notify errors to discord",
+  "main": "index.js",
+  "dependencies": {
+    "serverless-python-requirements": "^5.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \\\"Error: no tests specified\\\" && exit 1"
+  },
+  "author": "Victor Corte Lopes de Carvalho",
+  "license": "ISC"
+}

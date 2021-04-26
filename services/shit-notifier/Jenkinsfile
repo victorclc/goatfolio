@@ -1,0 +1,45 @@
+pipeline {
+    agent {
+        docker {
+            image 'victorclc/node-serverless'
+            args '-u 127:998 -v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+    environment {
+        HOME="."
+        SERVICE_PATH="${env.WORKSPACE}/services/shit-notifier"
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id-dev')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key-dev')
+        SLS_DEBUG='*'
+    }
+    stages {
+        stage('Clone') {
+            steps {
+                git(
+                    url: 'git@github.com:victorclc/goatfolio-serverless.git',
+                    credentialsId: 'github-ssh',
+                    branch: 'master'
+                )
+             }
+        }
+        stage('Tests') {
+            steps {
+                sh 'chmod +x run_tests.sh'
+                sh './run_tests.sh'
+            }
+        }
+        stage('Common Resources Deploy') {
+            steps {
+                sh 'serverless deploy'
+             }
+        }
+        stage('Service Deploy') {
+            steps {
+                 dir('services/shit-notifier'){
+                    sh 'npm install'
+                    sh 'serverless deploy'
+                }
+            }
+        }
+    }
+}
