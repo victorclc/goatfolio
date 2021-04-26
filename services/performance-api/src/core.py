@@ -5,7 +5,7 @@ from itertools import groupby
 
 from dateutil.relativedelta import relativedelta
 
-from adapters import PortfolioRepository, MarketData
+from adapters import PortfolioRepository, MarketData, InvestmentRepository
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
 from models import Portfolio, StockConsolidated, StockPosition, StockVariation, PortfolioSummary, PortfolioPosition, \
@@ -29,7 +29,7 @@ class PerformanceCore:
         investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
                                   key=lambda i: i.ticker)
 
-        portfolio = Portfolio(subject=subject)
+        portfolio = self.repo.find(subject) or Portfolio(subject=subject)
         for ticker, investments in investments_map:
             stock_consolidated = next(
                 (stock for stock in portfolio.stocks if stock.ticker == ticker or stock.alias_ticker == ticker), {})
@@ -76,7 +76,7 @@ class PerformanceCore:
             sorted_history = sorted(stock.history, key=lambda h: h.date)
             grouped_positions = self._group_stock_position_per_month(sorted_history)
             current = self._create_stock_position_wrapper_list(grouped_positions).tail
-            if current.amount <= 0:
+            if not current or current.amount <= 0:
                 continue
 
             data = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
@@ -231,11 +231,11 @@ class PerformanceCore:
 
         return TickerConsolidatedHistory(consolidated)
 
-# if __name__ == '__main__':
-# # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-# # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
-# # print(PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
-# # print(PerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-# # print(PerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-# # print(PerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-# # print(PerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
+if __name__ == '__main__':
+    # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+# investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
+#     print(PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
+    print(PerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+# print(PerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+# print(PerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+# print(PerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
