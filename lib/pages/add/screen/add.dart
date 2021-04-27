@@ -18,6 +18,14 @@ class AddPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return buildIos(context);
+    }
+    return buildAndroid(context);
+  }
+
+  @override
+  Widget buildAndroid(BuildContext context) {
     return CupertinoPageScaffold(
       backgroundColor:
           CupertinoThemeHelper.currentBrightness(context) == Brightness.light
@@ -126,6 +134,43 @@ class AddPage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildIos(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      ),
+      child: SettingsList(
+        sections: [
+          SettingsSection(
+            title: "RENDA VARIÁVEL",
+            tiles: [
+              SettingsTile(
+                title: 'Importar automaticamente (CEI)',
+                onPressed: (context) => ModalUtils.showDragableModalBottomSheet(
+                  context,
+                  CeiLoginPage(
+                      userService:
+                          Provider.of<UserService>(context, listen: false)),
+                ),
+              ),
+              SettingsTile(
+                title: 'Operação de compra',
+                onPressed: (context) => goToInvestmentList(context, true),
+              ),
+              SettingsTile(
+                title: 'Operação de venda',
+                onPressed: (context) => goToInvestmentList(context, false),
+              ),
+            ],
+          ),
+          SettingsSection(
+            tiles: [],
+          ),
+        ],
       ),
     );
   }
