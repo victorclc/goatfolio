@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/theme/theme_changer.dart';
@@ -54,94 +52,78 @@ class _ThemePageState extends State<ThemePage> {
         middle: Text("Aparência"),
       ),
       child: SafeArea(
-        child: Padding(
-          padding:
-              Platform.isIOS ? EdgeInsets.zero : const EdgeInsets.only(top: 16),
-          child: SettingsList(
-            backgroundColor: Platform.isAndroid
-                ? CupertinoTheme.of(context).scaffoldBackgroundColor
-                : null,
-            sections: [
-              SettingsSection(
-                title: 'TEMA',
-                tiles: [
-                  SettingsTile(
-                    titleTextStyle: CupertinoTheme.of(context)
-                        .textTheme
-                        .textStyle
-                        .copyWith(fontWeight: FontWeight.normal, fontSize: 16),
-                    title: 'Automático',
-                    // trailing: automaticTheme
-                    //     ? Icon(CupertinoIcons.check_mark, size: 18)
-                    //     : Container(),
-                    onPressed: (_) {
-                      setState(() {
-                        automaticTheme = true;
-                        lightTheme = false;
-                        darkTheme = false;
-                        themeChanger.setValue(ThemeChanger.CFG_AUTOMATIC_VALUE);
-                      });
-                    },
-                  ),
-                  SettingsTile(
-                    titleTextStyle: CupertinoTheme.of(context)
-                        .textTheme
-                        .textStyle
-                        .copyWith(fontWeight: FontWeight.normal, fontSize: 16),
-                    title: 'Claro',
-                    // trailing: lightTheme
-                    //     ? Icon(CupertinoIcons.check_mark, size: 18)
-                    //     : Container(),
-                    onPressed: (_) {
-                      setState(() {
-                        automaticTheme = false;
-                        lightTheme = true;
-                        darkTheme = false;
-                        themeChanger.setValue(ThemeChanger.CFG_LIGHT_VALUE);
-                      });
-                    },
-                  ),
-                  SettingsTile(
-                    titleTextStyle: CupertinoTheme.of(context)
-                        .textTheme
-                        .textStyle
-                        .copyWith(fontWeight: FontWeight.normal, fontSize: 16),
-                    title: 'Escuro',
-                    // trailing: darkTheme
-                    //     ? Icon(
-                    //         CupertinoIcons.check_mark,
-                    //         size: 18,
-                    //       )
-                    //     : Container(),
-                    onPressed: (_) {
-                      setState(() {
-                        automaticTheme = false;
-                        lightTheme = false;
-                        darkTheme = true;
-                        themeChanger.setValue(ThemeChanger.CFG_DARK_VALUE);
-                      });
-                    },
-                  ),
+        child: SettingsList(
+          sections: [
+            SettingsSection(
+              title: 'TEMA',
+              tiles: [
+                SettingsTile(
+                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
+                  title: 'Automático',
+                  // trailing: automaticTheme
+                  //     ? Icon(CupertinoIcons.check_mark, size: 18)
+                  //     : Container(),
+                  onPressed: (_) {
+                    setState(() {
+                      automaticTheme = true;
+                      lightTheme = false;
+                      darkTheme = false;
+                      themeChanger.setValue(ThemeChanger.CFG_AUTOMATIC_VALUE);
+                    });
+                  },
+                ),
+                SettingsTile(
+                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
+                  title: 'Claro',
+                  // trailing: lightTheme
+                  //     ? Icon(CupertinoIcons.check_mark, size: 18)
+                  //     : Container(),
+                  onPressed: (_) {
+                    setState(() {
+                      automaticTheme = false;
+                      lightTheme = true;
+                      darkTheme = false;
+                      themeChanger.setValue(ThemeChanger.CFG_LIGHT_VALUE);
+                    });
+                  },
+                ),
+                SettingsTile(
+                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
+                  title: 'Escuro',
+                  // trailing: darkTheme
+                  //     ? Icon(
+                  //         CupertinoIcons.check_mark,
+                  //         size: 18,
+                  //       )
+                  //     : Container(),
+                  onPressed: (_) {
+                    setState(() {
+                      automaticTheme = false;
+                      lightTheme = false;
+                      darkTheme = true;
+                      themeChanger.setValue(ThemeChanger.CFG_DARK_VALUE);
+                    });
+                  },
+                ),
 
-                  // SettingsTile.switchTile(
-                  //   title: 'Modo Noturno Automático',
-                  //   onToggle: (value) {
-                  //     setState(() {
-                  //       automaticDarkMode = value;
-                  //
-                  //       Provider.of<ThemeChanger>(context, listen: false)
-                  //           .setBrightness(automaticDarkMode
-                  //               ? Brightness.dark
-                  //               : Brightness.light);
-                  //     });
-                  //   },
-                  //   switchActiveColor: CupertinoColors.activeGreen,
-                  //   switchValue: automaticDarkMode,
-                  // )
-                ],
-              )
-            ],
-          ),
+                // SettingsTile.switchTile(
+                //   title: 'Modo Noturno Automático',
+                //   onToggle: (value) {
+                //     setState(() {
+                //       automaticDarkMode = value;
+                //
+                //       Provider.of<ThemeChanger>(context, listen: false)
+                //           .setBrightness(automaticDarkMode
+                //               ? Brightness.dark
+                //               : Brightness.light);
+                //     });
+                //   },
+                //   switchActiveColor: CupertinoColors.activeGreen,
+                //   switchValue: automaticDarkMode,
+                // )
+              ],
+            )
+          ],
         ),
       ),
     );

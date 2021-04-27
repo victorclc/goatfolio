@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/util/dialog.dart';
@@ -31,7 +29,8 @@ class InvestmentsList extends StatefulWidget {
       : super(key: key);
 
   @override
-  _InvestmentsListState createState() => _InvestmentsListState();
+  _InvestmentsListState createState() =>
+      _InvestmentsListState();
 }
 
 class _InvestmentsListState extends State<InvestmentsList> {
@@ -92,10 +91,7 @@ class _InvestmentsListState extends State<InvestmentsList> {
           tiles: tickersByAlphabet[letter]
               .map(
                 (ticker) => SettingsTile(
-                  titleTextStyle: CupertinoTheme.of(context)
-                      .textTheme
-                      .textStyle
-                      .copyWith(fontWeight: FontWeight.normal, fontSize: 16),
+                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                   title: ticker,
                   onPressed: (context) =>
                       ModalUtils.showDragableModalBottomSheet(
@@ -139,8 +135,6 @@ class _InvestmentsListState extends State<InvestmentsList> {
         ),
         child: SafeArea(
           child: Container(
-            padding:
-                Platform.isIOS ? EdgeInsets.zero : EdgeInsets.only(top: 16),
             child: Column(
               children: [
                 FutureBuilder(
@@ -156,10 +150,6 @@ class _InvestmentsListState extends State<InvestmentsList> {
                           if (snapshot.hasData) {
                             return Expanded(
                                 child: SettingsList(
-                              backgroundColor: Platform.isAndroid
-                                  ? CupertinoTheme.of(context)
-                                      .scaffoldBackgroundColor
-                                  : null,
                               sections: buildAlphabetSections(snapshot.data),
                             ));
                           }

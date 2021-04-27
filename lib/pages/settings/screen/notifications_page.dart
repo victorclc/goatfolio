@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -36,17 +34,11 @@ class _NotificationsPageeState extends State<NotificationsPage> {
       ),
       child: SafeArea(
         child: SettingsList(
-          backgroundColor: Platform.isAndroid
-              ? CupertinoTheme.of(context).scaffoldBackgroundColor
-              : null,
           sections: [
             SettingsSection(
               tiles: [
                 SettingsTile.switchTile(
-                  titleTextStyle: CupertinoTheme.of(context)
-                      .textTheme
-                      .textStyle
-                      .copyWith(fontWeight: FontWeight.normal, fontSize: 16),
+                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                   title: 'Habilitar notificações',
                   onToggle: (value) {
                     setState(() {

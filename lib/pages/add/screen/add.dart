@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/util/modal.dart';
@@ -21,54 +19,41 @@ class AddPage extends StatelessWidget {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
       ),
-      child: Padding(
-        padding:
-            Platform.isIOS ? EdgeInsets.zero : const EdgeInsets.only(top: 16.0),
-        child: SettingsList(
-          backgroundColor: Platform.isAndroid
-              ? CupertinoTheme.of(context).scaffoldBackgroundColor
-              : null,
-          sections: [
-            SettingsSection(
-              title: "RENDA VARIÁVEL",
-              tiles: [
-                SettingsTile(
-                  title: 'Importar automaticamente (CEI)',
-                  titleTextStyle: CupertinoTheme.of(context)
-                      .textTheme
-                      .textStyle
-                      .copyWith(fontWeight: FontWeight.normal, fontSize: 16),
-                  onPressed: (context) =>
-                      ModalUtils.showDragableModalBottomSheet(
-                    context,
-                    CeiLoginPage(
-                        userService:
-                            Provider.of<UserService>(context, listen: false)),
-                  ),
+      child: SettingsList(
+
+        sections: [
+          SettingsSection(
+            title: "RENDA VARIÁVEL",
+            tiles: [
+              SettingsTile(
+                title: 'Importar automaticamente (CEI)',
+                titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
+                onPressed: (context) =>
+                    ModalUtils.showDragableModalBottomSheet(
+                  context,
+                  CeiLoginPage(
+                      userService: Provider.of<UserService>(context,
+                          listen: false)),
                 ),
-                SettingsTile(
-                  title: 'Operação de compra',
-                  titleTextStyle: CupertinoTheme.of(context)
-                      .textTheme
-                      .textStyle
-                      .copyWith(fontWeight: FontWeight.normal, fontSize: 16),
-                  onPressed: (context) => goToInvestmentList(context, true),
-                ),
-                SettingsTile(
-                  title: 'Operação de venda',
-                  titleTextStyle: CupertinoTheme.of(context)
-                      .textTheme
-                      .textStyle
-                      .copyWith(fontWeight: FontWeight.normal, fontSize: 16),
-                  onPressed: (context) => goToInvestmentList(context, false),
-                ),
-              ],
-            ),
-            SettingsSection(
-              tiles: [],
-            ),
-          ],
-        ),
+              ),
+              SettingsTile(
+                title: 'Operação de compra',
+                titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
+                onPressed: (context) =>
+                    goToInvestmentList(context, true),
+              ),
+              SettingsTile(
+                title: 'Operação de venda',
+                titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
+                onPressed: (context) =>
+                    goToInvestmentList(context, false),
+              ),
+            ],
+          ),
+          SettingsSection(
+            tiles: [],
+          ),
+        ],
       ),
     );
   }
