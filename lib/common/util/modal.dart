@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -17,14 +19,26 @@ class ModalUtils {
   static Future<T> showDragableModalBottomSheet<T>(
       BuildContext context, Widget child,
       {bool expandable = true, bool isDismissible = false}) async {
-    return await showCupertinoModalBottomSheet(
-        enableDrag: true,
-        isDismissible: isDismissible,
-        useRootNavigator: true,
-        expand: expandable,
-        context: context,
-        builder: (context) {
-          return child;
-        });
+    if (Platform.isIOS) {
+      return await showCupertinoModalBottomSheet(
+          enableDrag: true,
+          isDismissible: isDismissible,
+          useRootNavigator: true,
+          expand: expandable,
+          context: context,
+          builder: (context) {
+            return child;
+          });
+    } else {
+      return await showMaterialModalBottomSheet(
+          enableDrag: true,
+          isDismissible: isDismissible,
+          useRootNavigator: true,
+          expand: expandable,
+          context: context,
+          builder: (context) {
+            return child;
+          });
+    }
   }
 }

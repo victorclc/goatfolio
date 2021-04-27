@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/util/dialog.dart';
@@ -319,11 +321,22 @@ class _StockAddState extends State<StockAdd> {
         problems.forEach((description) {
           problemWidgets.add(Text(description));
         });
-        await DialogUtils.showCustomErrorDialog(
+        if (Platform.isIOS) {
+          await DialogUtils.showCustomErrorDialog(
+              context,
+              Column(
+                children: problemWidgets,
+              ));
+        } else {
+          String problemsString = "";
+          problems.forEach((description) {
+            problemsString += description + '\n';
+          });
+          await DialogUtils.showCustomErrorDialog(
             context,
-            Column(
-              children: problemWidgets,
-            ));
+            Text(problemsString),
+          );
+        }
         return;
       }
     } on Exception catch (e) {
