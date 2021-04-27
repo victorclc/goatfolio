@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/common/helper/theme_helper.dart';
 import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/pages/add/screen/stock_add.dart';
@@ -119,9 +118,6 @@ class _InvestmentsListState extends State<InvestmentsList> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-        backgroundColor: CupertinoThemeHelper.currentBrightness(context) == Brightness.light
-            ? Color(0xFFEFEFF4)
-            : CupertinoTheme.of(context).scaffoldBackgroundColor,
         navigationBar: CupertinoNavigationBar(
           backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
           previousPageTitle: "",
@@ -160,12 +156,10 @@ class _InvestmentsListState extends State<InvestmentsList> {
                           if (snapshot.hasData) {
                             return Expanded(
                                 child: SettingsList(
-                                  backgroundColor: Platform.isAndroid
-                                      ? CupertinoThemeHelper.currentBrightness(context) ==
-                                      Brightness.light
-                                      ? CupertinoTheme.of(context).scaffoldBackgroundColor
-                                      : Color.fromRGBO(28, 28, 30, 1)
-                                      : null,
+                              backgroundColor: Platform.isAndroid
+                                  ? CupertinoTheme.of(context)
+                                      .scaffoldBackgroundColor
+                                  : null,
                               sections: buildAlphabetSections(snapshot.data),
                             ));
                           }
