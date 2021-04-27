@@ -38,7 +38,6 @@ class _NotificationsPageeState extends State<NotificationsPage> {
             SettingsSection(
               tiles: [
                 SettingsTile.switchTile(
-                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                   title: 'Habilitar notificações',
                   onToggle: (value) {
                     setState(() {

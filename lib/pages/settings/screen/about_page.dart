@@ -93,42 +93,35 @@ class _AboutPageState extends State<AboutPage> {
                             SettingsSection(
                               tiles: [
                                 SettingsTile(
-                                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                                   title: 'Instagram',
                                   onPressed: (_) => _launchURL(
                                       "https://www.instagram.com/goatfolio/"),
                                   // onPressed: goToThemePage,
                                 ),
                                 SettingsTile(
-                                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                                   title: 'Avalie-nos',
                                   onPressed: (_) async =>
                                       await LaunchReview.launch(),
                                 ),
                                 SettingsTile(
-                                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                                   title: 'Termos de uso',
                                   onPressed: (_) => _launchURL(
                                       "https://www.goatfolio.com.br/"),
                                 ),
                                 SettingsTile(
-                                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                                   title: 'Política de privacidade',
                                   onPressed: (_) => _launchURL(
                                       "https://www.goatfolio.com.br/"),
                                 ),
                                 SettingsTile(
-                                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                                   title: 'Reportar um Bug',
                                   onPressed: (_) => _launchBugReportEmail(),
                                 ),
                                 SettingsTile(
-                                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                                   title: 'Requisição de funcionalidades',
                                   onPressed: (_) => _launchFutureRequestEmail(),
                                 ),
                                 SettingsTile(
-                                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                                   title: 'Contato',
                                   onPressed: (_) => _launchContactEmail(),
                                 ),

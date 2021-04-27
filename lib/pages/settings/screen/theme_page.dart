@@ -58,11 +58,10 @@ class _ThemePageState extends State<ThemePage> {
               title: 'TEMA',
               tiles: [
                 SettingsTile(
-                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                   title: 'Automático',
-                  // trailing: automaticTheme
-                  //     ? Icon(CupertinoIcons.check_mark, size: 18)
-                  //     : Container(),
+                  trailing: automaticTheme
+                      ? Icon(CupertinoIcons.check_mark, size: 18)
+                      : Container(),
                   onPressed: (_) {
                     setState(() {
                       automaticTheme = true;
@@ -73,11 +72,10 @@ class _ThemePageState extends State<ThemePage> {
                   },
                 ),
                 SettingsTile(
-                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                   title: 'Claro',
-                  // trailing: lightTheme
-                  //     ? Icon(CupertinoIcons.check_mark, size: 18)
-                  //     : Container(),
+                  trailing: lightTheme
+                      ? Icon(CupertinoIcons.check_mark, size: 18)
+                      : Container(),
                   onPressed: (_) {
                     setState(() {
                       automaticTheme = false;
@@ -88,14 +86,13 @@ class _ThemePageState extends State<ThemePage> {
                   },
                 ),
                 SettingsTile(
-                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                   title: 'Escuro',
-                  // trailing: darkTheme
-                  //     ? Icon(
-                  //         CupertinoIcons.check_mark,
-                  //         size: 18,
-                  //       )
-                  //     : Container(),
+                  trailing: darkTheme
+                      ? Icon(
+                          CupertinoIcons.check_mark,
+                          size: 18,
+                        )
+                      : Container(),
                   onPressed: (_) {
                     setState(() {
                       automaticTheme = false;

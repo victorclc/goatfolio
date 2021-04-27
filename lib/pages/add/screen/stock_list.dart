@@ -91,7 +91,6 @@ class _InvestmentsListState extends State<InvestmentsList> {
           tiles: tickersByAlphabet[letter]
               .map(
                 (ticker) => SettingsTile(
-                  titleTextStyle: CupertinoTheme.of(context).textTheme.textStyle.copyWith(fontWeight: FontWeight.normal, fontSize: 16),
                   title: ticker,
                   onPressed: (context) =>
                       ModalUtils.showDragableModalBottomSheet(
