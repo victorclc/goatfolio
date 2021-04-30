@@ -64,7 +64,7 @@ resources:
                 KeyType: "RANGE"
             Projection:
               ProjectionType: ALL
-          - IndexName: tickerSubjectGlobalIndex
+          - IndexName: tickerSubjectKeysGlobalIndex
             KeySchema:
               - AttributeName: "ticker"
                 KeyType: "HASH"
