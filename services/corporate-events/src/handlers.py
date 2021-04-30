@@ -2,7 +2,7 @@ import logging
 import traceback
 from decimal import Decimal
 
-from core import CorporateEventsCore
+from core import CorporateEventsCore, CorporateEventsCrawlerCore
 from goatcommons.models import StockInvestment
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -12,13 +12,13 @@ logger.setLevel(logging.INFO)
 
 def download_today_corporate_events_handler(event, context):
     logger.info(f'EVENT: {event}')
-    core = CorporateEventsCore()
+    core = CorporateEventsCrawlerCore()
     core.download_today_corporate_events()
 
 
 def process_corporate_events_file_handler(event, context):
     logger.info(f'EVENT: {event}')
-    core = CorporateEventsCore()
+    core = CorporateEventsCrawlerCore()
     for record in event['Records']:
         logger.info(f'Processing record: {record}')
         bucket = record['s3']['bucket']['name']

@@ -21,14 +21,11 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-class CorporateEventsCore:
+class CorporateEventsCrawlerCore:
     def __init__(self):
         self.b3 = B3CorporateEventsData()
         self.bucket = B3CorporateEventsBucket()
         self.repo = CorporateEventsRepository()
-        self.ticker_info = TickerInfoRepository()
-        self.investments_repo = InvestmentRepository()
-        self.async_portfolio = AsyncPortfolioQueue()
 
     def download_today_corporate_events(self):
         today = datetime.now().date()
@@ -74,6 +71,14 @@ class CorporateEventsCore:
 
         self.bucket.move_file_to_archive(bucket_name, file_path)
         self.bucket.clean_up()
+
+
+class CorporateEventsCore:
+    def __init__(self):
+        self.repo = CorporateEventsRepository()
+        self.ticker_info = TickerInfoRepository()
+        self.investments_repo = InvestmentRepository()
+        self.async_portfolio = AsyncPortfolioQueue()
 
     def check_for_applicable_corporate_events(self, subject, investments):
         investments = filter(
