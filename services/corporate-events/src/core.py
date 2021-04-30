@@ -1,5 +1,6 @@
 import logging
 import math
+import traceback
 from datetime import datetime
 from decimal import Decimal
 from io import StringIO
@@ -34,15 +35,25 @@ class CorporateEventsCore:
         companies_data = self.b3.get_updated_corporate_events_link(today)
         for data in companies_data:
             if 'fundsPage' in data.url:
+                logger.info(f'Skipping funds page: {data.url}')
                 continue
-            tables = pd.read_html(data.url)
-            count = 0
-            for table in tables:
-                csv_name = f'{data.code_cvm}-{today.strftime("%Y%m%d")}-{count}.csv'
-                csv_buffer = StringIO()
-                table.to_csv(csv_buffer)
-                self.bucket.put(csv_buffer, csv_name)
-                count = count + 1
+            attempts = 0
+            while attempts < 3:
+                logger.info(f'Processing (attempt {attempts}: {data.url}')
+                try:
+                    tables = pd.read_html(data.url)
+                    count = 0
+                    for table in tables:
+                        csv_name = f'{data.code_cvm}-{today.strftime("%Y%m%d")}-{count}.csv'
+                        csv_buffer = StringIO()
+                        table.to_csv(csv_buffer)
+                        self.bucket.put(csv_buffer, csv_name)
+                        count = count + 1
+                    break
+                except Exception:
+                    logger.warning(f'Attempt {attempts} failed.')
+                    traceback.print_exc()
+                attempts = attempts + 1
 
     def process_corporate_events_file(self, bucket_name, file_path):
         downloaded_path = self.bucket.download_file(bucket_name, file_path)
