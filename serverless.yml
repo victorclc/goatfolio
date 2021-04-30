@@ -71,7 +71,7 @@ resources:
               - AttributeName: "subject"
                 KeyType: "RANGE"
             Projection:
-              ProjectionType: KEYS_ONLY
+              ProjectionType: ALL
 
     CeiImportRequestQueue:
       Type: AWS::SQS::Queue
