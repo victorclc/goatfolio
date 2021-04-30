@@ -33,6 +33,11 @@ class InvestmentRepository:
         print(f'RESULT: {result}')
         return list(map(lambda i: InvestmentUtils.load_model_by_type(i['type'], i), result['Items']))
 
+    def find_by_ticker(self, ticker):
+        result = self.__investments_table.query(IndexName='tickerSubjectGlobalIndex',
+                                                KeyConditionExpression=Key('ticker').eq(ticker))
+        return list(map(lambda i: InvestmentUtils.load_model_by_type(i['type'], i), result['Items']))
+
 
 class B3CorporateEventsData:
     URL = 'https://sistemaswebb3-listados.b3.com.br/dividensOtherCorpActProxy/DivOtherCorpActCall/GetListDivOtherCorpActions/eyJsYW5ndWFnZSI6InB0LWJyIn0='
@@ -92,6 +97,12 @@ class CorporateEventsRepository:
     def corporate_events_from(self, isin_code, date):
         result = self.__table.query(IndexName='isinDateGlobalIndex',
                                     KeyConditionExpression=Key('isin_code').eq(isin_code) & Key('with_date').gte(
+                                        date.strftime('%Y%m%d')))
+        return list(map(lambda i: EarningsInAssetCorporateEvent(**i), result['Items']))
+
+    def events_on_date(self, _type, date):
+        result = self.__table.query(IndexName='typeDateLocalIndex',
+                                    KeyConditionExpression=Key('type').eq(_type) & Key('with_date').eq(
                                         date.strftime('%Y%m%d')))
         return list(map(lambda i: EarningsInAssetCorporateEvent(**i), result['Items']))
 

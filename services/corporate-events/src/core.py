@@ -80,6 +80,22 @@ class CorporateEventsCore:
         self.investments_repo = InvestmentRepository()
         self.async_portfolio = AsyncPortfolioQueue()
 
+    def handle_today_corporate_events(self):
+        # todo datetime.now - days=1
+        # schedule lambdato run everyday at 13 UTC
+        # log something
+        # check all querys IAM permissions
+        events = self.repo.events_on_date('DESDOBRAMENTO', datetime(2021, 4, 27))
+        events += self.repo.events_on_date('GRUPAMENTO', datetime(2021, 4, 27))
+        events += self.repo.events_on_date('INCORPORACAO', datetime(2021, 4, 27))
+
+        for event in events:
+            ticker = self.ticker_info.ticker_from_isin_code(event.isin_code)
+            investments = sorted(self.investments_repo.find_by_ticker(ticker), key=lambda i: i.subject)
+
+            for subject, investments in groupby(investments, key=lambda i: i.subject):
+                self._handle_events(subject, ticker, [event], list(investments))
+
     def check_for_applicable_corporate_events(self, subject, investments):
         investments = filter(
             lambda i: i.operation in [OperationType.BUY, OperationType.SELL] and not i.alias_ticker,
@@ -94,23 +110,25 @@ class CorporateEventsCore:
 
             if events:
                 all_ticker_investments = self.investments_repo.find_by_subject_and_ticker(subject, ticker)
+                self._handle_events(subject, ticker, events, all_ticker_investments)
 
-                for event in events:
-                    affected_investments = list(
-                        filter(lambda i, with_date=event.with_date: i.date <= with_date, all_ticker_investments))
+    def _handle_events(self, subject, ticker, events, investments):
+        for event in events:
+            affected_investments = list(
+                filter(lambda i, with_date=event.with_date: i.date <= with_date, investments))
+            logger.info(f'applicable event: {event}')
 
-                    logger.info(f'applicable event: {event}')
-                    if event.type == 'DESDOBRAMENTO':
-                        split_inv = self._handle_split_event(subject, event, ticker, affected_investments)
-                        all_ticker_investments.append(split_inv)
-                    elif event.type == 'GRUPAMENTO':
-                        group_inv = self._handle_group_event(subject, event, ticker, affected_investments)
-                        all_ticker_investments.append(group_inv)
-                    elif event.type == 'INCORPORACAO':
-                        incorp_inv = self._handle_incorporation_event(subject, event, ticker, affected_investments)
-                        all_ticker_investments.append(incorp_inv)
-                    else:
-                        logger.warning(f'No implementation for event type of {event.type}')
+            if event.type == 'DESDOBRAMENTO':
+                split_inv = self._handle_split_event(subject, event, ticker, affected_investments)
+                investments.append(split_inv)
+            elif event.type == 'GRUPAMENTO':
+                group_inv = self._handle_group_event(subject, event, ticker, affected_investments)
+                investments.append(group_inv)
+            elif event.type == 'INCORPORACAO':
+                incorp_inv = self._handle_incorporation_event(subject, event, ticker, affected_investments)
+                investments.append(incorp_inv)
+            else:
+                logger.warning(f'No implementation for event type of {event.type}')
 
     def _handle_split_event(self, subject, event, ticker, affected_investments):
         amount = self._affected_investments_amount(affected_investments)
@@ -187,8 +205,10 @@ class CorporateEventsCore:
 
 
 if __name__ == '__main__':
-    invs = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-    CorporateEventsCore().check_for_applicable_corporate_events('440b0d96-395d-48bd-aaf2-58dbf7e68274', invs)
+    core = CorporateEventsCore()
+    # invs = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
+    # CorporateEventsCore().check_for_applicable_corporate_events('440b0d96-395d-48bd-aaf2-58dbf7e68274', invs)
+    core.handle_today_corporate_events()
     # CorporateEventsCore().process_corporate_events_file(None, None)
     # data = JsonUtils.dump({"cnpj": "0", "identifierFund": "RBRM", "typeFund": 7}).encode('UTF-8')
     # base64_bytes = base64.b64encode(data)

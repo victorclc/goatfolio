@@ -21,7 +21,7 @@ provider:
             - ''
             -
               - Fn::GetAtt: [ CorporateEventsTable, Arn ]
-              - 'index/*'
+              - '/index/*'
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -31,7 +31,7 @@ provider:
             - ''
             -
               - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
-              - 'index/*'
+              - '/index/*'
     - Effect: Allow
       Action:
         - s3:ListBucket
