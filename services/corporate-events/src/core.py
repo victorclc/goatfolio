@@ -81,19 +81,19 @@ class CorporateEventsCore:
         self.async_portfolio = AsyncPortfolioQueue()
 
     def handle_today_corporate_events(self):
-        # todo datetime.now - days=1
-        # schedule lambdato run everyday at 13 UTC
-        # log something
         # check all querys IAM permissions
-        events = self.repo.events_on_date('DESDOBRAMENTO', datetime(2021, 4, 27))
-        events += self.repo.events_on_date('GRUPAMENTO', datetime(2021, 4, 27))
-        events += self.repo.events_on_date('INCORPORACAO', datetime(2021, 4, 27))
+        yesterday = datetime.now() - relativedelta(days=1)
+        events = self.repo.events_on_date('DESDOBRAMENTO', yesterday)
+        events += self.repo.events_on_date('GRUPAMENTO', yesterday)
+        events += self.repo.events_on_date('INCORPORACAO', yesterday)
 
+        logger.info(f'Today corporate events: {events}')
         for event in events:
+            logger.info(f'Processing event: {event}')
             ticker = self.ticker_info.ticker_from_isin_code(event.isin_code)
             investments = sorted(self.investments_repo.find_by_ticker(ticker), key=lambda i: i.subject)
-
             for subject, investments in groupby(investments, key=lambda i: i.subject):
+                logger.info(f'handling {subject}')
                 self._handle_events(subject, ticker, [event], list(investments))
 
     def check_for_applicable_corporate_events(self, subject, investments):

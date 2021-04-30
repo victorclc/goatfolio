@@ -19,8 +19,7 @@ provider:
         - Fn::GetAtt: [ CorporateEventsTable, Arn ]
         - Fn::Join:
             - ''
-            -
-              - Fn::GetAtt: [ CorporateEventsTable, Arn ]
+            - - Fn::GetAtt: [ CorporateEventsTable, Arn ]
               - '/index/*'
     - Effect: Allow
       Action:
@@ -29,8 +28,7 @@ provider:
         - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
         - Fn::Join:
             - ''
-            -
-              - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
+            - - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
               - '/index/*'
     - Effect: Allow
       Action:
@@ -50,6 +48,10 @@ provider:
         - dynamodb:Query
       Resource:
         - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+        - Fn::Join:
+            - ''
+            - - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
+              - '/index/*'
 
 package:
   exclude:
@@ -82,6 +84,11 @@ functions:
     handler: handlers.download_today_corporate_events_handler
     events:
       - schedule: cron(0 23 ? * MON-FRI *)
+
+  handleTodayCorporateEventsH:
+    handler: handlers.handle_today_corporate_events_handler
+    events:
+      - schedule: cron(0 13 ? * * *)
 
   checkForApplicableCorpoEvents:
     handler: handlers.check_for_applicable_corporate_events_handler

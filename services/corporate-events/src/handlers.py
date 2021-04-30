@@ -26,6 +26,11 @@ def process_corporate_events_file_handler(event, context):
         core.process_corporate_events_file(bucket, file_path)
 
 
+def handle_today_corporate_events_handler(event, context):
+    core = CorporateEventsCore()
+    core.handle_today_corporate_events()
+
+
 def check_for_applicable_corporate_events_handler(event, context):
     logger.info(f"EVENT: {event}")
     investments_by_subject = {}
