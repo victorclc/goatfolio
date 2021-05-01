@@ -22,6 +22,7 @@ class CEIImportResult:
     datetime: int
     status: str
     payload: str
+    login_error: bool = False
 
 
 @dataclass

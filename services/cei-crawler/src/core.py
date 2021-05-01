@@ -6,6 +6,7 @@ from decimal import Decimal
 
 from adapters import CEIResultQueue
 from constants import ImportStatus
+from exceptions import LoginError
 from goatcommons.models import StockInvestment
 from goatcommons.utils import JsonUtils
 from lessmium.webdriver import LessmiumDriver
@@ -37,6 +38,11 @@ class CEICrawlerCore:
 
             response.status = ImportStatus.SUCCESS
             response.payload = investments
+        except LoginError as e:
+            logger.exception('Invalid login credentials')
+            response.status = ImportStatus.ERROR
+            response.login_error = True
+            response.payload = JsonUtils.dump({"error_message": str(e)})
         except Exception as e:
             logger.exception('CAUGHT EXCEPTION')
             traceback.print_exc()

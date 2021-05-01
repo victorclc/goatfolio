@@ -44,6 +44,10 @@ class CEICore:
 
         if result.status == ImportStatus.ERROR:
             _import.error_message = result.payload
+            if result.login_error:
+                self.push.send_message(result.subject, 'CEI_IMPORT_LOGIN_ERROR')
+            else:
+                self.push.send_message(result.subject, 'CEI_IMPORT_ERROR')
         else:
             try:
                 investments = list(map(lambda i: StockInvestment(**i), result.payload))

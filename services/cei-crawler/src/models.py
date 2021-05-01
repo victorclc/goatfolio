@@ -24,3 +24,4 @@ class CEICrawResult:
     datetime: int
     status: str = None
     payload: str = None
+    login_error: bool = False
