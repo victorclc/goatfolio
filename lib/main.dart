@@ -10,6 +10,7 @@ import 'package:goatfolio/pages/portfolio/screen/portfolio.dart';
 import 'package:goatfolio/pages/settings/screen/settings_page.dart';
 import 'package:goatfolio/pages/summary/screen/summary.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
+import 'package:goatfolio/services/notification/client/notification.dart';
 import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:goatfolio/services/performance/notifier/portfolio_summary_notifier.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
@@ -22,16 +23,6 @@ import 'common/theme/theme_changer.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-  NotificationSettings settings = await messaging.requestPermission(
-    alert: true,
-    announcement: false,
-    badge: true,
-    carPlay: false,
-    criticalAlert: false,
-    provisional: false,
-    sound: true,
-  );
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true, // Required to display a heads up notification
     badge: true,
@@ -40,6 +31,7 @@ void main() async {
 
   print("APN TOKEN");
   print(await FirebaseMessaging.instance.getAPNSToken());
+  print("TOKEN");
   print(await FirebaseMessaging.instance.getToken());
   final cognitoClientId = '4eq433usu00k6m0as28srbsber';
   final cognitoUserPoolId = 'us-east-2_tZFglntHx';
@@ -119,12 +111,30 @@ Widget buildNavigationPage(UserService userService) {
 }
 
 void goToNavigationPage(BuildContext context, UserService userService) async {
+  await setupPushNotifications(userService);
   await Navigator.pushReplacement(
     context,
     CupertinoPageRoute(
       builder: (context) => buildNavigationPage(userService),
     ),
   );
+}
+
+Future<void> setupPushNotifications(UserService userService) async {
+  await FirebaseMessaging.instance.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+  NotificationClient client = NotificationClient(userService);
+  client.registerToken(await FirebaseMessaging.instance.getToken());
+  FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+    client.registerToken(newToken);
+  });
 }
 
 class NavigationWidget extends StatefulWidget {
