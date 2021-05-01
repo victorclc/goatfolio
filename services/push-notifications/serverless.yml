@@ -56,8 +56,8 @@ functions:
     handler: src/handlers.unregister_token_handler
     events:
       - http:
-          path: register
-          method: delete
+          path: unregister
+          method: post
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
