@@ -7,3 +7,9 @@ class NotificationRequest:
     title: str
     message: str
 
+
+@dataclass
+class NotificationMessageRequest:
+    message_key: str
+    title: str
+    message: str
