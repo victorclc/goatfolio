@@ -20,7 +20,7 @@ provider:
       Action:
         - dynamodb:Query
       Resource:
-        'Fn::ImportValue': ${self:provider:stage}-NotificationMessagesConfigTableArnOutput
+        'Fn::ImportValue': ${self:provider.stage}-NotificationMessagesConfigTableArnOutput
     - Effect: Allow
       Action:
         - sqs:SendMessage
