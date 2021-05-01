@@ -117,10 +117,6 @@ resources:
         AttributeDefinitions:
           - AttributeName: "message_key"
             AttributeType: "S"
-          - AttributeName: "title"
-            AttributeType: "S"
-          - AttributeName: "message"
-            AttributeType: "S"
         KeySchema:
           - AttributeName: "message_key"
             KeyType: "HASH"
