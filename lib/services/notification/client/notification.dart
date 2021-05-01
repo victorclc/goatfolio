@@ -32,4 +32,20 @@ class NotificationClient {
     );
     debugPrint('registerToken response statusCode: ${response.statusCode}');
   }
+
+  Future<void> unregisterToken(String token) async {
+    String accessToken = await userService.getSessionToken();
+    if (accessToken == null) return;
+    final request = RegisterTokenRequest(token);
+
+    final response = await _client.post(
+      baseUrl + "notification/unregister",
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': accessToken
+      },
+      body: jsonEncode(request.toJson()),
+    );
+    debugPrint('registerToken response statusCode: ${response.statusCode}');
+  }
 }
