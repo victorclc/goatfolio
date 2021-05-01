@@ -107,20 +107,39 @@ resources:
       Properties:
         QueueName: CeiImportResultDLQ
 
-#    MarketDataRDSCluster:
-#      Type: AWS::RDS::DBCluster
-#      Properties:
-#        MasterUsername: ${self:provider.dbmasteruser}
-#        MasterUserPassword: ${self:provider.dbmasterpassword}
-#        EnableHttpEndpoint: true
-#        DatabaseName: marketdata
-#        Engine: aurora-postgresql
-#        EngineMode: serverless
-#        ScalingConfiguration:
-#          AutoPause: true
-#          MaxCapacity: 4
-#          MinCapacity: 2
-#          SecondsUntilAutoPause: 900
+    NotificationMessagesConfigTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: "NotificationMessagesConfig"
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: "message_key"
+            AttributeType: "S"
+          - AttributeName: "title"
+            AttributeType: "S"
+          - AttributeName: "message"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "message_key"
+            KeyType: "HASH"
+
+
+  #    MarketDataRDSCluster:
+  #      Type: AWS::RDS::DBCluster
+  #      Properties:
+  #        MasterUsername: ${self:provider.dbmasteruser}
+  #        MasterUserPassword: ${self:provider.dbmasterpassword}
+  #        EnableHttpEndpoint: true
+  #        DatabaseName: marketdata
+  #        Engine: aurora-postgresql
+  #        EngineMode: serverless
+  #        ScalingConfiguration:
+  #          AutoPause: true
+  #          MaxCapacity: 4
+  #          MinCapacity: 2
+  #          SecondsUntilAutoPause: 900
 
   Outputs:
     GoatfolioAppUserPoolArnOutput:
@@ -148,3 +167,8 @@ resources:
         Fn::GetAtt: [ InvestmentsTable, StreamArn ]
       Export:
         Name: ${self:provider.stage}-InvestmentTableStreamArn
+    NotificationMessagesConfigTableArnOutput:
+      Value:
+        Fn::GetAtt: [ NotificationMessagesConfigTable, Arn ]
+      Export:
+        Name: ${self:provider.stage}-NotificationMessagesConfigTableArnOutput
