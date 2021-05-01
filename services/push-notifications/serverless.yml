@@ -5,6 +5,7 @@ provider:
   region: us-east-2
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
+  memorySize: 512
   environment:
     PYTHONPATH: "src:libs"
     STAGE: ${env:STAGE, 'dev'}
