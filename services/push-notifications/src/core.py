@@ -1,11 +1,13 @@
 import logging
 import os
+from http import HTTPStatus
 
 import firebase_admin
 from firebase_admin.messaging import APNSConfig, APNSPayload, Aps, Notification, MulticastMessage, send_multicast
 
 from adapters import NotificationTokensRepository
 from goatcommons.notifications.models import NotificationRequest
+from goatcommons.utils import JsonUtils
 from models import UserTokens
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -38,3 +40,5 @@ class PushNotificationCore:
         user_tokens.tokens.append(token)
         user_tokens.tokens = list(set(user_tokens.tokens))
         self.token_repo.save(user_tokens)
+
+        return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump('Token registered successfully.')}
