@@ -20,6 +20,8 @@ class PushNotificationCore:
         self.token_repo = NotificationTokensRepository()
 
     def send_notification(self, request: NotificationRequest):
+        assert request.title
+        assert request.message
         user_tokens = self.token_repo.find_user_tokens(request.subject)
         if not user_tokens:
             logger.info(f'No token available for subject {request.subject}')
@@ -34,4 +36,5 @@ class PushNotificationCore:
     def register_token(self, subject, token):
         user_tokens = self.token_repo.find_user_tokens(subject) or UserTokens(subject)
         user_tokens.tokens.append(token)
+        user_tokens.tokens = list(set(user_tokens.tokens))
         self.token_repo.save(user_tokens)
