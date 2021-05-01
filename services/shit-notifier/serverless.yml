@@ -32,7 +32,7 @@ functions:
     events:
       - sqs:
           arn:
-            'Fn::ImportValue': ${self:provider.stage}-CeiImportRequestQueueArn
+            Fn::GetAtt: [ ShitToNotifyQueue, Arn ]
 
 resources:
   Resources:
