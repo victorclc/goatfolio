@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -14,11 +15,32 @@ import 'package:goatfolio/services/performance/notifier/portfolio_summary_notifi
 import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'common/theme/theme_changer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true, // Required to display a heads up notification
+    badge: true,
+    sound: true,
+  );
+
+  print("APN TOKEN");
+  print(await FirebaseMessaging.instance.getAPNSToken());
+  print(await FirebaseMessaging.instance.getToken());
   final cognitoClientId = '4eq433usu00k6m0as28srbsber';
   final cognitoUserPoolId = 'us-east-2_tZFglntHx';
   final cognitoIdentityPoolId =
@@ -32,10 +54,9 @@ void main() async {
     cognitoUserPoolId: cognitoUserPoolId,
     cognitoIdentityPoolId: cognitoIdentityPoolId,
     child: new GoatfolioApp(
-      hasValidSession: hasValidSession,
-      userService: userService,
-      prefs: prefs
-    ),
+        hasValidSession: hasValidSession,
+        userService: userService,
+        prefs: prefs),
   );
 
   runApp(configuredApp);
@@ -46,7 +67,8 @@ class GoatfolioApp extends StatelessWidget {
   final UserService userService;
   final SharedPreferences prefs;
 
-  const GoatfolioApp({Key key, this.hasValidSession, this.userService, this.prefs})
+  const GoatfolioApp(
+      {Key key, this.hasValidSession, this.userService, this.prefs})
       : super(key: key);
 
   @override
@@ -89,8 +111,7 @@ Widget buildNavigationPage(UserService userService) {
       Provider(
         create: (context) => userService,
       ),
-      ChangeNotifierProvider(
-          create: (_) => PortfolioListNotifier(userService)),
+      ChangeNotifierProvider(create: (_) => PortfolioListNotifier(userService)),
       ChangeNotifierProvider(
           create: (_) => PortfolioSummaryNotifier(userService))
     ],
@@ -115,7 +136,8 @@ class InvisibleCupertinoTabBar extends CupertinoTabBar {
   static const dummyIcon = Icon(IconData(0x0020));
 
   InvisibleCupertinoTabBar(backGroundColor)
-      : super(backgroundColor: backGroundColor,
+      : super(
+          backgroundColor: backGroundColor,
           items: [
             BottomNavigationBarItem(icon: dummyIcon),
             BottomNavigationBarItem(icon: dummyIcon),
@@ -207,7 +229,8 @@ class _NavigationWidgetState extends State<NavigationWidget>
       controller: controller,
       resizeToAvoidBottomInset: false,
       tabBar: isKeyboardVisible
-          ? InvisibleCupertinoTabBar(CupertinoTheme.of(context).scaffoldBackgroundColor)
+          ? InvisibleCupertinoTabBar(
+              CupertinoTheme.of(context).scaffoldBackgroundColor)
           : CupertinoTabBar(
               onTap: (index) {
                 if (index == currentIndex) {
