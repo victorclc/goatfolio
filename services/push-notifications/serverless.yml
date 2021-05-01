@@ -52,6 +52,17 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  unregisterToken:
+    handler: src/handlers.unregister_token_handler
+    events:
+      - http:
+          path: register
+          method: delete
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
   sendNotification:
     handler: src/handlers.send_notification_handler
     events:

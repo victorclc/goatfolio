@@ -41,4 +41,8 @@ class PushNotificationCore:
         user_tokens.tokens = list(set(user_tokens.tokens))
         self.token_repo.save(user_tokens)
 
-        return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump('Token registered successfully.')}
+    def unregister_token(self, subject, token):
+        user_tokens = self.token_repo.find_user_tokens(subject) or UserTokens(subject)
+        user_tokens.tokens.remove(token)
+        user_tokens.tokens = list(set(user_tokens.tokens))
+        self.token_repo.save(user_tokens)
