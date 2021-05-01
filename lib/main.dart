@@ -97,6 +97,7 @@ class GoatfolioApp extends StatelessWidget {
 }
 
 Widget buildNavigationPage(UserService userService) {
+  setupPushNotifications(userService);
   return MultiProvider(
     child: NavigationWidget(),
     providers: [
@@ -111,7 +112,6 @@ Widget buildNavigationPage(UserService userService) {
 }
 
 void goToNavigationPage(BuildContext context, UserService userService) async {
-  await setupPushNotifications(userService);
   await Navigator.pushReplacement(
     context,
     CupertinoPageRoute(
