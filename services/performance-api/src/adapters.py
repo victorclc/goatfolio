@@ -77,8 +77,9 @@ class MarketData:
                     close_price = candles[0].close_price
         else:
             candle = self.repo.find_by_ticker_and_date(ticker, _date)
-            open_price = candle.open_price
-            close_price = candle.close_price
+            if candle:
+                open_price = candle.open_price
+                close_price = candle.close_price
 
         return MonthData(open_price, close_price)
 
@@ -96,7 +97,6 @@ class MarketDataRepository:
             KeyConditionExpression=Key('ticker').eq(ticker) & Key('candle_date').eq(_date.strftime(self.DATE_FORMAT)))
         if result['Items']:
             return CandleData(**result['Items'][0])
-        return []
 
     def find_by_ticker_from_date(self, ticker, _date):
         result = self.__table.query(
