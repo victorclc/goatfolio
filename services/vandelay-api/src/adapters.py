@@ -44,10 +44,8 @@ class ImportsRepository:
 
 
 class CEIImportsQueue:
-    QUEUE_NAME = 'CeiImportRequest'
-
     def __init__(self):
-        self._queue = boto3.resource('sqs').get_queue_by_name(QueueName=self.QUEUE_NAME)
+        self._queue = boto3.resource('sqs').get_queue_by_name(QueueName='CeiImportRequest')
 
     def send(self, request: CEIOutboundRequest):
         self._queue.send_message(MessageBody=JsonUtils.dump(asdict(request)))

@@ -104,3 +104,9 @@ resources:
           - AttributeName: "subject"
             KeyType: "HASH"
 
+  Outputs:
+    PushNotificationRequestArnOutput:
+      Value:
+        Fn::GetAtt: [ PushNotificationRequestQueue, Arn ]
+      Export:
+        Name: ${self:provider.stage}-PushNotificationRequestArnOutput

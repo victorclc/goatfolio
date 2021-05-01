@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import datetime
 
@@ -7,10 +8,7 @@ from constants import ImportStatus
 from exceptions import UnprocessableException, BatchSavingException
 from goatcommons.models import StockInvestment
 from goatcommons.notifications.client import PushNotificationsClient
-from goatcommons.notifications.models import NotificationRequest
-from goatcommons.utils import JsonUtils
 from models import CEIInboundRequest, Import, CEIOutboundRequest, CEIImportResult
-import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
@@ -26,6 +24,7 @@ class CEICore:
         self.repo = repo
         self.queue = queue
         self.portfolio = portfolio
+        self.push = PushNotificationsClient()
 
     def import_request(self, subject, request):
         logger.info(f'Processing import request from {subject}')
@@ -49,10 +48,7 @@ class CEICore:
             try:
                 investments = list(map(lambda i: StockInvestment(**i), result.payload))
                 self.portfolio.batch_save(investments)
-                push = PushNotificationsClient()
-                message = push.fetch_notification_message_config('CEI_IMPORT_SUCCESS')
-                if message:
-                    push.send(NotificationRequest(result.subject, message.title, message.message))
+                self.push.send_message(result.subject, 'CEI_IMPORT_SUCCESS')
             except BatchSavingException:
                 _import.status = ImportStatus.ERROR
                 _import.error_message = 'Error on batch saving.'

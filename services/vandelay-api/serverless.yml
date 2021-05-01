@@ -18,10 +18,21 @@ provider:
         Fn::GetAtt: [ ImportsTable, Arn ]
     - Effect: Allow
       Action:
+        - dynamodb:Query
+      Resource:
+        'Fn::ImportValue': ${self:provider:stage}-NotificationMessagesConfigTableArnOutput
+    - Effect: Allow
+      Action:
         - sqs:SendMessage
         - sqs:GetQueueUrl
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-CeiImportRequestQueueArn
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+        - sqs:GetQueueUrl
+      Resource:
+        'Fn::ImportValue': ${self:provider.stage}-PushNotificationRequestArnOutput
     - Effect: Allow
       Action:
         - lambda:InvokeFunction

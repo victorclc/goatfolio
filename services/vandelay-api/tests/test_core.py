@@ -23,6 +23,7 @@ class TestCEICore(unittest.TestCase):
         self.invalid_tax_id_request = CEIInboundRequest(tax_id='12345678999', password='123456@A')
         self.invalid_password_request = CEIInboundRequest(tax_id='12345678909', password='12345678')
         self.invalid_tax_id_and_password_request = CEIInboundRequest(tax_id='12345678999', password='12345678')
+        self.core.push.send_message = MagicMock(return_value=None)
 
     def test_request_with_valid_tax_id_and_password_with_no_open_imports_should_save_on_database_and_send_to_queue(
             self):
@@ -112,7 +113,8 @@ class TestCEICore(unittest.TestCase):
         self.assertEqual(result.payload, import_result.payload)
         self.assertEqual(result.error_message, import_result.payload)
 
-    def test_successful_import_result_when_error_on_call_batch_save_should_update_status_to_error_and_set_error_message(self):
+    def test_successful_import_result_when_error_on_call_batch_save_should_update_status_to_error_and_set_error_message(
+            self):
         payload = list(map(lambda _: asdict(self._create_stock_investment()), range(10)))
         import_result = CEIImportResult(subject='1111-2222-333-4444', datetime=123, status=ImportStatus.SUCCESS,
                                         payload=payload)
