@@ -20,7 +20,7 @@ provider:
             - ''
             -
               - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
-              - 'index/*'
+              - '/index/*'
 
 package:
   exclude:

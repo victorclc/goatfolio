@@ -51,6 +51,7 @@ class CorporateEventsCrawlerCore:
                     logger.warning(f'Attempt {attempts} failed.')
                     traceback.print_exc()
                 attempts = attempts + 1
+        logger.info(f'Processing finish')
 
     def process_corporate_events_file(self, bucket_name, file_path):
         downloaded_path = self.bucket.download_file(bucket_name, file_path)
