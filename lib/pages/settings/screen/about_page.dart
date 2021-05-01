@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:goatfolio/common/helper/theme_helper.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:package_info/package_info.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -27,7 +28,7 @@ class _AboutPageState extends State<AboutPage> {
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
     return CupertinoPageScaffold(
-      backgroundColor: CupertinoTheme.of(context).brightness == Brightness.light
+      backgroundColor: CupertinoThemeHelper.currentBrightness(context) == Brightness.light
           ? Color(0xFFEFEFF4)
           : CupertinoTheme.of(context).scaffoldBackgroundColor,
       navigationBar: CupertinoNavigationBar(
