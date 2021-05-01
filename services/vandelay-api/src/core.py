@@ -51,7 +51,8 @@ class CEICore:
                 self.portfolio.batch_save(investments)
                 push = PushNotificationsClient()
                 message = push.fetch_notification_message_config('CEI_IMPORT_SUCCESS')
-                push.send(NotificationRequest(result.subject, message.title, message.message))
+                if message:
+                    push.send(NotificationRequest(result.subject, message.title, message.message))
             except BatchSavingException:
                 _import.status = ImportStatus.ERROR
                 _import.error_message = 'Error on batch saving.'
