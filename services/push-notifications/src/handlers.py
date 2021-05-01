@@ -21,5 +21,6 @@ def register_token_handler(event, context):
 
 def send_notification_handler(event, context):
     logger.info(f'EVENT: {event}')
-    request = NotificationRequest(**JsonUtils.load(event['body']))
-    core.send_notification(request)
+    for message in event['Records']:
+        request = NotificationRequest(**JsonUtils.load(message['body']))
+        core.send_notification(request)
