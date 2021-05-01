@@ -14,20 +14,24 @@ class PortfolioListNotifier with ChangeNotifier, DiagnosticableTreeMixin {
     _futureList = _client.getPortfolioPerformance();
   }
 
-
   get futureList => _futureList;
 
   void updatePerformance() async {
     final tmpPerformance = _client.getPortfolioPerformance();
+    var oldPerformance;
+    try {
+      oldPerformance = await _futureList;
+    } catch (Exception) {}
 
-    final oldPerformance = await _futureList;
-
-    tmpPerformance.then((value) {
-      oldPerformance.copy(value);
-      notifyListeners();
-    });
-
+    if (oldPerformance is PortfolioList) {
+      tmpPerformance.then((value) {
+        oldPerformance.copy(value);
+      });
+    } else {
+      _futureList = tmpPerformance;
+    }
     await tmpPerformance;
+    notifyListeners();
   }
 
   @override

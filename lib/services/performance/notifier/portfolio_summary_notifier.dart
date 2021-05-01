@@ -4,8 +4,7 @@ import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/client/performance_client.dart';
 import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
 
-class PortfolioSummaryNotifier
-    with ChangeNotifier, DiagnosticableTreeMixin {
+class PortfolioSummaryNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   final UserService userService;
   final PerformanceClient _client;
   Future<PortfolioSummary> _futureSummary;
@@ -19,13 +18,20 @@ class PortfolioSummaryNotifier
 
   void updatePerformance() async {
     final tmpSummary = _client.getPortfolioSummary();
-    final oldSummary = await _futureSummary;
+    var oldSummary;
+    try {
+      oldSummary = await _futureSummary;
+    } catch (Exception) {}
 
-    tmpSummary.then((value) {
-      oldSummary.copy(value);
-      notifyListeners();
-    });
+    if (oldSummary is PortfolioSummary) {
+      tmpSummary.then((value) {
+        oldSummary.copy(value);
+      });
+    } else {
+      _futureSummary = tmpSummary;
+    }
     await tmpSummary;
+    notifyListeners();
   }
 
   @override
