@@ -49,6 +49,11 @@ class CEICrawlerCore:
             response.status = ImportStatus.ERROR
             response.payload = JsonUtils.dump({"error_message": str(e)})
         self.queue.send(response)
+        self._cleanup()
+
+    def _cleanup(self):
+        # fixed a weird bug where lambda used the exact same instance of this class on the next processing
+        self.identifiers = set()
 
     def _extract_to_investments(self, subject, extract):
         investments = []
