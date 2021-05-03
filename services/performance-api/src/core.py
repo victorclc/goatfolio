@@ -72,12 +72,18 @@ class PerformanceCore:
         stock_variation = []
 
         prev_month_start = datetime.now(tz=timezone.utc).replace(day=1) - relativedelta(months=1)
+        current_month_start = datetime.now(tz=timezone.utc).replace(day=1)
         for stock in portfolio.stocks:
             sorted_history = sorted(stock.history, key=lambda h: h.date)
             grouped_positions = self._group_stock_position_per_month(sorted_history)
-            current = self._create_stock_position_wrapper_list(grouped_positions).tail
+            wrappers = self._create_stock_position_wrapper_list(grouped_positions)
+            current = wrappers.tail
+
             if not current or current.amount <= 0:
                 continue
+            if current_month_start != current.data.date:
+                wrappers.append(StockPosition(current_month_start))
+                current = wrappers.tail
 
             data = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
             gross_amount = gross_amount + current.amount * data.price
@@ -244,6 +250,6 @@ if __name__ == '__main__':
     # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
     #     print(PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
     print(PerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    print(PerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    print(PerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    print(PerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
+    # print(PerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    # print(PerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    # print(PerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
