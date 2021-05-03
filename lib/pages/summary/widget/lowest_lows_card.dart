@@ -20,16 +20,12 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
   @override
   void initState() {
     super.initState();
-    lows = widget.stocksVariation
-        .where((stock) => stock.variation < 0)
-        .toList()
-          ..sort((a, b) =>
-              a.variation.compareTo(b.variation));
   }
 
   Widget buildTopFive(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
-
+    lows = widget.stocksVariation.where((stock) => stock.variation < 0).toList()
+      ..sort((a, b) => a.variation.compareTo(b.variation));
     if (lows.length == 0) {
       return Expanded(
         child: Center(
@@ -103,7 +99,8 @@ class _LowestLowsCardState extends State<LowestLowsCard> {
       height: 226,
       child: PressableCard(
         cardPadding: EdgeInsets.only(left: 4, right: 16, top: 16, bottom: 16),
-        onPressed: () => goToHighestPage(context, widget.stocksVariation, sortAscending: true),
+        onPressed: () => goToHighestPage(context, widget.stocksVariation,
+            sortAscending: true),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

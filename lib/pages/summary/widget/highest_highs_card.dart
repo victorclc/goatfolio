@@ -20,15 +20,14 @@ class _HighestHighsState extends State<HighestHighsCard> {
   @override
   void initState() {
     super.initState();
-    highs = widget.stocksVariation
-        .where((stock) => stock.variation >= 0)
-        .toList()
-          ..sort((b, a) =>
-              a.variation.compareTo(b.variation));
   }
 
   Widget buildTopFive() {
     final textTheme = CupertinoTheme.of(context).textTheme;
+    highs = widget.stocksVariation
+        .where((stock) => stock.variation >= 0)
+        .toList()
+          ..sort((b, a) => a.variation.compareTo(b.variation));
     if (highs.length == 0) {
       return Expanded(
         child: Center(
