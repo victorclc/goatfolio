@@ -20,34 +20,39 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'common/theme/theme_changer.dart';
 
+final cognitoClientId = '4eq433usu00k6m0as28srbsber';
+final cognitoUserPoolId = 'us-east-2_tZFglntHx';
+final cognitoIdentityPoolId =
+    'arn:aws:cognito-idp:us-east-2:831967415635:userpool/us-east-2_tZFglntHx';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeFirebaseNotifications();
+
+  final userService =
+      UserService(cognitoUserPoolId, cognitoClientId, cognitoIdentityPoolId);
+
+  final configuredApp = new AppConfig(
+    cognitoClientId: cognitoClientId,
+    cognitoUserPoolId: cognitoUserPoolId,
+    cognitoIdentityPoolId: cognitoIdentityPoolId,
+    child: new GoatfolioApp(
+      hasValidSession: await userService.init(),
+      userService: userService,
+      prefs: await SharedPreferences.getInstance(),
+    ),
+  );
+
+  runApp(configuredApp);
+}
+
+Future<void> initializeFirebaseNotifications() async{
   await Firebase.initializeApp();
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true, // Required to display a heads up notification
     badge: true,
     sound: true,
   );
-
-  final cognitoClientId = '4eq433usu00k6m0as28srbsber';
-  final cognitoUserPoolId = 'us-east-2_tZFglntHx';
-  final cognitoIdentityPoolId =
-      'arn:aws:cognito-idp:us-east-2:831967415635:userpool/us-east-2_tZFglntHx';
-  final userService =
-      UserService(cognitoUserPoolId, cognitoClientId, cognitoIdentityPoolId);
-  final hasValidSession = await userService.init();
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  final configuredApp = new AppConfig(
-    cognitoClientId: cognitoClientId,
-    cognitoUserPoolId: cognitoUserPoolId,
-    cognitoIdentityPoolId: cognitoIdentityPoolId,
-    child: new GoatfolioApp(
-        hasValidSession: hasValidSession,
-        userService: userService,
-        prefs: prefs),
-  );
-
-  runApp(configuredApp);
 }
 
 class GoatfolioApp extends StatelessWidget {
