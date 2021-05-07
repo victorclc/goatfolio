@@ -31,7 +31,6 @@ dependencies:
   progress_indicators: ^0.1.5
   modal_bottom_sheet: ^2.0.0
   provider: 4.1.2
-  keyboard_visibility: ^0.5.6
   http: ^0.12.2
   http_interceptor: ^0.3.3
   sqflite:
