@@ -29,10 +29,6 @@ void main() async {
     sound: true,
   );
 
-  print("APN TOKEN");
-  print(await FirebaseMessaging.instance.getAPNSToken());
-  print("TOKEN");
-  print(await FirebaseMessaging.instance.getToken());
   final cognitoClientId = '4eq433usu00k6m0as28srbsber';
   final cognitoUserPoolId = 'us-east-2_tZFglntHx';
   final cognitoIdentityPoolId =
