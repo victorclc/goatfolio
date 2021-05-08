@@ -16,7 +16,7 @@ class PortfolioSummaryNotifier with ChangeNotifier, DiagnosticableTreeMixin {
 
   get futureSummary => _futureSummary;
 
-  void updatePerformance() async {
+  Future<void> updatePerformance() async {
     final tmpSummary = _client.getPortfolioSummary();
     var oldSummary;
     try {

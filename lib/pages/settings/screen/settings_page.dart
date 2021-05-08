@@ -1,3 +1,4 @@
+import 'package:app_settings/app_settings.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class SettingsPage extends StatelessWidget {
               ),
               SettingsTile(
                 title: 'Notificações',
-                onPressed: goToNotificationsPage,
+                onPressed: (_) => AppSettings.openNotificationSettings(),
               ),
               SettingsTile(
                 title: 'Sobre',

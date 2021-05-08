@@ -21,8 +21,6 @@ class AboutPage extends StatefulWidget {
 
 class _AboutPageState extends State<AboutPage> {
   String version;
-  final String _contactUrl =
-      'mailto:contato@goatfolio.com.br?subject=Teste&body=Isso%20eh%20uma%20mensagem%20de%20teste';
 
   @override
   Widget build(BuildContext context) {
