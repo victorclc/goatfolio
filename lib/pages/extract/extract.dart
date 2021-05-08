@@ -6,6 +6,7 @@ import 'package:goatfolio/common/util/focus.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/pages/add/screen/stock_add.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
+import 'package:goatfolio/services/investment/model/operation_type.dart';
 
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
@@ -280,6 +281,58 @@ class _StockExtractItem extends StatelessWidget {
       {Key key})
       : super(key: key);
 
+  Icon getIconFromOperation(String operation) {
+    switch (operation) {
+      case OperationType.BUY:
+        return Icon(Icons.trending_up, color: Colors.green);
+      case OperationType.SELL:
+        return Icon(Icons.trending_down, color: Colors.red);
+      case OperationType.SPLIT:
+      case OperationType.INCORP_ADD:
+        return Icon(Icons.call_split, color: Colors.brown);
+      case OperationType.GROUP:
+      case OperationType.INCORP_SUB:
+        return Icon(Icons.group_work_outlined, color: Colors.brown);
+      default:
+        return Icon(Icons.clear);
+    }
+  }
+
+  String getLabelFromOperation(String operation) {
+    switch (operation) {
+      case OperationType.BUY:
+        return "Compra";
+      case OperationType.SELL:
+        return "Venda";
+      case OperationType.SPLIT:
+        return "Desdobramento";
+      case OperationType.INCORP_SUB:
+      case OperationType.INCORP_ADD:
+        return "Incorporação";
+      case OperationType.GROUP:
+        return "Grupamento";
+      default:
+        return "";
+    }
+  }
+
+  String getValueFromOperation(String operation) {
+    switch (operation) {
+      case OperationType.BUY:
+        return "${moneyFormatter.format(investment.price * investment.amount)}";
+      case OperationType.SELL:
+        return "${moneyFormatter.format(investment.price * investment.amount)}";
+      case OperationType.SPLIT:
+      case OperationType.INCORP_ADD:
+        return "+${investment.amount} unid.";
+      case OperationType.INCORP_SUB:
+      case OperationType.GROUP:
+        return "-${investment.amount} unid.";
+      default:
+        return "";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
@@ -303,14 +356,7 @@ class _StockExtractItem extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(right: 16),
                 child: ClipOval(
-                  child: Icon(
-                    investment.operation == "BUY"
-                        ? Icons.trending_up
-                        : Icons.trending_down,
-                    color: investment.operation == "BUY"
-                        ? Colors.green
-                        : Colors.red,
-                  ),
+                  child: getIconFromOperation(investment.operation),
                 ),
               ),
               Expanded(
@@ -322,7 +368,7 @@ class _StockExtractItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          investment.operation == "BUY" ? "Compra" : "Venda",
+                          getLabelFromOperation(investment.operation),
                           style: textTheme.textStyle.copyWith(fontSize: 12),
                         ),
                         SizedBox(
@@ -345,7 +391,7 @@ class _StockExtractItem extends StatelessWidget {
                           height: 8,
                         ),
                         Text(
-                          "${moneyFormatter.format(investment.price * investment.amount)}",
+                          getValueFromOperation(investment.operation),
                           style: textTheme.textStyle.copyWith(
                               fontWeight: FontWeight.w500, fontSize: 14),
                         ),
