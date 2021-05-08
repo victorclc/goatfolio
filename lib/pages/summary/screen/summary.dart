@@ -113,9 +113,4 @@ class _SummaryPageState extends State<SummaryPage> {
       ],
     );
   }
-
-// Future<PortfolioPerformance> getPortfolioPerformance() async {
-//   performance = await client.getPortfolioPerformance();
-//   return performance;
-// }
 }

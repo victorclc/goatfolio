@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/util/dialog.dart';
+import 'package:goatfolio/services/investment/model/operation_type.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
 
 import 'package:intl/intl.dart';
@@ -15,6 +16,28 @@ class ExtractDetails extends StatelessWidget {
 
   ExtractDetails(this.investment, this.onEdited, this.onDeleted, {Key key})
       : super(key: key);
+
+  Icon getIconFromOperation(String operation) {
+    switch (operation) {
+      case OperationType.BUY:
+        return Icon(Icons.trending_up, color: Colors.green);
+      case OperationType.SELL:
+        return Icon(Icons.trending_down, color: Colors.red);
+      case OperationType.SPLIT:
+      case OperationType.INCORP_ADD:
+        return Icon(Icons.call_split, color: Colors.brown);
+      case OperationType.GROUP:
+      case OperationType.INCORP_SUB:
+        return Icon(Icons.group_work_outlined, color: Colors.brown);
+      default:
+        return Icon(Icons.clear);
+    }
+  }
+
+  bool isModifiable() {
+    return [OperationType.BUY, OperationType.SELL]
+        .contains(investment.operation);
+  }
 
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
@@ -42,14 +65,7 @@ class ExtractDetails extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ClipOval(
-                      child: Icon(
-                        investment.operation == "BUY"
-                            ? Icons.trending_up
-                            : Icons.trending_down,
-                        color: investment.operation == "BUY"
-                            ? Colors.green
-                            : Colors.red,
-                      ),
+                      child: getIconFromOperation(investment.operation),
                     ),
                     SizedBox(
                       height: 24,
@@ -110,10 +126,12 @@ class ExtractDetails extends StatelessWidget {
                         child: CupertinoButton.filled(
                           padding: EdgeInsets.zero,
                           child: Text("Editar"),
-                          onPressed: () async {
-                            await onEdited(investment);
-                            Navigator.of(context).pop();
-                          },
+                          onPressed: isModifiable()
+                              ? () async {
+                                  await onEdited(investment);
+                                  Navigator.of(context).pop();
+                                }
+                              : null,
                         ),
                       )),
                       Expanded(
@@ -122,16 +140,18 @@ class ExtractDetails extends StatelessWidget {
                         child: CupertinoButton.filled(
                           padding: EdgeInsets.zero,
                           child: Text("Excluir"),
-                          onPressed: () async {
-                            await DialogUtils.showNoYesDialog(context,
-                                title: "Excluir?",
-                                message:
-                                    "Tem certeza que quer excluir a transação?",
-                                onYesPressed: () async {
-                              await onDeleted(investment);
-                              Navigator.pop(context);
-                            });
-                          },
+                          onPressed: isModifiable()
+                              ? () async {
+                                  await DialogUtils.showNoYesDialog(context,
+                                      title: "Excluir?",
+                                      message:
+                                          "Tem certeza que quer excluir a transação?",
+                                      onYesPressed: () async {
+                                    await onDeleted(investment);
+                                    Navigator.pop(context);
+                                  });
+                                }
+                              : null,
                         ),
                       )),
                     ],

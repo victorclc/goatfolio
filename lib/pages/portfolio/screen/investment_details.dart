@@ -8,7 +8,6 @@ import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/client/performance_client.dart';
 import 'package:goatfolio/services/performance/model/benchmark_position.dart';
 
-import 'package:goatfolio/services/performance/model/stock_consolidated_position.dart';
 import 'package:goatfolio/services/performance/model/stock_summary.dart';
 import 'package:goatfolio/services/performance/model/ticker_consolidated_history.dart';
 import 'package:intl/intl.dart';

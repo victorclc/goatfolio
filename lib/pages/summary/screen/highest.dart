@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/services/performance/model/stock_variation.dart';
 
-void goToHighestPage(
-    BuildContext context, List<StockVariation> stocksVariation, {bool sortAscending = false}) async {
+void goToHighestPage(BuildContext context, List<StockVariation> stocksVariation,
+    {bool sortAscending = false}) async {
   await Navigator.push(
     context,
     CupertinoPageRoute(
-      builder: (context) => HighestPage(stocksVariation: stocksVariation, startAscending: sortAscending),
+      builder: (context) => HighestPage(
+          stocksVariation: stocksVariation, startAscending: sortAscending),
     ),
   );
 }
@@ -17,7 +18,8 @@ class HighestPage extends StatefulWidget {
   final List<StockVariation> stocksVariation;
   final bool startAscending;
 
-  const HighestPage({Key key, this.stocksVariation, this.startAscending}) : super(key: key);
+  const HighestPage({Key key, this.stocksVariation, this.startAscending})
+      : super(key: key);
 
   @override
   _HighestPageState createState() => _HighestPageState();
@@ -47,7 +49,7 @@ class _HighestPageState extends State<HighestPage> {
   }
 
   List<StockVariation> sortByPrice(bool ascending) {
-    return  widget.stocksVariation
+    return widget.stocksVariation
       ..sort((b, a) {
         if (ascending)
           return b.lastPrice.compareTo(a.lastPrice);
@@ -57,7 +59,7 @@ class _HighestPageState extends State<HighestPage> {
   }
 
   List<StockVariation> sortByVariation(bool ascending) {
-    return  widget.stocksVariation
+    return widget.stocksVariation
       ..sort((b, a) {
         if (ascending)
           return b.variation.compareTo(a.variation);
@@ -129,15 +131,19 @@ class _HighestPageState extends State<HighestPage> {
                               ),
                               placeholder: true),
                           DataCell(
-                            Text(
-                              moneyFormatter.format(e.lastPrice),
-                              style: textTheme.textStyle.copyWith(fontSize: 16),
+                            Container(
+                              width: 80,
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                moneyFormatter.format(e.lastPrice),
+                                style:
+                                    textTheme.textStyle.copyWith(fontSize: 16),
+                              ),
                             ),
                           ),
                           DataCell(
                             Text(
-                              percentFormatter
-                                  .format(e.variation / 100),
+                              percentFormatter.format(e.variation / 100),
                               style: textTheme.textStyle.copyWith(
                                   fontSize: 16,
                                   color: e.variation >= 0
