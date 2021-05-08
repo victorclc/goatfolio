@@ -529,24 +529,24 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
       scopesRoute: true,
       namesRoute: true,
       label: routeName,
-      child: SafeArea(
-        child: CupertinoPageScaffold(
-          navigationBar: CupertinoNavigationBar(
-            backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
-            border: Border(),
-            trailing: Container(
-              padding: EdgeInsets.only(left: 40),
-              child: CupertinoSearchTextField(
-                placeholder: widget.placeHolderText,
-                controller: widget.delegate._queryTextController,
-                focusNode: focusNode,
-                onSubmitted: (String _) {
-                  widget.delegate.showResults(context);
-                },
-                onChanged: (String _) => widget.delegate.showResults(context),
-              ),
+      child: CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+          border: Border(),
+          trailing: Container(
+            padding: EdgeInsets.only(left: 40),
+            child: CupertinoSearchTextField(
+              placeholder: widget.placeHolderText,
+              controller: widget.delegate._queryTextController,
+              focusNode: focusNode,
+              onSubmitted: (String _) {
+                widget.delegate.showResults(context);
+              },
+              onChanged: (String _) => widget.delegate.showResults(context),
             ),
           ),
+        ),
+        child: SafeArea(
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: body,
