@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
+import 'package:goatfolio/common/search/cupertino_search_delegate.dart';
 import 'package:goatfolio/common/util/focus.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/pages/add/screen/stock_add.dart';
@@ -11,7 +12,6 @@ import 'package:goatfolio/services/investment/service/stock_investment_service.d
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:goatfolio/common/extension/string.dart';
-import 'dart:math' as math;
 import 'details.dart';
 
 class ExtractPage extends StatefulWidget {
@@ -31,7 +31,6 @@ class _ExtractPageState extends State<ExtractPage> {
   Future<List<StockInvestment>> _future;
   int offset = 0;
   bool scrollLoading = false;
-  bool searching = false;
 
   ScrollController controller;
 
@@ -44,10 +43,8 @@ class _ExtractPageState extends State<ExtractPage> {
   }
 
   bool scrollListener(ScrollNotification notification) {
-    // print(notification);
     FocusUtils.unfocus(context);
-    if (!searching &&
-        notification is ScrollEndNotification &&
+    if (notification is ScrollEndNotification &&
         notification.metrics.extentAfter <= 100) {
       loadMoreInvestments();
     }
@@ -56,7 +53,7 @@ class _ExtractPageState extends State<ExtractPage> {
 
   Future<List<StockInvestment>> getInvestments() async {
     final data =
-        await stockService.getInvestments(limit: limit, offset: offset);
+    await stockService.getInvestments(limit: limit, offset: offset);
     if (data != null && data.isNotEmpty) {
       offset += data.length;
     }
@@ -90,7 +87,6 @@ class _ExtractPageState extends State<ExtractPage> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime prevDateTime;
     return NotificationListener<ScrollNotification>(
       onNotification: scrollListener,
       child: GestureDetector(
@@ -103,16 +99,23 @@ class _ExtractPageState extends State<ExtractPage> {
             CupertinoSliverNavigationBar(
               largeTitle: Text(ExtractPage.title),
               backgroundColor:
-                  CupertinoTheme.of(context).scaffoldBackgroundColor,
-              border: Border(),
+              CupertinoTheme
+                  .of(context)
+                  .scaffoldBackgroundColor,
+              trailing: IconButton(
+                icon: Icon(CupertinoIcons.search),
+                onPressed: () =>
+                    showCupertinoSearch(
+                        context: context,
+                        delegate: ExtractSearchDelegate(
+                            getInvestmentsTicker, buildExtractList)),
+                padding: EdgeInsets.zero,
+                alignment: Alignment.centerRight,
+              ),
             ),
-            buildSliverTextSearchField(),
-            !searching
-                ? CupertinoSliverRefreshControl(
-                    onRefresh: onRefresh,
-                  )
-                : SliverList(
-                    delegate: SliverChildListDelegate.fixed([Container()])),
+            CupertinoSliverRefreshControl(
+              onRefresh: onRefresh,
+            ),
             SliverSafeArea(
               top: false,
               sliver: SliverPadding(
@@ -131,71 +134,8 @@ class _ExtractPageState extends State<ExtractPage> {
                               return CupertinoActivityIndicator();
                             case ConnectionState.done:
                               if (snapshot.hasData) {
-                                investments = snapshot.data;
-                                if (investments.isEmpty) {
-                                  return Center(
-                                    child: Text(
-                                      "Nenhuma movimentação cadastrada",
-                                      style: CupertinoTheme.of(context)
-                                          .textTheme
-                                          .textStyle,
-                                    ),
-                                  );
-                                }
-                                return Column(
-                                  children: [
-                                    Container(
-                                      padding:
-                                          EdgeInsets.only(left: 16, right: 16),
-                                      child: ListView.builder(
-                                        padding: EdgeInsets.zero,
-                                        physics: NeverScrollableScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount: investments.length,
-                                        itemBuilder: (context, index) {
-                                          final investment = investments[index];
-                                          if (prevDateTime == null ||
-                                              investment.date.month !=
-                                                  prevDateTime.month) {
-                                            prevDateTime = investment.date;
-                                            return Column(
-                                              children: [
-                                                Container(
-                                                  width: double.infinity,
-                                                  padding: EdgeInsets.only(
-                                                      bottom: 16),
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Text(
-                                                    '${monthFormatter.format(investment.date).capitalize()} de ${investment.date.year}',
-                                                    style: CupertinoTheme.of(
-                                                            context)
-                                                        .textTheme
-                                                        .navTitleTextStyle,
-                                                  ),
-                                                ),
-                                                _StockExtractItem(
-                                                    context,
-                                                    investments[index],
-                                                    onEditCb,
-                                                    onDeleteCb)
-                                              ],
-                                            );
-                                          }
-                                          prevDateTime = investment.date;
-                                          return _StockExtractItem(
-                                              context,
-                                              investments[index],
-                                              onEditCb,
-                                              onDeleteCb);
-                                        },
-                                      ),
-                                    ),
-                                    scrollLoading
-                                        ? CupertinoActivityIndicator()
-                                        : Container(),
-                                  ],
-                                );
+                                return buildExtractList(
+                                    context, snapshot.data, false);
                               }
                           }
                           return _LoadingError(
@@ -218,6 +158,66 @@ class _ExtractPageState extends State<ExtractPage> {
     );
   }
 
+  Widget buildExtractList(BuildContext context,
+      List<StockInvestment> investments,
+      [bool enableScrolling = true]) {
+    DateTime prevDateTime;
+    if (investments.isEmpty) {
+      return Center(
+        child: Text(
+          "Nenhuma movimentação cadastrada",
+          style: CupertinoTheme
+              .of(context)
+              .textTheme
+              .textStyle,
+        ),
+      );
+    }
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.only(left: 16, right: 16),
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: investments.length,
+            itemBuilder: (context, index) {
+              final investment = investments[index];
+              if (prevDateTime == null ||
+                  investment.date.month != prevDateTime.month) {
+                prevDateTime = investment.date;
+                return Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.only(bottom: 16),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${monthFormatter.format(investment.date)
+                            .capitalize()} de ${investment.date.year}',
+                        style: CupertinoTheme
+                            .of(context)
+                            .textTheme
+                            .navTitleTextStyle,
+                      ),
+                    ),
+                    _StockExtractItem(
+                        context, investments[index], onEditCb, onDeleteCb)
+                  ],
+                );
+              }
+              prevDateTime = investment.date;
+              return _StockExtractItem(
+                  context, investments[index], onEditCb, onDeleteCb);
+            },
+          ),
+        ),
+        scrollLoading ? CupertinoActivityIndicator() : Container(),
+      ],
+    );
+  }
+
   void onEditCb(StockInvestment investment) async {
     await ModalUtils.showDragableModalBottomSheet(
       context,
@@ -230,7 +230,6 @@ class _ExtractPageState extends State<ExtractPage> {
   }
 
   void onDeleteCb(StockInvestment investment) async {
-    final deleteFuture = stockService.deleteInvestment(investment);
     setState(() {
       investments.remove(investment);
       offset--;
@@ -242,48 +241,6 @@ class _ExtractPageState extends State<ExtractPage> {
       });
     }
   }
-
-  SliverPersistentHeader buildSliverTextSearchField() {
-    return SliverPersistentHeader(
-      pinned: true,
-      delegate: _SliverAppBarDelegate(
-        minHeight: 76,
-        maxHeight: 76,
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color:CupertinoTheme.of(context).scaffoldBackgroundColor ,
-                border: Border(
-                  bottom: BorderSide(
-                    color: Color(0x4D000000),
-                    width: 0.0, // One physical pixel.
-                    style: BorderStyle.solid,
-                  ),
-                ),
-              ),
-              padding: EdgeInsets.all(16),
-              child: CupertinoSearchTextField(
-                controller: searchController,
-                onChanged: (value) {
-                  setState(() {
-                    if (value.isNotEmpty) {
-                      searching = true;
-                      _future = getInvestmentsTicker(value);
-                    } else {
-                      offset = 0;
-                      searching = false;
-                      _future = getInvestments();
-                    }
-                  });
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class _LoadingError extends StatelessWidget {
@@ -293,7 +250,9 @@ class _LoadingError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = CupertinoTheme.of(context).textTheme;
+    final textTheme = CupertinoTheme
+        .of(context)
+        .textTheme;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -325,14 +284,16 @@ class _StockExtractItem extends StatelessWidget {
   final Function onEdited;
   final Function onDeleted;
 
-  _StockExtractItem(
-      BuildContext context, this.investment, this.onEdited, this.onDeleted,
+  _StockExtractItem(BuildContext context, this.investment, this.onEdited,
+      this.onDeleted,
       {Key key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = CupertinoTheme.of(context).textTheme;
+    final textTheme = CupertinoTheme
+        .of(context)
+        .textTheme;
 
     return CupertinoButton(
       padding: EdgeInsets.zero,
@@ -395,7 +356,8 @@ class _StockExtractItem extends StatelessWidget {
                           height: 8,
                         ),
                         Text(
-                          "${moneyFormatter.format(investment.price * investment.amount)}",
+                          "${moneyFormatter.format(
+                              investment.price * investment.amount)}",
                           style: textTheme.textStyle.copyWith(
                               fontWeight: FontWeight.w500, fontSize: 14),
                         ),
@@ -425,33 +387,61 @@ class _StockExtractItem extends StatelessWidget {
   }
 }
 
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  _SliverAppBarDelegate({
-    @required this.minHeight,
-    @required this.maxHeight,
-    @required this.child,
-  });
+class ExtractSearchDelegate extends SearchCupertinoDelegate {
+  final Function searchFunction;
+  final Function buildFunction;
+  List<StockInvestment> results = [];
+  ScrollController controller = ScrollController();
+  String lastQuery = "";
+  Future _future;
 
-  final double minHeight;
-  final double maxHeight;
-  final Widget child;
-
-  @override
-  double get minExtent => minHeight;
-
-  @override
-  double get maxExtent => math.max(maxHeight, minHeight);
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return new SizedBox.expand(child: child);
+  ExtractSearchDelegate(this.searchFunction, this.buildFunction) {
+    controller.addListener(() {
+      focusNode.unfocus();
+    });
   }
 
   @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight ||
-        minHeight != oldDelegate.minHeight ||
-        child != oldDelegate.child;
+  List<Widget> buildActions(BuildContext context) {
+    return [];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return Container();
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    if (query.isEmpty) {
+      return Container();
+    }
+    if (lastQuery != query) {
+      _future = searchFunction(query);
+    }
+    lastQuery = query;
+    return FutureBuilder(
+      future: _future,
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.active:
+            break;
+          case ConnectionState.waiting:
+            return Center(child: CupertinoActivityIndicator());
+          case ConnectionState.done:
+            if (snapshot.hasData) {
+              return SingleChildScrollView(controller: controller,
+                  child: buildFunction(context, snapshot.data));
+            }
+        }
+        return Container();
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return Container();
   }
 }
