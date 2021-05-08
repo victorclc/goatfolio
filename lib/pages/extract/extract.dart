@@ -53,7 +53,7 @@ class _ExtractPageState extends State<ExtractPage> {
 
   Future<List<StockInvestment>> getInvestments() async {
     final data =
-    await stockService.getInvestments(limit: limit, offset: offset);
+        await stockService.getInvestments(limit: limit, offset: offset);
     if (data != null && data.isNotEmpty) {
       offset += data.length;
     }
@@ -72,8 +72,10 @@ class _ExtractPageState extends State<ExtractPage> {
     final data = await getInvestments();
 
     setState(() {
-      investments.addAll(data);
       scrollLoading = false;
+      if (data != null) {
+        investments.addAll(data);
+      }
     });
   }
 
@@ -99,16 +101,13 @@ class _ExtractPageState extends State<ExtractPage> {
             CupertinoSliverNavigationBar(
               largeTitle: Text(ExtractPage.title),
               backgroundColor:
-              CupertinoTheme
-                  .of(context)
-                  .scaffoldBackgroundColor,
+                  CupertinoTheme.of(context).scaffoldBackgroundColor,
               trailing: IconButton(
                 icon: Icon(CupertinoIcons.search),
-                onPressed: () =>
-                    showCupertinoSearch(
-                        context: context,
-                        delegate: ExtractSearchDelegate(
-                            getInvestmentsTicker, buildExtractList)),
+                onPressed: () => showCupertinoSearch(
+                    context: context,
+                    delegate: ExtractSearchDelegate(
+                        getInvestmentsTicker, buildExtractList)),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerRight,
               ),
@@ -134,8 +133,8 @@ class _ExtractPageState extends State<ExtractPage> {
                               return CupertinoActivityIndicator();
                             case ConnectionState.done:
                               if (snapshot.hasData) {
-                                return buildExtractList(
-                                    context, snapshot.data, false);
+                                investments = snapshot.data;
+                                return buildExtractList(context, snapshot.data);
                               }
                           }
                           return _LoadingError(
@@ -158,18 +157,14 @@ class _ExtractPageState extends State<ExtractPage> {
     );
   }
 
-  Widget buildExtractList(BuildContext context,
-      List<StockInvestment> investments,
-      [bool enableScrolling = true]) {
+  Widget buildExtractList(
+      BuildContext context, List<StockInvestment> investments) {
     DateTime prevDateTime;
     if (investments.isEmpty) {
       return Center(
         child: Text(
           "Nenhuma movimentação cadastrada",
-          style: CupertinoTheme
-              .of(context)
-              .textTheme
-              .textStyle,
+          style: CupertinoTheme.of(context).textTheme.textStyle,
         ),
       );
     }
@@ -194,10 +189,8 @@ class _ExtractPageState extends State<ExtractPage> {
                       padding: EdgeInsets.only(bottom: 16),
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        '${monthFormatter.format(investment.date)
-                            .capitalize()} de ${investment.date.year}',
-                        style: CupertinoTheme
-                            .of(context)
+                        '${monthFormatter.format(investment.date).capitalize()} de ${investment.date.year}',
+                        style: CupertinoTheme.of(context)
                             .textTheme
                             .navTitleTextStyle,
                       ),
@@ -250,9 +243,7 @@ class _LoadingError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = CupertinoTheme
-        .of(context)
-        .textTheme;
+    final textTheme = CupertinoTheme.of(context).textTheme;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -284,16 +275,14 @@ class _StockExtractItem extends StatelessWidget {
   final Function onEdited;
   final Function onDeleted;
 
-  _StockExtractItem(BuildContext context, this.investment, this.onEdited,
-      this.onDeleted,
+  _StockExtractItem(
+      BuildContext context, this.investment, this.onEdited, this.onDeleted,
       {Key key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = CupertinoTheme
-        .of(context)
-        .textTheme;
+    final textTheme = CupertinoTheme.of(context).textTheme;
 
     return CupertinoButton(
       padding: EdgeInsets.zero,
@@ -356,8 +345,7 @@ class _StockExtractItem extends StatelessWidget {
                           height: 8,
                         ),
                         Text(
-                          "${moneyFormatter.format(
-                              investment.price * investment.amount)}",
+                          "${moneyFormatter.format(investment.price * investment.amount)}",
                           style: textTheme.textStyle.copyWith(
                               fontWeight: FontWeight.w500, fontSize: 14),
                         ),
@@ -431,8 +419,12 @@ class ExtractSearchDelegate extends SearchCupertinoDelegate {
             return Center(child: CupertinoActivityIndicator());
           case ConnectionState.done:
             if (snapshot.hasData) {
-              return SingleChildScrollView(controller: controller,
-                  child: buildFunction(context, snapshot.data));
+              return SingleChildScrollView(
+                  controller: controller,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: buildFunction(context, snapshot.data),
+                  ));
             }
         }
         return Container();
