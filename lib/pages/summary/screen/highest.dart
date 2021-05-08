@@ -132,7 +132,7 @@ class _HighestPageState extends State<HighestPage> {
                               placeholder: true),
                           DataCell(
                             Container(
-                              width: 68,
+                              width: 72,
                               alignment: Alignment.centerRight,
                               child: Text(
                                 moneyFormatter.format(e.lastPrice),
