@@ -7,13 +7,14 @@ Future<T> showCupertinoSearch<T>({
   @required BuildContext context,
   @required SearchCupertinoDelegate<T> delegate,
   String query = '',
+  placeHolderText = ''
 }) {
   assert(delegate != null);
   assert(context != null);
   delegate.query = query ?? delegate.query;
   delegate._currentBody = _SearchBody.suggestions;
   return Navigator.of(context, rootNavigator: true).push(_SearchPageRoute<T>(
-    delegate: delegate,
+    delegate: delegate, placeHolderText: placeHolderText
   ));
 }
 
@@ -299,6 +300,7 @@ abstract class SearchCupertinoDelegate<T> {
   // managed, owned, and set by the _SearchPageRoute using this delegate.
   FocusNode focusNode;
 
+
   final TextEditingController _queryTextController = TextEditingController();
 
   final ProxyAnimation _proxyAnimation =
@@ -333,6 +335,7 @@ enum _SearchBody {
 class _SearchPageRoute<T> extends PageRoute<T> {
   _SearchPageRoute({
     @required this.delegate,
+    this.placeHolderText,
   }) : assert(delegate != null) {
     assert(
       delegate._route == null,
@@ -341,7 +344,9 @@ class _SearchPageRoute<T> extends PageRoute<T> {
       'before opening another search with the same delegate instance.',
     );
     delegate._route = this;
+
   }
+  final String placeHolderText;
 
   final SearchCupertinoDelegate<T> delegate;
 
@@ -386,6 +391,7 @@ class _SearchPageRoute<T> extends PageRoute<T> {
     return _SearchPage<T>(
       delegate: delegate,
       animation: animation,
+      placeHolderText: placeHolderText,
     );
   }
 
@@ -402,10 +408,12 @@ class _SearchPage<T> extends StatefulWidget {
   const _SearchPage({
     @required this.delegate,
     @required this.animation,
+    this.placeHolderText,
   });
 
   final SearchCupertinoDelegate<T> delegate;
   final Animation<double> animation;
+  final String placeHolderText;
 
   @override
   State<StatefulWidget> createState() => _SearchPageState<T>();
@@ -521,45 +529,27 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
       scopesRoute: true,
       namesRoute: true,
       label: routeName,
-      child: Theme(
-        data: theme,
-        child: SafeArea(
-          child: CupertinoPageScaffold(
-            navigationBar: CupertinoNavigationBar(
-              backgroundColor:
-                  CupertinoTheme.of(context).scaffoldBackgroundColor,
-              border: Border(),
-              trailing: Container(
-                padding: EdgeInsets.only(left: 40),
-                child: CupertinoSearchTextField(
-                  controller: widget.delegate._queryTextController,
-                  focusNode: focusNode,
-                  onSubmitted: (String _) {
-                    widget.delegate.showResults(context);
-                  },
-                  onChanged: (String _) => widget.delegate.showResults(context),
-                ),
+      child: SafeArea(
+        child: CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+            border: Border(),
+            trailing: Container(
+              padding: EdgeInsets.only(left: 40),
+              child: CupertinoSearchTextField(
+                placeholder: widget.placeHolderText,
+                controller: widget.delegate._queryTextController,
+                focusNode: focusNode,
+                onSubmitted: (String _) {
+                  widget.delegate.showResults(context);
+                },
+                onChanged: (String _) => widget.delegate.showResults(context),
               ),
             ),
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: body,
-            ),
-            // appBar: AppBar(
-            //   leading: widget.delegate.buildLeading(context),
-            //   title: CupertinoSearchTextField(
-            //     controller: widget.delegate._queryTextController,
-            //     focusNode: focusNode,
-            //     style: theme.textTheme.headline6,
-            //     onSubmitted: (String _) {
-            //       widget.delegate.showResults(context);
-            //     },
-            //   ),
-            //   actions: widget.delegate.buildActions(context),
-            //   bottom: widget.delegate.buildBottom(context),
-            // ),
-            // body:
-            // ),
+          ),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: body,
           ),
         ),
       ),

@@ -108,7 +108,10 @@ class _ExtractPageState extends State<ExtractPage> {
                 onPressed: () => showCupertinoSearch(
                     context: context,
                     delegate: ExtractSearchDelegate(
-                        getInvestmentsTicker, buildExtractList)),
+                      getInvestmentsTicker,
+                      buildExtractList,
+                    ),
+                    placeHolderText: "Buscar ativo"),
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerRight,
               ),
