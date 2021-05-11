@@ -307,6 +307,9 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
 
+    final sortedItems = items
+      ..sort((a, b) => a.currentTickerName.compareTo(b.currentTickerName));
+
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8),
       child: ExpansionTileCustom(
@@ -391,9 +394,9 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
             physics: NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemBuilder: (context, index) {
-              final item = items[index];
+              final item = sortedItems[index];
               final Rgb rgb = colors[item.ticker];
-              var color = rgb.toColor();
+              final color = rgb.toColor();
 
               return StockInvestmentSummaryItem(
                 summary: item,
@@ -403,7 +406,7 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
                 ibovHistory: ibovHistory,
               );
             },
-            itemCount: items.length,
+            itemCount: sortedItems.length,
           ),
         ],
       ),
