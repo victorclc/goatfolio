@@ -71,7 +71,7 @@ class _InvestmentsListState extends State<InvestmentsList> {
 
   List<SettingsSection> buildAlphabetSections(PortfolioList portfolio) {
     final stocks = (portfolio.stocks + portfolio.reits + portfolio.bdrs)
-        .map((s) => s.ticker)
+        .map((s) => s.currentTickerName)
         .toList()
           ..sort();
     final Map<String, List<String>> tickersByAlphabet = Map();
