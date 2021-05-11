@@ -22,7 +22,7 @@ Future<Database> initDatabase() async {
     debugPrint("UPGRADING DB TO VERSION $newVersion");
     if (newVersion == 2) {
       db.execute("ALTER TABLE stock_investments ADD COLUMN alias_ticker text");
-    }S
+    }
   });
 }
 
