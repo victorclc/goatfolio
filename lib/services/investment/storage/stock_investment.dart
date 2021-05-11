@@ -1,26 +1,29 @@
+import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 Future<Database> initDatabase() async {
-  return openDatabase(
-    join(await getDatabasesPath(), 'investments.db'),
-    version: 1,
-    onCreate: (db, version) {
-      db.execute("CREATE TABLE stock_investments("
-          "id text not null primary key, "
-          "type text, "
-          "operation text, "
-          "date integer, "
-          "broker text, "
-          "costs real, "
-          "ticker text, "
-          "amount integer, "
-          "price real,"
-          "alias_ticker text"
-          ")");
-    },
-  );
+  return openDatabase(join(await getDatabasesPath(), 'investments.db'),
+      version: 2, onCreate: (db, version) {
+    db.execute("CREATE TABLE stock_investments("
+        "id text not null primary key, "
+        "type text, "
+        "operation text, "
+        "date integer, "
+        "broker text, "
+        "costs real, "
+        "ticker text, "
+        "amount integer, "
+        "price real,"
+        "alias_ticker text"
+        ")");
+  }, onUpgrade: (db, oldVersion, newVersion) {
+    debugPrint("UPGRADING DB TO VERSION $newVersion");
+    if (newVersion == 2) {
+      db.execute("ALTER TABLE stock_investments ADD COLUMN alias_ticker text");
+    }S
+  });
 }
 
 Future<void> deleteInvestmentsDatabase() async {
