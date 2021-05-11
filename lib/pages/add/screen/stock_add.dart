@@ -167,6 +167,8 @@ class _StockAddState extends State<StockAdd> {
                   ),
                 ),
                 placeholder: "Código do ativo",
+                enableSuggestions: false,
+                autocorrect: false,
               ),
               CupertinoTextField(
                 controller: _brokerController,
@@ -189,6 +191,8 @@ class _StockAddState extends State<StockAdd> {
                   ),
                 ),
                 placeholder: "Corretora",
+                enableSuggestions: false,
+                autocorrect: false,
               ),
               CupertinoTextField(
                 controller: _amountController,
