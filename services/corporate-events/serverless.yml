@@ -52,6 +52,12 @@ provider:
             - ''
             - - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
               - '/index/*'
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+        - sqs:GetQueueUrl
+      Resource:
+        'Fn::ImportValue': ${self:provider.stage}-ShitToNotifyQueueArn
 
 package:
   exclude:

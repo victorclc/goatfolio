@@ -4,6 +4,8 @@ from decimal import Decimal
 
 from core import CorporateEventsCore, CorporateEventsCrawlerCore
 from goatcommons.models import StockInvestment
+from goatcommons.shit.client import ShitNotifierClient
+from goatcommons.shit.models import NotifyLevel
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
@@ -18,17 +20,24 @@ def download_today_corporate_events_handler(event, context):
 
 def process_corporate_events_file_handler(event, context):
     logger.info(f'EVENT: {event}')
-    core = CorporateEventsCrawlerCore()
-    for record in event['Records']:
-        logger.info(f'Processing record: {record}')
-        bucket = record['s3']['bucket']['name']
-        file_path = record['s3']['object']['key']
-        core.process_corporate_events_file(bucket, file_path)
+    try:
+        core = CorporateEventsCrawlerCore()
+        for record in event['Records']:
+            logger.info(f'Processing record: {record}')
+            bucket = record['s3']['bucket']['name']
+            file_path = record['s3']['object']['key']
+            core.process_corporate_events_file(bucket, file_path)
+    except Exception:
+        ShitNotifierClient().send(NotifyLevel.CRITICAL, 'corporate-events', traceback.format_exc())
 
 
 def handle_today_corporate_events_handler(event, context):
-    core = CorporateEventsCore()
-    core.handle_today_corporate_events()
+    logger.info(f'EVENT: {event}')
+    try:
+        core = CorporateEventsCore()
+        core.handle_today_corporate_events()
+    except Exception:
+        ShitNotifierClient().send(NotifyLevel.CRITICAL, 'corporate-events', traceback.format_exc())
 
 
 def check_for_applicable_corporate_events_handler(event, context):
@@ -54,6 +63,7 @@ def check_for_applicable_corporate_events_handler(event, context):
             old_investments = investments_by_subject[subject]['old_investments']
             core.check_for_applicable_corporate_events(subject, new_investments + old_investments)
     except Exception:
+        ShitNotifierClient().send(NotifyLevel.CRITICAL, 'corporate-events', traceback.format_exc())
         print(f'CAUGHT EXCEPTION')
         traceback.print_exc()
 

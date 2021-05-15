@@ -14,6 +14,8 @@ from adapters import B3CorporateEventsData, B3CorporateEventsBucket, CorporateEv
     AsyncPortfolioQueue, TickerInfoRepository
 from goatcommons.constants import OperationType, InvestmentsType
 from goatcommons.models import StockInvestment
+from goatcommons.shit.client import ShitNotifierClient
+from goatcommons.shit.models import NotifyLevel
 from model import EarningsInAssetCorporateEvent
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -49,6 +51,9 @@ class CorporateEventsCrawlerCore:
                     break
                 except Exception:
                     logger.warning(f'Attempt {attempts} failed.')
+                    ShitNotifierClient().send(NotifyLevel.WARNING,
+                                              'CorporateEvents.download_today_corporate_events_handler',
+                                              f'Download failed. Url: {data.url}')
                     traceback.print_exc()
                 attempts = attempts + 1
         logger.info(f'Processing finish')
