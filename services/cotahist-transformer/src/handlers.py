@@ -20,5 +20,6 @@ def transform_cota_hist_handler(event, context):
             file_path = record['s3']['object']['key']
             core.transform_cota_hist(bucket, file_path)
     except Exception:
+        traceback.print_exc()
         ShitNotifierClient().send(NotifyLevel.ERROR, 'COTAHIST-TRANSFORMER',
                                   f'TRANSFORM COTA HIST FAILED {traceback.format_exc()}')
