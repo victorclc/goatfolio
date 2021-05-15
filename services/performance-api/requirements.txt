@@ -8,15 +8,12 @@ jmespath==0.10.0
 lxml==4.6.2
 numpy==1.20.1
 pandas==1.2.3
-psycopg2==2.8.6
-psycopg2-binary==2.8.6
 python-dateutil==2.8.1
 pytz==2021.1
 requests==2.25.0
 requests-futures==1.0.0
 s3transfer==0.3.3
 six==1.15.0
-SQLAlchemy==1.4.8
 tqdm==4.59.0
 urllib3==1.26.2
 yahooquery==2.2.15
