@@ -36,5 +36,6 @@ export AWS_DEFAULT_REGION='us-east-2'
 
 runTests 'services/portfolio-api'
 runTests 'services/vandelay-api'
+runTests 'services/performance-api'
 
 echo "All tests passed."
