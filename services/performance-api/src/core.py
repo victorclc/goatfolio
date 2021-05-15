@@ -5,7 +5,7 @@ from itertools import groupby
 
 from dateutil.relativedelta import relativedelta
 
-from adapters import PortfolioRepository, MarketData, InvestmentRepository
+from adapters import PortfolioRepository, MarketData
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
 from models import Portfolio, StockConsolidated, StockPosition, StockVariation, PortfolioSummary, PortfolioPosition, \
@@ -44,6 +44,8 @@ class PerformanceCore:
                 self._consolidate_stock(stock_consolidated, inv)
 
         self.repo.save(portfolio)
+
+        return portfolio
 
     @staticmethod
     def _consolidate_stock(stock_consolidated: StockConsolidated, inv: StockInvestment):
