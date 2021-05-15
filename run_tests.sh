@@ -14,7 +14,7 @@ function runTests() {
 
 
   echo "Installing dependencies..."
-  pip3 install -r requirements.txt &> /dev/null
+  pip3 install -r requirements.txt
   pip3 install pytest &> /dev/null
 
   echo "Setting up environment variables..."
