@@ -7,7 +7,7 @@ pipeline {
     }
     environment {
         HOME="."
-        SERVICE_PATH="${env.WORKSPACE}/services/cotahist-transformer"
+        SERVICE_PATH="${env.WORKSPACE}/services/market-history"
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id-dev')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key-dev')
         SLS_DEBUG='*'
@@ -46,7 +46,7 @@ pipeline {
         }
         stage('Service Deploy') {
             steps {
-                 dir('services/cotahist-transformer'){
+                 dir('services/market-history'){
                     sh 'npm install'
                     sh 'serverless deploy'
                 }
