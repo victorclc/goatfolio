@@ -28,8 +28,9 @@ def process_corporate_events_file_handler(event, context):
             file_path = record['s3']['object']['key']
             core.process_corporate_events_file(bucket, file_path)
     except Exception:
-        ShitNotifierClient().send(NotifyLevel.CRITICAL, 'corporate-events', traceback.format_exc())
-
+        traceback.print_exc()
+        ShitNotifierClient().send(NotifyLevel.CRITICAL, 'CORPORATE_EVENTS',
+                                  f'PROCESS CORPORATE EVENTS FILE FAILED {traceback.format_exc()}')
 
 def handle_today_corporate_events_handler(event, context):
     logger.info(f'EVENT: {event}')
@@ -37,7 +38,9 @@ def handle_today_corporate_events_handler(event, context):
         core = CorporateEventsCore()
         core.handle_today_corporate_events()
     except Exception:
-        ShitNotifierClient().send(NotifyLevel.CRITICAL, 'corporate-events', traceback.format_exc())
+        traceback.print_exc()
+        ShitNotifierClient().send(NotifyLevel.CRITICAL, 'CORPORATE_EVENTS',
+                                  f'TODAY CORPORATE EVENTS FAILED {traceback.format_exc()}')
 
 
 def check_for_applicable_corporate_events_handler(event, context):
@@ -63,9 +66,9 @@ def check_for_applicable_corporate_events_handler(event, context):
             old_investments = investments_by_subject[subject]['old_investments']
             core.check_for_applicable_corporate_events(subject, new_investments + old_investments)
     except Exception:
-        ShitNotifierClient().send(NotifyLevel.CRITICAL, 'corporate-events', traceback.format_exc())
-        print(f'CAUGHT EXCEPTION')
         traceback.print_exc()
+        ShitNotifierClient().send(NotifyLevel.CRITICAL, 'CORPORATE_EVENTS',
+                                  f'CHECK FOR APPLICABLE CORPORATE EVENTS FAILED {traceback.format_exc()}')
 
 
 def _dynamo_stream_to_stock_investment(stream):

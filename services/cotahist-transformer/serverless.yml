@@ -33,6 +33,13 @@ provider:
         - dynamodb:BatchWriteItem
       Resource:
         Fn::GetAtt: [ TickerInfoTable, Arn ]
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+        - sqs:GetQueueUrl
+      Resource:
+        'Fn::ImportValue': ${self:provider.stage}-ShitToNotifyQueueArn
+
 
 
 package:

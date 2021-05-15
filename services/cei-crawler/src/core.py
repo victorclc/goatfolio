@@ -8,6 +8,8 @@ from adapters import CEIResultQueue
 from constants import ImportStatus
 from exceptions import LoginError
 from goatcommons.models import StockInvestment
+from goatcommons.shit.client import ShitNotifierClient
+from goatcommons.shit.models import NotifyLevel
 from goatcommons.utils import JsonUtils
 from lessmium.webdriver import LessmiumDriver
 from models import CEICrawRequest, CEICrawResult
@@ -44,8 +46,9 @@ class CEICrawlerCore:
             response.login_error = True
             response.payload = JsonUtils.dump({"error_message": str(e)})
         except Exception as e:
-            logger.exception('CAUGHT EXCEPTION')
             traceback.print_exc()
+            ShitNotifierClient().send(NotifyLevel.ERROR, 'CEI-CRAWLER',
+                                      f'CRAW ALL EXTRACT FAILED {traceback.format_exc()}')
             response.status = ImportStatus.ERROR
             response.payload = JsonUtils.dump({"error_message": str(e)})
         self.queue.send(response)
