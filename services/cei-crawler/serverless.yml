@@ -20,6 +20,13 @@ provider:
         - s3:ListBucket
         - s3:GetObject
       Resource: 'arn:aws:s3:::chromium-binarys/*'
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+        - sqs:GetQueueUrl
+      Resource:
+        'Fn::ImportValue': ${self:provider.stage}-ShitToNotifyQueueArn
+
 
 package:
   exclude:

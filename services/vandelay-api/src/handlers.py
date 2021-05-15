@@ -1,7 +1,10 @@
+import traceback
 from http import HTTPStatus
 
 from core import CEICore
 from exceptions import UnprocessableException
+from goatcommons.shit.client import ShitNotifierClient
+from goatcommons.shit.models import NotifyLevel
 from goatcommons.utils import JsonUtils, AWSEventUtils
 from models import CEIInboundRequest, CEIImportResult
 import logging
@@ -34,7 +37,10 @@ def cei_import_result_handler(event, context):
             core.import_result(CEIImportResult(**JsonUtils.load(message['body'])))
         return {'statusCode': HTTPStatus.OK.value, 'body': JsonUtils.dump({"message": HTTPStatus.OK.phrase})}
     except Exception as e:
-        logger.error(f'CAUGHT EXCEPTION {str(e)}')
+        traceback.print_exc()
+        ShitNotifierClient().send(NotifyLevel.ERROR, 'VANDELAY-API',
+                                  f'CEI IMPORT RESULT FAILED {traceback.format_exc()}')
+
         raise
 
 

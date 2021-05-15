@@ -28,6 +28,12 @@ provider:
         - dynamodb:BatchGetItem
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+        - sqs:GetQueueUrl
+      Resource:
+        'Fn::ImportValue': ${self:provider.stage}-ShitToNotifyQueueArn
 
 
 package:

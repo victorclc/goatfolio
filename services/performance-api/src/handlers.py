@@ -4,6 +4,8 @@ from decimal import Decimal
 from http import HTTPStatus
 
 from goatcommons.models import StockInvestment
+from goatcommons.shit.client import ShitNotifierClient
+from goatcommons.shit.models import NotifyLevel
 from goatcommons.utils import AWSEventUtils, JsonUtils
 from core import PerformanceCore
 
@@ -66,8 +68,9 @@ def consolidate_portfolio_handler(event, context):
             old_investments = investments_by_subject[subject]['old_investments']
             core.consolidate_portfolio(subject, new_investments, old_investments)
     except Exception:
-        print(f'CAUGHT EXCEPTION')
         traceback.print_exc()
+        ShitNotifierClient().send(NotifyLevel.CRITICAL, 'PERFORMANCE-API',
+                                  f'CONSOLIDATE PORTFOLIO FAILED {traceback.format_exc()}')
 
 
 def _dynamo_stream_to_stock_investment(stream):
