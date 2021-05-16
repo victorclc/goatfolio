@@ -227,6 +227,7 @@ class _ExtractPageState extends State<ExtractPage> {
   }
 
   void onDeleteCb(StockInvestment investment) async {
+    stockService.deleteInvestment(investment);
     setState(() {
       investments.remove(investment);
       offset--;
