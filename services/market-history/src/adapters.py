@@ -8,7 +8,7 @@ import boto3 as boto3
 import requests
 from dateutil.relativedelta import relativedelta
 
-from models import B3CotaHistData, IBOVData
+from models import B3CotaHistData
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
@@ -82,9 +82,10 @@ class IBOVFetcher:
         low = min(quote['low'][2], quote['low'][3])
 
         data = B3CotaHistData()
-        return data.load_ibov('IBOVESPA', date, 'Indice Ibovespa',
-                                    Decimal(quote['open'][2]).quantize(Decimal('0.01')),
-                                    Decimal(quote['close'][3]).quantize(Decimal('0.01')),
-                                    Decimal(high).quantize(Decimal('0.01')),
-                                    Decimal(low).quantize(Decimal('0.01')),
-                                    Decimal(quote['volume'][2]).quantize(Decimal('0.01')))
+        data.load_ibov('IBOVESPA', date.strftime('%Y%m%d'), 'Indice Ibovespa',
+                       Decimal(quote['open'][2]).quantize(Decimal('0.01')),
+                       Decimal(quote['close'][3]).quantize(Decimal('0.01')),
+                       Decimal(high).quantize(Decimal('0.01')),
+                       Decimal(low).quantize(Decimal('0.01')),
+                       Decimal(quote['volume'][2]).quantize(Decimal('0.01')))
+        return data
