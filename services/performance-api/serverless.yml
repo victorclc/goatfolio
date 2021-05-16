@@ -141,3 +141,10 @@ resources:
         KeySchema:
           - AttributeName: "subject"
             KeyType: "HASH"
+
+    RedisElasticacheCluster:
+      Type: 'AWS::ElastiCache::CacheCluster'
+      Properties:
+        Engine: redis
+        CacheNodeType: cache.t2.micro
+        NumCacheNodes: '1'
