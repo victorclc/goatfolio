@@ -1,9 +1,12 @@
 import logging
 import os
+from datetime import datetime
+from decimal import Decimal
 from typing import List
 
 import boto3 as boto3
 import requests
+from dateutil.relativedelta import relativedelta
 
 from models import B3CotaHistData, IBOVData
 
@@ -71,5 +74,13 @@ class IBOVFetcher:
         quote = response['indicators']['quote'][0]
         timestamp = response['timestamp'][1]
 
-        return IBOVData(timestamp, quote['open'][1], quote['high'][1], quote['low'][1], quote['close'][1],
-                        quote['volume'][1])
+        date = datetime.fromtimestamp(timestamp)
+        if date.day != 1:
+            date = datetime(date.year, date.month, 1) + relativedelta(months=1)
+
+        return IBOVData(date,
+                        Decimal(quote['open'][1]).quantize(Decimal('0.01')),
+                        Decimal(quote['high'][1]).quantize(Decimal('0.01')),
+                        Decimal(quote['low'][1]).quantize(Decimal('0.01')),
+                        Decimal(quote['close'][1]).quantize(Decimal('0.01')),
+                        Decimal(quote['volume'][1]).quantize(Decimal('0.01')))

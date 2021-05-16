@@ -55,7 +55,7 @@ class B3CotaHistData:
         self.numero_de_negocios = numero_de_negocios
         self.codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel = codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel
 
-    def load_IBOV(self, codigo_negociacao, data_pregao, nome_resumido_empresa_emissora, preco_abertura,
+    def load_ibov(self, codigo_negociacao, data_pregao, nome_resumido_empresa_emissora, preco_abertura,
                   preco_ultimo, preco_maximo, preco_minimo,
                   numero_de_negocios):
         self.codigo_negociacao = codigo_negociacao
@@ -113,5 +113,8 @@ class IBOVData:
     low: Decimal
     close: Decimal
     volume: Decimal
+    ticker: str = "IBOVESPA"
+    company_name: str = "Indice Ibovespa"
+
 
 
