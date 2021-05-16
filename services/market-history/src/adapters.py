@@ -72,15 +72,19 @@ class IBOVFetcher:
                 'result'][0]
 
         quote = response['indicators']['quote'][0]
-        timestamp = response['timestamp'][1]
+        timestamp = response['timestamp'][2]
 
         date = datetime.fromtimestamp(timestamp)
         if date.day != 1:
             date = datetime(date.year, date.month, 1) + relativedelta(months=1)
 
-        return IBOVData(date,
-                        Decimal(quote['open'][1]).quantize(Decimal('0.01')),
-                        Decimal(quote['high'][1]).quantize(Decimal('0.01')),
-                        Decimal(quote['low'][1]).quantize(Decimal('0.01')),
-                        Decimal(quote['close'][1]).quantize(Decimal('0.01')),
-                        Decimal(quote['volume'][1]).quantize(Decimal('0.01')))
+        high = max(quote['high'][2], quote['high'][3])
+        low = min(quote['low'][2], quote['low'][3])
+
+        data = B3CotaHistData()
+        return data.load_ibov('IBOVESPA', date, 'Indice Ibovespa',
+                                    Decimal(quote['open'][2]).quantize(Decimal('0.01')),
+                                    Decimal(quote['close'][3]).quantize(Decimal('0.01')),
+                                    Decimal(high).quantize(Decimal('0.01')),
+                                    Decimal(low).quantize(Decimal('0.01')),
+                                    Decimal(quote['volume'][2]).quantize(Decimal('0.01')))

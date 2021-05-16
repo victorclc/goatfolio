@@ -79,10 +79,7 @@ class CotaHistTransformerCore:
         return series
 
     def update_ibov_history(self):
-        data_ibov = IBOVFetcher.fetch_last_month_data()
-        data_b3 = B3CotaHistData.load_ibov(data_ibov.ticker, data_ibov.date, data_ibov.company_name, data_ibov.open,
-                                           data_ibov.close, data_ibov.high, data_ibov.low, data_ibov.volume)
-        TickerInfoRepository.save(data_b3)
+        TickerInfoRepository.save(IBOVFetcher.fetch_last_month_data())
 
 
 if __name__ == '__main__':

@@ -69,6 +69,10 @@ functions:
           rules:
             - prefix: monthly/
             - suffix: .TXT
+  ibovHistory:
+    handler: handlers.ibov_history_handler
+    events:
+      - schedule: cron(0 22 L * ? *)
 
 resources:
   Resources:
