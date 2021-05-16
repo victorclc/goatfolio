@@ -3,8 +3,9 @@ import os
 from typing import List
 
 import boto3 as boto3
+import requests
 
-from models import B3CotaHistData
+from models import B3CotaHistData, IBOVData
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
@@ -57,3 +58,18 @@ class TickerInfoRepository:
         with self.__table.batch_writer() as batch:
             for info in infos:
                 batch.put_item(Item=info)
+
+
+class IBOVFetcher:
+    @staticmethod
+    def fetch_last_month_data():
+        response = \
+            requests.get('https://query1.finance.yahoo.com/v7/finance/chart/^BVSP?range=3mo&interval=1mo').json()[
+                'chart'][
+                'result'][0]
+
+        quote = response['indicators']['quote'][0]
+        timestamp = response['timestamp'][1]
+
+        return IBOVData(timestamp, quote['open'][1], quote['high'][1], quote['low'][1], quote['close'][1],
+                        quote['volume'][1])

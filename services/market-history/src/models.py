@@ -1,3 +1,5 @@
+import datetime
+from dataclasses import dataclass
 from decimal import Decimal
 
 
@@ -21,7 +23,6 @@ class B3CotaHistData:
         self.preco_melhor_oferta_venda = None
         self.numero_de_negocios = None
         self.codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel = None
-
         self.tipo_registro = None
         self.codigo_bdi = None
         self.tipo_mercado = None
@@ -54,6 +55,18 @@ class B3CotaHistData:
         self.numero_de_negocios = numero_de_negocios
         self.codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel = codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel
 
+    def load_IBOV(self, codigo_negociacao, data_pregao, nome_resumido_empresa_emissora, preco_abertura,
+                  preco_ultimo, preco_maximo, preco_minimo,
+                  numero_de_negocios):
+        self.codigo_negociacao = codigo_negociacao
+        self.data_pregao = data_pregao
+        self.nome_resumido_empresa_emissora = nome_resumido_empresa_emissora
+        self.preco_abertura = preco_abertura
+        self.preco_ultimo = preco_ultimo
+        self.preco_maximo = preco_maximo
+        self.preco_minimo = preco_minimo
+        self.numero_de_negocios = numero_de_negocios
+
     def load_line(self, line: str):
         self.tipo_registro = line[0:2]
         self.data_pregao = f'{line[2:6]}-{line[6:8]}-{line[8:10]}'
@@ -67,7 +80,6 @@ class B3CotaHistData:
         self.preco_abertura = (Decimal(line[56:69]) / 100).quantize(Decimal('0.01'))
         self.preco_maximo = (Decimal(line[69:82]) / 100).quantize(Decimal('0.01'))
         self.preco_minimo = (Decimal(line[82:95]) / 100).quantize(Decimal('0.01'))
-
         self.preco_medio = (Decimal(line[95:108]) / 100).quantize(Decimal('0.01'))
         self.preco_ultimo = (Decimal(line[108:121]) / 100).quantize(Decimal('0.01'))
         self.preco_melhor_oferta_compra = (Decimal(line[121:134]) / 100).quantize(Decimal('0.01'))
@@ -77,7 +89,6 @@ class B3CotaHistData:
         self.volume_total_titulos_negociados = line[170:188]
         self.preco_exercicio_mercado_opcoes_ou_valor_contrato_mercado_termo_secundario = line[188:201]
         self.indicador_correcao_precos_exercicios_ou_valores_contrato_mercado_termo_secundario = line[201:202]
-
         self.data_vencimento_mercado_opcoes_ou_termo = line[202:210]
         self.fator_de_cotacao = line[210:217]
         self.preco_exercicio_para_opcoes_referenciadas_em_dolar = line[217:230]
@@ -92,3 +103,15 @@ class B3CotaHistData:
             'min_price': self.preco_minimo, 'volume': self.numero_de_negocios,
             'isin_code': self.codigo_do_papel_no_sistema_isin_ou_codigo_interno_papel
         }
+
+
+@dataclass
+class IBOVData:
+    date: datetime.datetime
+    open: Decimal
+    high: Decimal
+    low: Decimal
+    close: Decimal
+    volume: Decimal
+
+
