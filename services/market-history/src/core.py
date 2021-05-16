@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import Decimal
 from itertools import groupby
 
-from adapters import B3CotaHistBucket, CotaHistRepository, TickerInfoRepository
+from adapters import B3CotaHistBucket, CotaHistRepository, TickerInfoRepository, IBOVFetcher
 from models import B3CotaHistData, BDICodes
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -77,6 +77,9 @@ class CotaHistTransformerCore:
             logger.info(f'Last processed line: {count}')
             raise ex
         return series
+
+    def update_ibov_history(self):
+        TickerInfoRepository.save(IBOVFetcher.fetch_last_month_data())
 
 
 if __name__ == '__main__':

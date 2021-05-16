@@ -21,5 +21,16 @@ def transform_cota_hist_handler(event, context):
             core.transform_cota_hist(bucket, file_path)
     except Exception:
         traceback.print_exc()
-        ShitNotifierClient().send(NotifyLevel.ERROR, 'COTAHIST-TRANSFORMER',
+        ShitNotifierClient().send(NotifyLevel.ERROR, 'MARKET-HISTORY',
                                   f'TRANSFORM COTA HIST FAILED {traceback.format_exc()}')
+
+
+def ibov_history_handler(event, context):
+    try:
+        logger.info(f'EVENT: {event}')
+        core = CotaHistTransformerCore()
+        core.update_ibov_history()
+    except Exception:
+        traceback.print_exc()
+        ShitNotifierClient().send(NotifyLevel.ERROR, 'MARKET-HISTORY',
+                                  f'IBOV HISTORY FAILED {traceback.format_exc()}')

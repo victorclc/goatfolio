@@ -1,10 +1,14 @@
 import logging
 import os
+from datetime import datetime
+from decimal import Decimal
 from typing import List
 
 import boto3 as boto3
+import requests
+from dateutil.relativedelta import relativedelta
 
-from models import B3CotaHistData
+from models import B3CotaHistData, IBOVData
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
@@ -57,3 +61,30 @@ class TickerInfoRepository:
         with self.__table.batch_writer() as batch:
             for info in infos:
                 batch.put_item(Item=info)
+
+
+class IBOVFetcher:
+    @staticmethod
+    def fetch_last_month_data():
+        response = \
+            requests.get('https://query1.finance.yahoo.com/v7/finance/chart/^BVSP?range=3mo&interval=1mo').json()[
+                'chart'][
+                'result'][0]
+
+        quote = response['indicators']['quote'][0]
+        timestamp = response['timestamp'][2]
+
+        date = datetime.fromtimestamp(timestamp)
+        if date.day != 1:
+            date = datetime(date.year, date.month, 1) + relativedelta(months=1)
+
+        high = max(quote['high'][2], quote['high'][3])
+        low = min(quote['low'][2], quote['low'][3])
+
+        data = B3CotaHistData()
+        return data.load_ibov('IBOVESPA', date, 'Indice Ibovespa',
+                                    Decimal(quote['open'][2]).quantize(Decimal('0.01')),
+                                    Decimal(quote['close'][3]).quantize(Decimal('0.01')),
+                                    Decimal(high).quantize(Decimal('0.01')),
+                                    Decimal(low).quantize(Decimal('0.01')),
+                                    Decimal(quote['volume'][2]).quantize(Decimal('0.01')))
