@@ -17,3 +17,5 @@ six==1.15.0
 tqdm==4.59.0
 urllib3==1.26.2
 yahooquery==2.2.15
+
+redis~=3.5.3
