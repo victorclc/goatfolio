@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:goatfolio/pages/add/screen/add.dart';
 import 'package:goatfolio/pages/extract/extract.dart';
 import 'package:goatfolio/pages/portfolio/screen/portfolio.dart';
@@ -16,7 +19,7 @@ Widget buildNavigationPage(UserService userService) {
     child: NavigationWidget(),
     providers: [
       Provider(
-        create: (context) => userService,
+        create: (_) => userService,
       ),
       ChangeNotifierProvider(create: (_) => PortfolioListNotifier(userService)),
       ChangeNotifierProvider(
@@ -43,14 +46,43 @@ class _NavigationWidgetState extends State<NavigationWidget>
     with SingleTickerProviderStateMixin {
   CupertinoTabController controller;
   int currentIndex = 0;
-  List<CupertinoTabView> tabViews;
+  List<CupertinoTabView> iosTabViews;
+  List<Widget> androidTabViews;
 
   @override
   void initState() {
     super.initState();
     controller = new CupertinoTabController();
+    initStateIos(); // TODO TIRAR DAQUI
+    if (Platform.isIOS) {
+      initStateIos();
+    } else {
+      initStateAndroid();
+    }
+  }
 
-    tabViews = [
+  void initStateAndroid() {
+    androidTabViews = [
+      Builder(
+        builder: (context) => SummaryPage(),
+      ),
+      Builder(
+        builder: (context) => PortfolioPage(),
+      ),
+      Builder(
+        builder: (context) => AddPage(),
+      ),
+      Builder(
+        builder: (context) => ExtractPage(),
+      ),
+      Builder(
+        builder: (context) => SettingsPage(),
+      ),
+    ];
+  }
+
+  void initStateIos() {
+    iosTabViews = [
       CupertinoTabView(
         defaultTitle: SummaryPage.title,
         builder: (context) {
@@ -88,14 +120,68 @@ class _NavigationWidgetState extends State<NavigationWidget>
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return buildIos(context);
+    } else {
+      return buildAndroid(context);
+    }
+  }
+
+  Widget buildAndroid(BuildContext context) {
+    final theme = CupertinoTheme.of(context);
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: androidTabViews[currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        // type: BottomNavigationBarType.fixed,
+        showUnselectedLabels: true,
+        selectedItemColor: theme.primaryColor,
+        unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+        currentIndex: currentIndex,
+        items: [
+          BottomNavigationBarItem(
+              backgroundColor: theme.barBackgroundColor,
+              label: SummaryPage.title,
+              icon: SummaryPage.icon),
+          BottomNavigationBarItem(
+            backgroundColor: theme.barBackgroundColor,
+            label: PortfolioPage.title,
+            icon: PortfolioPage.icon,
+          ),
+          BottomNavigationBarItem(
+            backgroundColor: theme.barBackgroundColor,
+            label: AddPage.title,
+            icon: AddPage.icon,
+          ),
+          BottomNavigationBarItem(
+            backgroundColor: theme.barBackgroundColor,
+            label: ExtractPage.title,
+            icon: ExtractPage.icon,
+          ),
+          BottomNavigationBarItem(
+            backgroundColor: theme.barBackgroundColor,
+            label: SettingsPage.title,
+            icon: SettingsPage.icon,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildIos(BuildContext context) {
     return CupertinoTabScaffold(
       controller: controller,
       resizeToAvoidBottomInset: false,
       tabBar: CupertinoTabBar(
         onTap: (index) {
           if (index == currentIndex) {
-            Navigator.of(tabViews[index].navigatorKey.currentContext)
+            Navigator.of(iosTabViews[index].navigatorKey.currentContext)
                 .popUntil((route) => route.isFirst);
           }
           currentIndex = index;
@@ -115,15 +201,15 @@ class _NavigationWidgetState extends State<NavigationWidget>
       tabBuilder: (context, index) {
         switch (index) {
           case 0:
-            return tabViews[0];
+            return iosTabViews[0];
           case 1:
-            return tabViews[1];
+            return iosTabViews[1];
           case 2:
-            return tabViews[2];
+            return iosTabViews[2];
           case 3:
-            return tabViews[3];
+            return iosTabViews[3];
           case 4:
-            return tabViews[4];
+            return iosTabViews[4];
           default:
             assert(false, 'Unexpected tab');
             return null;
