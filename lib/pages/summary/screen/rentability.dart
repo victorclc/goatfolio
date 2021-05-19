@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/chart/money_date_series.dart';
@@ -50,72 +52,103 @@ class _RentabilityPageState extends State<RentabilityPage> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = CupertinoTheme.of(context).textTheme;
+    if (Platform.isIOS) {
+      return buildIos(context);
+    }
+    return buildAndroid(context);
+  }
+
+  Widget buildAndroid(BuildContext context) {
+    final textColor =
+        CupertinoTheme.of(context).textTheme.navTitleTextStyle.color;
+    return Scaffold(
+      appBar: AppBar(
+        leading: BackButton(
+          color: textColor,
+        ),
+        title: Text(
+          'Evolução',
+          style: TextStyle(color: textColor),
+        ),
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      ),
+      backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      body: buildContent(context),
+    );
+  }
+
+  Widget buildIos(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         previousPageTitle: "",
         middle: Text('Evolução'),
       ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-          child: Column(
-            children: [
-              ValorizationChart(
-                totalAmountSeries: createTotalAmountSeries(),
+      child: buildContent(context),
+    );
+  }
+
+  Widget buildContent(BuildContext context) {
+    final textTheme = CupertinoTheme.of(context).textTheme;
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+        child: Column(
+          children: [
+            ValorizationChart(
+              totalAmountSeries: createTotalAmountSeries(),
+            ),
+            Divider(
+              color: Colors.grey,
+              height: 24,
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Mais informações",
+                style: textTheme.navTitleTextStyle,
               ),
-              Divider(
-                color: Colors.grey,
-                height: 24,
-              ),
-              Container(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Mais informações",
-                  style: textTheme.navTitleTextStyle,
+            ),
+            SizedBox(
+              height: 16,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Saldo bruto', style: textTheme.textStyle),
+                Text(moneyFormatter.format(widget.summary.grossAmount),
+                    style: textTheme.textStyle),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Valor investido', style: textTheme.textStyle),
+                Text(moneyFormatter.format(widget.summary.investedAmount),
+                    style: textTheme.textStyle),
+              ],
+            ),
+            SizedBox(
+              height: 4,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Resultado', style: textTheme.textStyle),
+                Text(
+                  moneyFormatter.format(widget.summary.grossAmount -
+                      widget.summary.investedAmount),
+                  style: textTheme.textStyle.copyWith(
+                      color: widget.summary.grossAmount -
+                                  widget.summary.investedAmount >=
+                              0
+                          ? Colors.green
+                          : Colors.red),
                 ),
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Saldo bruto', style: textTheme.textStyle),
-                  Text(moneyFormatter.format(widget.summary.grossAmount),
-                      style: textTheme.textStyle),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Valor investido', style: textTheme.textStyle),
-                  Text(moneyFormatter.format(widget.summary.investedAmount),
-                      style: textTheme.textStyle),
-                ],
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Resultado', style: textTheme.textStyle),
-                  Text(
-                    moneyFormatter.format(widget.summary.grossAmount -
-                        widget.summary.investedAmount),
-                    style: textTheme.textStyle.copyWith(
-                        color: widget.summary.grossAmount -
-                                    widget.summary.investedAmount >=
-                                0
-                            ? Colors.green
-                            : Colors.red),
-                  ),
-                ],
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );
