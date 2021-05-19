@@ -4,6 +4,7 @@ import 'package:goatfolio/common/chart/money_date_series.dart';
 import 'package:goatfolio/common/chart/rentability_chart.dart';
 import 'package:goatfolio/common/chart/valorization_chart.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
+import 'package:goatfolio/common/util/navigator.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/client/performance_client.dart';
 import 'package:goatfolio/services/performance/model/benchmark_position.dart';
@@ -12,18 +13,17 @@ import 'package:goatfolio/services/performance/model/stock_summary.dart';
 import 'package:goatfolio/services/performance/model/ticker_consolidated_history.dart';
 import 'package:intl/intl.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:provider/provider.dart';
 
 void navigateToInvestmentDetails(BuildContext context, StockSummary item,
-    Color color, List<BenchmarkPosition> ibovHistory) {
-  Navigator.of(context).push<void>(
-    CupertinoPageRoute(
-      builder: (context) => InvestmentDetails(
-        title: "Detalhes",
-        item: item,
-        color: color,
-        ibovHistory: ibovHistory,
-      ),
+    Color color, List<BenchmarkPosition> ibovHistory, UserService userService) {
+  NavigatorUtils.push(
+    context,
+    (context) => InvestmentDetails(
+      title: "Detalhes",
+      item: item,
+      color: color,
+      ibovHistory: ibovHistory,
+      userService: userService,
     ),
   );
 }
@@ -33,9 +33,15 @@ class InvestmentDetails extends StatefulWidget {
   final StockSummary item;
   final Color color;
   final List<BenchmarkPosition> ibovHistory;
+  final UserService userService;
 
   const InvestmentDetails(
-      {Key key, this.item, this.title, this.color, this.ibovHistory})
+      {Key key,
+      this.item,
+      this.title,
+      this.color,
+      this.ibovHistory,
+      this.userService})
       : super(key: key);
 
   @override
@@ -52,8 +58,7 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
 
   void initState() {
     super.initState();
-    final userService = Provider.of<UserService>(context, listen: false);
-    _client = PerformanceClient(userService);
+    _client = PerformanceClient(widget.userService);
     _futureHistory = _client.getTickerConsolidatedHistory(widget.item.ticker);
     selectedTab = 'a';
   }
