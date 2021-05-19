@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/common/chart/money_date_series.dart';
@@ -320,6 +322,32 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return buildIos(context);
+    }
+    return buildAndroid(context);
+  }
+
+  Widget buildAndroid(BuildContext context) {
+    final textColor =
+        CupertinoTheme.of(context).textTheme.navTitleTextStyle.color;
+    return Scaffold(
+      appBar: AppBar(
+        leading: BackButton(
+          color: textColor,
+        ),
+        title: Text(
+          widget.title,
+          style: TextStyle(color: textColor),
+        ),
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      ),
+      backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      body: _buildBody(),
+    );
+  }
+
+  Widget buildIos(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         previousPageTitle: "",

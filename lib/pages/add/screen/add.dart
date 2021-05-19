@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/util/modal.dart';
@@ -16,51 +18,79 @@ class AddPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userService = Provider.of<UserService>(context, listen: false);
+    if (Platform.isIOS) {
+      return buildIos(context);
+    }
+    return buildAndroid(context);
+  }
+
+  Widget buildAndroid(BuildContext context) {
+    final textColor =
+        CupertinoTheme.of(context).textTheme.navTitleTextStyle.color;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          title,
+          style: TextStyle(color: textColor),
+        ),
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      ),
+      backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      body: buildContent(context),
+    );
+  }
+
+  Widget buildIos(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text(title),
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
       ),
-      child: SettingsList(
-        sections: [
-          SettingsSection(
-            title: "RENDA VARIÁVEL",
-            tiles: [
-              SettingsTile(
-                title: 'Importar automaticamente (CEI)',
-                onPressed: (context) => ModalUtils.showDragableModalBottomSheet(
-                  context,
-                  CeiLoginPage(userService: userService),
-                ),
+      child: buildContent(context),
+    );
+  }
+
+  Widget buildContent(BuildContext context) {
+    final userService = Provider.of<UserService>(context, listen: false);
+
+    return SettingsList(
+      sections: [
+        SettingsSection(
+          title: "RENDA VARIÁVEL",
+          tiles: [
+            SettingsTile(
+              title: 'Importar automaticamente (CEI)',
+              onPressed: (context) => ModalUtils.showDragableModalBottomSheet(
+                context,
+                CeiLoginPage(userService: userService),
               ),
-              SettingsTile(
-                title: 'Operação de compra',
-                onPressed: (context) => goToInvestmentList(
-                  context,
-                  true,
-                  userService,
-                  Provider.of<PortfolioListNotifier>(context, listen: false)
-                      .futureList,
-                ),
+            ),
+            SettingsTile(
+              title: 'Operação de compra',
+              onPressed: (context) => goToInvestmentList(
+                context,
+                true,
+                userService,
+                Provider.of<PortfolioListNotifier>(context, listen: false)
+                    .futureList,
               ),
-              SettingsTile(
-                title: 'Operação de venda',
-                onPressed: (context) => goToInvestmentList(
-                  context,
-                  false,
-                  userService,
-                  Provider.of<PortfolioListNotifier>(context, listen: false)
-                      .futureList,
-                ),
+            ),
+            SettingsTile(
+              title: 'Operação de venda',
+              onPressed: (context) => goToInvestmentList(
+                context,
+                false,
+                userService,
+                Provider.of<PortfolioListNotifier>(context, listen: false)
+                    .futureList,
               ),
-            ],
-          ),
-          SettingsSection(
-            tiles: [],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+        SettingsSection(
+          tiles: [],
+        ),
+      ],
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/util/dialog.dart';
@@ -109,51 +111,97 @@ class _InvestmentsListState extends State<InvestmentsList> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
-          previousPageTitle: "",
-          trailing: widget.buyOperation
-              ? IconButton(
-                  alignment: Alignment.centerRight,
-                  padding: EdgeInsets.all(0),
-                  icon: Icon(CupertinoIcons.add),
-                  onPressed: () => ModalUtils.showDragableModalBottomSheet(
-                        context,
-                        StockAdd(
-                          buyOperation: widget.buyOperation,
-                          userService: widget.userService,
-                        ),
-                      ))
-              : null,
-          middle: Text(widget.buyOperation ? "Compra" : "Venda"),
+    if (Platform.isIOS) {
+      return buildIos(context);
+    }
+    return buildAndroid(context);
+  }
+
+  Widget buildAndroid(BuildContext context) {
+    final textColor =
+        CupertinoTheme.of(context).textTheme.navTitleTextStyle.color;
+    return Scaffold(
+      appBar: AppBar(
+        leading: BackButton(
+          color: textColor,
         ),
-        child: SafeArea(
-          child: Container(
-            child: Column(
-              children: [
-                FutureBuilder(
-                    future: widget.future,
-                    builder: (context, snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.none:
-                        case ConnectionState.active:
-                          break;
-                        case ConnectionState.waiting:
-                          return CupertinoActivityIndicator();
-                        case ConnectionState.done:
-                          if (snapshot.hasData) {
-                            return Expanded(
-                                child: SettingsList(
-                              sections: buildAlphabetSections(snapshot.data),
-                            ));
-                          }
+        actions: widget.buyOperation
+            ? [
+                IconButton(
+                    alignment: Alignment.centerRight,
+                    icon: Icon(CupertinoIcons.add),
+                    color: CupertinoColors.activeBlue,
+                    onPressed: () => ModalUtils.showDragableModalBottomSheet(
+                          context,
+                          StockAdd(
+                            buyOperation: widget.buyOperation,
+                            userService: widget.userService,
+                          ),
+                        ))
+              ]
+            : null,
+        title: Text(
+          widget.buyOperation ? "Compra" : "Venda",
+          style: TextStyle(color: textColor),
+        ),
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      ),
+      backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      body: buildContent(context),
+    );
+  }
+
+  Widget buildIos(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+        previousPageTitle: "",
+        trailing: widget.buyOperation
+            ? IconButton(
+                alignment: Alignment.centerRight,
+                padding: EdgeInsets.all(0),
+                icon: Icon(CupertinoIcons.add),
+                onPressed: () => ModalUtils.showDragableModalBottomSheet(
+                      context,
+                      StockAdd(
+                        buyOperation: widget.buyOperation,
+                        userService: widget.userService,
+                      ),
+                    ))
+            : null,
+        middle: Text(widget.buyOperation ? "Compra" : "Venda"),
+      ),
+      child: buildContent(context),
+    );
+  }
+
+  Widget buildContent(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        child: Column(
+          children: [
+            FutureBuilder(
+                future: widget.future,
+                builder: (context, snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.none:
+                    case ConnectionState.active:
+                      break;
+                    case ConnectionState.waiting:
+                      return CupertinoActivityIndicator();
+                    case ConnectionState.done:
+                      if (snapshot.hasData) {
+                        return Expanded(
+                            child: SettingsList(
+                          sections: buildAlphabetSections(snapshot.data),
+                        ));
                       }
-                      return Container();
-                    }),
-              ],
-            ),
-          ),
-        ));
+                  }
+                  return Container();
+                }),
+          ],
+        ),
+      ),
+    );
   }
 }
