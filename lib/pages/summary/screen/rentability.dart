@@ -4,6 +4,7 @@ import 'package:goatfolio/common/chart/money_date_series.dart';
 import 'package:goatfolio/common/chart/valorization_chart.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:goatfolio/common/util/navigator.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/client/performance_client.dart';
 import 'package:goatfolio/services/performance/model/portfolio_history.dart';
@@ -12,19 +13,21 @@ import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-void goToRentabilityPage(BuildContext context, PortfolioSummary summary) async {
-  await Navigator.push(
-    context,
-    CupertinoPageRoute(
-      builder: (context) => RentabilityPage(summary),
-    ),
-  );
+void goToRentabilityPage(BuildContext context, PortfolioSummary summary,
+    UserService userService) async {
+  await NavigatorUtils.push(
+      context, (context) => RentabilityPage(summary, userService));
 }
 
 class RentabilityPage extends StatefulWidget {
   final PortfolioSummary summary;
+  final UserService userService;
 
-  const RentabilityPage(this.summary, {Key key}) : super(key: key);
+  const RentabilityPage(
+    this.summary,
+    this.userService, {
+    Key key,
+  }) : super(key: key);
 
   @override
   _RentabilityPageState createState() => _RentabilityPageState();
@@ -40,8 +43,7 @@ class _RentabilityPageState extends State<RentabilityPage> {
 
   void initState() {
     super.initState();
-    final userService = Provider.of<UserService>(context, listen: false);
-    _client = PerformanceClient(userService);
+    _client = PerformanceClient(widget.userService);
     _futureHistory = _client.getPortfolioRentabilityHistory();
     selectedTab = 'a';
   }
@@ -60,7 +62,6 @@ class _RentabilityPageState extends State<RentabilityPage> {
           padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
           child: Column(
             children: [
-
               ValorizationChart(
                 totalAmountSeries: createTotalAmountSeries(),
               ),

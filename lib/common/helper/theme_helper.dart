@@ -5,4 +5,8 @@ class CupertinoThemeHelper {
     return CupertinoTheme.of(context).brightness ??
         MediaQuery.of(context).platformBrightness;
   }
+
+  static bool isDarkMode(BuildContext context) {
+    return CupertinoThemeHelper.currentBrightness(context) == Brightness.dark;
+  }
 }

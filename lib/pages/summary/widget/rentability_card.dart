@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/pressable_card.dart';
 import 'package:goatfolio/pages/summary/screen/rentability.dart';
+import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
+import 'package:provider/provider.dart';
 
 class RentabilityCard extends StatefulWidget {
   static const String CARD_TITLE = "Rentabilidade";
@@ -20,11 +22,14 @@ class RentabilityCard extends StatefulWidget {
 class _RentabilityCardState extends State<RentabilityCard> {
   @override
   Widget build(BuildContext context) {
+    final userService = Provider.of<UserService>(context, listen: false);
+
     final textTheme = CupertinoTheme.of(context).textTheme;
     return Container(
       width: double.infinity,
       child: PressableCard(
-        onPressed: () => goToRentabilityPage(context, widget.summary),
+        onPressed: () =>
+            goToRentabilityPage(context, widget.summary, userService),
         child: Column(
           children: [
             Container(
@@ -66,7 +71,8 @@ class _RentabilityCardState extends State<RentabilityCard> {
                             style: textTheme.textStyle.copyWith(fontSize: 16),
                           ),
                           Text(
-                            moneyFormatter.format(widget.summary.monthVariation),
+                            moneyFormatter
+                                .format(widget.summary.monthVariation),
                             style: textTheme.textStyle.copyWith(
                                 color: widget.summary.monthVariation >= 0
                                     ? Colors.green
@@ -83,8 +89,7 @@ class _RentabilityCardState extends State<RentabilityCard> {
                             style: textTheme.textStyle.copyWith(fontSize: 16),
                           ),
                           Text(
-                            moneyFormatter
-                                .format(widget.summary.dayVariation),
+                            moneyFormatter.format(widget.summary.dayVariation),
                             style: textTheme.textStyle.copyWith(
                                 color: widget.summary.dayVariation >= 0
                                     ? Colors.green
