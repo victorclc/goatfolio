@@ -2,40 +2,41 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/modal.dart';
+import 'package:goatfolio/common/util/navigator.dart';
 import 'package:goatfolio/pages/add/screen/stock_add.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
 import 'package:goatfolio/services/performance/model/portfolio_list.dart';
-import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
-import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 
-void goToInvestmentList(BuildContext context, bool buyOperation) async {
-  await Navigator.push(
+void goToInvestmentList(BuildContext context, bool buyOperation,
+    UserService userService, Future<PortfolioList> portfolioListFuture) async {
+  await NavigatorUtils.push(
     context,
-    CupertinoPageRoute(
-      builder: (context) => InvestmentsList(
-        buyOperation: buyOperation,
-      ),
+    (context) => InvestmentsList(
+      buyOperation: buyOperation,
+      userService: userService,
+      future: portfolioListFuture,
     ),
   );
 }
 
 class InvestmentsList extends StatefulWidget {
   final bool buyOperation;
+  final UserService userService;
+  final Future<PortfolioList> future;
 
-  const InvestmentsList({Key key, @required this.buyOperation})
+  const InvestmentsList(
+      {Key key, @required this.buyOperation, this.userService, this.future})
       : super(key: key);
 
   @override
-  _InvestmentsListState createState() =>
-      _InvestmentsListState();
+  _InvestmentsListState createState() => _InvestmentsListState();
 }
 
 class _InvestmentsListState extends State<InvestmentsList> {
   StockInvestmentService service;
-  Future<PortfolioList> _future;
 
   Future<void> onStockSubmit(Map values) async {
     final investment = StockInvestment(
@@ -63,10 +64,7 @@ class _InvestmentsListState extends State<InvestmentsList> {
   @override
   void initState() {
     super.initState();
-    final userService = Provider.of<UserService>(context, listen: false);
-    service = StockInvestmentService(userService);
-    _future =
-        Provider.of<PortfolioListNotifier>(context, listen: false).futureList;
+    service = StockInvestmentService(widget.userService);
   }
 
   List<SettingsSection> buildAlphabetSections(PortfolioList portfolio) {
@@ -98,8 +96,7 @@ class _InvestmentsListState extends State<InvestmentsList> {
                           StockAdd(
                             ticker: ticker,
                             buyOperation: widget.buyOperation,
-                            userService: Provider.of<UserService>(context,
-                                listen: false),
+                            userService: widget.userService,
                           )),
                 ),
               )
@@ -125,8 +122,7 @@ class _InvestmentsListState extends State<InvestmentsList> {
                         context,
                         StockAdd(
                           buyOperation: widget.buyOperation,
-                          userService:
-                              Provider.of<UserService>(context, listen: false),
+                          userService: widget.userService,
                         ),
                       ))
               : null,
@@ -137,7 +133,7 @@ class _InvestmentsListState extends State<InvestmentsList> {
             child: Column(
               children: [
                 FutureBuilder(
-                    future: _future,
+                    future: widget.future,
                     builder: (context, snapshot) {
                       switch (snapshot.connectionState) {
                         case ConnectionState.none:
