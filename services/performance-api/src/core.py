@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from itertools import groupby
 
-import redis
 from dateutil.relativedelta import relativedelta
 
 from adapters import PortfolioRepository, MarketData
@@ -84,7 +83,7 @@ class PerformanceCore:
 
             if not current or current.amount <= 0:
                 continue
-            if current_month_start != current.data.date:
+            if current_month_start.date() != current.data.date.date():
                 wrappers.append(StockPosition(current_month_start))
                 current = wrappers.tail
 
@@ -248,11 +247,11 @@ class PerformanceCore:
         return TickerConsolidatedHistory(consolidated)
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
     # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
     # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
     #     print(PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
-    # print(PerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
+    print(PerformanceCore().get_portfolio_summary('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(PerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(PerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
     # print(PerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
