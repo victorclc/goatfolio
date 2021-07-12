@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'victorclc/node-serverless'
-            args '-u 127:998 -v /var/run/docker.sock:/var/run/docker.sock'
+            args '-u $UID:`sed -nr "s/^docker:x:([0-9]+):.*/\1/p" /etc/group` -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
     environment {
