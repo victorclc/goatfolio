@@ -22,7 +22,6 @@ plugins:
 
 custom:
   pythonRequirements:
-    dockerizePip: true
     cacheLocation: '.cache/'
 
 functions:
