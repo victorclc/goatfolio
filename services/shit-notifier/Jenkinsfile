@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'victorclc/node-serverless'
-            args "-u credentials('JENKINSID'):credentials('$DOCKERID') -v /var/run/docker.sock:/var/run/docker.sock"
+            args "-u credentials('JENKINSID'):credentials('DOCKERID') -v /var/run/docker.sock:/var/run/docker.sock"
         }
     }
     environment {
