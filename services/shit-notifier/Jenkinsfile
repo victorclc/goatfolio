@@ -1,10 +1,7 @@
 pipeline {
-    agent {
-        docker {
-            image 'victorclc/node-serverless'
-            args "-u $JENKINSID:$DOCKERID -v /var/run/docker.sock:/var/run/docker.sock"
-        }
-    }
+    agent none
+
+    
     environment {
         HOME="."
 	JENKINSID = credentials('JENKINSID')
@@ -13,6 +10,14 @@ pipeline {
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id-dev')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key-dev')
         SLS_DEBUG='*'
+    }
+    stages {
+        state('build container up') {
+	agent {
+        docker {
+            image 'victorclc/node-serverless'
+            args "-u $JENKINSID:$DOCKERID -v /var/run/docker.sock:/var/run/docker.sock"
+        }
     }
     stages {
         stage('Clone') {
@@ -43,5 +48,7 @@ pipeline {
                 }
             }
         }
+	}
+    }
     }
 }
