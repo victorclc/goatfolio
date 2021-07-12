@@ -12,7 +12,7 @@ pipeline {
         SLS_DEBUG='*'
     }
     stages {
-        state('build container up') {
+        stage('build container up') {
 	agent {
         docker {
             image 'victorclc/node-serverless'
