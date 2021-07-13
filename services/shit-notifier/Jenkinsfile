@@ -27,8 +27,8 @@ pipeline {
         stage('Service Deploy') {
             steps {
                  dir('services/shit-notifier'){
-                    sh 'npm install'
-                    sh 'serverless deploy'
+//                    sh 'npm install'
+                    sh 'serverless remove'
                 }
             }
         }
