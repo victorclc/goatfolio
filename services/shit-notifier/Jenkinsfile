@@ -21,14 +21,15 @@ pipeline {
         }
         stage('Common Resources Deploy') {
             steps {
-                sh 'serverless deploy'
+                sh 'serverless remove'
              }
         }
         stage('Service Deploy') {
             steps {
                  dir('services/shit-notifier'){
 //                    sh 'npm install'
-                    sh 'serverless remove'
+             //       sh 'serverless remove'
+	              sh 'echo teste'
                 }
             }
         }
