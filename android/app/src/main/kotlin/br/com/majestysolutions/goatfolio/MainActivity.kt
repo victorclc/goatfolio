@@ -1,4 +1,4 @@
-package br.com.victorclc.goatfolio
+package br.com.majestysolutions.goatfolio
 
 import io.flutter.embedding.android.FlutterActivity
 

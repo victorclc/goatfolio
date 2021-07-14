@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:545214289029:android:ef49af64a282cc3e4785ec",
         "android_client_info": {
-          "package_name": "br.com.victorclc.goatfolio"
+          "package_name": "br.com.majestysolutions.goatfolio"
         }
       },
       "oauth_client": [
@@ -34,7 +34,7 @@
               "client_id": "545214289029-aubjq42nkbg1due2sr698r7dsh13p07r.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "br.com.victorclc.goatfolio"
+                "bundle_id": "br.com.majestysolutions.goatfolio"
               }
             }
           ]
