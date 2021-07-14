@@ -2,11 +2,8 @@ service: serverless-goatfolio
 
 provider:
   name: aws
-  region: us-east-2
+  region: sa-east-1
   stage: ${env:STAGE, 'dev'}
-  dbmasteruser: ${env:MARKETDATA_DB_MASTER_USER, 'postgres'}
-  dbmasterpassword: ${env:MARKETDATA_DB_MASTER_USER, 'postgres'}
-
 
 resources:
   Resources:
@@ -18,6 +15,11 @@ resources:
             - Name: verified_email
               Priority: 1
         EmailVerificationSubject: "GOATFOLIO - Código de verificação"
+        EmailVerificationMessage: "O código de confirmação é "
+        EmailConfiguration:
+          EmailSendingAccount: DEVELOPER
+          From: noreply@goatfolio.com.br
+          SourceArn: arn:aws:ses:sa-east-1:810300526230:identity/noreply@goatfolio.com.br
         Policies:
           PasswordPolicy:
             MinimumLength: 8
@@ -30,6 +32,10 @@ resources:
           - email
         UsernameAttributes:
           - email
+          Schema:
+            - Name: email
+              Required: true
+              Mutable: true
         UsernameConfiguration:
           CaseSensitive: false
         UserPoolName: "goatfolio_app"
@@ -120,7 +126,6 @@ resources:
         KeySchema:
           - AttributeName: "message_key"
             KeyType: "HASH"
-
 
   #    MarketDataRDSCluster:
   #      Type: AWS::RDS::DBCluster
