@@ -40,6 +40,24 @@ resources:
           CaseSensitive: false
         UserPoolName: ${self:provider.stage}-GoatfolioPool
 
+    MobilePoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        AccessTokenValidity: 60
+        ClientName: 'mobile-pool'
+        ExplicitAuthFlows:
+          - ALLOW_ADMIN_USER_PASSWORD_AUTH
+          - ALLOW_CUSTOM_AUTH
+          - ALLOW_USER_PASSWORD_AUTH
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        GenerateSecret: false
+        IdTokenValidity: 60
+        PreventUserExistenceErrors: ENABLED
+        RefreshTokenValidity: 315360000
+        UserPoolId:
+          Ref: GoatfolioAppUserPool
+
     InvestmentsTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
