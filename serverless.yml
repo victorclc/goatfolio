@@ -43,8 +43,10 @@ resources:
     MobilePoolClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
-        AccessTokenValidity: 60
         ClientName: 'mobile-pool'
+        RefreshTokenValidity: 3649
+        AccessTokenValidity: 60
+        IdTokenValidity: 60
         ExplicitAuthFlows:
           - ALLOW_ADMIN_USER_PASSWORD_AUTH
           - ALLOW_CUSTOM_AUTH
@@ -52,9 +54,7 @@ resources:
           - ALLOW_USER_SRP_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH
         GenerateSecret: false
-        IdTokenValidity: 60
         PreventUserExistenceErrors: ENABLED
-        RefreshTokenValidity: 3650
         UserPoolId:
           Ref: GoatfolioAppUserPool
 
