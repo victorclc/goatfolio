@@ -32,10 +32,10 @@ resources:
           - email
         UsernameAttributes:
           - email
-          Schema:
-            - Name: email
-              Required: true
-              Mutable: true
+        Schema:
+          - Name: email
+            Required: true
+            Mutable: true
         UsernameConfiguration:
           CaseSensitive: false
         UserPoolName: ${self:provider.stage}-GoatfolioPool
