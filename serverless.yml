@@ -38,12 +38,12 @@ resources:
               Mutable: true
         UsernameConfiguration:
           CaseSensitive: false
-        UserPoolName: "goatfolio_app"
+        UserPoolName: ${self:provider.stage}-GoatfolioPool
 
     InvestmentsTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
-        TableName: "Investments"
+        TableName: ${self:provider.stage}-Investments
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
         BillingMode: PAY_PER_REQUEST
@@ -88,13 +88,13 @@ resources:
               - "CeiImportRequestDLQ"
               - "Arn"
           maxReceiveCount: 5
-        QueueName: CeiImportRequest
+        QueueName: ${self:provider.stage}-CeiImportRequest
         VisibilityTimeout: 900
 
     CeiImportRequestDLQ:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: CeiImportRequestDLQ
+        QueueName: ${self:provider.stage}-CeiImportRequestDLQ
 
     CeiImportResultQueue:
       Type: AWS::SQS::Queue
@@ -105,18 +105,18 @@ resources:
               - "CeiImportResultDLQ"
               - "Arn"
           maxReceiveCount: 5
-        QueueName: CeiImportResult
+        QueueName: ${self:provider.stage}-CeiImportResult
         VisibilityTimeout: 300
 
     CeiImportResultDLQ:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: CeiImportResultDLQ
+        QueueName: ${self:provider.stage}-CeiImportResultDLQ
 
     NotificationMessagesConfigTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
-        TableName: "NotificationMessagesConfig"
+        TableName: ${self:provider.stage}-NotificationMessagesConfig
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
         BillingMode: PAY_PER_REQUEST
