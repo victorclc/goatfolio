@@ -15,7 +15,7 @@ resources:
             - Name: verified_email
               Priority: 1
         EmailVerificationSubject: "GOATFOLIO - Código de verificação"
-        EmailVerificationMessage: "O código de confirmação é "
+        EmailVerificationMessage: "O código de verificação é {####}"
         EmailConfiguration:
           EmailSendingAccount: DEVELOPER
           From: noreply@goatfolio.com.br
