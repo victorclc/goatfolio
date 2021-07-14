@@ -88,17 +88,19 @@ class PerformanceCore:
                 current = wrappers.tail
 
             data = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
-            gross_amount = gross_amount + current.amount * data.price
-            day_variation = day_variation + current.amount * (data.price - data.prev_close_price)
-            invested_amount = invested_amount + current.current_invested_value
+            gross_amount += current.amount * data.price
+            day_variation += current.amount * (data.price - data.prev_close_price)
+            invested_amount += current.current_invested_value
 
             previous = current.prev
             if previous and previous.amount > 0:
                 month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start, stock.alias_ticker)
                 previous.data.close_price = month_data.close
-                prev_month_adj_gross_amount = prev_month_adj_gross_amount + current.prev_adjusted_gross_value
+                prev_month_adj_gross_amount += current.prev_adjusted_gross_value
+            print(f'TICKER: {stock.ticker}')
+            print(prev_month_adj_gross_amount)
 
-            month_variation = month_variation - current.data.bought_value
+            month_variation -= current.data.bought_value
             stock_variation.append(StockVariation(stock.alias_ticker or stock.ticker, data.change, data.price))
 
         month_variation = month_variation + gross_amount - prev_month_adj_gross_amount
