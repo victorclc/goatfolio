@@ -33,7 +33,7 @@ resources:
         UsernameAttributes:
           - email
         Schema:
-          - Name: email
+          - Name: name
             Required: true
             Mutable: true
         UsernameConfiguration:
