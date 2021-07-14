@@ -59,6 +59,7 @@ resources:
           - ALLOW_REFRESH_TOKEN_AUTH
         GenerateSecret: false
         PreventUserExistenceErrors: ENABLED
+        EnableTokenRevocation: false
         UserPoolId:
           Ref: GoatfolioAppUserPool
 
