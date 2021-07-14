@@ -44,7 +44,11 @@ resources:
       Type: AWS::Cognito::UserPoolClient
       Properties:
         ClientName: 'mobile-pool'
-        RefreshTokenValidity: 3649
+        TokenValidityUnits:
+          AccessToken: minutes
+          IdToken: minutes
+          RefreshToken: days
+        RefreshTokenValidity: 3650
         AccessTokenValidity: 60
         IdTokenValidity: 60
         ExplicitAuthFlows:
