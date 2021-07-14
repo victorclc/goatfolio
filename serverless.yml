@@ -54,7 +54,7 @@ resources:
         GenerateSecret: false
         IdTokenValidity: 60
         PreventUserExistenceErrors: ENABLED
-        RefreshTokenValidity: 315360000
+        RefreshTokenValidity: 3650
         UserPoolId:
           Ref: GoatfolioAppUserPool
 
