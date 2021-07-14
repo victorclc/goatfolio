@@ -38,7 +38,7 @@ resources:
             Mutable: true
         UsernameConfiguration:
           CaseSensitive: false
-        UserPoolName: ${self:provider.stage}-GoatfolioPool
+        UserPoolName: GoatfolioPool
 
     MobilePoolClient:
       Type: AWS::Cognito::UserPoolClient
@@ -66,7 +66,7 @@ resources:
     InvestmentsTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
-        TableName: ${self:provider.stage}-Investments
+        TableName: Investments
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
         BillingMode: PAY_PER_REQUEST
@@ -111,13 +111,13 @@ resources:
               - "CeiImportRequestDLQ"
               - "Arn"
           maxReceiveCount: 5
-        QueueName: ${self:provider.stage}-CeiImportRequest
+        QueueName: CeiImportRequest
         VisibilityTimeout: 900
 
     CeiImportRequestDLQ:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: ${self:provider.stage}-CeiImportRequestDLQ
+        QueueName: CeiImportRequestDLQ
 
     CeiImportResultQueue:
       Type: AWS::SQS::Queue
@@ -128,18 +128,18 @@ resources:
               - "CeiImportResultDLQ"
               - "Arn"
           maxReceiveCount: 5
-        QueueName: ${self:provider.stage}-CeiImportResult
+        QueueName: CeiImportResult
         VisibilityTimeout: 300
 
     CeiImportResultDLQ:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: ${self:provider.stage}-CeiImportResultDLQ
+        QueueName: CeiImportResultDLQ
 
     NotificationMessagesConfigTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
-        TableName: ${self:provider.stage}-NotificationMessagesConfig
+        TableName: NotificationMessagesConfig
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
         BillingMode: PAY_PER_REQUEST
