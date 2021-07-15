@@ -8,7 +8,7 @@ import 'package:goatfolio/pages/settings/screen/theme_page.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/storage/stock_investment.dart';
 import 'package:goatfolio/services/notification/client/notification.dart';
-// import 'package:launch_review/launch_review.dart';
+import 'package:launch_review/launch_review.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 
@@ -46,7 +46,7 @@ class SettingsPage extends StatelessWidget {
               ),
               SettingsTile(
                 title: 'Avalie-nos',
-                onPressed: (_) async => 1,
+                onPressed: (_) async => await LaunchReview.launch(),
               ),
             ],
           ),

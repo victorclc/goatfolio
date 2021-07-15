@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/common/helper/theme_helper.dart';
-// import 'package:launch_review/launch_review.dart';
+import 'package:launch_review/launch_review.dart';
 import 'package:package_info/package_info.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -100,7 +100,7 @@ class _AboutPageState extends State<AboutPage> {
                                 SettingsTile(
                                   title: 'Avalie-nos',
                                   onPressed: (_) async =>
-                                      1,
+                                  await LaunchReview.launch(),
                                 ),
                                 SettingsTile(
                                   title: 'Termos de uso',
