@@ -2,7 +2,7 @@ service: vandelay-api
 
 provider:
   name: aws
-  region: us-east-2
+  region: sa-east-1
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
   environment:
