@@ -2,7 +2,7 @@ service: push-notifications
 
 provider:
   name: aws
-  region: us-east-2
+  region: sa-east-1
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
   memorySize: 512
@@ -28,18 +28,15 @@ package:
     - ../../libs/goatcommons/**
 
 plugins:
-  - serverless-python-requirements
   - serverless-domain-manager
 
 custom:
-  pythonRequirements:
-    dockerizePip: true
-    cacheLocation: '.cache/'
   customDomain:
     basePath: 'notification'
     domainName: ${env:DOMAIN_NAME}
     stage: ${self:provider.stage}
     createRoute53Record: false
+    endpointType: 'regional'
 
 functions:
   registerToken:
@@ -69,7 +66,7 @@ functions:
     events:
       - sqs:
           arn:
-            Fn::GetAtt: [ PushNotificationRequestQueue, Arn ]
+            'Fn::ImportValue': ${self:provider.stage}-PushNotificationRequestArnOutput
 
 resources:
   Resources:
