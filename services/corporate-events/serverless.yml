@@ -57,7 +57,7 @@ provider:
         - sqs:SendMessage
         - sqs:GetQueueUrl
       Resource:
-        'Fn::ImportValue': ${self:provider.stage}-ShitToNotifyQueueArn
+        'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
 
 package:
   exclude:
