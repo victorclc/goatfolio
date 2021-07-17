@@ -26,13 +26,13 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.17.0
-  amazon_cognito_identity_dart_2: ^0.1.25+3
+  amazon_cognito_identity_dart_2: ^1.0.3
   shared_preferences: ^2.0.5
   progress_indicators: ^0.1.5
   modal_bottom_sheet: ^2.0.0
   provider: 4.1.2
-  http: ^0.12.2
-  http_interceptor: ^0.3.3
+  http: ^0.13.0
+  http_interceptor: ^1.0.1
   sqflite:
   path:
   charts_flutter: ^0.10.0
@@ -43,9 +43,10 @@ dependencies:
   mask_text_input_formatter: ^1.2.1
   package_info: ^2.0.0
   launch_review: ^3.0.1
-  firebase_core: ^1.1.0
-  firebase_messaging: ^9.1.3
+  firebase_core: ^1.4.0
+  firebase_messaging: ^10.0.4
   app_settings: 4.1.0
+  firebase_analytics: ^8.2.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

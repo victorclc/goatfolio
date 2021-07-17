@@ -6,7 +6,7 @@ import 'package:goatfolio/services/performance/model/portfolio_list.dart';
 import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
 import 'package:goatfolio/services/performance/model/ticker_consolidated_history.dart';
 import 'package:http/http.dart';
-import 'package:http_interceptor/http_client_with_interceptor.dart';
+import 'package:http_interceptor/http_interceptor.dart';
 
 class PerformanceClient {
   final String baseUrl = 'https://dev.victorclc.com.br/';
@@ -14,7 +14,7 @@ class PerformanceClient {
   final Client _client;
 
   PerformanceClient(this.userService)
-      : _client = HttpClientWithInterceptor.build(
+      : _client = InterceptedClient.build(
             interceptors: [LoggingInterceptor()],
             requestTimeout: Duration(seconds: 30));
 
@@ -22,7 +22,7 @@ class PerformanceClient {
     String accessToken = await userService.getSessionToken();
     String url = baseUrl + "performance/portfolio";
     final Response response =
-        await _client.get(url, headers: {'Authorization': accessToken});
+        await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 
     return PortfolioList.fromJson(jsonDecode(response.body));
   }
@@ -31,7 +31,7 @@ class PerformanceClient {
     String accessToken = await userService.getSessionToken();
     String url = baseUrl + "performance/summary";
     final Response response =
-        await _client.get(url, headers: {'Authorization': accessToken});
+        await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 
     return PortfolioSummary.fromJson(jsonDecode(response.body));
   }
@@ -40,7 +40,7 @@ class PerformanceClient {
     String accessToken = await userService.getSessionToken();
     String url = baseUrl + "performance/rentability";
     final Response response =
-        await _client.get(url, headers: {'Authorization': accessToken});
+        await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 
     return PortfolioHistory.fromJson(jsonDecode(response.body));
   }
@@ -50,7 +50,7 @@ class PerformanceClient {
     String accessToken = await userService.getSessionToken();
     String url = baseUrl + "performance/portfolio/$ticker";
     final Response response =
-        await _client.get(url, headers: {'Authorization': accessToken});
+        await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 
     return TickerConsolidatedHistory.fromJson(jsonDecode(response.body));
   }
