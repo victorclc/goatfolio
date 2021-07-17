@@ -62,6 +62,8 @@ custom:
     domainName: ${env:DOMAIN_NAME}
     stage: ${self:provider.stage}
     createRoute53Record: false
+    certificateName: "*.goatfolio.com.br"
+    endpointType: 'regional'
 
 functions:
   ceiImportRequest:
