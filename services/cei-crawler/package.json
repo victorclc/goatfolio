@@ -4,7 +4,6 @@
   "description": "webcrawler of cei.b3.com.br",
   "main": "index.js",
   "dependencies": {
-    "serverless-python-requirements": "^5.0.1"
   },
   "devDependencies": {},
   "scripts": {
