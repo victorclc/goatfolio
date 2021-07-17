@@ -27,6 +27,7 @@ pipeline {
             steps {
                 dir('services/vandelay-api'){
                     sh 'npm install'
+                    sh 'sls create_domain'
                     sh 'serverless deploy'
                 }
              }
