@@ -2,7 +2,7 @@ service: portfolio-api
 
 provider:
   name: aws
-  region: us-east-2
+  region: sa-east-1
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
   environment:
@@ -30,18 +30,15 @@ package:
     - ../../libs/goatcommons/**
 
 plugins:
-  - serverless-python-requirements
   - serverless-domain-manager
 
 custom:
-  pythonRequirements:
-    dockerizePip: true
-    cacheLocation: '.cache/'
   customDomain:
     basePath: portfolio
     domainName: ${env:DOMAIN_NAME}
     stage: ${self:provider.stage}
     createRoute53Record: false
+    endpointType: 'regional'
 
 functions:
   getInvestments:
