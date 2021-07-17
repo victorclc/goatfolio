@@ -25,7 +25,9 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'serverless deploy'
+                dir('services/vandelay-api'){
+                    sh 'serverless deploy'
+                }
              }
         }
     }
