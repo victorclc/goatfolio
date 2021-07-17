@@ -25,7 +25,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:BatchWriteItem
       Resource:
-        Fn::GetAtt: [ MarketDataTable, Arn ]
+        'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -66,22 +66,6 @@ functions:
 
 resources:
   Resources:
-    MarketDataTable:
-      Type: 'AWS::DynamoDB::Table'
-      Properties:
-        TableName: "MarketData"
-        BillingMode: PAY_PER_REQUEST
-        AttributeDefinitions:
-          - AttributeName: "ticker"
-            AttributeType: "S"
-          - AttributeName: "candle_date"
-            AttributeType: "S"
-        KeySchema:
-          - AttributeName: "ticker"
-            KeyType: "HASH"
-          - AttributeName: "candle_date"
-            KeyType: "RANGE"
-
     TickerInfoTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
@@ -104,11 +88,6 @@ resources:
               ProjectionType: ALL
 
   Outputs:
-    MarketDataTableArnOutput:
-      Value:
-        Fn::GetAtt: [ MarketDataTable, Arn ]
-      Export:
-        Name: ${self:provider.stage}-MarketDataTableArnOutput
     TickerInfoTableArnOutput:
       Value:
         Fn::GetAtt: [ TickerInfoTable, Arn ]

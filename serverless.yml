@@ -173,6 +173,22 @@ resources:
       Properties:
         QueueName: PushNotificationRequestDLQ
 
+    MarketDataTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: "MarketData"
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: "ticker"
+            AttributeType: "S"
+          - AttributeName: "candle_date"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "ticker"
+            KeyType: "HASH"
+          - AttributeName: "candle_date"
+            KeyType: "RANGE"
+
   #    MarketDataRDSCluster:
   #      Type: AWS::RDS::DBCluster
   #      Properties:
@@ -229,3 +245,8 @@ resources:
         Fn::GetAtt: [ PushNotificationRequestQueue, Arn ]
       Export:
         Name: ${self:provider.stage}-PushNotificationRequestArnOutput
+    MarketDataTableArnOutput:
+      Value:
+        Fn::GetAtt: [ MarketDataTable, Arn ]
+      Export:
+        Name: ${self:provider.stage}-MarketDataTableArnOutput
