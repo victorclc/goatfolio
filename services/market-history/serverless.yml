@@ -3,7 +3,7 @@ service: cotahist-transformer
 provider:
   name: aws
   memorySize: 2048
-  region: us-east-2
+  region: sa-east-1
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
   timeout: 60
@@ -40,8 +40,6 @@ provider:
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-ShitToNotifyQueueArn
 
-
-
 package:
   exclude:
     - .cache/**
@@ -50,14 +48,6 @@ package:
   include:
     - ../../libs/auroradata/**
     - ../../libs/goatcommons/**
-
-plugins:
-  - serverless-python-requirements
-
-custom:
-  pythonRequirements:
-    dockerizePip: true
-    cacheLocation: '.cache/'
 
 functions:
   transformCotaHist:

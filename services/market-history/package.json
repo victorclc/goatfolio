@@ -4,7 +4,6 @@
   "description": "transform cotahist file in a consumable way",
   "main": "index.js",
   "dependencies": {
-    "serverless-python-requirements": "^5.0.1"
   },
   "devDependencies": {},
   "scripts": {
