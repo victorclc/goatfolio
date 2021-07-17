@@ -1,8 +1,8 @@
-service: shit-notifier
+service: event-notifier
 
 provider:
   name: aws
-  region: us-east-2
+  region: sa-east-1
   stage: ${env:STAGE, 'dev'}
   timeout: 300
   runtime: python3.8
@@ -17,14 +17,6 @@ package:
   include:
     - ../../libs/goatcommons/**
 
-plugins:
-  - serverless-python-requirements
-
-custom:
-  pythonRequirements:
-    pythonBin: python3
-    cacheLocation: '.cache/'
-
 functions:
   shitNotifierHandler:
     handler: src/handlers.shit_notify_handler
@@ -33,6 +25,3 @@ functions:
       - sqs:
           arn:
             'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
-
-resources:
-

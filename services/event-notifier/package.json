@@ -1,10 +1,9 @@
 {
-  "name": "shit-notifier",
+  "name": "event-notifier",
   "version": "1.0.0",
   "description": "notify errors to discord",
   "main": "index.js",
   "dependencies": {
-    "serverless-python-requirements": "^5.0.1"
   },
   "devDependencies": {},
   "scripts": {
