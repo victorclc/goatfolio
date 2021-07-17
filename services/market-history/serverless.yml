@@ -1,4 +1,4 @@
-service: cotahist-transformer
+service: market-history
 
 provider:
   name: aws
