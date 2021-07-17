@@ -156,6 +156,23 @@ resources:
         QueueName: EventsToNotify
         VisibilityTimeout: 300
 
+    PushNotificationRequestQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        RedrivePolicy:
+          deadLetterTargetArn:
+            Fn::GetAtt:
+              - "PushNotificationRequestDLQ"
+              - "Arn"
+          maxReceiveCount: 3
+        QueueName: PushNotificationRequest
+        VisibilityTimeout: 300
+
+    PushNotificationRequestDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: PushNotificationRequestDLQ
+
   #    MarketDataRDSCluster:
   #      Type: AWS::RDS::DBCluster
   #      Properties:
@@ -207,3 +224,8 @@ resources:
         Fn::GetAtt: [ EventsToNotifyQueue, Arn ]
       Export:
         Name: ${self:provider.stage}-EventsToNotifyQueueArn
+    PushNotificationRequestArnOutput:
+      Value:
+        Fn::GetAtt: [ PushNotificationRequestQueue, Arn ]
+      Export:
+        Name: ${self:provider.stage}-PushNotificationRequestArnOutput

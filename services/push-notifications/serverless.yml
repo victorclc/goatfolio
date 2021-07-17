@@ -85,23 +85,6 @@ resources:
         ProviderARNs:
           - 'Fn::ImportValue': ${self:provider.stage}-GoatfolioAppUserPoolArnOutput
 
-    PushNotificationRequestQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        RedrivePolicy:
-          deadLetterTargetArn:
-            Fn::GetAtt:
-              - "PushNotificationRequestDLQ"
-              - "Arn"
-          maxReceiveCount: 3
-        QueueName: PushNotificationRequest
-        VisibilityTimeout: 300
-
-    PushNotificationRequestDLQ:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: PushNotificationRequestDLQ
-
     NotificationTokensTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
@@ -116,9 +99,3 @@ resources:
           - AttributeName: "subject"
             KeyType: "HASH"
 
-  Outputs:
-    PushNotificationRequestArnOutput:
-      Value:
-        Fn::GetAtt: [ PushNotificationRequestQueue, Arn ]
-      Export:
-        Name: ${self:provider.stage}-PushNotificationRequestArnOutput
