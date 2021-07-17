@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:goatfolio/common/http/interceptor/logging.dart';
+import 'package:goatfolio/flavors.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/model/investment_request.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
@@ -11,7 +12,6 @@ import 'package:http_interceptor/http_interceptor.dart';
 
 
 class PortfolioClient {
-  final String baseUrl = 'https://dev.victorclc.com.br/';
   final UserService userService;
   final Client _client;
 
@@ -23,7 +23,7 @@ class PortfolioClient {
   Future<List<StockInvestment>> getInvestments(
       [int date, String operand]) async {
     String accessToken = await userService.getSessionToken();
-    String url = baseUrl + "portfolio/investments";
+    String url = F.baseUrl + "portfolio/investments";
     if (date != null && operand != null) {
       url += "?date=$operand.$date";
     }
@@ -43,7 +43,7 @@ class PortfolioClient {
     String accessToken = await userService.getSessionToken();
     final request = InvestmentRequest(type: 'STOCK', investment: investment);
     final response = await _client.post(Uri.parse(
-      baseUrl + "portfolio/investments/"),
+      F.baseUrl + "portfolio/investments/"),
       headers: {
         'Content-type': 'application/json',
         'Authorization': accessToken
@@ -62,7 +62,7 @@ class PortfolioClient {
     final request = InvestmentRequest(type: 'STOCK', investment: investment);
     String accessToken = await userService.getSessionToken();
     final response = await _client.put(
-      Uri.parse(baseUrl + "portfolio/investments/"),
+      Uri.parse(F.baseUrl + "portfolio/investments/"),
       headers: {
         'Content-type': 'application/json',
         'Authorization': accessToken,
@@ -77,7 +77,7 @@ class PortfolioClient {
   Future<void> delete(StockInvestment investment) async {
     String accessToken = await userService.getSessionToken();
     final response = await _client.delete(
-      Uri.parse(baseUrl + "portfolio/investments/" + investment.id),
+      Uri.parse(F.baseUrl + "portfolio/investments/" + investment.id),
       headers: {
         'Content-type': 'application/json',
         'Authorization': accessToken

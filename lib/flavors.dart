@@ -45,4 +45,14 @@ class F {
         return 'arn:aws:cognito-idp:us-east-2:831967415635:userpool/us-east-2_tZFglntHx';
     }
   }
+
+  static String get baseUrl {
+    switch (appFlavor) {
+      case Flavor.PROD:
+        return 'https://dev.victorclc.com.br/';
+      case Flavor.DEV:
+      default:
+        return 'https://dev.victorclc.com.br/';
+    }
+  }
 }

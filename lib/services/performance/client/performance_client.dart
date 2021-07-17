@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:goatfolio/common/http/interceptor/logging.dart';
+import 'package:goatfolio/flavors.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/model/portfolio_history.dart';
 import 'package:goatfolio/services/performance/model/portfolio_list.dart';
@@ -9,7 +10,6 @@ import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
 
 class PerformanceClient {
-  final String baseUrl = 'https://dev.victorclc.com.br/';
   final UserService userService;
   final Client _client;
 
@@ -20,7 +20,7 @@ class PerformanceClient {
 
   Future<PortfolioList> getPortfolioPerformance() async {
     String accessToken = await userService.getSessionToken();
-    String url = baseUrl + "performance/portfolio";
+    String url = F.baseUrl + "performance/portfolio";
     final Response response =
         await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 
@@ -29,7 +29,7 @@ class PerformanceClient {
 
   Future<PortfolioSummary> getPortfolioSummary() async {
     String accessToken = await userService.getSessionToken();
-    String url = baseUrl + "performance/summary";
+    String url = F.baseUrl + "performance/summary";
     final Response response =
         await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 
@@ -38,7 +38,7 @@ class PerformanceClient {
 
   Future<PortfolioHistory> getPortfolioRentabilityHistory() async {
     String accessToken = await userService.getSessionToken();
-    String url = baseUrl + "performance/rentability";
+    String url = F.baseUrl + "performance/rentability";
     final Response response =
         await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 
@@ -48,7 +48,7 @@ class PerformanceClient {
   Future<TickerConsolidatedHistory> getTickerConsolidatedHistory(
       String ticker) async {
     String accessToken = await userService.getSessionToken();
-    String url = baseUrl + "performance/portfolio/$ticker";
+    String url = F.baseUrl + "performance/portfolio/$ticker";
     final Response response =
         await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 
