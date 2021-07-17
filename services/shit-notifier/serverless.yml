@@ -32,19 +32,7 @@ functions:
     events:
       - sqs:
           arn:
-            Fn::GetAtt: [ ShitToNotifyQueue, Arn ]
+            'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
 
 resources:
-  Resources:
-    ShitToNotifyQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: ShitToNotify
-        VisibilityTimeout: 300
 
-  Outputs:
-    ShitToNotifyQueueArn:
-      Value:
-        Fn::GetAtt: [ ShitToNotifyQueue, Arn ]
-      Export:
-        Name: ${self:provider.stage}-ShitToNotifyQueueArn

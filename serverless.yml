@@ -150,6 +150,12 @@ resources:
           - AttributeName: "message_key"
             KeyType: "HASH"
 
+    EventsToNotifyQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: EventsToNotify
+        VisibilityTimeout: 300
+
   #    MarketDataRDSCluster:
   #      Type: AWS::RDS::DBCluster
   #      Properties:
@@ -196,3 +202,8 @@ resources:
         Fn::GetAtt: [ NotificationMessagesConfigTable, Arn ]
       Export:
         Name: ${self:provider.stage}-NotificationMessagesConfigTableArnOutput
+    EventsToNotifyQueueArn:
+      Value:
+        Fn::GetAtt: [ EventsToNotifyQueue, Arn ]
+      Export:
+        Name: ${self:provider.stage}-EventsToNotifyQueueArn

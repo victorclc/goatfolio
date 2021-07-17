@@ -42,7 +42,7 @@ provider:
         - sqs:SendMessage
         - sqs:GetQueueUrl
       Resource:
-        'Fn::ImportValue': ${self:provider.stage}-ShitToNotifyQueueArn
+        'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
 
 package:
   exclude:
@@ -62,7 +62,6 @@ custom:
     domainName: ${env:DOMAIN_NAME}
     stage: ${self:provider.stage}
     createRoute53Record: false
-    certificateName: "*.goatfolio.com.br"
     endpointType: 'regional'
 
 functions:
