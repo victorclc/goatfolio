@@ -4,7 +4,6 @@
   "description": "for all our imports needs",
   "main": "index.js",
   "dependencies": {
-    "serverless-python-requirements": "^5.0.1",
     "serverless-domain-manager": "^4.1.1"
   },
   "devDependencies": {},

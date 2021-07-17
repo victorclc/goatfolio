@@ -26,6 +26,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 dir('services/vandelay-api'){
+                    sh 'npm install'
                     sh 'serverless deploy'
                 }
              }

@@ -54,13 +54,9 @@ package:
     - ../../libs/brutils/**
 
 plugins:
-  - serverless-python-requirements
   - serverless-domain-manager
 
 custom:
-  pythonRequirements:
-    dockerizePip: true
-    cacheLocation: '.cache/'
   customDomain:
     basePath: vandelay
     domainName: ${env:DOMAIN_NAME}
