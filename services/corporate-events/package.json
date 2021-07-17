@@ -4,7 +4,6 @@
   "description": "craw and persist corporate events data and more",
   "main": "index.js",
   "dependencies": {
-    "serverless-python-requirements": "^5.0.1"
   },
   "devDependencies": {},
   "scripts": {

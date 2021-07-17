@@ -3,7 +3,7 @@ service: corporate-events
 provider:
   name: aws
   memorySize: 512
-  region: us-east-2
+  region: sa-east-1
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
   timeout: 900
@@ -66,14 +66,6 @@ package:
     - test-env/**
   include:
     - ../../libs/goatcommons/**
-
-plugins:
-  - serverless-python-requirements
-
-custom:
-  pythonRequirements:
-    dockerizePip: true
-    cacheLocation: '.cache/'
 
 functions:
   processCorporateEventsFile:

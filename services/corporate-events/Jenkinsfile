@@ -1,15 +1,10 @@
 pipeline {
-    agent {
-        docker {
-            image 'victorclc/node-serverless'
-            args '-u 127:998 -v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
     environment {
-        HOME="."
-        SERVICE_PATH="${env.WORKSPACE}/services/corporate-events"
-        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id-dev')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key-dev')
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id-prod')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key-id-prod')
+        DOMAIN_NAME='api.goatfolio.com.br'
+        STAGE='prod'
         SLS_DEBUG='*'
     }
     stages {
@@ -28,29 +23,13 @@ pipeline {
                 sh './run_tests.sh'
             }
         }
-        stage('Sonar') {
+        stage('Deploy') {
             steps {
                 dir('services/corporate-events'){
-                    sh 'sonar-scanner \
-                        -Dsonar.projectKey=corporate-events \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://192.168.0.100:9000 \
-                        -Dsonar.login=818fd5389bdf98b94785f2dacb531a451f750450'
-                }
-             }
-        }
-        stage('Common Resources Deploy') {
-            steps {
-                sh 'serverless deploy'
-             }
-        }
-        stage('Service Deploy') {
-            steps {
-                 dir('services/corporate-events'){
                     sh 'npm install'
                     sh 'serverless deploy'
                 }
-            }
+             }
         }
     }
 }
