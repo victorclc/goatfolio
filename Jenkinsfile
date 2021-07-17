@@ -1,11 +1,10 @@
 pipeline {
     agent any
     environment {
-        HOME="."
-        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id-dev')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key-dev')
-        SLS_DEBUG='*'
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id-prod')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key-prod')
         STAGE='prod'
+        SLS_DEBUG='*'
     }
     stages {
         stage('Clone') {
