@@ -1,8 +1,10 @@
 import traceback
 from http import HTTPStatus
 
+from adapters import ImportsRepository, CEIImportsQueue, PortfolioClient
 from core import CEICore
 from exceptions import UnprocessableException
+from goatcommons.notifications.client import PushNotificationsClient
 from goatcommons.shit.client import ShitNotifierClient
 from goatcommons.shit.models import NotifyLevel
 from goatcommons.utils import JsonUtils, AWSEventUtils
@@ -13,7 +15,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(lev
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-core = CEICore()
+core = CEICore(repo=ImportsRepository(), queue=CEIImportsQueue(), portfolio=PortfolioClient(),
+               push=PushNotificationsClient())
 
 
 def cei_import_request_handler(event, context):

@@ -20,11 +20,11 @@ def _is_status_final(status):
 
 
 class CEICore:
-    def __init__(self, repo=ImportsRepository(), queue=CEIImportsQueue(), portfolio=PortfolioClient()):
+    def __init__(self, repo, queue, portfolio, push):
         self.repo = repo
         self.queue = queue
         self.portfolio = portfolio
-        self.push = PushNotificationsClient()
+        self.push = push
 
     def import_request(self, subject, request):
         logger.info(f'Processing import request from {subject}')

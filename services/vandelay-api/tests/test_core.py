@@ -13,7 +13,7 @@ from models import CEIInboundRequest, Import, CEIImportResult
 
 class TestCEICore(unittest.TestCase):
     def setUp(self):
-        self.core = core.CEICore()
+        self.core = core.CEICore(repo=MagicMock(), queue=MagicMock(), portfolio=MagicMock(), push=MagicMock())
         self.core.repo.save = MagicMock(return_value=None)
         self.core.repo.find_latest = MagicMock(return_value=None)
         self.core.repo.find = MagicMock(return_value=None)
