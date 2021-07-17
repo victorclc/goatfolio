@@ -20,7 +20,6 @@ package:
 functions:
   shitNotifierHandler:
     handler: src/handlers.shit_notify_handler
-    reservedConcurrency: 10
     events:
       - sqs:
           arn:
