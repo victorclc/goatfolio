@@ -24,6 +24,7 @@ package:
     - .cache/**
     - tests/**
     - test-env/**
+    - node_modules/**
   include:
     - ../../libs/goatcommons/**
 
