@@ -14,8 +14,17 @@ package:
   exclude:
     - .cache/**
     - tests/**
+    - node_modules/**
   include:
     - ../../libs/goatcommons/**
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3
+    cacheLocation: '.cache/'
 
 functions:
   shitNotifierHandler:

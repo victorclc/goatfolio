@@ -64,8 +64,17 @@ package:
     - .cache/**
     - tests/**
     - test-env/**
+    - node_modules/**
   include:
     - ../../libs/goatcommons/**
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3
+    cacheLocation: '.cache/'
 
 functions:
   processCorporateEventsFile:

@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "webcrawler of cei.b3.com.br",
   "main": "index.js",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "serverless-python-requirements": "^5.0.1"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \\\"Error: no tests specified\\\" && exit 1"
   },

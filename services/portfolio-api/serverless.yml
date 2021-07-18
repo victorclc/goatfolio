@@ -26,13 +26,18 @@ package:
   exclude:
     - .cache/**
     - tests/**
+    - node_modules/**
   include:
     - ../../libs/goatcommons/**
 
 plugins:
   - serverless-domain-manager
+  - serverless-python-requirements
 
 custom:
+  pythonRequirements:
+    pythonBin: python3
+    cacheLocation: '.cache/'
   customDomain:
     basePath: portfolio
     domainName: ${env:DOMAIN_NAME}

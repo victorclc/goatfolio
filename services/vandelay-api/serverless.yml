@@ -49,14 +49,19 @@ package:
     - .cache/**
     - tests/**
     - test-env/**
+    - node_modules/**
   include:
     - ../../libs/goatcommons/**
     - ../../libs/brutils/**
 
 plugins:
   - serverless-domain-manager
+  - serverless-python-requirements
 
 custom:
+  pythonRequirements:
+    pythonBin: python3
+    cacheLocation: '.cache/'
   customDomain:
     basePath: vandelay
     domainName: ${env:DOMAIN_NAME}

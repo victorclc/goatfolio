@@ -32,9 +32,19 @@ package:
   exclude:
     - .cache/**
     - tests/**
+    - node_modules/**
   include:
     - ../../libs/goatcommons/**
     - ../../libs/lessmium/**
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3
+    cacheLocation: '.cache/'
+
 
 functions:
   ceiExtractHandler:
