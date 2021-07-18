@@ -82,7 +82,9 @@ class UserService {
     final attributes = await _cognitoUser.getUserAttributes();
     final user = User.fromUserAttributes(attributes);
 
-    _userPool.storage.setItem('CognitoIdentityServiceProvider.$cognitoClientId.LastAuthUser', user.email);
+    _userPool.storage.setItem(
+        'CognitoIdentityServiceProvider.$cognitoClientId.LastAuthUser',
+        user.email);
 
     user.confirmed = true;
     user.hasAccess = true;
@@ -108,8 +110,8 @@ class UserService {
     await _cognitoUser.forgotPassword();
   }
 
-  Future<void> confirmPassword(
-      String email, confirmationCode, newPassword) async {
+  Future<void> confirmPassword(String email, confirmationCode,
+      newPassword) async {
     _cognitoUser = CognitoUser(email, _userPool, storage: _userPool.storage);
     await _cognitoUser.confirmPassword(confirmationCode, newPassword);
   }
@@ -134,13 +136,14 @@ class UserService {
   /// Sign user
   Future<User> signUp(String email, String password,
       {Map<String, String> attributes}) async {
-    CognitoUserPoolData data;
-    // final userAttributes = [
-    //   AttributeArg(name: 'email', value: email),
-    // ];
-    data = await _userPool.signUp(
+    final List<AttributeArg> userAttributes = [];
+    attributes.forEach((key, value) {
+      userAttributes.add(AttributeArg(name: key, value: value));
+    });
+    CognitoUserPoolData data = await _userPool.signUp(
       email,
       password,
+      userAttributes: userAttributes
     );
     debugPrint("data returned by signUp $data");
 
@@ -156,7 +159,8 @@ class UserService {
       await credentials.resetAwsCredentials();
     }
     if (_cognitoUser != null) {
-      await _userPool.storage.removeItem('CognitoIdentityServiceProvider.$cognitoClientId.LastAuthUser');
+      await _userPool.storage.removeItem(
+          'CognitoIdentityServiceProvider.$cognitoClientId.LastAuthUser');
       return _cognitoUser.signOut();
     }
   }

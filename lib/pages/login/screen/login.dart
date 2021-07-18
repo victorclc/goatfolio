@@ -138,6 +138,7 @@ class LoginPage extends StatelessWidget {
           keepOpenOnError: true,
           promptRequests: [
             SignInEmailPrompt(),
+            SignInNamePrompt(),
             SignInPasswordPrompt(),
             SignInPasswordConfirmationPrompt()
           ],
@@ -149,7 +150,7 @@ class LoginPage extends StatelessWidget {
   Future<void> onSignUpSubmit(
       BuildContext context, UserService userService, Map values) async {
     try {
-      User user = await userService.signUp(values['email'], values['password']);
+      User user = await userService.signUp(values['email'], values['password'], attributes: {"given_name":values['name']});
       print(user);
       if (user != null) {
         print("CONFIRM ACCOUNT");
