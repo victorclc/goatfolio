@@ -29,8 +29,12 @@ package:
 
 plugins:
   - serverless-domain-manager
+  - serverless-python-requirements
 
 custom:
+  pythonRequirements:
+    pythonBin: python3
+    cacheLocation: '.cache/'
   customDomain:
     basePath: 'notification'
     domainName: ${env:DOMAIN_NAME}
