@@ -26,6 +26,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 dir('services/cei-crawler'){
+                    sh 'npm install'
                     sh 'serverless deploy'
                 }
              }
