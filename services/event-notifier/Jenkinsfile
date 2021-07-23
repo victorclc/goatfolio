@@ -25,6 +25,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 dir('services/event-notifier'){
+                    sh 'npm install'
                     sh 'serverless deploy'
                 }
              }
