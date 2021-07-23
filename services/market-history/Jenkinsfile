@@ -25,6 +25,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 dir('services/market-history'){
+                    sh 'npm install'
                     sh 'serverless deploy'
                 }
              }
