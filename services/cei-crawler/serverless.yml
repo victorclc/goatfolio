@@ -42,7 +42,7 @@ plugins:
 
 custom:
   pythonRequirements:
-    pythonBin: python3
+    pythonBin: python3.8
     cacheLocation: '.cache/'
 
 
