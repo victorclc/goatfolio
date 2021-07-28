@@ -4,6 +4,8 @@ provider:
   name: aws
   region: sa-east-1
   stage: ${env:STAGE, 'dev'}
+  sesArn: ${env:SES_ARN}
+  sesFrom: ${env:SES_FROM}
 
 resources:
   Resources:
@@ -18,8 +20,8 @@ resources:
         EmailVerificationMessage: "O código de verificação é {####}"
         EmailConfiguration:
           EmailSendingAccount: DEVELOPER
-          From: noreply@goatfolio.com.br
-          SourceArn: arn:aws:ses:sa-east-1:810300526230:identity/noreply@goatfolio.com.br
+          From: ${self:provider.SES_ARN}
+          SourceArn: ${self:provider.SES_ARN}
         Policies:
           PasswordPolicy:
             MinimumLength: 8
