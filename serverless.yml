@@ -20,7 +20,7 @@ resources:
         EmailVerificationMessage: "O código de verificação é {####}"
         EmailConfiguration:
           EmailSendingAccount: DEVELOPER
-          From: ${self:provider.SES_ARN}
+          From: ${self:provider.SES_FROM}
           SourceArn: ${self:provider.SES_ARN}
         Policies:
           PasswordPolicy:
