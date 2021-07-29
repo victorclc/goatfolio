@@ -4,7 +4,7 @@ pipeline {
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id-dev')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key-id-dev')
         DOMAIN_NAME='dev.goatfolio.com.br'
-        STAGE='dev'
+        STAGE='prod'
         SLS_DEBUG='*'
     }
     stages {
@@ -25,7 +25,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                dir('services/portfolio-api'){
+                dir('services/cei-crawler'){
                     sh 'npm install'
                     sh 'serverless deploy'
                 }
