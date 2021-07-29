@@ -25,7 +25,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                dir('services/vandelay-api'){
+                dir('services/push-notifications'){
                     sh 'npm install'
                     sh 'serverless deploy'
                 }

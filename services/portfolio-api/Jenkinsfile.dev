@@ -13,7 +13,7 @@ pipeline {
                 git(
                     url: 'git@github.com:victorclc/goatfolio-serverless.git',
                     credentialsId: 'github-ssh',
-                    branch: 'develop'
+                    branch: 'master'
                 )
              }
         }
@@ -25,7 +25,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                dir('services/vandelay-api'){
+                dir('services/portfolio-api'){
                     sh 'npm install'
                     sh 'serverless deploy'
                 }
