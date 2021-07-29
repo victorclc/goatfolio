@@ -13,7 +13,8 @@ pipeline {
                 git(
                     url: 'git@github.com:victorclc/goatfolio-serverless.git',
                     credentialsId: 'github-ssh',
-                    branch: 'develop'
+                    branch: 'develop',
+                    maxBuffer: 1024 * 1024 * 100
                 )
              }
         }
