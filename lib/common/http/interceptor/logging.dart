@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:http_interceptor/interceptor_contract.dart';
+import 'package:http_interceptor/http_interceptor.dart';
+
 import 'package:http_interceptor/models/request_data.dart';
 import 'package:http_interceptor/models/response_data.dart';
 

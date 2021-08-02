@@ -34,6 +34,42 @@ class SignInEmailPrompt extends PromptRequest {
           RegExp(RegexPatterns.VALID_EMAIL).hasMatch(input));
 }
 
+class SignInNamePrompt extends PromptRequest {
+  SignInNamePrompt()
+      : super(
+      attrName: 'name',
+      title: Row(
+        children: [
+          Text(
+            "Qual seu ",
+            style: TextStyle(fontSize: 24),
+          ),
+          Text(
+            "nome",
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            " ou ",
+            style: TextStyle(fontSize: 24),
+          ),
+          Text(
+            "apelido",
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            "?",
+            style: TextStyle(fontSize: 24),
+          ),
+        ],
+      ),
+      hint: Text(
+        "Como gostaria de ser chamado?",
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w200),
+      ),
+      keyboardType: TextInputType.text,
+      autoFillHints: [AutofillHints.givenName]);
+}
+
 class SignInPasswordPrompt extends PromptRequest {
   SignInPasswordPrompt()
       : super(

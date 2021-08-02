@@ -100,7 +100,7 @@ class _AboutPageState extends State<AboutPage> {
                                 SettingsTile(
                                   title: 'Avalie-nos',
                                   onPressed: (_) async =>
-                                      await LaunchReview.launch(),
+                                  await LaunchReview.launch(),
                                 ),
                                 SettingsTile(
                                   title: 'Termos de uso',
