@@ -105,12 +105,12 @@ class _AboutPageState extends State<AboutPage> {
                                 SettingsTile(
                                   title: 'Termos de uso',
                                   onPressed: (_) => _launchURL(
-                                      "https://www.goatfolio.com.br/"),
+                                      "https://goatfolio.app/docs/termos-de-uso.pdf"),
                                 ),
                                 SettingsTile(
                                   title: 'Política de privacidade',
                                   onPressed: (_) => _launchURL(
-                                      "https://www.goatfolio.com.br/"),
+                                      "https://goatfolio.app/docs/politica-de-privacidade.pdf"),
                                 ),
                                 SettingsTile(
                                   title: 'Reportar um Bug',
