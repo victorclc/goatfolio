@@ -191,8 +191,7 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   Future<void> _launchContactEmail() async {
-    String url =
-        'mailto:contato@goatfolio.com.br?subject=[$version]%20Contato';
+    String url = 'mailto:contato@goatfolio.com.br?subject=[$version]%20Contato';
     await canLaunch(url) ? await launch(url) : throw 'Could not launch $url';
   }
 }
