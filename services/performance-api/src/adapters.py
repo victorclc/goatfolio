@@ -74,7 +74,7 @@ class MarketData:
         result = self.cedro.quote(ticker)
         return IntraDayData(Decimal(result['lastTrade']).quantize(Decimal('0.01')),
                             Decimal(result['previous']).quantize(Decimal('0.01')),
-                            Decimal((result['change']) * 100).quantize(Decimal('0.01')),
+                            Decimal((result['change'])).quantize(Decimal('0.01')),
                             result['company'])
 
     def ibov_from_date(self, date_from) -> List[CandleData]:
