@@ -67,19 +67,15 @@ MonthData = namedtuple('MonthlyData', 'open close')
 class MarketData:
     def __init__(self):
         self.repo = MarketDataRepository()
-        self.yahoo_ticker = None
+        self.cedro = CedroMarketDataClient()
 
     # @cached_tuple
     def ticker_intraday_date(self, ticker: str):
-        if self.yahoo_ticker is None:
-            self.yahoo_ticker = Ticker(f'{ticker}.SA')
-        else:
-            self.yahoo_ticker.symbols = f'{ticker}.SA'
-        result = self.yahoo_ticker.price[f'{ticker}.SA']
-        return IntraDayData(Decimal(result['regularMarketPrice']).quantize(Decimal('0.01')),
-                            Decimal(result['regularMarketPreviousClose']).quantize(Decimal('0.01')),
-                            Decimal((result['regularMarketChangePercent']) * 100).quantize(Decimal('0.01')),
-                            result['shortName'])
+        result = self.cedro.quote(ticker)
+        return IntraDayData(Decimal(result['lastTrade']).quantize(Decimal('0.01')),
+                            Decimal(result['previous']).quantize(Decimal('0.01')),
+                            Decimal((result['change']) * 100).quantize(Decimal('0.01')),
+                            result['company'])
 
     def ibov_from_date(self, date_from) -> List[CandleData]:
         return self.repo.find_by_ticker_from_date('IBOVESPA', date_from)
