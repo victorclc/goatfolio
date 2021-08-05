@@ -2,7 +2,7 @@ import logging
 import re
 from time import sleep
 
-from selenium.common.exceptions import UnexpectedAlertPresentException
+from selenium.common.exceptions import UnexpectedAlertPresentException, StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.select import Select
@@ -83,7 +83,7 @@ class ExtractPage(object):
             broker_name = stock_brokers_selection.options[index].text
             self.LOGGER.info(f'Selecting {broker_name} broker')
             stock_brokers_selection.select_by_index(index)
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, 30, ignored_exceptions=StaleElementReferenceException).until(
                 expected_conditions.element_to_be_selected(
                     Select(self.driver.find_element_by_id(self.BROKERS_SELECTION_ID)).options[index]
                 ))
