@@ -85,7 +85,7 @@ class ExtractPage(object):
             stock_brokers_selection.select_by_index(index)
             WebDriverWait(self.driver, 10).until(
                 expected_conditions.element_to_be_selected(
-                    stock_brokers_selection.options[index]
+                    Select(self.driver.find_element_by_id(self.BROKERS_SELECTION_ID)).options[index]
                 ))
             sleep(1)
             inquire_button = self.driver.find_element_by_id(self.INQUIRY_BUTTON_ID)
