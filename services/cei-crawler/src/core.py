@@ -26,9 +26,15 @@ class CEICrawlerCore:
     EXTRACT_DATE_FORMAT = '%d/%m/%Y'
 
     def __init__(self, queue=CEIResultQueue()):
-        self.driver = LessmiumDriver()
+        self._driver = None
         self.queue = queue
         self.identifiers = set()
+
+    @property
+    def driver(self):
+        if not self._driver:
+            self._driver = LessmiumDriver()
+        return self._driver
 
     def craw_all_extract(self, request: CEICrawRequest):
         response = CEICrawResult(subject=request.subject, datetime=request.datetime)
