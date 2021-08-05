@@ -25,7 +25,7 @@ class CEICrawlerCore:
     LOGIN_URL = os.getenv("LOGIN_URL")
     EXTRACT_DATE_FORMAT = '%d/%m/%Y'
 
-    def __init__(self, queue):
+    def __init__(self, queue=None):
         self._driver = None
         self.queue = queue or CEIResultQueue()
 
