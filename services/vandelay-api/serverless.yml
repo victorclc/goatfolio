@@ -37,7 +37,8 @@ provider:
     - Effect: Allow
       Action:
         - lambda:InvokeFunction
-      Resource: ${env:BATCH_SAVE_ARN, 'arn:aws:lambda:us-east-2:831967415635:function:portfolio-api-dev-batchAddInvestments'}
+      Resource:
+        'Fn::ImportValue': sls-portfolio-api-${self:provider.stage}-BatchAddInvestmentsLambdaFunctionQualifiedArn
     - Effect: Allow
       Action:
         - sqs:SendMessage
