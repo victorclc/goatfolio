@@ -25,9 +25,10 @@ class CEICrawlerCore:
     LOGIN_URL = os.getenv("LOGIN_URL")
     EXTRACT_DATE_FORMAT = '%d/%m/%Y'
 
-    def __init__(self, queue=CEIResultQueue()):
+    def __init__(self, queue):
         self._driver = None
-        self.queue = queue
+        self.queue = queue or CEIResultQueue()
+
         self.identifiers = set()
 
     @property
@@ -90,3 +91,23 @@ class CEICrawlerCore:
             _id = f'CEI{s.ticker}{int(s.date.timestamp())}{s.amount}{str(s.price).replace(".", "")}{counter}'
         self.identifiers.add(_id)
         return _id
+
+# if __name__ == '__main__':
+#     driver = webdriver.Chrome()
+#     login_page = LoginPage(driver, '', '')
+#     home_page = login_page.login()
+#     extract_page = home_page.go_to_extract_page()
+#     investments = []
+#     for investment in extract_page.get_all_brokers_extract():
+#         if not investment['quantidade']:
+#             continue
+#         s = StockInvestment(type='STOCK',
+#                             operation='BUY' if investment['compra_venda'] == 'C' else 'SELL',
+#                             ticker=re.sub('F$', '', investment['codigo_negociacao']),
+#                             amount=Decimal(investment['quantidade']),
+#                             price=Decimal(investment['preco']),
+#                             date=datetime.strptime(investment['data_do_negocio'], '%d/%m/%Y'),
+#                             broker=investment['corretora'], external_system='CEI', subject='12345')
+#         s.id = uuid.uuid4()
+#         investments.append(s)
+#     print(investments)
