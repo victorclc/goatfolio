@@ -7,7 +7,7 @@ logger = logging.getLogger()
 
 
 class S3DependenciesDownloader:
-    BUCKET_NAME = 'chromium-binarys'
+    BUCKET_NAME = os.getenv('BUCKET_NAME')
     BINARIES = ['headless-chromium']
 
     def __init__(self):

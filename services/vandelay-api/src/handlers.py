@@ -28,8 +28,10 @@ def cei_import_request_handler(event, context):
         return {'statusCode': HTTPStatus.ACCEPTED.value,
                 'body': JsonUtils.dump({"message": HTTPStatus.ACCEPTED.phrase})}
     except TypeError as e:
+        logger.exception(e)
         return {'statusCode': HTTPStatus.BAD_REQUEST.value, 'body': JsonUtils.dump({"message": str(e)})}
     except UnprocessableException as e:
+        logger.exception(e)
         return {'statusCode': HTTPStatus.UNPROCESSABLE_ENTITY.value, 'body': JsonUtils.dump({"message": str(e)})}
 
 
@@ -40,7 +42,7 @@ def cei_import_result_handler(event, context):
             core.import_result(CEIImportResult(**JsonUtils.load(message['body'])))
         return {'statusCode': HTTPStatus.OK.value, 'body': JsonUtils.dump({"message": HTTPStatus.OK.phrase})}
     except Exception as e:
-        traceback.print_exc()
+        logger.exception(e)
         ShitNotifierClient().send(NotifyLevel.ERROR, 'VANDELAY-API',
                                   f'CEI IMPORT RESULT FAILED {traceback.format_exc()}')
 
