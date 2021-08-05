@@ -8,6 +8,8 @@ provider:
   runtime: python3.8
   environment:
     PYTHONPATH: "src:libs"
+    BUCKET_NAME: ${self:provider.stage}-headlesschromium
+    LOGIN_URL: 'https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx'
   iamRoleStatements:
     - Effect: Allow
       Action:

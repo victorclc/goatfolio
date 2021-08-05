@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 import traceback
 from datetime import datetime
@@ -21,7 +22,7 @@ logger.setLevel(logging.INFO)
 
 
 class CEICrawlerCore:
-    LOGIN_URL = "https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx"  # TODO put on an environment variable
+    LOGIN_URL = os.getenv("LOGIN_URL")
     EXTRACT_DATE_FORMAT = '%d/%m/%Y'
 
     def __init__(self, queue=CEIResultQueue()):
