@@ -13,7 +13,7 @@ resources:
       Description: The first availability zone in the region
       Type: AWS::EC2::AvailabilityZone::Name
       ConstraintDescription: Must be a valid availability zone
-      default: sa-east-1
+      Default: sa-east-1
 
   Metadata:
     AWS::CloudFormation::Interface:
