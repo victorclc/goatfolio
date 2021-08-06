@@ -8,6 +8,8 @@ provider:
   runtime: python3.8
   environment:
     PYTHONPATH: "src:libs"
+    REDIS_HOST:
+     'Fn::ImportValue': ${self:provider.stage}-ElastiCacheAddress
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -143,9 +145,44 @@ resources:
           - AttributeName: "subject"
             KeyType: "HASH"
 
-#    RedisElasticacheCluster:
-#      Type: 'AWS::ElastiCache::CacheCluster'
-#      Properties:
-#        Engine: redis
-#        CacheNodeType: cache.t2.micro
-#        NumCacheNodes: '1'
+    RedisSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: ElastiCache Security Group
+        VpcId:
+          Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-VpcID
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 6379
+            ToPort: 6379
+
+    SubnetGroup:
+      Type: AWS::ElastiCache::SubnetGroup
+      Properties:
+        Description: Cache Subnet Group
+        SubnetIds:
+          - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet1ID
+          - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
+
+    RedisElasticacheCluster:
+      Type: 'AWS::ElastiCache::CacheCluster'
+      Properties:
+        Engine: redis
+        CacheNodeType: cache.t2.micro
+        NumCacheNodes: '1'
+        CacheSubnetGroupName: !Ref SubnetGroup
+        VpcSecurityGroupIds:
+          - !GetAtt RedisSecurityGroup.GroupId
+
+  Outputs:
+    ElastiCacheAddress:
+      Description: ElastiCache endpoint address
+      Value: !GetAtt ElastiCacheCluster.RedisEndpoint.Address
+      Export:
+        Name: ${self:provider.stage}-ElastiCacheAddress
+
+    ElastiCachePort:
+      Description: ElastiCache port
+      Value: 6379
+      Export:
+        Name: ${self:provider.stage}-ElastiCachePort
