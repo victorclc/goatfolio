@@ -13,7 +13,13 @@ resources:
       Description: The first availability zone in the region
       Type: AWS::EC2::AvailabilityZone::Name
       ConstraintDescription: Must be a valid availability zone
-      Default: sa-east-1
+      Default: sa-east-1a
+
+  AvailabilityZone2:
+    Description: The second availability zone in the region
+    Type: AWS::EC2::AvailabilityZone::Name
+    ConstraintDescription: Must be a valid availability zone
+    Default: sa-east-1b
 
   Metadata:
     AWS::CloudFormation::Interface:
@@ -22,6 +28,7 @@ resources:
             default: Region Availability Zones
           Parameters:
             - AvailabilityZone1
+            - AvailabilityZone2
         - Label:
             default: Ingress Ports
           Parameters:
@@ -30,6 +37,8 @@ resources:
       ParameterLabels:
         AvailabilityZone1:
           default: Availability Zone 1
+        AvailabilityZone2:
+          default: Availability Zone 2
 
   Mappings:
     # Maps CIDR blocks to VPC and various subnets
@@ -67,6 +76,16 @@ resources:
           - Key: Name
             Value: !Sub "${AWS::StackName}-PublicSubnet1"
 
+    PublicSubnet2:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        CidrBlock: !FindInMap [ CIDRMap, Public2, CIDR ]
+        AvailabilityZone: !Ref AvailabilityZone2
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-PublicSubnet2"
+
     PrivateSubnet1:
       Type: AWS::EC2::Subnet
       Properties:
@@ -76,6 +95,16 @@ resources:
         Tags:
           - Key: Name
             Value: !Sub "${AWS::StackName}-PrivateSubnet1"
+
+    PrivateSubnet2:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        CidrBlock: !FindInMap [ CIDRMap, Private2, CIDR ]
+        AvailabilityZone: !Ref AvailabilityZone2
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-PrivateSubnet2"
 
     InternetGateway:
       Type: AWS::EC2::InternetGateway
@@ -112,10 +141,22 @@ resources:
         SubnetId: !Ref PublicSubnet1
         RouteTableId: !Ref PublicRouteTable
 
+    PublicSubnetRouteTableAssociation2:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref PublicSubnet2
+        RouteTableId: !Ref PublicRouteTable
+
     PublicSubnetNetworkAclAssociation1:
       Type: AWS::EC2::SubnetNetworkAclAssociation
       Properties:
         SubnetId: !Ref PublicSubnet1
+        NetworkAclId: !GetAtt VPC.DefaultNetworkAcl
+
+    PublicSubnetNetworkAclAssociation2:
+      Type: AWS::EC2::SubnetNetworkAclAssociation
+      Properties:
+        SubnetId: !Ref PublicSubnet2
         NetworkAclId: !GetAtt VPC.DefaultNetworkAcl
 
     # NAT-related resources
@@ -156,6 +197,13 @@ resources:
       Type: AWS::EC2::SubnetRouteTableAssociation
       Properties:
         SubnetId: !Ref PrivateSubnet1
+        RouteTableId: !Ref NatRouteTable1
+
+
+    PrivateSubnetRouteTableAssociationSingleNatGateway:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref PrivateSubnet2
         RouteTableId: !Ref NatRouteTable1
 
     # APP RESOURCES AND STUFF
