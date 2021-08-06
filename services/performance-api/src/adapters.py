@@ -1,8 +1,10 @@
 import logging
+import os
 from collections import namedtuple
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
+from functools import wraps
 from http import HTTPStatus
 from typing import List
 
@@ -10,8 +12,8 @@ import boto3
 import requests
 from boto3.dynamodb.conditions import Key
 from boto3.dynamodb.types import TypeDeserializer
-# from redis import Redis
-from yahooquery import Ticker
+from dateutil.relativedelta import relativedelta
+from redis import Redis
 
 from goatcommons.models import Investment
 from goatcommons.utils import InvestmentUtils
@@ -23,45 +25,53 @@ logger = logging.getLogger()
 IntraDayData = namedtuple('IntraDayData', 'price prev_close_price change name')
 MonthData = namedtuple('MonthlyData', 'open close')
 
+redis = Redis(host=os.getenv('REDIS_HOST'), port=6379, db=0)
 
-# redis = Redis(host='localhost', port=6379, db=0)
-#
-#
-# def is_market_open(now):
-#     return now.weekday() < 5 and 12 <= now.hour <= 21
-#
-#
-# def next_market_opening(now):
-#     next_day = now + relativedelta(days=1)
-#     while next_day.weekday() > 4:
-#         next_day = next_day + relativedelta(days=1)
-#     return next_day.replace(hour=12, minute=0, second=0)
-#
-#
-# def calculate_expiration_time():
-#     now = datetime.now(tz=timezone.utc)
-#     if is_market_open(now):
-#         return 300
-#     next_opening = next_market_opening(now)
-#     return int(next_opening.timestamp() - now.timestamp())
-#
-#
-# def cached_tuple(func):
-#     @wraps(func)
-#     def wrapper(*args, **kwargs):
-#         key_parts = [func.__name__] + list(args[1:])
-#         key = '-'.join(key_parts)
-#         result = redis.get(key)
-#
-#         if result is None:
-#             value = func(*args, **kwargs)
-#             redis.setex(key, calculate_expiration_time(), str(value))
-#         else:
-#             logger.info(f'{key} in cache, returning.')
-#             value = eval(result)
-#         return value
-#
-#     return wrapper
+
+# TODO: UNIT TEST THIS STUFF
+def is_market_open(now):
+    return now.weekday() < 5 and 12 <= now.hour <= 21
+
+
+def next_market_opening(now):
+    next_day = now + relativedelta(days=1)
+    while next_day.weekday() > 4:
+        next_day = next_day + relativedelta(days=1)
+    return next_day.replace(hour=12, minute=0, second=0)
+
+
+def calculate_expiration_time():
+    now = datetime.now(tz=timezone.utc)
+    if is_market_open(now):
+        return 300
+    next_opening = next_market_opening(now)
+    return int(next_opening.timestamp() - now.timestamp())
+
+
+def cached_tuple(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        key_parts = [func.__name__] + list(args[1:])
+        key = '-'.join(key_parts)
+        result = None
+
+        try:
+            result = redis.get(key)
+        except Exception as e:
+            logger.exception('CAUGHT EXCEPTION getting key from redis: ', e)
+
+        if result is None:
+            value = func(*args, **kwargs)
+            try:
+                redis.setex(key, calculate_expiration_time(), str(value))
+            except Exception as e:
+                logger.exception('CAUGHT EXCEPTION putting key from redis: ', e)
+        else:
+            logger.info(f'{key} in cache, returning.')
+            value = eval(result)
+        return value
+
+    return wrapper
 
 
 class MarketData:
@@ -69,7 +79,7 @@ class MarketData:
         self.repo = MarketDataRepository()
         self.cedro = CedroMarketDataClient()
 
-    # @cached_tuple
+    @cached_tuple
     def ticker_intraday_date(self, ticker: str):
         result = self.cedro.quote(ticker)
         return IntraDayData(Decimal(result['lastTrade']).quantize(Decimal('0.01')),
