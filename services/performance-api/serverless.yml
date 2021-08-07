@@ -158,8 +158,8 @@ resources:
           Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-VpcID
         SecurityGroupIngress:
           - IpProtocol: tcp
-            FromPort: 6379
-            ToPort: 6379
+          - FromPort: 6379
+          - ToPort: 6379
 
     RedisSubnetGroup:
       Type: AWS::ElastiCache::SubnetGroup
