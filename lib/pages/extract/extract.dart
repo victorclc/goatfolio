@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
@@ -32,6 +34,7 @@ class _ExtractPageState extends State<ExtractPage> {
   Future<List<StockInvestment>> _future;
   int offset = 0;
   bool scrollLoading = false;
+  bool fetchingContent;
 
   ScrollController controller;
 
@@ -40,6 +43,7 @@ class _ExtractPageState extends State<ExtractPage> {
     super.initState();
     final userService = Provider.of<UserService>(context, listen: false);
     stockService = StockInvestmentService(userService);
+    fetchingContent = true;
     _future = getInvestments();
   }
 
@@ -81,15 +85,35 @@ class _ExtractPageState extends State<ExtractPage> {
   }
 
   Future<void> onRefresh() async {
-    await stockService.refreshInvestments();
-    offset = 0;
-    _future = getInvestments();
-    await _future;
-    setState(() {});
+    if (!fetchingContent) {
+      await stockService.refreshInvestments();
+      offset = 0;
+      _future = getInvestments();
+      await _future;
+      setState(() {});
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return buildIos(context);
+    }
+    return buildAndroid(context);
+  }
+
+  Widget buildIos(BuildContext context) {
+    return buildContent(context);
+  }
+
+  Widget buildAndroid(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: buildContent(context),
+    );
+  }
+
+  Widget buildContent(BuildContext context) {
     return NotificationListener<ScrollNotification>(
       onNotification: scrollListener,
       child: GestureDetector(
@@ -116,9 +140,10 @@ class _ExtractPageState extends State<ExtractPage> {
                 alignment: Alignment.centerRight,
               ),
             ),
-            CupertinoSliverRefreshControl(
-              onRefresh: onRefresh,
-            ),
+            if (Platform.isIOS)
+              CupertinoSliverRefreshControl(
+                onRefresh: onRefresh,
+              ),
             SliverSafeArea(
               top: false,
               sliver: SliverPadding(
