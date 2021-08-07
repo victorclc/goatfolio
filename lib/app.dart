@@ -31,6 +31,7 @@ class GoatfolioApp extends StatelessWidget {
         navigatorObservers: [
           FirebaseAnalyticsObserver(analytics: analytics),
         ],
+        // theme: ThemeData(platform: TargetPlatform.iOS),
         theme: ThemeData(),
         darkTheme: ThemeData.light(),
         localizationsDelegates: [
