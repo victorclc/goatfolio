@@ -14,8 +14,7 @@ provider:
           - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
   environment:
     PYTHONPATH: "src:libs"
-    REDIS_HOST:
-     'Fn::ImportValue': ${self:provider.stage}-ElastiCacheAddress
+    REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
   iamRoleStatements:
     - Effect: Allow
       Action:
