@@ -162,7 +162,7 @@ resources:
             FromPort: 6379
             ToPort: 6379
 
-    SubnetGroup:
+    RedisSubnetGroup:
       Type: AWS::ElastiCache::SubnetGroup
       Properties:
         Description: Cache Subnet Group
@@ -176,14 +176,14 @@ resources:
         Engine: redis
         CacheNodeType: cache.t2.micro
         NumCacheNodes: '1'
-        CacheSubnetGroupName: !Ref SubnetGroup
+        CacheSubnetGroupName: !Ref RedisSubnetGroup
         VpcSecurityGroupIds:
           - !GetAtt RedisSecurityGroup.GroupId
 
   Outputs:
     ElastiCacheAddress:
       Description: ElastiCache endpoint address
-      Value: !GetAtt ElastiCacheCluster.RedisEndpoint.Address
+      Value: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
       Export:
         Name: ${self:provider.stage}-ElastiCacheAddress
 
