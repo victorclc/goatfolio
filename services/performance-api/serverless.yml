@@ -8,10 +8,10 @@ provider:
   runtime: python3.8
   vpc:
     securityGroupIds:
-       - !GetAtt RedisSecurityGroup.GroupId
+      - !GetAtt RedisSecurityGroup.GroupId
     subnetIds:
-          - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet1ID
-          - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
+      - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet1ID
+      - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
   environment:
     PYTHONPATH: "src:libs"
     REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
@@ -157,10 +157,14 @@ resources:
         VpcId:
           Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-VpcID
         SecurityGroupIngress:
-          -
-            IpProtocol: tcp
+          - IpProtocol: tcp
             FromPort: 6379
             ToPort: 6379
+            CidrIp: 10.50.64.0/19
+          - IpProtocol: tcp
+            FromPort: 6379
+            ToPort: 6379
+            CidrIp: 10.50.96.0/19
 
     RedisSubnetGroup:
       Type: AWS::ElastiCache::SubnetGroup
