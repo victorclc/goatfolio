@@ -175,7 +175,9 @@ class _AboutPageState extends State<AboutPage> {
               ),
             );
           }
-          return CupertinoActivityIndicator();
+          return Platform.isIOS
+              ? CupertinoActivityIndicator()
+              : Center(child: CircularProgressIndicator());
         },
       ),
     );

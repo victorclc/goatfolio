@@ -164,7 +164,9 @@ class _ExtractPageState extends State<ExtractPage> {
                             case ConnectionState.active:
                               break;
                             case ConnectionState.waiting:
-                              return CupertinoActivityIndicator();
+                              return Platform.isIOS
+                                  ? CupertinoActivityIndicator()
+                                  : Center(child: CircularProgressIndicator());
                             case ConnectionState.done:
                               if (snapshot.hasData) {
                                 investments = snapshot.data;
@@ -240,7 +242,9 @@ class _ExtractPageState extends State<ExtractPage> {
             },
           ),
         ),
-        scrollLoading ? CupertinoActivityIndicator() : Container(),
+        scrollLoading ? Platform.isIOS
+            ? CupertinoActivityIndicator()
+            : Center(child: CircularProgressIndicator()) : Container(),
       ],
     );
   }

@@ -49,7 +49,7 @@ class ExtractSearchDelegate extends SearchCupertinoDelegate {
             return Center(
                 child: Platform.isIOS
                     ? CupertinoActivityIndicator()
-                    : CircularProgressIndicator());
+                    : Center(child: CircularProgressIndicator()));
           case ConnectionState.done:
             if (snapshot.hasData) {
               return SingleChildScrollView(

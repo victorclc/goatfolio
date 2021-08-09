@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 void goToProgressIndicatorScaffold(BuildContext context, String message,
     Function onFinish, Future future) async {
@@ -49,7 +52,9 @@ class _ProgressIndicatorScaffoldState extends State<ProgressIndicatorScaffold> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CupertinoActivityIndicator(),
+                  Platform.isIOS
+                      ? CupertinoActivityIndicator()
+                      : Center(child: CircularProgressIndicator()),
                   SizedBox(
                     height: 8,
                   ),

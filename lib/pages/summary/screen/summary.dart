@@ -82,7 +82,9 @@ class _SummaryPageState extends State<SummaryPage> {
                       case ConnectionState.active:
                         break;
                       case ConnectionState.waiting:
-                        return CupertinoActivityIndicator();
+                        return Platform.isIOS
+                            ? CupertinoActivityIndicator()
+                            : Center(child: Center(child: CircularProgressIndicator()));
                       case ConnectionState.done:
                         if (snapshot.hasData) {
                           summary = snapshot.data;

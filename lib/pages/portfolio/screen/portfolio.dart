@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
@@ -43,7 +45,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
             case ConnectionState.active:
               break;
             case ConnectionState.waiting:
-              return CupertinoActivityIndicator();
+              return Platform.isIOS
+                  ? CupertinoActivityIndicator()
+                  : Center(child: CircularProgressIndicator());
             case ConnectionState.done:
               if (snapshot.hasData) {
                 portfolioList = snapshot.data;

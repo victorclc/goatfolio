@@ -189,7 +189,9 @@ class _InvestmentsListState extends State<InvestmentsList> {
                     case ConnectionState.active:
                       break;
                     case ConnectionState.waiting:
-                      return CupertinoActivityIndicator();
+                      return Platform.isIOS
+                          ? CupertinoActivityIndicator()
+                          : Center(child: CircularProgressIndicator());
                     case ConnectionState.done:
                       if (snapshot.hasData) {
                         return Expanded(

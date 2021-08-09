@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/linear_chart.dart';
 import 'package:intl/intl.dart';
@@ -24,7 +27,6 @@ class _RentabilityChartState extends State<RentabilityChart> {
   @override
   void initState() {
     super.initState();
-
   }
 
   void onSelectionChanged(Map<String, dynamic> series) {
@@ -76,7 +78,6 @@ class _RentabilityChartState extends State<RentabilityChart> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
@@ -92,7 +93,12 @@ class _RentabilityChartState extends State<RentabilityChart> {
             return Column(
               children: [
                 buildHeader(),
-                SizedBox(height: 240, child: CupertinoActivityIndicator()),
+                SizedBox(
+                  height: 240,
+                  child: Platform.isIOS
+                      ? CupertinoActivityIndicator()
+                      : Center(child: CircularProgressIndicator()),
+                ),
               ],
             );
           case ConnectionState.done:
