@@ -89,51 +89,39 @@ class _ThemePageState extends State<ThemePage> {
           SettingsSection(
             title: 'TEMA',
             tiles: [
-              SettingsTile(
+              SettingsTile.switchTile(
                 title: 'Automático',
-                trailing: automaticTheme
-                    ? Icon(CupertinoIcons.check_mark, size: 18)
-                    : Container(),
-                onPressed: (_) {
+                switchValue: automaticTheme,
+                onToggle: (value) {
                   setState(() {
-                    automaticTheme = true;
-                    lightTheme = false;
-                    darkTheme = false;
-                    themeChanger.setValue(ThemeChanger.CFG_AUTOMATIC_VALUE);
+                    if (value) {
+                      automaticTheme = true;
+                      lightTheme = false;
+                      darkTheme = false;
+                      themeChanger.setValue(ThemeChanger.CFG_AUTOMATIC_VALUE);
+                    } else {
+                      automaticTheme = false;
+                      lightTheme = true;
+                      darkTheme = false;
+                      themeChanger.setValue(ThemeChanger.CFG_LIGHT_VALUE);
+                    }
                   });
                 },
               ),
-              SettingsTile(
-                title: 'Claro',
-                trailing: lightTheme
-                    ? Icon(CupertinoIcons.check_mark, size: 18)
-                    : Container(),
-                onPressed: (_) {
-                  setState(() {
-                    automaticTheme = false;
-                    lightTheme = true;
-                    darkTheme = false;
-                    themeChanger.setValue(ThemeChanger.CFG_LIGHT_VALUE);
-                  });
-                },
-              ),
-              SettingsTile(
-                title: 'Escuro',
-                trailing: darkTheme
-                    ? Icon(
-                        CupertinoIcons.check_mark,
-                        size: 18,
-                      )
-                    : Container(),
-                onPressed: (_) {
-                  setState(() {
-                    automaticTheme = false;
-                    lightTheme = false;
-                    darkTheme = true;
-                    themeChanger.setValue(ThemeChanger.CFG_DARK_VALUE);
-                  });
-                },
-              ),
+              if (!automaticTheme)
+                SettingsTile.switchTile(
+                  switchValue: darkTheme,
+                  title: 'Modo escuro',
+                  onToggle: (value) {
+                    setState(() {
+                      lightTheme = !value;
+                      darkTheme = value;
+                      themeChanger.setValue(value
+                          ? ThemeChanger.CFG_DARK_VALUE
+                          : ThemeChanger.CFG_LIGHT_VALUE);
+                    });
+                  },
+                ),
             ],
           )
         ],
