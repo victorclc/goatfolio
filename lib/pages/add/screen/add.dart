@@ -60,6 +60,7 @@ class AddPage extends StatelessWidget {
           tiles: [
             SettingsTile(
               title: 'Importar automaticamente (CEI)',
+              iosLikeTile: true,
               onPressed: (context) => ModalUtils.showDragableModalBottomSheet(
                 context,
                 CeiLoginPage(userService: userService),
@@ -67,6 +68,7 @@ class AddPage extends StatelessWidget {
             ),
             SettingsTile(
               title: 'Operação de compra',
+              iosLikeTile: true,
               onPressed: (context) => goToInvestmentList(
                 context,
                 true,
@@ -77,6 +79,7 @@ class AddPage extends StatelessWidget {
             ),
             SettingsTile(
               title: 'Operação de venda',
+              iosLikeTile: true,
               onPressed: (context) => goToInvestmentList(
                 context,
                 false,

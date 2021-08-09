@@ -48,9 +48,7 @@ class SettingsPage extends StatelessWidget {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text(title),
-        backgroundColor: CupertinoTheme
-            .of(context)
-            .scaffoldBackgroundColor,
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
       ),
       child: buildContent(context),
     );
@@ -63,10 +61,16 @@ class SettingsPage extends StatelessWidget {
           tiles: [
             SettingsTile(
               title: 'Aparência',
+              subtitle: Platform.isAndroid
+                  ? 'Modo escuro, claro ou automático'
+                  : null,
               onPressed: goToThemePage,
             ),
             SettingsTile(
               title: 'Notificações',
+              subtitle: Platform.isAndroid
+                  ? 'Controle como você recebe as notificações'
+                  : null,
               onPressed: (_) => AppSettings.openNotificationSettings(),
             ),
             SettingsTile(
@@ -87,22 +91,20 @@ class SettingsPage extends StatelessWidget {
                 Icons.exit_to_app_rounded,
                 color: Colors.redAccent,
               ),
-              titleTextStyle:
-              TextStyle(fontSize: 16, color: Colors.redAccent),
+              titleTextStyle: TextStyle(fontSize: 16, color: Colors.redAccent),
               onPressed: (BuildContext context) async {
                 final userService =
-                Provider.of<UserService>(context, listen: false);
+                    Provider.of<UserService>(context, listen: false);
                 await deleteInvestmentsDatabase();
                 await NotificationClient(userService).unregisterToken(
                     await FirebaseMessaging.instance.getToken());
                 await userService.signOut();
                 Navigator.of(context, rootNavigator: true).pushReplacement(
                   CupertinoPageRoute(
-                    builder: (context) =>
-                        LoginPage(
-                          onLoggedOn: goToNavigationPage,
-                          userService: userService,
-                        ),
+                    builder: (context) => LoginPage(
+                      onLoggedOn: goToNavigationPage,
+                      userService: userService,
+                    ),
                   ),
                 );
               },

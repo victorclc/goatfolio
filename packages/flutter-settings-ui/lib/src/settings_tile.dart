@@ -22,6 +22,7 @@ class SettingsTile extends StatelessWidget {
   final Function(BuildContext context)? onPressed;
   final Function(bool value)? onToggle;
   final bool? switchValue;
+  final bool? iosLikeTile;
   final bool enabled;
   final TextStyle? titleTextStyle;
   final TextStyle? subtitleTextStyle;
@@ -44,6 +45,7 @@ class SettingsTile extends StatelessWidget {
     this.enabled = true,
     this.onPressed,
     this.switchActiveColor,
+    this.iosLikeTile = false,
   })  : _tileType = _SettingsTileType.simple,
         onToggle = null,
         switchValue = null,
@@ -59,6 +61,7 @@ class SettingsTile extends StatelessWidget {
     this.subtitleMaxLines,
     this.leading,
     this.enabled = true,
+    this.iosLikeTile = false,
     this.trailing,
     required this.onToggle,
     required this.switchValue,
@@ -76,10 +79,9 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return iosTile(context);
-    if (kIsWeb) {
+    if (Platform.isIOS || this.iosLikeTile!) {
       return iosTile(context);
-    } else if (Platform.isIOS || Platform.isMacOS) {
+    } else if (kIsWeb) {
       return iosTile(context);
     } else {
       return androidTile(context);
@@ -157,7 +159,7 @@ class SettingsTile extends StatelessWidget {
         subtitle: subtitle != null
             ? Text(
                 subtitle!,
-                style: textTheme.textStyle,
+                style: textTheme.tabLabelTextStyle.copyWith(fontSize: 12),
                 maxLines: subtitleMaxLines,
                 overflow: TextOverflow.ellipsis,
               )

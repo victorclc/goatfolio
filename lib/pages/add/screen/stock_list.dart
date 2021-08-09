@@ -92,6 +92,7 @@ class _InvestmentsListState extends State<InvestmentsList> {
               .map(
                 (ticker) => SettingsTile(
                   title: ticker,
+                  iosLikeTile: true,
                   onPressed: (context) =>
                       ModalUtils.showDragableModalBottomSheet(
                           context,
