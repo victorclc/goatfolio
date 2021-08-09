@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeChanger extends ChangeNotifier {
@@ -10,10 +11,12 @@ class ThemeChanger extends ChangeNotifier {
   final SharedPreferences _prefs;
   String _configuredTheme;
   CupertinoThemeData _themeData;
+  ThemeData _androidTheme;
 
   String get configuredTheme => _configuredTheme;
 
   get themeData => _themeData;
+  get androidTheme => _androidTheme;
 
   ThemeChanger(this._prefs) {
     _configuredTheme = this._prefs.get(CFG_THEME_KEY);
@@ -25,13 +28,16 @@ class ThemeChanger extends ChangeNotifier {
       case CFG_LIGHT_VALUE:
         _themeData = CupertinoThemeData.raw(
             Brightness.light, null, null, null, null, null);
+        _androidTheme = ThemeData.light();
         break;
       case CFG_DARK_VALUE:
         _themeData = CupertinoThemeData.raw(
             Brightness.dark, null, null, null, null, null);
+        _androidTheme = ThemeData.dark();
         break;
       default:
         _themeData = CupertinoThemeData();
+        _androidTheme = ThemeData();
         break;
     }
   }

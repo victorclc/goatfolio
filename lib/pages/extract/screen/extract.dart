@@ -169,6 +169,7 @@ class _ExtractPageState extends State<ExtractPage> {
                                   : Center(child: CircularProgressIndicator());
                             case ConnectionState.done:
                               if (snapshot.hasData) {
+                                fetchingContent = false;
                                 investments = snapshot.data;
                                 return buildExtractList(context, snapshot.data);
                               }
