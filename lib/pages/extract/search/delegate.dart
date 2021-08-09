@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/search/cupertino_search_delegate.dart';
@@ -44,7 +46,10 @@ class ExtractSearchDelegate extends SearchCupertinoDelegate {
           case ConnectionState.active:
             break;
           case ConnectionState.waiting:
-            return Center(child: CupertinoActivityIndicator());
+            return Center(
+                child: Platform.isIOS
+                    ? CupertinoActivityIndicator()
+                    : CircularProgressIndicator());
           case ConnectionState.done:
             if (snapshot.hasData) {
               return SingleChildScrollView(
@@ -65,7 +70,6 @@ class ExtractSearchDelegate extends SearchCupertinoDelegate {
     return Container();
   }
 }
-
 
 class ExtractAndroidSearchDelegate extends SearchDelegate {
   final Function searchFunction;

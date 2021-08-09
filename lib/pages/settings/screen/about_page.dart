@@ -46,7 +46,10 @@ class _AboutPageState extends State<AboutPage> {
         ),
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
       ),
-      backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+      backgroundColor:
+          CupertinoThemeHelper.currentBrightness(context) == Brightness.light
+              ? Color(0xFFEFEFF4)
+              : CupertinoTheme.of(context).scaffoldBackgroundColor,
       body: buildContent(context),
     );
   }
@@ -73,7 +76,6 @@ class _AboutPageState extends State<AboutPage> {
       child: FutureBuilder(
         future: PackageInfo.fromPlatform(),
         builder: (context, snapshot) {
-          print(snapshot);
           if (snapshot.connectionState == ConnectionState.done) {
             version = snapshot.data.version;
             return Container(
@@ -118,6 +120,10 @@ class _AboutPageState extends State<AboutPage> {
                       )
                     ],
                   ),
+                  if (Platform.isAndroid)
+                    SizedBox(
+                      height: 14,
+                    ),
                   Expanded(
                     child: SingleChildScrollView(
                       child: SettingsList(

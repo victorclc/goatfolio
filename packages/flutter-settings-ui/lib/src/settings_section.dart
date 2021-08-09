@@ -30,7 +30,7 @@ class SettingsSection extends AbstractSection {
 
   @override
   Widget build(BuildContext context) {
-    return iosSection();
+    // return iosSection();
     if (kIsWeb) {
       return iosSection();
     } else if (Platform.isIOS || Platform.isMacOS) {
@@ -68,6 +68,7 @@ class SettingsSection extends AbstractSection {
 
   Widget androidSection(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      SizedBox(height: 16,),
       if (title != null)
         Padding(
           padding: titlePadding!,

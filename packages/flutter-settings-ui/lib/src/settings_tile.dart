@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:settings_ui/src/cupertino_settings_item.dart';
@@ -124,6 +125,8 @@ class SettingsTile extends StatelessWidget {
   }
 
   Widget androidTile(BuildContext context) {
+    final CupertinoTextThemeData textTheme =
+        CupertinoTheme.of(context).textTheme;
     if (_tileType == _SettingsTileType.switchTile) {
       return SwitchListTile(
         secondary: leading,
@@ -132,7 +135,7 @@ class SettingsTile extends StatelessWidget {
         onChanged: enabled ? onToggle : null,
         title: Text(
           title,
-          style: titleTextStyle,
+          style: textTheme.textStyle,
           maxLines: titleMaxLines,
           overflow: TextOverflow.ellipsis,
         ),
@@ -147,11 +150,14 @@ class SettingsTile extends StatelessWidget {
       );
     } else {
       return ListTile(
-        title: Text(title, style: titleTextStyle),
+        title: Text(
+          title,
+          style: textTheme.textStyle,
+        ),
         subtitle: subtitle != null
             ? Text(
                 subtitle!,
-                style: subtitleTextStyle,
+                style: textTheme.textStyle,
                 maxLines: subtitleMaxLines,
                 overflow: TextOverflow.ellipsis,
               )
