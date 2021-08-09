@@ -132,7 +132,10 @@ class _NavigationWidgetState extends State<NavigationWidget>
     final theme = CupertinoTheme.of(context);
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: androidTabViews[currentIndex],
+      body: IndexedStack(
+        index: currentIndex,
+        children: androidTabViews,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         // type: BottomNavigationBarType.fixed,
         showUnselectedLabels: true,
