@@ -88,7 +88,9 @@ class ExtractAndroidSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildLeading(BuildContext context) {
-    return BackButton();
+    final textColor =
+        CupertinoTheme.of(context).textTheme.navTitleTextStyle.color;
+    return BackButton(color: textColor,);
   }
 
   @override

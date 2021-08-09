@@ -539,7 +539,6 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
       child: CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
-          // leading: BackButton(),
           border: Border(),
           trailing: Container(
             padding: EdgeInsets.only(left: 40),
@@ -599,7 +598,8 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
       case TargetPlatform.windows:
         routeName = searchFieldLabel;
     }
-
+    final textColor =
+        CupertinoTheme.of(context).textTheme.navTitleTextStyle.color;
     return Semantics(
       explicitChildNodes: true,
       scopesRoute: true,
@@ -608,6 +608,7 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
       child: Scaffold(
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
+          leading: BackButton(color: textColor),
           elevation: 0,
           backgroundColor: Colors.transparent,
           title: CupertinoSearchTextField(
