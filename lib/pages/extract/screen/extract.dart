@@ -7,6 +7,7 @@ import 'package:goatfolio/common/search/cupertino_search_delegate.dart';
 import 'package:goatfolio/common/util/focus.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/pages/add/screen/stock_add.dart';
+import 'package:goatfolio/pages/extract/search/delegate.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/model/operation_type.dart';
 
@@ -113,6 +114,16 @@ class _ExtractPageState extends State<ExtractPage> {
     );
   }
 
+  void _showSearch() {
+    showCupertinoSearch(
+        context: context,
+        delegate: ExtractSearchDelegate(
+          getInvestmentsTicker,
+          buildExtractList,
+        ),
+        placeHolderText: "Buscar ativo");
+  }
+
   Widget buildContent(BuildContext context) {
     return NotificationListener<ScrollNotification>(
       onNotification: scrollListener,
@@ -129,13 +140,7 @@ class _ExtractPageState extends State<ExtractPage> {
                   CupertinoTheme.of(context).scaffoldBackgroundColor,
               trailing: IconButton(
                 icon: Icon(CupertinoIcons.search),
-                onPressed: () => showCupertinoSearch(
-                    context: context,
-                    delegate: ExtractSearchDelegate(
-                      getInvestmentsTicker,
-                      buildExtractList,
-                    ),
-                    placeHolderText: "Buscar ativo"),
+                onPressed: _showSearch,
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerRight,
               ),
@@ -447,68 +452,5 @@ class _StockExtractItem extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class ExtractSearchDelegate extends SearchCupertinoDelegate {
-  final Function searchFunction;
-  final Function buildFunction;
-  List<StockInvestment> results = [];
-  ScrollController controller = ScrollController();
-  String lastQuery = "";
-  Future _future;
-
-  ExtractSearchDelegate(this.searchFunction, this.buildFunction) {
-    controller.addListener(() {
-      focusNode.unfocus();
-    });
-  }
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return Container();
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    if (query.isEmpty) {
-      return Container();
-    }
-    if (lastQuery != query) {
-      _future = searchFunction(query);
-    }
-    lastQuery = query;
-    return FutureBuilder(
-      future: _future,
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-          case ConnectionState.active:
-            break;
-          case ConnectionState.waiting:
-            return Center(child: CupertinoActivityIndicator());
-          case ConnectionState.done:
-            if (snapshot.hasData) {
-              return SingleChildScrollView(
-                  controller: controller,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: buildFunction(context, snapshot.data),
-                  ));
-            }
-        }
-        return Container();
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return Container();
   }
 }

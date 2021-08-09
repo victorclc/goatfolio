@@ -109,7 +109,7 @@ class _AboutPageState extends State<AboutPage> {
                           Container(
                             padding: EdgeInsets.only(left: 16, top: 8),
                             child: Text(
-                              'por Victor Corte',
+                              'por Majesty Solutions',
                               style: textTheme.tabLabelTextStyle
                                   .copyWith(fontSize: 16),
                             ),

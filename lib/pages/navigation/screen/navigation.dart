@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/pages/add/screen/add.dart';
-import 'package:goatfolio/pages/extract/extract.dart';
+import 'package:goatfolio/pages/extract/screen/extract.dart';
 import 'package:goatfolio/pages/portfolio/screen/portfolio.dart';
 import 'package:goatfolio/pages/settings/screen/settings_page.dart';
 import 'package:goatfolio/pages/summary/screen/summary.dart';
