@@ -1,7 +1,9 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/common/theme/theme_changer.dart';
 import 'package:goatfolio/services/performance/model/portfolio_list.dart';
+import 'package:provider/provider.dart';
 
 class DonutAutoLabelChart extends StatefulWidget {
   final PortfolioList portfolioList;
@@ -29,6 +31,7 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
   bool mustRebuild = false;
   String tappedType;
   double grossAmount;
+  CupertinoThemeData _previousTheme;
 
   void initState() {
     super.initState();
@@ -91,19 +94,25 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.typeSeries.first.data.isEmpty) {
-      return Center(
-        child: Text("Nenhum dado ainda.",
-            style: CupertinoTheme.of(context).textTheme.textStyle),
-      );
-    }
-    if (chart == null ||
-        mustRebuild ||
-        grossAmount != widget.portfolioList.grossAmount) {
-      grossAmount = widget.portfolioList.grossAmount;
-      mustRebuild = false;
-      chart = buildChart(context);
-    }
-    return chart;
+    return Consumer<ThemeChanger>(builder: (context, theme, _) {
+      if (_previousTheme != null && _previousTheme != theme.themeData) {
+        mustRebuild = true;
+      }
+      _previousTheme = theme.themeData;
+      if (widget.typeSeries.first.data.isEmpty) {
+        return Center(
+          child: Text("Nenhum dado ainda.",
+              style: CupertinoTheme.of(context).textTheme.textStyle),
+        );
+      }
+      if (chart == null ||
+          mustRebuild ||
+          grossAmount != widget.portfolioList.grossAmount) {
+        grossAmount = widget.portfolioList.grossAmount;
+        mustRebuild = false;
+        chart = buildChart(context);
+      }
+      return chart;
+    });
   }
 }
