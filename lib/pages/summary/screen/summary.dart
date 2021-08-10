@@ -55,6 +55,7 @@ class _SummaryPageState extends State<SummaryPage> {
     return CustomScrollView(
       slivers: [
         CupertinoSliverNavigationBar(
+          heroTag: 'summaryNavBar',
           largeTitle: Text(SummaryPage.title),
           backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
           border: null,
