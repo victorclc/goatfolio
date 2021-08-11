@@ -367,7 +367,7 @@ packages:
   settings_ui:
     dependency: "direct main"
     description:
-      path: "../flutter-settings-ui"
+      path: "packages/flutter-settings-ui"
       relative: true
     source: path
     version: "1.0.0-nullsafety.1"

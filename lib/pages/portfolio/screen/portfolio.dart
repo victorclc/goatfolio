@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
 import 'package:goatfolio/common/widget/expansion_tile_custom.dart';
 import 'package:goatfolio/pages/portfolio/widget/donut_chart.dart';
+import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/model/benchmark_position.dart';
 import 'package:goatfolio/services/performance/model/portfolio_list.dart';
 import 'package:goatfolio/services/performance/model/stock_summary.dart';
@@ -42,7 +45,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
             case ConnectionState.active:
               break;
             case ConnectionState.waiting:
-              return CupertinoActivityIndicator();
+              return Platform.isIOS
+                  ? CupertinoActivityIndicator()
+                  : Center(child: CircularProgressIndicator());
             case ConnectionState.done:
               if (snapshot.hasData) {
                 portfolioList = snapshot.data;
@@ -433,13 +438,14 @@ class StockInvestmentSummaryItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
-
+    final userService = Provider.of<UserService>(context, listen: false);
     final currentValue = summary.amount *
         (summary.currentPrice != null ? summary.currentPrice : 0.0);
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: () {
-        navigateToInvestmentDetails(context, summary, color, ibovHistory);
+        navigateToInvestmentDetails(
+            context, summary, color, ibovHistory, userService);
       },
       child: Container(
         child: Column(

@@ -21,6 +21,7 @@ class CupertinoSliverPage extends StatelessWidget {
       child: CustomScrollView(
         slivers: [
           CupertinoSliverNavigationBar(
+            heroTag: 'portfolioNavBar',
             largeTitle: Text(largeTitle),
             backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
           ),

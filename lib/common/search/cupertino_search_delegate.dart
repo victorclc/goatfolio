@@ -1,21 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-Future<T> showCupertinoSearch<T>({
-  @required BuildContext context,
-  @required SearchCupertinoDelegate<T> delegate,
-  String query = '',
-  placeHolderText = ''
-}) {
+Future<T> showCupertinoSearch<T>(
+    {@required BuildContext context,
+    @required SearchCupertinoDelegate<T> delegate,
+    String query = '',
+    placeHolderText = ''}) {
   assert(delegate != null);
   assert(context != null);
   delegate.query = query ?? delegate.query;
   delegate._currentBody = _SearchBody.suggestions;
   return Navigator.of(context, rootNavigator: true).push(_SearchPageRoute<T>(
-    delegate: delegate, placeHolderText: placeHolderText
-  ));
+      delegate: delegate, placeHolderText: placeHolderText));
 }
 
 /// Delegate for [showSearch] to define the content of the search page.
@@ -300,7 +300,6 @@ abstract class SearchCupertinoDelegate<T> {
   // managed, owned, and set by the _SearchPageRoute using this delegate.
   FocusNode focusNode;
 
-
   final TextEditingController _queryTextController = TextEditingController();
 
   final ProxyAnimation _proxyAnimation =
@@ -344,8 +343,8 @@ class _SearchPageRoute<T> extends PageRoute<T> {
       'before opening another search with the same delegate instance.',
     );
     delegate._route = this;
-
   }
+
   final String placeHolderText;
 
   final SearchCupertinoDelegate<T> delegate;
@@ -489,6 +488,14 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return buildIos(context);
+    }
+    return buildAndroid(context);
+  }
+
+
+  Widget buildIos(BuildContext context) {
     assert(debugCheckHasMaterialLocalizations(context));
     final ThemeData theme = widget.delegate.appBarTheme(context);
     final String searchFieldLabel = widget.delegate.searchFieldLabel ??
@@ -547,6 +554,91 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
           ),
         ),
         child: SafeArea(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: body,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildAndroid(BuildContext context) {
+    assert(debugCheckHasMaterialLocalizations(context));
+    final ThemeData theme = widget.delegate.appBarTheme(context);
+    final String searchFieldLabel = widget.delegate.searchFieldLabel ??
+        MaterialLocalizations.of(context).searchFieldLabel;
+    Widget body;
+    switch (widget.delegate._currentBody) {
+      case _SearchBody.suggestions:
+        body = KeyedSubtree(
+          key: const ValueKey<_SearchBody>(_SearchBody.suggestions),
+          child: widget.delegate.buildSuggestions(context),
+        );
+        break;
+      case _SearchBody.results:
+        body = KeyedSubtree(
+          key: const ValueKey<_SearchBody>(_SearchBody.results),
+          child: widget.delegate.buildResults(context),
+        );
+        break;
+      default:
+        break;
+    }
+
+    String routeName;
+    switch (theme.platform) {
+      case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
+        routeName = '';
+        break;
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
+        routeName = searchFieldLabel;
+    }
+    final textColor =
+        CupertinoTheme.of(context).textTheme.navTitleTextStyle.color;
+    return Semantics(
+      explicitChildNodes: true,
+      scopesRoute: true,
+      namesRoute: true,
+      label: routeName,
+      child: Scaffold(
+        backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          leading: BackButton(color: textColor),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          title: CupertinoSearchTextField(
+            placeholder: widget.placeHolderText,
+            controller: widget.delegate._queryTextController,
+            focusNode: focusNode,
+            onSubmitted: (String _) {
+              widget.delegate.showResults(context);
+            },
+            onChanged: (String _) => widget.delegate.showResults(context),
+          ),
+        ),
+        // navigationBar: CupertinoNavigationBar(
+        //   backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
+        //   // leading: BackButton(),
+        //   border: Border(),
+        //   trailing: Container(
+        //     padding: EdgeInsets.only(left: 40),
+        //     child: CupertinoSearchTextField(
+        //       placeholder: widget.placeHolderText,
+        //       controller: widget.delegate._queryTextController,
+        //       focusNode: focusNode,
+        //       onSubmitted: (String _) {
+        //         widget.delegate.showResults(context);
+        //       },
+        //       onChanged: (String _) => widget.delegate.showResults(context),
+        //     ),
+        //   ),
+        // ),
+        body: SafeArea(
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: body,

@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/linear_chart.dart';
 import 'package:intl/intl.dart';
@@ -90,7 +93,9 @@ class _ValorizationChartState extends State<ValorizationChart> {
             return Column(
               children: [
                 buildHeader(),
-                SizedBox(height: 240, child: CupertinoActivityIndicator()),
+                SizedBox(height: 240, child: Platform.isIOS
+                    ? CupertinoActivityIndicator()
+                    : Center(child: CircularProgressIndicator())),
               ],
             );
           case ConnectionState.done:

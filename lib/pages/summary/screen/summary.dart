@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/pages/summary/widget/highest_highs_card.dart';
@@ -24,20 +26,47 @@ class _SummaryPageState extends State<SummaryPage> {
     super.initState();
   }
 
+  Future<void> onRefresh() async {
+    Provider.of<PortfolioListNotifier>(context, listen: false)
+        .updatePerformance();
+    await Provider.of<PortfolioSummaryNotifier>(context, listen: false)
+        .updatePerformance();
+  }
+
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return buildIos(context);
+    }
+    return buildAndroid(context);
+  }
+
+  Widget buildAndroid(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: buildScrollView(context),
+    );
+  }
+
+  Widget buildIos(BuildContext context) {
+    return buildScrollView(context);
+  }
+
+  Widget buildScrollView(BuildContext context) {
     return CustomScrollView(
       slivers: [
         CupertinoSliverNavigationBar(
+          heroTag: 'summaryNavBar',
           largeTitle: Text(SummaryPage.title),
           backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
           border: null,
         ),
-        CupertinoSliverRefreshControl(onRefresh: () async {
-          Provider.of<PortfolioListNotifier>(context, listen: false)
-              .updatePerformance();
-          await Provider.of<PortfolioSummaryNotifier>(context, listen: false)
-              .updatePerformance();
-        }),
+        if (Platform.isIOS)
+          CupertinoSliverRefreshControl(onRefresh: () async {
+            Provider.of<PortfolioListNotifier>(context, listen: false)
+                .updatePerformance();
+            await Provider.of<PortfolioSummaryNotifier>(context, listen: false)
+                .updatePerformance();
+          }),
         SliverSafeArea(
           top: false,
           sliver: SliverPadding(
@@ -54,7 +83,9 @@ class _SummaryPageState extends State<SummaryPage> {
                       case ConnectionState.active:
                         break;
                       case ConnectionState.waiting:
-                        return CupertinoActivityIndicator();
+                        return Platform.isIOS
+                            ? CupertinoActivityIndicator()
+                            : Center(child: Center(child: CircularProgressIndicator()));
                       case ConnectionState.done:
                         if (snapshot.hasData) {
                           summary = snapshot.data;

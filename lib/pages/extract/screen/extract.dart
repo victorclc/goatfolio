@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
@@ -5,6 +7,7 @@ import 'package:goatfolio/common/search/cupertino_search_delegate.dart';
 import 'package:goatfolio/common/util/focus.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/pages/add/screen/stock_add.dart';
+import 'package:goatfolio/pages/extract/search/delegate.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/model/operation_type.dart';
 
@@ -32,6 +35,7 @@ class _ExtractPageState extends State<ExtractPage> {
   Future<List<StockInvestment>> _future;
   int offset = 0;
   bool scrollLoading = false;
+  bool fetchingContent;
 
   ScrollController controller;
 
@@ -40,6 +44,7 @@ class _ExtractPageState extends State<ExtractPage> {
     super.initState();
     final userService = Provider.of<UserService>(context, listen: false);
     stockService = StockInvestmentService(userService);
+    fetchingContent = true;
     _future = getInvestments();
   }
 
@@ -81,15 +86,45 @@ class _ExtractPageState extends State<ExtractPage> {
   }
 
   Future<void> onRefresh() async {
-    await stockService.refreshInvestments();
-    offset = 0;
-    _future = getInvestments();
-    await _future;
-    setState(() {});
+    if (!fetchingContent) {
+      await stockService.refreshInvestments();
+      offset = 0;
+      _future = getInvestments();
+      await _future;
+      setState(() {});
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return buildIos(context);
+    }
+    return buildAndroid(context);
+  }
+
+  Widget buildIos(BuildContext context) {
+    return buildContent(context);
+  }
+
+  Widget buildAndroid(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: buildContent(context),
+    );
+  }
+
+  void _showSearch() {
+    showCupertinoSearch(
+        context: context,
+        delegate: ExtractSearchDelegate(
+          getInvestmentsTicker,
+          buildExtractList,
+        ),
+        placeHolderText: "Buscar ativo");
+  }
+
+  Widget buildContent(BuildContext context) {
     return NotificationListener<ScrollNotification>(
       onNotification: scrollListener,
       child: GestureDetector(
@@ -100,25 +135,21 @@ class _ExtractPageState extends State<ExtractPage> {
           controller: controller,
           slivers: [
             CupertinoSliverNavigationBar(
+              heroTag: 'extractNavBar',
               largeTitle: Text(ExtractPage.title),
               backgroundColor:
                   CupertinoTheme.of(context).scaffoldBackgroundColor,
               trailing: IconButton(
                 icon: Icon(CupertinoIcons.search),
-                onPressed: () => showCupertinoSearch(
-                    context: context,
-                    delegate: ExtractSearchDelegate(
-                      getInvestmentsTicker,
-                      buildExtractList,
-                    ),
-                    placeHolderText: "Buscar ativo"),
+                onPressed: _showSearch,
                 padding: EdgeInsets.zero,
                 alignment: Alignment.centerRight,
               ),
             ),
-            CupertinoSliverRefreshControl(
-              onRefresh: onRefresh,
-            ),
+            if (Platform.isIOS)
+              CupertinoSliverRefreshControl(
+                onRefresh: onRefresh,
+              ),
             SliverSafeArea(
               top: false,
               sliver: SliverPadding(
@@ -134,9 +165,12 @@ class _ExtractPageState extends State<ExtractPage> {
                             case ConnectionState.active:
                               break;
                             case ConnectionState.waiting:
-                              return CupertinoActivityIndicator();
+                              return Platform.isIOS
+                                  ? CupertinoActivityIndicator()
+                                  : Center(child: CircularProgressIndicator());
                             case ConnectionState.done:
                               if (snapshot.hasData) {
+                                fetchingContent = false;
                                 investments = snapshot.data;
                                 return buildExtractList(context, snapshot.data);
                               }
@@ -210,7 +244,9 @@ class _ExtractPageState extends State<ExtractPage> {
             },
           ),
         ),
-        scrollLoading ? CupertinoActivityIndicator() : Container(),
+        scrollLoading ? Platform.isIOS
+            ? CupertinoActivityIndicator()
+            : Center(child: CircularProgressIndicator()) : Container(),
       ],
     );
   }
@@ -422,68 +458,5 @@ class _StockExtractItem extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class ExtractSearchDelegate extends SearchCupertinoDelegate {
-  final Function searchFunction;
-  final Function buildFunction;
-  List<StockInvestment> results = [];
-  ScrollController controller = ScrollController();
-  String lastQuery = "";
-  Future _future;
-
-  ExtractSearchDelegate(this.searchFunction, this.buildFunction) {
-    controller.addListener(() {
-      focusNode.unfocus();
-    });
-  }
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return Container();
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    if (query.isEmpty) {
-      return Container();
-    }
-    if (lastQuery != query) {
-      _future = searchFunction(query);
-    }
-    lastQuery = query;
-    return FutureBuilder(
-      future: _future,
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-          case ConnectionState.active:
-            break;
-          case ConnectionState.waiting:
-            return Center(child: CupertinoActivityIndicator());
-          case ConnectionState.done:
-            if (snapshot.hasData) {
-              return SingleChildScrollView(
-                  controller: controller,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: buildFunction(context, snapshot.data),
-                  ));
-            }
-        }
-        return Container();
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return Container();
   }
 }
