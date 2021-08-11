@@ -2,6 +2,7 @@ import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/common/constant/app.dart';
+import 'package:goatfolio/common/helper/theme_helper.dart';
 import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/focus.dart';
 import 'package:goatfolio/common/util/modal.dart';
@@ -37,6 +38,9 @@ class LoginPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Image(
+                    color: CupertinoThemeHelper.isDarkMode(context)
+                        ? Colors.grey
+                        : null,
                     image: AssetImage(AppConstants.APP_LOGO),
                     height: 152,
                     width: 152,
@@ -150,7 +154,8 @@ class LoginPage extends StatelessWidget {
   Future<void> onSignUpSubmit(
       BuildContext context, UserService userService, Map values) async {
     try {
-      User user = await userService.signUp(values['email'], values['password'], attributes: {"given_name":values['name']});
+      User user = await userService.signUp(values['email'], values['password'],
+          attributes: {"given_name": values['name']});
       print(user);
       if (user != null) {
         print("CONFIRM ACCOUNT");

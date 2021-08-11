@@ -11,30 +11,37 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'common/theme/theme_changer.dart';
 import 'flavors.dart';
 
-
 class GoatfolioApp extends StatelessWidget {
   final FirebaseAnalytics analytics = FirebaseAnalytics();
   final bool hasValidSession;
   final UserService userService;
   final SharedPreferences prefs;
 
-  GoatfolioApp(
-      {Key key, this.hasValidSession, this.userService, this.prefs})
+  GoatfolioApp({Key key, this.hasValidSession, this.userService, this.prefs})
       : super(key: key);
+
+  ThemeData androidDarkThemeData(BuildContext context, ThemeChanger theme) {
+    if (theme.configuredTheme == ThemeChanger.CFG_AUTOMATIC_VALUE) {
+      return ThemeData(
+          brightness: Brightness.dark,
+          backgroundColor: CupertinoColors.black,
+          scaffoldBackgroundColor: CupertinoColors.black);
+    }
+    return null;
+  }
 
   @override
   Widget build(context) {
-
     return ChangeNotifierProvider<ThemeChanger>(
       create: (_) => ThemeChanger(prefs),
       child: Consumer<ThemeChanger>(
-        builder: (context, model, _) =>MaterialApp(
+        builder: (context, model, _) => MaterialApp(
           title: F.title,
           navigatorObservers: [
             FirebaseAnalyticsObserver(analytics: analytics),
           ],
           theme: model.androidTheme,
-          // theme: Provider.of<ThemeChanger>(context).androidTheme,
+          darkTheme: androidDarkThemeData(context, model),
           localizationsDelegates: [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -51,9 +58,9 @@ class GoatfolioApp extends StatelessWidget {
             body: hasValidSession
                 ? buildNavigationPage(userService)
                 : LoginPage(
-              userService: userService,
-              onLoggedOn: goToNavigationPage,
-            ),
+                    userService: userService,
+                    onLoggedOn: goToNavigationPage,
+                  ),
           ),
         ),
       ),
