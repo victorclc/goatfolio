@@ -10,6 +10,7 @@ import 'package:goatfolio/common/widget/animated_button.dart';
 import 'package:goatfolio/common/widget/multi_prompt.dart';
 import 'package:goatfolio/common/widget/preety_text_field.dart';
 import 'package:goatfolio/pages/login/prompt/signin.dart';
+import 'package:goatfolio/pages/login/widget/terms_acceptance.dart';
 import 'package:goatfolio/services/authentication/model/user.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 
@@ -147,7 +148,13 @@ class LoginPage extends StatelessWidget {
             SignInPasswordConfirmationPrompt()
           ],
           onSubmit: (Map values) async =>
-              await onSignUpSubmit(context, userService, values),
+              ModalUtils.showUnDismissibleModalBottomSheet(
+            context,
+            TermsAcceptanceWidget(
+              onAccepted: () async =>
+                  await onSignUpSubmit(context, userService, values),
+            ),
+          ),
         ));
   }
 
