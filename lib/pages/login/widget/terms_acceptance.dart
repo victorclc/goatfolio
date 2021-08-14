@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TermsAcceptanceWidget extends StatefulWidget {
@@ -134,16 +135,22 @@ class _TermsAcceptanceWidgetState extends State<TermsAcceptanceWidget> {
                           onPressed: () => Navigator.of(context).pop(),
                           child: Text("CANCELAR")),
                       ElevatedButton(
-                          onPressed: lgpdBox && termsBox
-                              ? () async {
-                                  if (!processing) {
+                        onPressed: lgpdBox && termsBox
+                            ? () async {
+                                if (!processing) {
+                                  setState(() {
                                     processing = true;
-                                    await widget.onAccepted();
+                                  });
+                                  await widget.onAccepted();
+                                  setState(() {
                                     processing = false;
-                                  }
+                                  });
                                 }
-                              : null,
-                          child: Text("CONTINUAR")),
+                              }
+                            : null,
+                        child:
+                            processing ? JumpingText("...") : Text("CONTINUAR"),
+                      ),
                     ],
                   ),
                   SizedBox(

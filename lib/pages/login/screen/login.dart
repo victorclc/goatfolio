@@ -151,8 +151,9 @@ class LoginPage extends StatelessWidget {
               ModalUtils.showUnDismissibleModalBottomSheet(
             context,
             TermsAcceptanceWidget(
-              onAccepted: () async =>
-                  await onSignUpSubmit(context, userService, values),
+              onAccepted: () async {
+                await onSignUpSubmit(context, userService, values);
+              },
             ),
           ),
         ));
@@ -165,6 +166,7 @@ class LoginPage extends StatelessWidget {
           attributes: {"given_name": values['name']});
       print(user);
       if (user != null) {
+        await Navigator.of(context).pop();
         print("CONFIRM ACCOUNT");
         await _confirmAccount(
             context, userService, values['email'], values['password']);
