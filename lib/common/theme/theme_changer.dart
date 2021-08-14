@@ -33,7 +33,7 @@ class ThemeChanger extends ChangeNotifier {
       case CFG_DARK_VALUE:
         _themeData = CupertinoThemeData.raw(
             Brightness.dark, null, null, null, null, null);
-        _androidTheme = ThemeData.dark();
+        _androidTheme = ThemeData(brightness: Brightness.dark, backgroundColor: CupertinoColors.black, scaffoldBackgroundColor: CupertinoColors.black);
         break;
       default:
         _themeData = CupertinoThemeData();

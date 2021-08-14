@@ -101,9 +101,11 @@ class SettingsPage extends StatelessWidget {
                 await userService.signOut();
                 Navigator.of(context, rootNavigator: true).pushReplacement(
                   CupertinoPageRoute(
-                    builder: (context) => LoginPage(
-                      onLoggedOn: goToNavigationPage,
-                      userService: userService,
+                    builder: (context) => Scaffold(
+                      body: LoginPage(
+                        onLoggedOn: goToNavigationPage,
+                        userService: userService,
+                      ),
                     ),
                   ),
                 );

@@ -2,6 +2,7 @@ import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/common/constant/app.dart';
+import 'package:goatfolio/common/helper/theme_helper.dart';
 import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/focus.dart';
 import 'package:goatfolio/common/util/modal.dart';
@@ -9,6 +10,7 @@ import 'package:goatfolio/common/widget/animated_button.dart';
 import 'package:goatfolio/common/widget/multi_prompt.dart';
 import 'package:goatfolio/common/widget/preety_text_field.dart';
 import 'package:goatfolio/pages/login/prompt/signin.dart';
+import 'package:goatfolio/pages/login/widget/terms_acceptance.dart';
 import 'package:goatfolio/services/authentication/model/user.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 
@@ -37,6 +39,9 @@ class LoginPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Image(
+                    color: CupertinoThemeHelper.isDarkMode(context)
+                        ? Colors.grey
+                        : null,
                     image: AssetImage(AppConstants.APP_LOGO),
                     height: 152,
                     width: 152,
@@ -143,16 +148,25 @@ class LoginPage extends StatelessWidget {
             SignInPasswordConfirmationPrompt()
           ],
           onSubmit: (Map values) async =>
-              await onSignUpSubmit(context, userService, values),
+              ModalUtils.showUnDismissibleModalBottomSheet(
+            context,
+            TermsAcceptanceWidget(
+              onAccepted: () async {
+                await onSignUpSubmit(context, userService, values);
+              },
+            ),
+          ),
         ));
   }
 
   Future<void> onSignUpSubmit(
       BuildContext context, UserService userService, Map values) async {
     try {
-      User user = await userService.signUp(values['email'], values['password'], attributes: {"given_name":values['name']});
+      User user = await userService.signUp(values['email'], values['password'],
+          attributes: {"given_name": values['name']});
       print(user);
       if (user != null) {
+        await Navigator.of(context).pop();
         print("CONFIRM ACCOUNT");
         await _confirmAccount(
             context, userService, values['email'], values['password']);
