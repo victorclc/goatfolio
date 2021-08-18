@@ -1,15 +1,15 @@
 import logging
 from collections import namedtuple
 from dataclasses import asdict
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal
-from functools import wraps
+from http import HTTPStatus
 from typing import List
 
 import boto3
+import requests
 from boto3.dynamodb.conditions import Key
 from boto3.dynamodb.types import TypeDeserializer
-from dateutil.relativedelta import relativedelta
 # from redis import Redis
 from yahooquery import Ticker
 
@@ -17,11 +17,12 @@ from goatcommons.models import Investment
 from goatcommons.utils import InvestmentUtils
 from models import Portfolio, CandleData
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
 
 IntraDayData = namedtuple('IntraDayData', 'price prev_close_price change name')
 MonthData = namedtuple('MonthlyData', 'open close')
+
 
 # redis = Redis(host='localhost', port=6379, db=0)
 #
@@ -66,19 +67,15 @@ MonthData = namedtuple('MonthlyData', 'open close')
 class MarketData:
     def __init__(self):
         self.repo = MarketDataRepository()
-        self.yahoo_ticker = None
+        self.cedro = CedroMarketDataClient()
 
     # @cached_tuple
     def ticker_intraday_date(self, ticker: str):
-        if self.yahoo_ticker is None:
-            self.yahoo_ticker = Ticker(f'{ticker}.SA')
-        else:
-            self.yahoo_ticker.symbols = f'{ticker}.SA'
-        result = self.yahoo_ticker.price[f'{ticker}.SA']
-        return IntraDayData(Decimal(result['regularMarketPrice']).quantize(Decimal('0.01')),
-                            Decimal(result['regularMarketPreviousClose']).quantize(Decimal('0.01')),
-                            Decimal((result['regularMarketChangePercent']) * 100).quantize(Decimal('0.01')),
-                            result['shortName'])
+        result = self.cedro.quote(ticker)
+        return IntraDayData(Decimal(result['lastTrade']).quantize(Decimal('0.01')),
+                            Decimal(result['previous']).quantize(Decimal('0.01')),
+                            Decimal((result['change'])).quantize(Decimal('0.01')),
+                            result['company'])
 
     def ibov_from_date(self, date_from) -> List[CandleData]:
         return self.repo.find_by_ticker_from_date('IBOVESPA', date_from)
@@ -197,12 +194,56 @@ class PortfolioRepository:
         self._portfolio_table.put_item(Item=portfolio.to_dict())
 
 
+class CedroMarketDataClient:
+    __API_LOGIN = 'majesty'
+    __API_PASSWORD = '102030'
+    __SIGN_IN_URL = 'https://webfeeder.cedrotech.com/SignIn'
+    __QUOTE_URL = 'https://webfeeder.cedrotech.com/services/quotes/quote/'
+
+    def __init__(self):
+        self.session = requests.sessions.session()
+        self.is_authenticated = False
+
+    def __authenticate(self):
+        logger.info(f'API Authenticating.')
+        response = self.session.post(self.__SIGN_IN_URL,
+                                     data={'login': self.__API_LOGIN, 'password': self.__API_PASSWORD},
+                                     headers={"content-type": "application/x-www-form-urlencoded",
+                                              'Connection': 'keep-alive'})
+        if response.status_code == HTTPStatus.OK:
+            self.is_authenticated = response.content
+        else:
+            logger.error(f'Authentication error: {response.status_code} - {response.content}')
+
+    def quote(self, ticker):
+        if not self.is_authenticated:
+            self.__authenticate()
+        response = self.session.get(self.__QUOTE_URL + ticker)
+        return response.json()
+
+    def quotes(self, tickers):
+        if not self.is_authenticated:
+            self.__authenticate()
+        quotes = ''
+        for ticker in tickers:
+            quotes += f'{ticker}/'
+        response = self.session.get(self.__QUOTE_URL + quotes)
+        return response.json()
+
+
+if __name__ == '__main__':
+    start = datetime.now().timestamp()
+    cedro = CedroMarketDataClient()
+    cedro.quotes(['bidi11', 'ifix', 'sqia3', 'ibov', 'mglu3', 'wege3', 'ninj3'])
+    end = datetime.now().timestamp()
+    print(f"TOOKED: {end - start} seconds")
+
 # if __name__ == '__main__':
-    # r = Redis(host='localhost', port=6379, db=0)
-    # data = MarketData().ticker_intraday_date('BIDI11')
-    # print(data)
-    # print(isinstance(data, tuple))
-    # # print(r.get('BIDI11'))
-    # # # r.set('BIDI11', str(Decimal('231.05')))
-    # # r.setex('BIDI11', 43200, str(data))
-    # # print(eval(r.get('BIDI11')))
+# r = Redis(host='localhost', port=6379, db=0)
+# data = MarketData().ticker_intraday_date('BIDI11')
+# print(data)
+# print(isinstance(data, tuple))
+# # print(r.get('BIDI11'))
+# # # r.set('BIDI11', str(Decimal('231.05')))
+# # r.setex('BIDI11', 43200, str(data))
+# # print(eval(r.get('BIDI11')))
