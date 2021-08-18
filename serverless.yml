@@ -8,7 +8,206 @@ provider:
   sesFrom: ${env:SES_FROM}
 
 resources:
+  Parameters:
+    AvailabilityZone1:
+      Description: The first availability zone in the region
+      Type: AWS::EC2::AvailabilityZone::Name
+      ConstraintDescription: Must be a valid availability zone
+      Default: sa-east-1a
+
+    AvailabilityZone2:
+      Description: The second availability zone in the region
+      Type: AWS::EC2::AvailabilityZone::Name
+      ConstraintDescription: Must be a valid availability zone
+      Default: sa-east-1b
+
+  Metadata:
+    AWS::CloudFormation::Interface:
+      ParameterGroups:
+        - Label:
+            default: Region Availability Zones
+          Parameters:
+            - AvailabilityZone1
+            - AvailabilityZone2
+        - Label:
+            default: Ingress Ports
+          Parameters:
+            - ELBIngressPort
+            - AppIngressPort
+      ParameterLabels:
+        AvailabilityZone1:
+          default: Availability Zone 1
+        AvailabilityZone2:
+          default: Availability Zone 2
+
+  Mappings:
+    # Maps CIDR blocks to VPC and various subnets
+    CIDRMap:
+      VPC:
+        CIDR: 10.50.0.0/16
+      Public1:
+        CIDR: 10.50.0.0/24
+      Public2:
+        CIDR: 10.50.1.0/24
+      Private1:
+        CIDR: 10.50.64.0/19
+      Private2:
+        CIDR: 10.50.96.0/19
+
   Resources:
+    # NETWORK RESOURCES
+    VPC:
+      Type: AWS::EC2::VPC
+      Properties:
+        CidrBlock: !FindInMap [ CIDRMap, VPC, CIDR ]
+        EnableDnsSupport: true
+        EnableDnsHostnames: true
+        Tags:
+          - Key: Name
+            Value: !Ref "AWS::StackName"
+
+    PublicSubnet1:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        CidrBlock: !FindInMap [ CIDRMap, Public1, CIDR ]
+        AvailabilityZone: !Ref AvailabilityZone1
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-PublicSubnet1"
+
+    PublicSubnet2:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        CidrBlock: !FindInMap [ CIDRMap, Public2, CIDR ]
+        AvailabilityZone: !Ref AvailabilityZone2
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-PublicSubnet2"
+
+    PrivateSubnet1:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        CidrBlock: !FindInMap [ CIDRMap, Private1, CIDR ]
+        AvailabilityZone: !Ref AvailabilityZone1
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-PrivateSubnet1"
+
+    PrivateSubnet2:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref VPC
+        CidrBlock: !FindInMap [ CIDRMap, Private2, CIDR ]
+        AvailabilityZone: !Ref AvailabilityZone2
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-PrivateSubnet2"
+
+    InternetGateway:
+      Type: AWS::EC2::InternetGateway
+      Properties:
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-igw"
+
+    VPCGatewayAttachment:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+        VpcId: !Ref VPC
+        InternetGatewayId: !Ref InternetGateway
+
+    PublicRouteTable:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId: !Ref VPC
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-public-igw"
+
+    PublicRoute:
+      Type: AWS::EC2::Route
+      DependsOn: VPCGatewayAttachment
+      Properties:
+        RouteTableId: !Ref PublicRouteTable
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId: !Ref InternetGateway
+
+    PublicSubnetRouteTableAssociation1:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref PublicSubnet1
+        RouteTableId: !Ref PublicRouteTable
+
+    PublicSubnetRouteTableAssociation2:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref PublicSubnet2
+        RouteTableId: !Ref PublicRouteTable
+
+    PublicSubnetNetworkAclAssociation1:
+      Type: AWS::EC2::SubnetNetworkAclAssociation
+      Properties:
+        SubnetId: !Ref PublicSubnet1
+        NetworkAclId: !GetAtt VPC.DefaultNetworkAcl
+
+    PublicSubnetNetworkAclAssociation2:
+      Type: AWS::EC2::SubnetNetworkAclAssociation
+      Properties:
+        SubnetId: !Ref PublicSubnet2
+        NetworkAclId: !GetAtt VPC.DefaultNetworkAcl
+
+    # NAT-related resources
+    #
+    # NAT is used to allow instances in private subnets to communicate with AWS
+    # services, and pull down code and updates.
+
+    NatGateway1:
+      DependsOn: VPCGatewayAttachment
+      Type: AWS::EC2::NatGateway
+      Properties:
+        AllocationId: !GetAtt NatEIP1.AllocationId
+        SubnetId: !Ref PublicSubnet1
+
+    NatEIP1:
+      DependsOn: VPCGatewayAttachment
+      Type: AWS::EC2::EIP
+      Properties:
+        Domain: vpc
+
+    NatRouteTable1:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId: !Ref VPC
+        Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-private-nat-1"
+
+    NatRoute1:
+      Type: AWS::EC2::Route
+      DependsOn: VPCGatewayAttachment
+      Properties:
+        RouteTableId: !Ref NatRouteTable1
+        DestinationCidrBlock: 0.0.0.0/0
+        NatGatewayId: !Ref NatGateway1
+
+    PrivateSubnetRouteTableAssociation1:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref PrivateSubnet1
+        RouteTableId: !Ref NatRouteTable1
+
+
+    PrivateSubnetRouteTableAssociationSingleNatGateway:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref PrivateSubnet2
+        RouteTableId: !Ref NatRouteTable1
+
+    # APP RESOURCES AND STUFF
+
     GoatfolioAppUserPool:
       Type: 'AWS::Cognito::UserPool'
       Properties:
@@ -207,6 +406,42 @@ resources:
   #          SecondsUntilAutoPause: 900
 
   Outputs:
+    Name:
+      Description: VPC Stack Name
+      Value: !Ref AWS::StackName
+      Export:
+        Name: !Sub ${AWS::StackName}-Name
+    VPCId:
+      Description: VPC ID
+      Value: !Ref VPC
+      Export:
+        Name: !Sub "${AWS::StackName}-VpcID"
+    VpcCidr:
+      Description: Vpc cidr block
+      Value: !FindInMap [ CIDRMap, VPC, CIDR ]
+      Export:
+        Name: !Sub "${AWS::StackName}-vpc-cidr"
+    PublicSubnet1:
+      Description: Public subnet 1 ID
+      Value: !Ref PublicSubnet1
+      Export:
+        Name: !Sub "${AWS::StackName}-PublicSubnet1ID"
+    PublicSubnet2:
+      Description: Public subnet 2 ID
+      Value: !Ref PublicSubnet2
+      Export:
+        Name: !Sub "${AWS::StackName}-PublicSubnet2ID"
+    PrivateSubnet1:
+      Description: Private subnet 1 ID
+      Value: !Ref PrivateSubnet1
+      Export:
+        Name: !Sub "${AWS::StackName}-PrivateSubnet1ID"
+    PrivateSubnet2:
+      Description: Private subnet 2 ID
+      Value: !Ref PrivateSubnet2
+      Export:
+        Name: !Sub "${AWS::StackName}-PrivateSubnet2ID"
+
     GoatfolioAppUserPoolArnOutput:
       Value:
         Fn::GetAtt: [ GoatfolioAppUserPool, Arn ]

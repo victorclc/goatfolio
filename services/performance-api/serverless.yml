@@ -6,8 +6,15 @@ provider:
   region: sa-east-1
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
+  vpc:
+    securityGroupIds:
+      - !GetAtt RedisSecurityGroup.GroupId
+    subnetIds:
+      - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet1ID
+      - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
   environment:
     PYTHONPATH: "src:libs"
+    REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -143,9 +150,49 @@ resources:
           - AttributeName: "subject"
             KeyType: "HASH"
 
-#    RedisElasticacheCluster:
-#      Type: 'AWS::ElastiCache::CacheCluster'
-#      Properties:
-#        Engine: redis
-#        CacheNodeType: cache.t2.micro
-#        NumCacheNodes: '1'
+    RedisSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: ElastiCache Security Group
+        VpcId:
+          Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-VpcID
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 6379
+            ToPort: 6379
+            CidrIp: 10.50.64.0/19
+          - IpProtocol: tcp
+            FromPort: 6379
+            ToPort: 6379
+            CidrIp: 10.50.96.0/19
+
+    RedisSubnetGroup:
+      Type: AWS::ElastiCache::SubnetGroup
+      Properties:
+        Description: Cache Subnet Group
+        SubnetIds:
+          - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet1ID
+          - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
+
+    RedisElasticacheCluster:
+      Type: 'AWS::ElastiCache::CacheCluster'
+      Properties:
+        Engine: redis
+        CacheNodeType: cache.t2.micro
+        NumCacheNodes: '1'
+        CacheSubnetGroupName: !Ref RedisSubnetGroup
+        VpcSecurityGroupIds:
+          - !GetAtt RedisSecurityGroup.GroupId
+
+  Outputs:
+    ElastiCacheAddress:
+      Description: ElastiCache endpoint address
+      Value: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
+      Export:
+        Name: ${self:provider.stage}-ElastiCacheAddress
+
+    ElastiCachePort:
+      Description: ElastiCache port
+      Value: 6379
+      Export:
+        Name: ${self:provider.stage}-ElastiCachePort
