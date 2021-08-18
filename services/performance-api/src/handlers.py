@@ -85,6 +85,8 @@ def _dynamo_stream_to_stock_investment(stream):
                               'external_system': stream['external_system']['S'],
                               'subject': stream['subject']['S'],
                               'id': stream['id']['S'],
+                              'alias_ticker': stream['alias_ticker']['S'] if 'NULL' not in stream[
+                                  'alias_ticker'] else ''
                               })
 
 
@@ -94,19 +96,41 @@ if __name__ == '__main__':
     # print(performance_rentability_handler(event, None))
     # print(performance_portfolio_handler(event, None))
     # print(performance_portfolio_ticker_handler(event, None))
-    event = {'Records': [{'eventID': 'f9be0ed70ed3e8cc0f67111a0e783bf7', 'eventName': 'INSERT', 'eventVersion': '1.1',
-                          'eventSource': 'aws:dynamodb', 'awsRegion': 'us-east-2',
-                          'dynamodb': {'ApproximateCreationDateTime': 1618022461.0,
-                                       'Keys': {'subject': {'S': '632d0404-53ba-4010-a0c7-b577696f717e'},
-                                                'id': {'S': '8ffd01f0-3b90-490e-915e-798b05d40575'}},
-                                       'NewImage': {'date': {'N': '1616716800'}, 'costs': {'N': '0'},
-                                                    'amount': {'N': '100'}, 'ticker': {'S': 'BIDI11'},
-                                                    'price': {'N': '150'},
-                                                    'subject': {'S': '632d0404-53ba-4010-a0c7-b577696f717e'},
-                                                    'id': {'S': '8ffd01f0-3b90-490e-915e-798b05d40575'},
-                                                    'broker': {'S': 'Inter'}, 'type': {'S': 'STOCK'},
-                                                    'operation': {'S': 'BUY'}, 'external_system': {'S': ''}},
-                                       'SequenceNumber': '643332300000000011560690795', 'SizeBytes': 252,
+    # event = {'Records': [{'eventID': 'f9be0ed70ed3e8cc0f67111a0e783bf7', 'eventName': 'INSERT', 'eventVersion': '1.1',
+    #                       'eventSource': 'aws:dynamodb', 'awsRegion': 'us-east-2',
+    #                       'dynamodb': {'ApproximateCreationDateTime': 1618022461.0,
+    #                                    'Keys': {'subject': {'S': '632d0404-53ba-4010-a0c7-b577696f717e'},
+    #                                             'id': {'S': '8ffd01f0-3b90-490e-915e-798b05d40575'}},
+    #                                    'NewImage': {'date': {'N': '1616716800'}, 'costs': {'N': '0'},
+    #                                                 'amount': {'N': '100'}, 'ticker': {'S': 'BIDI11'},
+    #                                                 'price': {'N': '150'},
+    #                                                 'subject': {'S': '632d0404-53ba-4010-a0c7-b577696f717e'},
+    #                                                 'id': {'S': '8ffd01f0-3b90-490e-915e-798b05d40575'},
+    #                                                 'broker': {'S': 'Inter'}, 'type': {'S': 'STOCK'},
+    #                                                 'operation': {'S': 'BUY'}, 'external_system': {'S': ''}},
+    #                                    'SequenceNumber': '643332300000000011560690795', 'SizeBytes': 252,
+    #                                    'StreamViewType': 'NEW_AND_OLD_IMAGES'},
+    #                       'eventSourceARN': 'arn:aws:dynamodb:us-east-2:831967415635:table/Investments/stream/2021-03-13T17:59:42.560'}]}
+    event = {'Records': [{'eventID': 'ad9165823eb6c5a209eb3bd01a949ad1', 'eventName': 'MODIFY', 'eventVersion': '1.1',
+                          'eventSource': 'aws:dynamodb', 'awsRegion': 'sa-east-1',
+                          'dynamodb': {'ApproximateCreationDateTime': 1629298499.0,
+                                       'Keys': {'subject': {'S': '41e4a793-3ef5-4413-82e2-80919bce7c1a'},
+                                                'id': {'S': 'CEIVVAR3159528960010020761'}},
+                                       'NewImage': {'date': {'N': '1595289600'}, 'alias_ticker': {'S': 'VIIA3'},
+                                                    'costs': {'N': '0'}, 'amount': {'N': '100'},
+                                                    'ticker': {'S': 'VVAR3'}, 'price': {'N': '20.76'},
+                                                    'subject': {'S': '41e4a793-3ef5-4413-82e2-80919bce7c1a'},
+                                                    'id': {'S': 'CEIVVAR3159528960010020761'},
+                                                    'broker': {'S': '1099 - INTER DTVM LTDA'}, 'type': {'S': 'STOCK'},
+                                                    'operation': {'S': 'SELL'}, 'external_system': {'S': ''}},
+                                       'OldImage': {'date': {'N': '1595289600'}, 'alias_ticker': {'NULL': True},
+                                                    'costs': {'N': '0'}, 'amount': {'N': '100'},
+                                                    'ticker': {'S': 'VVAR3'}, 'price': {'N': '20.76'},
+                                                    'subject': {'S': '41e4a793-3ef5-4413-82e2-80919bce7c1a'},
+                                                    'id': {'S': 'CEIVVAR3159528960010020761'},
+                                                    'broker': {'S': '1099 - INTER DTVM LTDA'}, 'type': {'S': 'STOCK'},
+                                                    'operation': {'S': 'SELL'}, 'external_system': {'S': ''}},
+                                       'SequenceNumber': '98008300000000002716486841', 'SizeBytes': 457,
                                        'StreamViewType': 'NEW_AND_OLD_IMAGES'},
-                          'eventSourceARN': 'arn:aws:dynamodb:us-east-2:831967415635:table/Investments/stream/2021-03-13T17:59:42.560'}]}
+                          'eventSourceARN': 'arn:aws:dynamodb:sa-east-1:138414734174:table/Investments/stream/2021-07-29T00:56:58.028'}]}
     consolidate_portfolio_handler(event, None)
