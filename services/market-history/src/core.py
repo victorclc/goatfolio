@@ -79,7 +79,8 @@ class CotaHistTransformerCore:
         return series
 
     def update_ibov_history(self):
-        ibov_data = IBOVFetcher.fetch_last_month_data()
+        fetcher = IBOVFetcher()
+        ibov_data = fetcher.fetch_last_month_data()
         self.repo.save(ibov_data)
 
 

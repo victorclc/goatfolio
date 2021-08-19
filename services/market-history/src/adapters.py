@@ -8,6 +8,7 @@ import boto3 as boto3
 import requests
 from dateutil.relativedelta import relativedelta
 
+from goatcommons.cedro.client import CedroMarketDataClient
 from models import B3CotaHistData
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -64,28 +65,19 @@ class TickerInfoRepository:
 
 
 class IBOVFetcher:
-    @staticmethod
-    def fetch_last_month_data():
-        response = \
-            requests.get('https://query1.finance.yahoo.com/v7/finance/chart/^BVSP?range=3mo&interval=1mo').json()[
-                'chart'][
-                'result'][0]
+    def __init__(self):
+        self.client = CedroMarketDataClient()
 
-        quote = response['indicators']['quote'][0]
-        timestamp = response['timestamp'][2]
-
-        date = datetime.fromtimestamp(timestamp)
-        if date.day != 1:
-            date = datetime(date.year, date.month, 1) + relativedelta(months=1)
-
-        high = max(quote['high'][2], quote['high'][3])
-        low = min(quote['low'][2], quote['low'][3])
-
+    def fetch_last_month_data(self):
+        response = self.client.quote('IBOV')
+        close = response['lastTrade']
+        date = datetime.now()
         data = B3CotaHistData()
-        data.load_ibov('IBOVESPA', date.strftime('%Y%m%d'), 'Indice Ibovespa',
-                       Decimal(quote['open'][2]).quantize(Decimal('0.01')),
-                       Decimal(quote['close'][3]).quantize(Decimal('0.01')),
-                       Decimal(high).quantize(Decimal('0.01')),
-                       Decimal(low).quantize(Decimal('0.01')),
-                       Decimal(quote['volume'][2]).quantize(Decimal('0.01')))
+
+        data.load_ibov('IBOVESPA', date.strftime('%Y%m01'), 'Indice Ibovespa',
+                       Decimal(0).quantize(Decimal('0.01')),
+                       Decimal(close).quantize(Decimal('0.01')),
+                       Decimal(0).quantize(Decimal('0.01')),
+                       Decimal(0).quantize(Decimal('0.01')),
+                       Decimal(0).quantize(Decimal('0.01')))
         return data
