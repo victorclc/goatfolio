@@ -24,6 +24,9 @@ class PerformanceCore:
         self.market_data = MarketData()
 
     def consolidate_portfolio(self, subject, new_investments, old_investments):
+        logger.info(f'New investments = {new_investments}')
+        logger.info(f'Old investments = {old_investments}')
+
         for inv in old_investments:
             inv.amount = -1 * inv.amount
         investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
