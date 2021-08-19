@@ -1,7 +1,7 @@
 import logging
 import traceback
 
-from core import CotaHistTransformerCore
+from core import CotaHistTransformerCore, CotaHistDownloaderCore
 from goatcommons.shit.client import ShitNotifierClient
 from goatcommons.shit.models import NotifyLevel
 
@@ -34,3 +34,9 @@ def ibov_history_handler(event, context):
         traceback.print_exc()
         ShitNotifierClient().send(NotifyLevel.ERROR, 'MARKET-HISTORY',
                                   f'IBOV HISTORY FAILED {traceback.format_exc()}')
+
+
+def download_current_monthly_cotahist_file(event, context):
+    logger.info(f'EVENT: {event}')
+    core = CotaHistDownloaderCore()
+    core.download_current_monthly_file()

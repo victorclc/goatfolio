@@ -73,6 +73,11 @@ functions:
     events:
       - schedule: cron(0 22 L * ? *)
 
+  monthlyCotaHistDownloader:
+    handler: handlers.download_current_monthly_cotahist_file
+    events:
+      - schedule: cron(0 22 L * ? *)
+
 resources:
   Resources:
     TickerInfoTable:
