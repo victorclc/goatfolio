@@ -1,12 +1,12 @@
-name: PROD market-history
+name: market-history
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, develop ]
     paths:
       - 'services/market-history/**'
   pull_request:
-    branches: [ master ]
+    branches: [ master, develop ]
     paths:
       - 'services/market-history/**'
       

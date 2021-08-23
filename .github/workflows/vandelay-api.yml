@@ -1,12 +1,12 @@
-name: PROD vandelay-api
+name: vandelay-api
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, develop ]
     paths:
       - 'services/vandelay-api/**'
   pull_request:
-    branches: [ master ]
+    branches: [ master, develop ]
     paths:
       - 'services/vandelay-api/**'
       

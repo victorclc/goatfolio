@@ -1,12 +1,12 @@
-name: PROD portfolio-api
+name: portfolio-api
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, develop ]
     paths:
       - 'services/portfolio-api/**'
   pull_request:
-    branches: [ master ]
+    branches: [ master, develop ]
     paths:
       - 'services/portfolio-api/**'
       

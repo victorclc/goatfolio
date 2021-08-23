@@ -1,4 +1,4 @@
-name: PROD cei-crawler
+name: cei-crawler
 
 on:
   push:

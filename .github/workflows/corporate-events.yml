@@ -1,12 +1,12 @@
-name: PROD corporate-events
+name: corporate-events
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, develop ]
     paths:
       - 'services/corporate-events/**'
   pull_request:
-    branches: [ master ]
+    branches: [ master, develop ]
     paths:
       - 'services/corporate-events/**'
       
