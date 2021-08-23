@@ -7,8 +7,8 @@ from model import InvestmentRequest
 
 
 class InvestmentCore:
-    def __init__(self):
-        self.repo = InvestmentRepository()
+    def __init__(self, repo):
+        self.repo = repo
 
     def get(self, subject, query_params):
         assert subject

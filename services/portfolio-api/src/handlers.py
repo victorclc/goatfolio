@@ -2,6 +2,7 @@ import traceback
 from dataclasses import asdict
 from http import HTTPStatus
 
+from adapters import InvestmentRepository
 from core import InvestmentCore
 from goatcommons.utils import AWSEventUtils, JsonUtils
 import logging
@@ -12,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(lev
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-core = InvestmentCore()
+core = InvestmentCore(repo=InvestmentRepository())
 
 
 def get_investments_handler(event, context):
