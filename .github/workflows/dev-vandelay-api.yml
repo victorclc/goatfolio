@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: DEV performance-api
+name: DEV vandelay-api
 
 # Controls when the workflow will run
 on:
@@ -31,6 +31,7 @@ jobs:
       - name: Install dependencies
         working-directory: $SERVICE_PATH
         run: |
+          pwd
           python -m pip install --upgrade pip
           pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
