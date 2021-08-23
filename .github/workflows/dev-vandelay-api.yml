@@ -19,17 +19,20 @@ on:
 env:
   SERVICE_PATH: ./services/vandelay-api
   STAGE: dev
+  DOMAIN_NAME: 'dev.goatfolio.com.br'
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{env.SERVICE_PATH}}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
       - name: Install dependencies
-        working-directory: ${{env.SERVICE_PATH}}
         run: |
           python -m pip install --upgrade pip
           pip install flake8 pytest
@@ -37,27 +40,23 @@ jobs:
       - name: Setting up environment variables
         run: echo PYTHONPATH="../../libs:src:tests" >> $GITHUB_ENV
       - name: Lint with flake8
-        working-directory: ${{env.SERVICE_PATH}}
         run: |
           # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
-        working-directory: ${{env.SERVICE_PATH}}
         run: |
           pytest tests/
       - uses: actions/setup-node@v1
         with:
           node-version: 12
       - name: Installing NPM dependencies
-        working-directory: ${{env.SERVICE_PATH}}
         run: npm ci
       - name: Deploy
         uses: serverless/github-action@master
         with:
           args: deploy
-          working-directory: ${{env.SERVICE_PATH}}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
