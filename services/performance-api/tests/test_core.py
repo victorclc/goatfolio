@@ -11,7 +11,7 @@ from models import Portfolio, StockConsolidated, StockPosition
 
 class TestPerformanceCore(unittest.TestCase):
     def setUp(self):
-        self.core = PerformanceCore()
+        self.core = PerformanceCore(repo=MagicMock(), market_data=MagicMock())
         self.core.repo.find = MagicMock(return_value=None)
         self.core.repo.save = MagicMock(return_value=None)
 
