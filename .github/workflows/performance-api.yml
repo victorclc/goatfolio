@@ -26,13 +26,14 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set environment variables
         run: |
-            if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
-                echo "DOMAIN_NAME=api.goatfolio.com.br" >> "$GITHUB_ENV"
-                echo "STAGE=prod" >> "$GITHUB_ENV"
-            else
-                echo "DOMAIN_NAME=dev.goatfolio.com.br" >> "$GITHUB_ENV"
-                echo "STAGE=dev" >> "$GITHUB_ENV"
-            fi
+          echo $GITHUB_REF
+          if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
+            echo "DOMAIN_NAME=api.goatfolio.com.br" >> "$GITHUB_ENV"
+            echo "STAGE=prod" >> "$GITHUB_ENV"
+          else
+            echo "DOMAIN_NAME=dev.goatfolio.com.br" >> "$GITHUB_ENV"
+            echo "STAGE=dev" >> "$GITHUB_ENV"
+          fi
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
