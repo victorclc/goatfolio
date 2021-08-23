@@ -23,6 +23,7 @@ jobs:
       run:
         working-directory: ${{env.SERVICE_PATH}}
     steps:
+      - uses: actions/checkout@v2
       - name: Set environment variables
         run: |
             if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
@@ -32,7 +33,6 @@ jobs:
                 echo "DOMAIN_NAME=dev.goatfolio.com.br" >> "$GITHUB_ENV"
                 echo "STAGE=dev" >> "$GITHUB_ENV"
             fi
-      - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
