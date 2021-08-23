@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set environment variables
         run: |
+            echo $GITHUB_REF
             if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
                 echo "SES_ARN='arn:aws:ses:sa-east-1:810300526230:identity/noreply@goatfolio.com.br'" >> "$GITHUB_ENV"
                 echo "SES_FROM='noreply@goatfolio.com.br'" >> "$GITHUB_ENV"
