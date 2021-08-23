@@ -5,7 +5,6 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key-id-prod')
         DOMAIN_NAME='api.goatfolio.com.br'
         STAGE='prod'
-        SLS_DEBUG='*'
     }
     stages {
         stage('Clone') {
