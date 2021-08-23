@@ -64,13 +64,9 @@ jobs:
         run: npm ci
       - name: Deploy
         run: npx serverless deploy
+      - uses: sarisia/actions-status-discord@v1
+        name: Discord Notification
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
 
-  notify:
-    if: cancelled() == false
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Discord notification
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        uses: Ilshidur/action-discord@master
