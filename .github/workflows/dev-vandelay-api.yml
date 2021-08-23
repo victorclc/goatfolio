@@ -53,9 +53,8 @@ jobs:
           node-version: 12
       - name: Installing NPM dependencies
         run: npm ci
-      - uses: serverless/github-action@master
       - name: Deploy
-        run: serverless deploy
+        run: npx serverless deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
