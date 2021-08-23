@@ -107,3 +107,4 @@ if __name__ == '__main__':
     # core.update_ibov_history()
     core = CotaHistDownloaderCore()
     core.download_current_monthly_file()
+    # CRIAR UM BAGULHO PRA BAIXAR DIARIAMENTE, ASSIM TODOS OS NOVOS ATIVOS DE IPO E TUDO MAIS SERAO DISPONIBILIZADOS NO DIA SEGUINTE
