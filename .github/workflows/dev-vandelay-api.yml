@@ -28,24 +28,39 @@ jobs:
         with:
           python-version: 3.8
       - name: Install dependencies
+        working-directory: $SERVICE_PATH
         run: |
-          cd $SERVICE_PATH
           python -m pip install --upgrade pip
           pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Setting up environment variables
         run: echo PYTHONPATH="../../libs:src:tests" >> $GITHUB_ENV
       - name: Lint with flake8
+        working-directory: $SERVICE_PATH
         run: |
-          cd $SERVICE_PATH
           # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
+        working-directory: $SERVICE_PATH
         run: |
-          cd $SERVICE_PATH
           pytest tests/
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.8.4
+      - name: Installing NPM dependencies
+        working-directory: $SERVICE_PATH
+        run: npm ci
+      - name: Deploy
+        uses: serverless/github-action@master
+        with:
+          args: deploy
+          working-directory: $SERVICE_PATH
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      
     
   # This workflow contains a single job called "build"
   build:
