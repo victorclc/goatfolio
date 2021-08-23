@@ -23,7 +23,7 @@ It's the back-end of the goatfolio_app.
 [![performance-api](https://github.com/victorclc/goatfolio-serverless/actions/workflows/performance-api.yml/badge.svg?branch=develop))](https://github.com/victorclc/goatfolio-serverless/actions/workflows/performance-api.yml)
 [![portfolio-api](https://github.com/victorclc/goatfolio-serverless/actions/workflows/portfolio-api.yml/badge.svg?branch=develop))](https://github.com/victorclc/goatfolio-serverless/actions/workflows/portfolio-api.yml)
 [![push-notifications](https://github.com/victorclc/goatfolio-serverless/actions/workflows/push-notifications.yml/badge.svg?branch=develop))](https://github.com/victorclc/goatfolio-serverless/actions/workflows/push-notifications.yml)
-[![vandelay-api](https://github.com/victorclc/goatfolio-serverless/actions/workflows/vandelay-api.yml/badge.svg)?branch=develop)](https://github.com/victorclc/goatfolio-serverless/actions/workflows/vandelay-api.yml)
+[![vandelay-api](https://github.com/victorclc/goatfolio-serverless/actions/workflows/vandelay-api.yml/badge.svg?branch=develop))](https://github.com/victorclc/goatfolio-serverless/actions/workflows/vandelay-api.yml)
 
 ## What is Goatfolio
 
