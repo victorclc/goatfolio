@@ -26,8 +26,6 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - name: Installing NPM dependencies
-        run: npm ci
       - name: Deploy
         run: npx serverless deploy
         env:
