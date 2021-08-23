@@ -29,8 +29,8 @@ jobs:
         with:
           python-version: 3.8
       - name: Install dependencies
-        working-directory: $SERVICE_PATH
         run: |
+          ls -ltr
           python -m pip install --upgrade pip
           pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
