@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 function runTests() {
   serviceName=$1
   cd "$serviceName"
