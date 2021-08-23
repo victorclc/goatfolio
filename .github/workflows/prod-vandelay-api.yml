@@ -15,8 +15,6 @@ on:
 
 env:
   SERVICE_PATH: ./services/vandelay-api
-  STAGE: prod
-  DOMAIN_NAME: 'api.goatfolio.com.br'
 
 jobs:
   deploy:
@@ -25,6 +23,15 @@ jobs:
       run:
         working-directory: ${{env.SERVICE_PATH}}
     steps:
+      - name: Set environment variables
+        run: |
+            if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
+                echo "DOMAIN_NAME=api.goatfolio.com.br" >> "$GITHUB_ENV"
+                echo "STAGE=prod" >> "$GITHUB_ENV"
+            else
+                echo "DOMAIN_NAME=dev.goatfolio.com.br" >> "$GITHUB_ENV"
+                echo "STAGE=dev" >> "$GITHUB_ENV"
+            fi
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
