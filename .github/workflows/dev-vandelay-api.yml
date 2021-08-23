@@ -49,7 +49,7 @@ jobs:
           pytest tests/
       - uses: actions/setup-node@v1
         with:
-          node-version: 12.8.4
+          node-version: 12
       - name: Installing NPM dependencies
         working-directory: ${{env.SERVICE_PATH}}
         run: npm ci
