@@ -1,26 +1,21 @@
-# This is a basic workflow to help you get started with Actions
+name: cei-crawler
 
-name: DEV vandelay-api
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ develop ]
+    branches: [ master, develop ]
     paths:
-      - 'services/vandelay-api/**'
+      - 'services/cei-crawler/**'
   pull_request:
-    branches: [ develop ]
+    branches: [ master, develop ]
     paths:
-      - 'services/vandelay-api/**'
+      - 'services/cei-crawler/**'
       
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
 env:
-  SERVICE_PATH: ./services/vandelay-api
-  STAGE: dev
-  DOMAIN_NAME: 'dev.goatfolio.com.br'
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+  SERVICE_PATH: ./services/cei-crawler
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -29,6 +24,15 @@ jobs:
         working-directory: ${{env.SERVICE_PATH}}
     steps:
       - uses: actions/checkout@v2
+      - name: Set environment variables
+        run: |
+          if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
+              echo "DOMAIN_NAME=api.goatfolio.com.br" >> "$GITHUB_ENV"
+              echo "STAGE=prod" >> "$GITHUB_ENV"
+          else
+              echo "DOMAIN_NAME=dev.goatfolio.com.br" >> "$GITHUB_ENV"
+              echo "STAGE=dev" >> "$GITHUB_ENV"
+          fi
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
@@ -56,5 +60,5 @@ jobs:
       - name: Deploy
         run: npx serverless deploy
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
