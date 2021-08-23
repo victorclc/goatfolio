@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: DEV performance-api
 
 # Controls when the workflow will run
 on:
@@ -42,6 +42,7 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
         run: |
+          cd services/vandelay-api
           pytest tests/
     
   # This workflow contains a single job called "build"
