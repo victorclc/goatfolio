@@ -10,7 +10,7 @@ from model import InvestmentRequest
 
 class TestInvestmentCore(unittest.TestCase):
     def setUp(self):
-        self.core = core.InvestmentCore()
+        self.core = core.InvestmentCore(repo=MagicMock())
         self.core.repo.save = MagicMock(return_value=None)
         self.core.repo.batch_save = MagicMock(return_value=None)
         self.core.repo.delete = MagicMock(return_value=None)

@@ -5,7 +5,6 @@ from itertools import groupby
 
 from dateutil.relativedelta import relativedelta
 
-from adapters import PortfolioRepository, MarketData
 from goatcommons.models import StockInvestment
 from goatcommons.utils import DatetimeUtils
 from models import Portfolio, StockConsolidated, StockPosition, StockVariation, PortfolioSummary, PortfolioPosition, \
@@ -19,9 +18,9 @@ logger.setLevel(logging.INFO)
 
 
 class PerformanceCore:
-    def __init__(self):
-        self.repo = PortfolioRepository()
-        self.market_data = MarketData()
+    def __init__(self, repo, market_data):
+        self.repo = repo
+        self.market_data = market_data
 
     def consolidate_portfolio(self, subject, new_investments, old_investments):
         logger.info(f'New investments = {new_investments}')

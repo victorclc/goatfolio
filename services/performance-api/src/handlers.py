@@ -3,6 +3,7 @@ import traceback
 from decimal import Decimal
 from http import HTTPStatus
 
+from adapters import PortfolioRepository, MarketData
 from goatcommons.models import StockInvestment
 from goatcommons.shit.client import ShitNotifierClient
 from goatcommons.shit.models import NotifyLevel
@@ -13,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(lev
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-core = PerformanceCore()
+core = PerformanceCore(repo=PortfolioRepository(), market_data=MarketData())
 
 
 def performance_summary_handler(event, context):
