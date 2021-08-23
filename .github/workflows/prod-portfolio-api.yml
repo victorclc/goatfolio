@@ -1,22 +1,22 @@
-name: DEV vandelay-api
+name: PROD portfolio-api
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ master ]
     paths:
-      - 'services/vandelay-api/**'
+      - 'services/portfolio-api/**'
   pull_request:
-    branches: [ develop ]
+    branches: [ master ]
     paths:
-      - 'services/vandelay-api/**'
+      - 'services/portfolio-api/**'
       
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 env:
-  SERVICE_PATH: ./services/vandelay-api
-  STAGE: dev
-  DOMAIN_NAME: 'dev.goatfolio.com.br'
+  SERVICE_PATH: ./services/portfolio-api
+  STAGE: prod
+  DOMAIN_NAME: 'api.goatfolio.com.br'
 
 jobs:
   deploy:
@@ -53,5 +53,5 @@ jobs:
       - name: Deploy
         run: npx serverless deploy
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
