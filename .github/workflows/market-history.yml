@@ -56,7 +56,7 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Test with pytest
         run: |
-          pytest tests/
+          if [ -d tests/ ]; then pytest tests/; fi
       - uses: actions/setup-node@v1
         with:
           node-version: 12
