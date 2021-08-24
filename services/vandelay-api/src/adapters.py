@@ -3,7 +3,7 @@ from dataclasses import asdict
 from http import HTTPStatus
 
 import boto3
-import requests as requests
+import requests
 from boto3.dynamodb.conditions import Key
 
 from exceptions import BatchSavingException
