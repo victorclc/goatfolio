@@ -83,11 +83,12 @@ class ExtractPage(object):
             broker_name = stock_brokers_selection.options[index].text
             self.LOGGER.info(f'Selecting {broker_name} broker')
             stock_brokers_selection.select_by_index(index)
-            WebDriverWait(self.driver, 30, ignored_exceptions=StaleElementReferenceException).until(
-                expected_conditions.element_to_be_selected(
-                    Select(self.driver.find_element_by_id(self.BROKERS_SELECTION_ID)).options[index]
-                ))
-            sleep(1)
+
+            # WebDriverWait(self.driver, 30, ignored_exceptions=StaleElementReferenceException).until(
+            #     expected_conditions.element_to_be_selected(
+            #         Select(self.driver.find_element_by_id(self.BROKERS_SELECTION_ID)).options[index]
+            #     ))
+            sleep(3)
             inquire_button = self.driver.find_element_by_id(self.INQUIRY_BUTTON_ID)
             inquire_button.click()
             sleep(3)
