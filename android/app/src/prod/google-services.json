@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:394544786033:android:580e609d2ed4d82ee209d0",
+        "mobilesdk_app_id": "1:394544786033:android:992941b50486c5c8e209d0",
         "android_client_info": {
-          "package_name": "br.com.majestysolutions.prod"
+          "package_name": "br.com.majestysolutions.goatfolio.prod"
         }
       },
       "oauth_client": [
