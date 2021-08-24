@@ -55,7 +55,7 @@ functions:
           request:
             parameters:
               querystrings:
-                date: true
+                date: false
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
