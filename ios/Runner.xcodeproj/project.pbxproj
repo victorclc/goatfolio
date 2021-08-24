@@ -504,7 +504,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.prod;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.prod;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -524,6 +524,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = TQ863BZ846;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.dev;
 				PRODUCT_NAME = Runner;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
@@ -537,6 +538,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = TQ863BZ846;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.dev;
 				PRODUCT_NAME = Runner;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
@@ -550,6 +552,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = TQ863BZ846;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.dev;
 				PRODUCT_NAME = Runner;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
@@ -560,10 +563,12 @@
 			baseConfigurationReference = 4B3A0672429F2FD72C49383F /* prodDebug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = TQ863BZ846;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.prod;
 				PRODUCT_NAME = Runner;
-				PROVISIONING_PROFILE_SPECIFIER = "match Development br.com.majestysolutions.prod";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore br.com.majestysolutions.goatfolio.prod";
 			};
 			name = "Debug-prod";
 		};
@@ -572,10 +577,12 @@
 			baseConfigurationReference = CBAA6DFEAC4B23B52A1BD727 /* Pods-Runner.profile-prod.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = TQ863BZ846;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.prod;
 				PRODUCT_NAME = Runner;
-				PROVISIONING_PROFILE_SPECIFIER = "match Development br.com.majestysolutions.prod";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore br.com.majestysolutions.goatfolio.prod";
 			};
 			name = "Profile-prod";
 		};
@@ -584,10 +591,12 @@
 			baseConfigurationReference = 20AC96B6835D8FE4BA6E44C7 /* prodRelease.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = TQ863BZ846;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.prod;
 				PRODUCT_NAME = Runner;
-				PROVISIONING_PROFILE_SPECIFIER = "match Development br.com.majestysolutions.prod";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore br.com.majestysolutions.goatfolio.prod";
 			};
 			name = "Release-prod";
 		};
@@ -648,7 +657,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.prod;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.prod;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -715,7 +724,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.dev;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -784,7 +793,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.dev;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -1034,7 +1043,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.dev;
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -1106,7 +1115,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.prod;
+				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.prod;
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

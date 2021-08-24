@@ -34,12 +34,12 @@ android {
     productFlavors {
         dev {
             dimension "flavor-type"
-            applicationId "br.com.majestysolutions.dev"
+            applicationId "br.com.majestysolutions.goatfolio.dev"
             resValue "string", "app_name", "Goatfolio Dev"
         }
         prod {
             dimension "flavor-type"
-            applicationId "br.com.majestysolutions.prod"
+            applicationId "br.com.majestysolutions.goatfolio.prod"
             resValue "string", "app_name", "Goatfolio"
         }
     }

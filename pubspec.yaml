@@ -82,22 +82,22 @@ flavorizr:
       app:
         name: "Goatfolio Dev"
       android:
-        applicationId: "br.com.majestysolutions.dev"
+        applicationId: "br.com.majestysolutions.goatfolio.dev"
         firebase:
           config: "firebase/dev/google-services.json"
       ios:
-        bundleId: "br.com.majestysolutions.dev"
+        bundleId: "br.com.majestysolutions.goatfolio.dev"
         firebase:
           config: "firebase/dev/GoogleService-Info.plist"
     prod:
       app:
         name: "Goatfolio"
       android:
-        applicationId: "br.com.majestysolutions.prod"
+        applicationId: "br.com.majestysolutions.goatfolio.prod"
         firebase:
           config: "firebase/prod/google-services.json"
       ios:
-        bundleId: "br.com.majestysolutions.prod"
+        bundleId: "br.com.majestysolutions.goatfolio.prod"
         firebase:
           config: "firebase/prod/GoogleService-Info.plist"
 
