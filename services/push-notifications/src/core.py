@@ -1,13 +1,10 @@
 import logging
-import os
-from http import HTTPStatus
 
 import firebase_admin
 from firebase_admin.messaging import APNSConfig, APNSPayload, Aps, Notification, MulticastMessage, send_multicast
 
 from adapters import NotificationTokensRepository
 from goatcommons.notifications.models import NotificationRequest
-from goatcommons.utils import JsonUtils
 from models import UserTokens
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
