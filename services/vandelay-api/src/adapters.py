@@ -62,7 +62,7 @@ class PortfolioClient:
         url = f'https://{self.BASE_API_URL}/investments/batch'
         body = list(
             map(lambda i: asdict(InvestmentRequest(type=InvestmentsType.STOCK, investment=asdict(i))), investments))
-        response = requests.post(url, json=body)
+        response = requests.post(url, data=JsonUtils.dump(body))
 
         if response.status_code != HTTPStatus.OK:
             logger.error(f'Batch save failed: {response}')
