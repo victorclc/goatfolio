@@ -57,7 +57,7 @@ class CEICore:
                 _import.status = ImportStatus.ERROR
                 _import.error_message = 'Error on batch saving.'
             except TypeError as e:
-                logger.error(f'Error on parsing payload: {str(e)}')
+                logger.exception(f'Error on parsing payload', e)
                 _import.status = ImportStatus.ERROR
                 _import.error_message = str(e)
         self.repo.save(_import)
