@@ -1,6 +1,5 @@
 import logging
 import math
-import traceback
 from datetime import datetime
 from decimal import Decimal
 from io import StringIO
@@ -32,6 +31,9 @@ class CorporateEventsCrawlerCore:
     def download_today_corporate_events(self):
         today = datetime.now().date()
         companies_data = self.b3.get_updated_corporate_events_link(today)
+        success_count = 0
+        failed_urls = []
+
         for data in companies_data:
             if 'fundsPage' in data.url:
                 logger.info(f'Skipping funds page: {data.url}')
@@ -48,15 +50,24 @@ class CorporateEventsCrawlerCore:
                         table.to_csv(csv_buffer)
                         self.bucket.put(csv_buffer, csv_name)
                         count = count + 1
+                    success_count += 1
                     break
-                except Exception:
-                    logger.warning(f'Attempt {attempts} failed.')
-                    ShitNotifierClient().send(NotifyLevel.WARNING,
-                                              'CorporateEvents.download_today_corporate_events_handler',
-                                              f'Download failed. Url: {data.url}')
-                    traceback.print_exc()
+                except Exception as e:
+                    logger.exception(f'Attempt {attempts} failed.', e)
+                    if attempts == 3:
+                        failed_urls.append(data.url)
                 attempts = attempts + 1
-        logger.info(f'Processing finish')
+
+        ShitNotifierClient().send(NotifyLevel.INFO,
+                                  'corporate-events.download_today_corporate_events_handler',
+                                  self.__create_notify_message(success_count, failed_urls))
+
+    @staticmethod
+    def __create_notify_message(success_count, failed_urls):
+        message = f'Successful URLs: {success_count}\nFailed URLs: {len(failed_urls)}\n'
+        for url in failed_urls:
+            message += url + '\n'
+        return message
 
     def process_corporate_events_file(self, bucket_name, file_path):
         downloaded_path = self.bucket.download_file(bucket_name, file_path)
