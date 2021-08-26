@@ -32,11 +32,14 @@ provider:
               - '/index/*'
     - Effect: Allow
       Action:
-        - s3:ListBucket
         - s3:GetObject
         - s3:PutObject
         - s3:DeleteObject
       Resource: arn:aws:s3:::${self:provider.stage}-b3-corporate-events/*
+    - Effect: Allow
+      Action:
+        - s3:ListBucket
+      Resource: arn:aws:s3:::${self:provider.stage}-b3-corporate-events/
     - Effect: Allow
       Action:
         - sqs:SendMessage
