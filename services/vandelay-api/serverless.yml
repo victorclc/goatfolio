@@ -42,6 +42,7 @@ provider:
         'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
     - Effect: Allow
       Action:
+        - ssm:GetParameter
         - ssm:GetParameters
         - ssm:DescribeParameters
       Resource: arn:aws:ssm:${self:provider.region}:*:parameter/portfolio-api-key
