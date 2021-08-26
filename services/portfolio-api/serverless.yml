@@ -5,12 +5,6 @@ provider:
   region: sa-east-1
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
-  vpc:
-    securityGroupIds:
-      - sg-0c61d59cc203520e9
-    subnetIds:
-      - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet1ID
-      - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
   environment:
     PYTHONPATH: "src:libs"
   iamRoleStatements:
