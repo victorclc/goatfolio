@@ -8,6 +8,7 @@ from boto3.dynamodb.conditions import Key
 
 from exceptions import BatchSavingException
 from goatcommons.constants import InvestmentsType
+from goatcommons.configuration.system_manager import get_secret
 from goatcommons.utils import JsonUtils
 from models import Import, CEIOutboundRequest, InvestmentRequest
 import logging
@@ -59,10 +60,11 @@ class PortfolioClient:
         self.lambda_client = boto3.client('lambda')
 
     def batch_save(self, investments):
-        url = f'https://{self.BASE_API_URL}/investments/batch'
+        url = f'https://{self.BASE_API_URL}/portfolio/investments/batch'
         body = list(
             map(lambda i: asdict(InvestmentRequest(type=InvestmentsType.STOCK, investment=asdict(i))), investments))
-        response = requests.post(url, data=JsonUtils.dump(body), headers={'x-api-key': 'VPd9XKTrifwm6ViM7ro79wc64ubR5op1U0RCxFcb'})
+        response = requests.post(url, data=JsonUtils.dump(body),
+                                 headers={'x-api-key': get_secret('portfolio-api-key')})
 
         if response.status_code != HTTPStatus.OK:
             logger.error(f'Batch save failed: {response}')
