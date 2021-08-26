@@ -76,6 +76,7 @@ class CorporateEventsCrawlerCore:
         if set(table.columns) == {'Unnamed: 0', 'Proventos', 'Código ISIN', 'Deliberado em',
                                   'Negócios com até', '% / Fator de Grupamento', 'Ativo Emitido',
                                   'Observações'}:
+            logger.info('Procesing corporate event file.')
             table.drop('Unnamed: 0', inplace=True, axis=1)
             table.columns = ['type', 'isin_code', 'deliberate_on', 'with_date', 'grouping_factor', 'emitted_asset',
                              'observations']
@@ -85,6 +86,8 @@ class CorporateEventsCrawlerCore:
                 record['with_date'] = datetime.strptime(record['with_date'], '%d/%m/%Y').strftime('%Y%m%d')
                 record['deliberate_on'] = datetime.strptime(record['deliberate_on'], '%d/%m/%Y').strftime('%Y%m%d')
             self.repo.batch_save([EarningsInAssetCorporateEvent(**row) for row in records])
+        else:
+            logger.info('Unidentified file type.')
 
         self.bucket.move_file_to_archive(bucket_name, file_path)
         self.bucket.clean_up()
