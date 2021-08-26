@@ -1,11 +1,13 @@
 import boto3
 
-client = boto3.client('ssm')
 
+class ConfigurationClient:
+    def __init__(self):
+        self.client = boto3.client('ssm')
 
-def get_secret(key):
-    resp = client.get_parameter(
-        Name=key,
-        WithDecryption=True
-    )
-    return resp['Parameter']['Value']
+    def get_secret(self, key):
+        resp = self.client.get_parameter(
+            Name=key,
+            WithDecryption=True
+        )
+        return resp['Parameter']['Value']

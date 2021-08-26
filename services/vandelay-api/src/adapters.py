@@ -8,7 +8,7 @@ from boto3.dynamodb.conditions import Key
 
 from exceptions import BatchSavingException
 from goatcommons.constants import InvestmentsType
-from goatcommons.configuration.system_manager import get_secret
+from goatcommons.configuration.system_manager import ConfigurationClient
 from goatcommons.utils import JsonUtils
 from models import Import, CEIOutboundRequest, InvestmentRequest
 import logging
@@ -64,7 +64,7 @@ class PortfolioClient:
         body = list(
             map(lambda i: asdict(InvestmentRequest(type=InvestmentsType.STOCK, investment=asdict(i))), investments))
         response = requests.post(url, data=JsonUtils.dump(body),
-                                 headers={'x-api-key': get_secret('portfolio-api-key')})
+                                 headers={'x-api-key': ConfigurationClient().get_secret('portfolio-api-key')})
 
         if response.status_code != HTTPStatus.OK:
             logger.error(f'Batch save failed: {response}')
