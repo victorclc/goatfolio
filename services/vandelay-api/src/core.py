@@ -2,12 +2,10 @@ import logging
 import re
 from datetime import datetime
 
-from adapters import ImportsRepository, CEIImportsQueue, PortfolioClient
 from brutils.validations import NationalTaxIdUtils
 from constants import ImportStatus
 from exceptions import UnprocessableException, BatchSavingException
 from goatcommons.models import StockInvestment
-from goatcommons.notifications.client import PushNotificationsClient
 from models import CEIInboundRequest, Import, CEIOutboundRequest, CEIImportResult
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -57,7 +55,7 @@ class CEICore:
                 _import.status = ImportStatus.ERROR
                 _import.error_message = 'Error on batch saving.'
             except TypeError as e:
-                logger.error(f'Error on parsing payload: {str(e)}')
+                logger.exception(f'Error on parsing payload', e)
                 _import.status = ImportStatus.ERROR
                 _import.error_message = str(e)
         self.repo.save(_import)

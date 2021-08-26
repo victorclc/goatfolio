@@ -1,13 +1,10 @@
 import logging
-import os
-from http import HTTPStatus
 
 import firebase_admin
 from firebase_admin.messaging import APNSConfig, APNSPayload, Aps, Notification, MulticastMessage, send_multicast
 
 from adapters import NotificationTokensRepository
 from goatcommons.notifications.models import NotificationRequest
-from goatcommons.utils import JsonUtils
 from models import UserTokens
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -17,7 +14,7 @@ logger.setLevel(logging.INFO)
 
 class PushNotificationCore:
     def __init__(self):
-        cred = firebase_admin.credentials.Certificate(f'resources/{os.getenv("STAGE")}-certificate.json')
+        cred = firebase_admin.credentials.Certificate(f'resources/certificate.json')
         firebase_admin.initialize_app(cred)
         self.token_repo = NotificationTokensRepository()
 

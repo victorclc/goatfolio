@@ -3,10 +3,12 @@ from dataclasses import asdict
 from http import HTTPStatus
 
 import boto3
+import requests
 from boto3.dynamodb.conditions import Key
 
 from exceptions import BatchSavingException
 from goatcommons.constants import InvestmentsType
+from goatcommons.configuration.system_manager import ConfigurationClient
 from goatcommons.utils import JsonUtils
 from models import Import, CEIOutboundRequest, InvestmentRequest
 import logging
@@ -52,18 +54,19 @@ class CEIImportsQueue:
 
 
 class PortfolioClient:
-    BATCH_SAVE_ARN = os.getenv('BATCH_SAVE_ARN')
+    BASE_API_URL = os.getenv('BASE_API_URL')
 
     def __init__(self):
         self.lambda_client = boto3.client('lambda')
 
     def batch_save(self, investments):
-        requests = list(
+        url = f'https://{self.BASE_API_URL}/portfolio/investments/batch'
+        body = list(
             map(lambda i: asdict(InvestmentRequest(type=InvestmentsType.STOCK, investment=asdict(i))), investments))
-        response = self.lambda_client.invoke(FunctionName=self.BATCH_SAVE_ARN,
-                                             Payload=bytes(JsonUtils.dump(requests), encoding='utf8'))
+        response = requests.post(url, data=JsonUtils.dump(body),
+                                 headers={'x-api-key': ConfigurationClient().get_secret('portfolio-api-key')})
 
-        if response['ResponseMetadata']['HTTPStatusCode'] != HTTPStatus.OK:
+        if response.status_code != HTTPStatus.OK:
             logger.error(f'Batch save failed: {response}')
             raise BatchSavingException()
         return response

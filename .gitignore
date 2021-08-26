@@ -6,3 +6,4 @@ __pycache__/
 test-env/
 *.log
 *.csv
+.aws-sam/

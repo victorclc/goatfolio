@@ -7,8 +7,8 @@ provider:
   runtime: python3.8
   environment:
     PYTHONPATH: "src:libs"
-    BATCH_SAVE_ARN:
-      'Fn::ImportValue': sls-portfolio-api-${self:provider.stage}-BatchAddInvestmentsLambdaFunctionQualifiedArn
+    BASE_API_URL: ${env:DOMAIN_NAME}
+    API_KEY_SECRET_NAME: ${env:API_KEY_SECRET_NAME}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -36,15 +36,16 @@ provider:
         'Fn::ImportValue': ${self:provider.stage}-PushNotificationRequestArnOutput
     - Effect: Allow
       Action:
-        - lambda:InvokeFunction
-      Resource:
-        'Fn::ImportValue': sls-portfolio-api-${self:provider.stage}-BatchAddInvestmentsLambdaFunctionQualifiedArn
-    - Effect: Allow
-      Action:
         - sqs:SendMessage
         - sqs:GetQueueUrl
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    - Effect: Allow
+      Action:
+        - ssm:GetParameter
+        - ssm:GetParameters
+        - ssm:DescribeParameters
+      Resource: arn:aws:ssm:${self:provider.region}:*:parameter/portfolio-api-key
 
 package:
   exclude:

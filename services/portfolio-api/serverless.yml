@@ -21,6 +21,9 @@ provider:
             -
               - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
               - '/index/*'
+  apiGateway:
+    apiKeys:
+      - portfolio-api-key
 
 package:
   exclude:
@@ -55,7 +58,7 @@ functions:
           request:
             parameters:
               querystrings:
-                date: true
+                date: false
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
@@ -100,6 +103,11 @@ functions:
 
   batchAddInvestments:
     handler: src/handlers.batch_add_investments_handler
+    events:
+      - http:
+          path: investments/batch
+          method: post
+          private: true
 
   asyncAddInvestment:
     handler: src/handlers.async_add_investment_handler
