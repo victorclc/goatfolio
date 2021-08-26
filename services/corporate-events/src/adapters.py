@@ -79,6 +79,7 @@ class B3CorporateEventsBucket:
         return destination
 
     def put(self, buffer: StringIO, file_name):
+        logger.info(f'Saving {file_name} on s3:::{self.bucket_name}')
         self.s3.put_object(Body=buffer.getvalue(), Bucket=self.bucket_name, Key=f'new/{file_name}')
 
     def move_file_to_archive(self, bucket, file_path):
