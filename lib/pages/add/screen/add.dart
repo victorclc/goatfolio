@@ -61,7 +61,11 @@ class AddPage extends StatelessWidget {
             SettingsTile(
               title: 'Importar automaticamente (CEI)',
               iosLikeTile: true,
-              onPressed: (context) => ModalUtils.showDragableModalBottomSheet(
+              // onPressed: (_) => Navigator.of(context).push(MaterialPageRoute(
+              //     builder: (_) => CeiLoginPage(
+              //           userService: userService,
+              //         ))),
+              onPressed: (_) => ModalUtils.showDragableModalBottomSheet(
                 context,
                 CeiLoginPage(userService: userService),
               ),

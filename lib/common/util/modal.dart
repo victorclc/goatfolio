@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/common/theme/theme_changer.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:provider/provider.dart';
 
 class ModalUtils {
   static Future<T> showUnDismissibleModalBottomSheet<T>(
@@ -45,7 +47,7 @@ class ModalUtils {
       {bool expandable = true, bool isDismissible = false}) async {
     return await showMaterialModalBottomSheet(
       context: context,
-      builder: (_) => child,
+      builder: (_) => CupertinoTheme(data: Provider.of<ThemeChanger>(context, listen: false).themeData,child: child),
       expand: expandable,
       enableDrag: true,
       useRootNavigator: true,

@@ -21,7 +21,7 @@ class GoatfolioApp extends StatelessWidget {
       : super(key: key);
 
   ThemeData androidDarkThemeData(BuildContext context, ThemeChanger theme) {
-    if (theme.configuredTheme == ThemeChanger.CFG_AUTOMATIC_VALUE) {
+    if (theme.configuredTheme == null || theme.configuredTheme == ThemeChanger.CFG_AUTOMATIC_VALUE) {
       return ThemeData(
           brightness: Brightness.dark,
           backgroundColor: CupertinoColors.black,
