@@ -5,11 +5,7 @@ on:
     branches: [ master, develop ]
     paths:
       - 'services/vandelay-api/**'
-  pull_request:
-    branches: [ master, develop ]
-    paths:
-      - 'services/vandelay-api/**'
-      
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
