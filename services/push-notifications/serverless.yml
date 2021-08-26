@@ -18,6 +18,12 @@ provider:
         - dynamodb:BatchWriteItem
       Resource:
         - Fn::GetAtt: [ NotificationTokensTable, Arn ]
+    - Effect: Allow
+      Action:
+        - ssm:GetParameter
+        - ssm:GetParameters
+        - ssm:DescribeParameters
+      Resource: arn:aws:ssm:${self:provider.region}:*:parameter/firebase-credentials
 
 package:
   exclude:
