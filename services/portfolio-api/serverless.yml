@@ -21,6 +21,9 @@ provider:
             -
               - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
               - '/index/*'
+  apiGateway:
+    apiKeys:
+      - portfolio-api-key
 
 package:
   exclude:
