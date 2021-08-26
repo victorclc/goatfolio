@@ -83,7 +83,7 @@ def delete_investment_handler(event, context):
 def batch_add_investments_handler(event, context):
     logger.info(f"EVENT: {event}")
     try:
-        investments = map(lambda i: InvestmentRequest(**i), **JsonUtils.load(event['body']))
+        investments = map(lambda i: InvestmentRequest(**i), JsonUtils.load(event['body']))
         core.batch_add(investments)
         return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(HTTPStatus.OK.phrase)}
     except Exception as ex:
