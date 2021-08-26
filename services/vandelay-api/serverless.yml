@@ -8,6 +8,7 @@ provider:
   environment:
     PYTHONPATH: "src:libs"
     BASE_API_URL: ${env:DOMAIN_NAME}
+    API_KEY_SECRET_NAME: ${env:API_KEY_SECRET_NAME}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -39,6 +40,11 @@ provider:
         - sqs:GetQueueUrl
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    - Effect: Allow
+      Action:
+        - ssm:GetParameters
+        - ssm:DescribeParameters
+      Resource: arn:aws:ssm:${self:provider.region}:*:parameter/portfolio-api-key
 
 package:
   exclude:
