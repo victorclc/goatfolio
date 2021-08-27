@@ -84,18 +84,14 @@ class B3CorporateEventsBucket:
         self.s3.put_object(Body=buffer.getvalue(), Bucket=self.bucket_name, Key=f'new/{file_name}')
 
     def move_file_to_archive(self, bucket, file_path):
-        file_name = f"{self._today_string()}-{self._file_name_from_path(file_path)}"
+        file_name = self._file_name_from_path(file_path)
         self.s3.copy_object(Bucket=bucket, CopySource=f'{bucket}/{file_path}', Key=f"archive/{file_name}")
         self.s3.delete_object(Bucket=bucket, Key=file_path)
 
     def move_file_to_unprocessed(self, bucket, file_path):
-        file_name = f"{self._today_string()}-{self._file_name_from_path(file_path)}"
+        file_name = self._file_name_from_path(file_path)
         self.s3.copy_object(Bucket=bucket, CopySource=f'{bucket}/{file_path}', Key=f"unprocessed/{file_name}")
         self.s3.delete_object(Bucket=bucket, Key=file_path)
-
-    @staticmethod
-    def _today_string():
-        return datetime.now().strftime('%Y%m%d')
 
     @staticmethod
     def _file_name_from_path(path: str):
