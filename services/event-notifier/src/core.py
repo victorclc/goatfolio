@@ -5,7 +5,7 @@ from models import NotifyRequest
 
 
 class EventNotifierCore:
-    WEBHOOK_URL = os.getenv(f'{os.getenv("STAGE")}_WEBHOOK_URL')
+    WEBHOOK_URL = os.getenv(f'{os.getenv("STAGE")}_WEBHOOK_URL'.upper())
     LEVEL_COLOR_MAP = {
         "INFO": 0xffffff,
         "WARNING": 0xffe203,
