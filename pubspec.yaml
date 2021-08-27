@@ -30,7 +30,7 @@ dependencies:
   shared_preferences: ^2.0.5
   progress_indicators: ^0.1.5
   modal_bottom_sheet: ^2.0.0
-  provider: 4.1.2
+  provider: ^5.0.0
   http: ^0.13.0
   http_interceptor: ^1.0.1
   sqflite:
@@ -47,6 +47,7 @@ dependencies:
   firebase_messaging: ^10.0.4
   app_settings: 4.1.0
   firebase_analytics: ^8.2.0
+  flutter_bloc: ^7.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

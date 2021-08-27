@@ -12,14 +12,15 @@ class VandelayClient {
   final UserService userService;
   final Client _client;
 
-  VandelayClient(this.userService) : _client = InterceptedClient.build(
-      interceptors: [LoggingInterceptor()],
-      requestTimeout: Duration(seconds: 30));
+  VandelayClient(this.userService)
+      : _client = InterceptedClient.build(
+            interceptors: [LoggingInterceptor()],
+            requestTimeout: Duration(seconds: 30));
 
-
-  Future<bool> importCEIRequest(String username, String password) async {
+  Future<CeiImportResponse> importCEIRequest(
+      String username, String password) async {
     CeiImportRequest request =
-    CeiImportRequest(taxId: username, password: password);
+        CeiImportRequest(taxId: username, password: password);
     String accessToken = await userService.getSessionToken();
 
     var response = await _client.post(
@@ -34,6 +35,6 @@ class VandelayClient {
     if (response.statusCode != HttpStatus.accepted) {
       throw Exception("Import request failed");
     }
-    return true;
+    return CeiImportResponse.fromJson(jsonDecode(response.body));
   }
 }
