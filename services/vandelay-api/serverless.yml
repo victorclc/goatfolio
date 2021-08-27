@@ -104,6 +104,21 @@ functions:
       - http:
           path: cei/info
           method: get
+          request:
+            parameters:
+              querystrings:
+                datetime: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  getImportStatus:
+    handler: src/handlers.import_status_handler
+    events:
+      - http:
+          path: cei
+          method: get
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
