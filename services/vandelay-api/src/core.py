@@ -36,6 +36,8 @@ class CEICore:
         self.queue.send(outbound_request)
         self.repo.save(_import)
 
+        return {'datetime': now}
+
     def import_result(self, result: CEIImportResult):
         _import = self.repo.find(result.subject, result.datetime)
         _import.status = result.status
@@ -84,3 +86,6 @@ class CEICore:
     def cei_info_request(self, subject):
         assert subject
         return self.cei_repo.find(subject=subject)
+
+    def import_status(self, subject, datetime):
+        return self.repo.find(subject, datetime)

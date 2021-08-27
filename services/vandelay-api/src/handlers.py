@@ -25,9 +25,9 @@ def cei_import_request_handler(event, context):
         request = CEIInboundRequest(**JsonUtils.load(event['body']))
         subject = AWSEventUtils.get_event_subject(event)
 
-        core.import_request(subject, request)
+        response = core.import_request(subject, request)
         return {'statusCode': HTTPStatus.ACCEPTED.value,
-                'body': JsonUtils.dump({"message": HTTPStatus.ACCEPTED.phrase})}
+                'body': JsonUtils.dump(response)}
     except TypeError as e:
         logger.exception(e)
         return {'statusCode': HTTPStatus.BAD_REQUEST.value, 'body': JsonUtils.dump({"message": str(e)})}
@@ -55,6 +55,21 @@ def cei_info_request_handler(event, context):
     try:
         subject = AWSEventUtils.get_event_subject(event)
         response = core.cei_info_request(subject)
+        return {'statusCode': HTTPStatus.OK.value, 'body': JsonUtils.dump(asdict(response) if response else {})}
+    except TypeError as e:
+        logger.exception(e)
+        return {'statusCode': HTTPStatus.BAD_REQUEST.value, 'body': JsonUtils.dump({"message": str(e)})}
+    except UnprocessableException as e:
+        logger.exception(e)
+        return {'statusCode': HTTPStatus.UNPROCESSABLE_ENTITY.value, 'body': JsonUtils.dump({"message": str(e)})}
+
+
+def import_status_handler(event, context):
+    logger.info(f'EVENT: {event}')
+    try:
+        subject = AWSEventUtils.get_event_subject(event)
+        datetime = AWSEventUtils.get_query_params(event)['datetime']
+        response = core.import_status(subject, datetime)
         return {'statusCode': HTTPStatus.OK.value, 'body': JsonUtils.dump(asdict(response) if response else {})}
     except TypeError as e:
         logger.exception(e)
