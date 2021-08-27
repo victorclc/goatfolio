@@ -100,9 +100,9 @@ if __name__ == '__main__':
     driver = webdriver.Chrome()
     login_page = LoginPage(driver, '23011337888', '%wMepyO97Jlac')
     home_page = login_page.login()
-    extract_page = home_page.go_to_extract_page()
+    extract_page = home_page.go_to_asset_inquiry_page()
     investments = []
-    for investment in extract_page.get_all_brokers_extract():
+    for investment in extract_page.get_assets_quantity():
         if not investment['quantidade']:
             continue
         s = StockInvestment(type='STOCK',
