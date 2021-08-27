@@ -25,9 +25,9 @@ def cei_import_request_handler(event, context):
         request = CEIInboundRequest(**JsonUtils.load(event['body']))
         subject = AWSEventUtils.get_event_subject(event)
 
-        core.import_request(subject, request)
+        response = core.import_request(subject, request)
         return {'statusCode': HTTPStatus.ACCEPTED.value,
-                'body': JsonUtils.dump({"message": HTTPStatus.ACCEPTED.phrase})}
+                'body': JsonUtils.dump(response)}
     except TypeError as e:
         logger.exception(e)
         return {'statusCode': HTTPStatus.BAD_REQUEST.value, 'body': JsonUtils.dump({"message": str(e)})}
