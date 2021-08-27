@@ -86,6 +86,10 @@ class B3CorporateEventsBucket:
         self.s3.copy_object(Bucket=bucket, CopySource=f'{bucket}/{file_path}', Key=f"archive/{file_path}")
         self.s3.delete_object(Bucket=bucket, Key=file_path)
 
+    def move_file_to_unprocessed(self, bucket, file_path):
+        self.s3.copy_object(Bucket=bucket, CopySource=f'{bucket}/{file_path}', Key=f"unprocessed/{file_path}")
+        self.s3.delete_object(Bucket=bucket, Key=file_path)
+
     def clean_up(self):
         for file in self._downloaded_files:
             os.system(f'rm -f {file}')
