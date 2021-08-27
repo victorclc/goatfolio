@@ -10,7 +10,7 @@ from exceptions import BatchSavingException
 from goatcommons.constants import InvestmentsType
 from goatcommons.configuration.system_manager import ConfigurationClient
 from goatcommons.utils import JsonUtils
-from models import Import, CEIOutboundRequest, InvestmentRequest
+from models import Import, CEIOutboundRequest, InvestmentRequest, CEIInfo
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -25,6 +25,7 @@ class ImportsRepository:
     def save(self, _import: Import):
         data = asdict(_import)
         data.pop('username')
+        data.pop('payload')
         logger.info(f'Saving import: {data}')
         self._table.put_item(Item=data)
 
@@ -70,3 +71,21 @@ class PortfolioClient:
             logger.error(f'Batch save failed: {response}')
             raise BatchSavingException()
         return response
+
+
+class CEIInfoRepository:
+    def __init__(self):
+        self._table = boto3.resource('dynamodb').Table('CEIInfo')
+
+    def save(self, info: CEIInfo):
+        data = asdict(info)
+        logger.info(f'Saving info: {data}')
+        self._table.put_item(Item=data)
+
+    def find(self, subject):
+        result = self._table.query(KeyConditionExpression=Key('subject').eq(subject))
+        if 'Items' in result and result['Items']:
+            item = result['Items'][0]
+            logger.info(f'Found CEIInfo request: {item}')
+            return CEIInfo(**item)
+        return None
