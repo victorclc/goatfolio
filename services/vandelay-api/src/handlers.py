@@ -1,4 +1,5 @@
 import traceback
+from dataclasses import asdict
 from http import HTTPStatus
 
 from adapters import ImportsRepository, CEIImportsQueue, PortfolioClient, CEIInfoRepository
@@ -49,5 +50,15 @@ def cei_import_result_handler(event, context):
         raise
 
 
-def cei_import_status_handler(event, context):
-    pass
+def cei_info_request_handler(event, context):
+    logger.info(f'EVENT: {event}')
+    try:
+        subject = AWSEventUtils.get_event_subject(event)
+        response = core.cei_info_request(subject)
+        return {'statusCode': HTTPStatus.OK.value, 'body': JsonUtils.dump(asdict(response) if response else {})}
+    except TypeError as e:
+        logger.exception(e)
+        return {'statusCode': HTTPStatus.BAD_REQUEST.value, 'body': JsonUtils.dump({"message": str(e)})}
+    except UnprocessableException as e:
+        logger.exception(e)
+        return {'statusCode': HTTPStatus.UNPROCESSABLE_ENTITY.value, 'body': JsonUtils.dump({"message": str(e)})}

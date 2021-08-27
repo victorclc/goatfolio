@@ -80,3 +80,7 @@ class CEICore:
             r'^(?=.*[A-Za-z])(?=.*[!@#%$&*])(?=.*[0-9]).{8,16}$')  # a least 1 letter, 1 number, 1
         # symbol and 8<=len<=16
         return NationalTaxIdUtils.is_valid(request.tax_id) and pattern.match(request.password)
+
+    def cei_info_request(self, subject):
+        assert subject
+        return self.cei_repo.find(subject=subject)
