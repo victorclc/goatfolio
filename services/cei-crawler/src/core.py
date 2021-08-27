@@ -52,7 +52,7 @@ class CEICrawlerCore:
             assets_quantity = inquiry_page.get_assets_quantity()
 
             response.status = ImportStatus.SUCCESS
-            response.payload = {'investments': investments, 'assets_quantity': assets_quantity}
+            response.payload = {'investments': investments, 'assets_quantities': assets_quantity}
         except LoginError as e:
             logger.exception('Invalid login credentials')
             response.status = ImportStatus.ERROR
