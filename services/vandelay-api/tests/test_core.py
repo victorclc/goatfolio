@@ -13,7 +13,8 @@ from models import CEIInboundRequest, Import, CEIImportResult
 
 class TestCEICore(unittest.TestCase):
     def setUp(self):
-        self.core = core.CEICore(repo=MagicMock(), queue=MagicMock(), portfolio=MagicMock(), push=MagicMock())
+        self.core = core.CEICore(repo=MagicMock(), queue=MagicMock(), portfolio=MagicMock(), push=MagicMock(),
+                                 cei_repo=MagicMock())
         self.core.repo.save = MagicMock(return_value=None)
         self.core.repo.find_latest = MagicMock(return_value=None)
         self.core.repo.find = MagicMock(return_value=None)
@@ -85,7 +86,8 @@ class TestCEICore(unittest.TestCase):
         self.core.queue.send.assert_not_called()
 
     def test_successful_import_result_should_update_the_status_and_payload_on_database_and_call_batch_save(self):
-        payload = list(map(lambda _: asdict(self._create_stock_investment()), range(10)))
+        payload = {'investments': list(map(lambda _: asdict(self._create_stock_investment()), range(10))),
+                   'assets_quantities': {'BIDI11': 100}}
         import_result = CEIImportResult(subject='1111-2222-333-4444', datetime=123, status=ImportStatus.SUCCESS,
                                         payload=payload)
 
@@ -95,6 +97,7 @@ class TestCEICore(unittest.TestCase):
 
         self.core.portfolio.batch_save.assert_called_once()
         self.core.repo.save.assert_called_once()
+        self.core.cei_repo.save.assert_called_once()
         self.assertEqual(result.status, import_result.status)
         self.assertEqual(result.payload, import_result.payload)
         self.assertIsNone(result.error_message)
@@ -115,7 +118,7 @@ class TestCEICore(unittest.TestCase):
 
     def test_successful_import_result_when_error_on_call_batch_save_should_update_status_to_error_and_set_error_message(
             self):
-        payload = list(map(lambda _: asdict(self._create_stock_investment()), range(10)))
+        payload = {'investments': list(map(lambda _: asdict(self._create_stock_investment()), range(10)))}
         import_result = CEIImportResult(subject='1111-2222-333-4444', datetime=123, status=ImportStatus.SUCCESS,
                                         payload=payload)
 

@@ -48,9 +48,11 @@ class CEICrawlerCore:
             extract_page = home_page.go_to_extract_page()
 
             investments = self._extract_to_investments(request.subject, extract_page.get_all_brokers_extract())
+            inquiry_page = home_page.go_to_asset_inquiry_page()
+            assets_quantity = inquiry_page.get_assets_quantity()
 
             response.status = ImportStatus.SUCCESS
-            response.payload = investments
+            response.payload = {'investments': investments, 'assets_quantities': assets_quantity}
         except LoginError as e:
             logger.exception('Invalid login credentials')
             response.status = ImportStatus.ERROR
@@ -96,22 +98,22 @@ class CEICrawlerCore:
         return _id
 
 
-if __name__ == '__main__':
-    driver = webdriver.Chrome()
-    login_page = LoginPage(driver, '23011337888', '%wMepyO97Jlac')
-    home_page = login_page.login()
-    extract_page = home_page.go_to_extract_page()
-    investments = []
-    for investment in extract_page.get_all_brokers_extract():
-        if not investment['quantidade']:
-            continue
-        s = StockInvestment(type='STOCK',
-                            operation='BUY' if investment['compra_venda'] == 'C' else 'SELL',
-                            ticker=re.sub('F$', '', investment['codigo_negociacao']),
-                            amount=Decimal(investment['quantidade']),
-                            price=Decimal(investment['preco']),
-                            date=datetime.strptime(investment['data_do_negocio'], '%d/%m/%Y'),
-                            broker=investment['corretora'], external_system='CEI', subject='12345')
-        s.id = uuid.uuid4()
-        investments.append(s)
-    print(investments)
+# if __name__ == '__main__':
+#     driver = webdriver.Chrome()
+#     login_page = LoginPage(driver, '23011337888', '%wMepyO97Jlac')
+#     home_page = login_page.login()
+#     extract_page = home_page.go_to_asset_inquiry_page()
+#     investments = []
+#     for investment in extract_page.get_assets_quantity():
+#         if not investment['quantidade']:
+#             continue
+#         s = StockInvestment(type='STOCK',
+#                             operation='BUY' if investment['compra_venda'] == 'C' else 'SELL',
+#                             ticker=re.sub('F$', '', investment['codigo_negociacao']),
+#                             amount=Decimal(investment['quantidade']),
+#                             price=Decimal(investment['preco']),
+#                             date=datetime.strptime(investment['data_do_negocio'], '%d/%m/%Y'),
+#                             broker=investment['corretora'], external_system='CEI', subject='12345')
+#         s.id = uuid.uuid4()
+#         investments.append(s)
+#     print(investments)

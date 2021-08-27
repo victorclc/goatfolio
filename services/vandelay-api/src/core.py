@@ -6,7 +6,7 @@ from brutils.validations import NationalTaxIdUtils
 from constants import ImportStatus
 from exceptions import UnprocessableException, BatchSavingException
 from goatcommons.models import StockInvestment
-from models import CEIInboundRequest, Import, CEIOutboundRequest, CEIImportResult
+from models import CEIInboundRequest, Import, CEIOutboundRequest, CEIImportResult, CEIInfo
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
@@ -18,11 +18,12 @@ def _is_status_final(status):
 
 
 class CEICore:
-    def __init__(self, repo, queue, portfolio, push):
+    def __init__(self, repo, queue, portfolio, push, cei_repo):
         self.repo = repo
         self.queue = queue
         self.portfolio = portfolio
         self.push = push
+        self.cei_repo = cei_repo
 
     def import_request(self, subject, request):
         logger.info(f'Processing import request from {subject}')
@@ -48,8 +49,11 @@ class CEICore:
                 self.push.send_message(result.subject, 'CEI_IMPORT_ERROR')
         else:
             try:
-                investments = list(map(lambda i: StockInvestment(**i), result.payload))
+                investments = list(map(lambda i: StockInvestment(**i), result.payload['investments']))
                 self.portfolio.batch_save(investments)
+                if 'assets_quantities' in result.payload:
+                    self.cei_repo.save(
+                        CEIInfo(subject=result.subject, assets_quantities=result.payload['assets_quantities']))
                 self.push.send_message(result.subject, 'CEI_IMPORT_SUCCESS')
             except BatchSavingException:
                 _import.status = ImportStatus.ERROR
@@ -76,3 +80,7 @@ class CEICore:
             r'^(?=.*[A-Za-z])(?=.*[!@#%$&*])(?=.*[0-9]).{8,16}$')  # a least 1 letter, 1 number, 1
         # symbol and 8<=len<=16
         return NationalTaxIdUtils.is_valid(request.tax_id) and pattern.match(request.password)
+
+    def cei_info_request(self, subject):
+        assert subject
+        return self.cei_repo.find(subject=subject)
