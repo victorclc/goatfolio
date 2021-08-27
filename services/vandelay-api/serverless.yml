@@ -98,11 +98,11 @@ functions:
           arn:
             'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
 
-  ceiImportStatus:
-    handler: src/handlers.cei_import_status_handler
+  getCEIInfo:
+    handler: src/handlers.cei_info_request_handler
     events:
       - http:
-          path: cei/latest
+          path: cei/info
           method: get
           authorizer:
             type: COGNITO_USER_POOLS
