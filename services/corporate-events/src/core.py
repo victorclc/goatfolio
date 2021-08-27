@@ -86,10 +86,11 @@ class CorporateEventsCrawlerCore:
                 record['with_date'] = datetime.strptime(record['with_date'], '%d/%m/%Y').strftime('%Y%m%d')
                 record['deliberate_on'] = datetime.strptime(record['deliberate_on'], '%d/%m/%Y').strftime('%Y%m%d')
             self.repo.batch_save([EarningsInAssetCorporateEvent(**row) for row in records])
+            self.bucket.move_file_to_archive(bucket_name, file_path)
         else:
             logger.info('Unidentified file type.')
+            self.bucket.move_file_to_unprocessed(bucket_name, file_path)
 
-        self.bucket.move_file_to_archive(bucket_name, file_path)
         self.bucket.clean_up()
 
 
