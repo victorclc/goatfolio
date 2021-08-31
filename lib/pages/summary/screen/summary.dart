@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/common/theme/theme_changer.dart';
 import 'package:goatfolio/pages/summary/widget/highest_highs_card.dart';
 import 'package:goatfolio/pages/summary/widget/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/widget/rentability_card.dart';
@@ -13,6 +14,9 @@ import 'package:provider/provider.dart';
 class SummaryPage extends StatefulWidget {
   static const title = 'Resumo';
   static const icon = Icon(CupertinoIcons.chart_bar_square_fill);
+  final Function() openDrawerCb;
+
+  const SummaryPage({Key key, @required this.openDrawerCb}) : super(key: key);
 
   @override
   _SummaryPageState createState() => _SummaryPageState();
@@ -20,6 +24,7 @@ class SummaryPage extends StatefulWidget {
 
 class _SummaryPageState extends State<SummaryPage> {
   PortfolioSummary summary;
+  GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
 
   void initState() {
     Provider.of<PortfolioListNotifier>(context, listen: false);
@@ -41,9 +46,14 @@ class _SummaryPageState extends State<SummaryPage> {
   }
 
   Widget buildAndroid(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: onRefresh,
-      child: buildScrollView(context),
+    return Scaffold(
+      body: CupertinoTheme(
+        data: Provider.of<ThemeChanger>(context).themeData,
+        child: RefreshIndicator(
+          onRefresh: onRefresh,
+          child: buildScrollView(context),
+        ),
+      ),
     );
   }
 
@@ -55,6 +65,14 @@ class _SummaryPageState extends State<SummaryPage> {
     return CustomScrollView(
       slivers: [
         CupertinoSliverNavigationBar(
+          leading: GestureDetector(
+            child: Icon(
+              Icons.menu,
+              color: CupertinoTheme.of(context).textTheme.textStyle.color,
+              size: 24,
+            ),
+            onTap: widget.openDrawerCb,
+          ),
           heroTag: 'summaryNavBar',
           largeTitle: Text(SummaryPage.title),
           backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
@@ -85,7 +103,9 @@ class _SummaryPageState extends State<SummaryPage> {
                       case ConnectionState.waiting:
                         return Platform.isIOS
                             ? CupertinoActivityIndicator()
-                            : Center(child: Center(child: CircularProgressIndicator()));
+                            : Center(
+                                child:
+                                    Center(child: CircularProgressIndicator()));
                       case ConnectionState.done:
                         if (snapshot.hasData) {
                           summary = snapshot.data;
