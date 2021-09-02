@@ -4,7 +4,8 @@ from itertools import groupby
 from uuid import uuid4
 
 from goatcommons.models import StockInvestment
-from goatcommons.portfolio.models import Portfolio, StockConsolidated, StockPosition
+from goatcommons.portfolio.models import Portfolio, StockConsolidated, StockPosition, StockSummary, DateAmount
+from goatcommons.portfolio.utils import create_stock_position_wrapper_list, group_stock_position_per_month
 from goatcommons.utils import InvestmentUtils
 from model import InvestmentRequest
 
@@ -28,21 +29,45 @@ class PortfolioCore:
 
         portfolio = self.repo.find(subject) or Portfolio(subject=subject)
         for ticker, investments in investments_map:
-            stock_consolidated = next(
-                (stock for stock in portfolio.stocks if stock.ticker == ticker or stock.alias_ticker == ticker), {})
-            if not stock_consolidated:
-                stock_consolidated = StockConsolidated(ticker=ticker)
-                portfolio.stocks.append(stock_consolidated)
+            consolidated = self.repo.find_ticker(subject, ticker) \
+                           or self.repo.find_alias_ticker(subject, ticker) \
+                           or StockConsolidated(subject=subject, ticker=ticker)
 
             investments = sorted(list(investments), key=lambda i: i.date)
             for inv in investments:
                 if inv.amount > 0:
                     portfolio.initial_date = min(portfolio.initial_date, inv.date)
-                self._consolidate_stock(stock_consolidated, inv)
+                self._consolidate_stock(consolidated, inv)
+
+            self._consolidate_portfolio_stock(ticker, portfolio, consolidated)
+            self.repo.save(consolidated)
 
         self.repo.save(portfolio)
-
         return portfolio
+
+    @staticmethod
+    def _consolidate_portfolio_stock(ticker: str, portfolio: Portfolio, stock_consolidated: StockConsolidated):
+        monthly_positions = group_stock_position_per_month(sorted(stock_consolidated.history, key=lambda h: h.date))
+        wrapper = create_stock_position_wrapper_list(monthly_positions)
+        current = wrapper.tail
+        previous = current.prev
+
+        current_amount = DateAmount(date=current.data.date, amount=current.current_amount)
+        previous_amount = None
+        if previous:
+            previous_amount = DateAmount(date=previous.data.date, amount=previous.current_amount)
+
+        stock_summary = next(
+            (stock for stock in portfolio.stocks if stock.ticker == ticker or stock.aliast_ticker == ticker), None)
+        if stock_summary:
+            stock_summary.ticker = stock_consolidated.ticker
+            stock_summary.alias_ticker = stock_consolidated.ticker
+            stock_summary.current_amount = stock_consolidated.ticker
+            stock_summary.previous_amount = stock_consolidated.ticker
+        else:
+            stock_summary = StockSummary(stock_consolidated.ticker, alias_ticker=stock_consolidated.alias_ticker,
+                                         current_amount=current_amount, previous_amount=previous_amount)
+            portfolio.stocks.append(stock_summary)
 
     @staticmethod
     def _consolidate_stock(stock_consolidated: StockConsolidated, inv: StockInvestment):

@@ -1,16 +1,15 @@
 import logging
 from datetime import datetime, timezone
 from decimal import Decimal
-from itertools import groupby
 
 from dateutil.relativedelta import relativedelta
 
 from goatcommons.portfolio.models import Portfolio, StockPosition, StockConsolidated
+from goatcommons.portfolio.utils import group_stock_position_per_month, create_stock_position_wrapper_list
 from goatcommons.utils import DatetimeUtils
 from models import StockVariation, PortfolioSummary, PortfolioPosition, \
     PortfolioHistory, StockSummary, PortfolioList, TickerConsolidatedHistory, BenchmarkPosition, \
     StockConsolidatedPosition
-from wrappers import PositionDoublyLinkedList
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
@@ -36,8 +35,8 @@ class PerformanceCore:
         current_month_start = datetime.now(tz=timezone.utc).replace(day=1)
         for stock in portfolio.stocks:
             sorted_history = sorted(stock.history, key=lambda h: h.date)
-            grouped_positions = self._group_stock_position_per_month(sorted_history)
-            wrappers = self._create_stock_position_wrapper_list(grouped_positions)
+            grouped_positions = group_stock_position_per_month(sorted_history)
+            wrappers = create_stock_position_wrapper_list(grouped_positions)
             current = wrappers.tail
 
             if not current or current.amount <= 0:
@@ -62,23 +61,6 @@ class PerformanceCore:
 
         month_variation = month_variation + gross_amount - prev_month_adj_gross_amount
         return PortfolioSummary(invested_amount, gross_amount, day_variation, month_variation, stock_variation)
-
-    @staticmethod
-    def _group_stock_position_per_month(stock_positions):
-        grouped_positions = []
-        for date, positions in groupby(stock_positions, key=lambda p: p.date.replace(day=1)):
-            grouped = StockPosition(date)
-            for position in positions:
-                grouped = grouped + position
-            grouped_positions.append(grouped)
-        return grouped_positions
-
-    @staticmethod
-    def _create_stock_position_wrapper_list(positions):
-        doubly = PositionDoublyLinkedList()
-        for h in positions:
-            doubly.append(h)
-        return doubly
 
     def get_portfolio_history(self, subject):
         portfolio = self.repo.find(subject) or Portfolio(subject=subject)
@@ -107,10 +89,10 @@ class PerformanceCore:
         return PortfolioHistory(history=list(portfolio_history_map.values()), ibov_history=ibov_history)
 
     def _fetch_stocks_history_data(self, stock: StockConsolidated):
-        grouped_positions = self._group_stock_position_per_month(sorted(stock.history, key=lambda h: h.date))
+        grouped_positions = group_stock_position_per_month(sorted(stock.history, key=lambda h: h.date))
 
         monthly_map = self.market_data.ticker_monthly_data_from(stock.ticker, stock.initial_date, stock.alias_ticker)
-        wrappers = self._create_stock_position_wrapper_list(grouped_positions)
+        wrappers = create_stock_position_wrapper_list(grouped_positions)
         current = wrappers.head
 
         if not current:
@@ -157,7 +139,7 @@ class PerformanceCore:
         bdr_gross_amount = Decimal(0)
 
         for stock in portfolio.stocks:
-            current = self._create_stock_position_wrapper_list(stock.history).tail
+            current = create_stock_position_wrapper_list(stock.history).tail
             if not current:
                 continue
             amount = current.amount

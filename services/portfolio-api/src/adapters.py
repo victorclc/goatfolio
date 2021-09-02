@@ -1,3 +1,4 @@
+import logging
 from dataclasses import asdict
 from typing import List
 
@@ -5,8 +6,12 @@ import boto3
 from boto3.dynamodb.conditions import Key
 
 from goatcommons.models import Investment
-from goatcommons.portfolio.models import Portfolio
+from goatcommons.portfolio.models import Portfolio, StockConsolidated
 from goatcommons.utils import InvestmentUtils
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class InvestmentRepository:
@@ -41,11 +46,27 @@ class PortfolioRepository:
         self._portfolio_table = boto3.resource('dynamodb').Table('Portfolio')
 
     def find(self, subject) -> Portfolio:
-        result = self._portfolio_table.query(KeyConditionExpression=Key('subject').eq(subject))
+        result = self._portfolio_table.query(
+            KeyConditionExpression=Key('subject').eq(subject) & Key('ticker').eq(subject))
         if result['Items']:
             return Portfolio(**result['Items'][0])
         print(f"No Portfolio yet for subject: {subject}")
 
-    def save(self, portfolio: Portfolio):
-        print(f'Saving portfolio: {asdict(portfolio)}')
-        self._portfolio_table.put_item(Item=portfolio.to_dict())
+    def find_ticker(self, subject, ticker) -> StockConsolidated:
+        result = self._portfolio_table.query(
+            KeyConditionExpression=Key('subject').eq(subject) & Key('ticker').eq(ticker))
+        if result['Items']:
+            return StockConsolidated(**result['Items'][0])
+        logger.info(f"No {ticker} yet for subject: {subject}")
+
+    def find_alias_ticker(self, subject, ticker) -> StockConsolidated:
+        result = self._portfolio_table.query(IndexName='subjectAliasTickerGlobalIndex',
+                                             KeyConditionExpression=Key('subject').eq(subject) & Key('alias_ticker').eq(
+                                                 ticker))
+        if result['Items']:
+            return StockConsolidated(**result['Items'][0])
+        print(f"No alias {ticker} yet for subject: {subject}")
+
+    def save(self, obj):
+        print(f'Saving: {asdict(obj)}')
+        self._portfolio_table.put_item(Item=obj.to_dict())
