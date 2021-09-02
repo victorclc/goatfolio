@@ -5,9 +5,9 @@ from itertools import groupby
 
 from dateutil.relativedelta import relativedelta
 
-from goatcommons.models import StockInvestment
+from goatcommons.portfolio.models import Portfolio, StockPosition, StockConsolidated
 from goatcommons.utils import DatetimeUtils
-from models import Portfolio, StockConsolidated, StockPosition, StockVariation, PortfolioSummary, PortfolioPosition, \
+from models import StockVariation, PortfolioSummary, PortfolioPosition, \
     PortfolioHistory, StockSummary, PortfolioList, TickerConsolidatedHistory, BenchmarkPosition, \
     StockConsolidatedPosition
 from wrappers import PositionDoublyLinkedList
@@ -21,49 +21,6 @@ class PerformanceCore:
     def __init__(self, repo, market_data):
         self.repo = repo
         self.market_data = market_data
-
-    def consolidate_portfolio(self, subject, new_investments, old_investments):
-        logger.info(f'New investments = {new_investments}')
-        logger.info(f'Old investments = {old_investments}')
-
-        for inv in old_investments:
-            inv.amount = -1 * inv.amount
-        investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
-                                  key=lambda i: i.ticker)
-
-        portfolio = self.repo.find(subject) or Portfolio(subject=subject)
-        for ticker, investments in investments_map:
-            stock_consolidated = next(
-                (stock for stock in portfolio.stocks if stock.ticker == ticker or stock.alias_ticker == ticker), {})
-            if not stock_consolidated:
-                stock_consolidated = StockConsolidated(ticker=ticker)
-                portfolio.stocks.append(stock_consolidated)
-
-            investments = sorted(list(investments), key=lambda i: i.date)
-            for inv in investments:
-                if inv.amount > 0:
-                    portfolio.initial_date = min(portfolio.initial_date, inv.date)
-                self._consolidate_stock(stock_consolidated, inv)
-
-        self.repo.save(portfolio)
-
-        return portfolio
-
-    @staticmethod
-    def _consolidate_stock(stock_consolidated: StockConsolidated, inv: StockInvestment):
-        stock_consolidated.initial_date = min(stock_consolidated.initial_date, inv.date)
-        if inv.alias_ticker:
-            stock_consolidated.alias_ticker = inv.alias_ticker
-
-        h_position = next((position for position in stock_consolidated.history if position.date == inv.date), {})
-        if not h_position:
-            h_position = StockPosition.from_stock_investment(inv)
-            stock_consolidated.history.append(h_position)
-        else:
-            h_position.add_investment(inv)
-
-        if h_position.is_empty():
-            stock_consolidated.history.remove(h_position)
 
     def get_portfolio_summary(self, subject):
         portfolio = self.repo.find(subject) or Portfolio(subject=subject)
@@ -99,8 +56,6 @@ class PerformanceCore:
                 month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start, stock.alias_ticker)
                 previous.data.close_price = month_data.close
                 prev_month_adj_gross_amount += current.prev_adjusted_gross_value
-            print(f'TICKER: {stock.ticker}')
-            print(prev_month_adj_gross_amount)
 
             month_variation -= current.data.bought_value
             stock_variation.append(StockVariation(stock.alias_ticker or stock.ticker, data.change, data.price))

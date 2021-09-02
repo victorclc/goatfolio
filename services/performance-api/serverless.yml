@@ -25,6 +25,13 @@ provider:
       Action:
         - dynamodb:Query
         - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource:
+        'Fn::ImportValue': ${self:provider:stage}-PortfolioTableArnOutput
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
         - dynamodb:BatchGetItem
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
