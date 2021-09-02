@@ -27,7 +27,7 @@ provider:
         - dynamodb:GetItem
         - dynamodb:PutItem
       Resource:
-        'Fn::ImportValue': ${self:provider:stage}-PortfolioTableArnOutput
+        'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
 
   apiGateway:
     apiKeys:
