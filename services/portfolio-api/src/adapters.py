@@ -5,6 +5,7 @@ import boto3
 from boto3.dynamodb.conditions import Key
 
 from goatcommons.models import Investment
+from goatcommons.portfolio.models import Portfolio
 from goatcommons.utils import InvestmentUtils
 
 
@@ -33,3 +34,18 @@ class InvestmentRepository:
         with self.__investments_table.batch_writer() as batch:
             for investment in investments:
                 batch.put_item(Item=investment.to_dict())
+
+
+class PortfolioRepository:
+    def __init__(self):
+        self._portfolio_table = boto3.resource('dynamodb').Table('Portfolio')
+
+    def find(self, subject) -> Portfolio:
+        result = self._portfolio_table.query(KeyConditionExpression=Key('subject').eq(subject))
+        if result['Items']:
+            return Portfolio(**result['Items'][0])
+        print(f"No Portfolio yet for subject: {subject}")
+
+    def save(self, portfolio: Portfolio):
+        print(f'Saving portfolio: {asdict(portfolio)}')
+        self._portfolio_table.put_item(Item=portfolio.to_dict())
