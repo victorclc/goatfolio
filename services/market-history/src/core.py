@@ -97,8 +97,11 @@ class CotaHistDownloaderCore:
     def download_current_monthly_file(self):
         now = datetime.now() - relativedelta(months=1)
         file_buffer = self.downloader.download_monthly_file(now.year, now.month)
-        # IF FILEBUFFER NONE TROWA ALGUMA COISA
         self.bucket.put(BytesIO(file_buffer), f'M{now.strftime("%Y%m")}.TXT')
+
+    def download_monthly_file(self, year, month):
+        file_buffer = self.downloader.download_monthly_file(year, month)
+        self.bucket.put(BytesIO(file_buffer), f'M{year}{month:02}.TXT')
 
 
 if __name__ == '__main__':
@@ -106,5 +109,5 @@ if __name__ == '__main__':
     # core.transform_cota_hist(None, None)
     # core.update_ibov_history()
     core = CotaHistDownloaderCore()
-    core.download_current_monthly_file()
+    core.download_monthly_file(2021, 8)
     # CRIAR UM BAGULHO PRA BAIXAR DIARIAMENTE, ASSIM TODOS OS NOVOS ATIVOS DE IPO E TUDO MAIS SERAO DISPONIBILIZADOS NO DIA SEGUINTE
