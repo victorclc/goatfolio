@@ -81,7 +81,7 @@ class MarketData:
     @cached_tuple
     def ticker_intraday_date(self, ticker: str):
         result = self.cedro.quote(ticker)
-        return IntraDayData(Decimal(result['lastTrade']).quantize(Decimal('0.01')),
+        return IntraDayData(Decimal(result['lastTrade'] or result['previous']).quantize(Decimal('0.01')),
                             Decimal(result['previous']).quantize(Decimal('0.01')),
                             Decimal((result['change'])).quantize(Decimal('0.01')),
                             result['company'])
