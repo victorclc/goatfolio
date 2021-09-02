@@ -25,13 +25,6 @@ provider:
       Action:
         - dynamodb:Query
         - dynamodb:GetItem
-        - dynamodb:PutItem
-      Resource:
-        Fn::GetAtt: [ PortfolioTable, Arn ]
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:GetItem
         - dynamodb:BatchGetItem
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
@@ -137,18 +130,6 @@ resources:
         Type: COGNITO_USER_POOLS
         ProviderARNs:
           - 'Fn::ImportValue': ${self:provider.stage}-GoatfolioAppUserPoolArnOutput
-
-    PortfolioTable:
-      Type: 'AWS::DynamoDB::Table'
-      Properties:
-        TableName: "Portfolio"
-        BillingMode: PAY_PER_REQUEST
-        AttributeDefinitions:
-          - AttributeName: "subject"
-            AttributeType: "S"
-        KeySchema:
-          - AttributeName: "subject"
-            KeyType: "HASH"
 
     RedisSecurityGroup:
       Type: AWS::EC2::SecurityGroup
