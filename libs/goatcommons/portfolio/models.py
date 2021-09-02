@@ -15,7 +15,37 @@ class Portfolio:
     def __post_init__(self):
         if not isinstance(self.initial_date, datetime):
             self.initial_date = datetime.fromtimestamp(float(self.initial_date), tz=timezone.utc)
-        self.stocks = [StockConsolidated(**s) for s in self.stocks]
+        self.stocks = [StockSummary(**s) for s in self.stocks]
+
+    def to_dict(self):
+        return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
+                'stocks': [s.to_dict() for s in self.stocks]}
+
+
+@dataclass
+class DateAmount:
+    date: datetime
+    amount: Decimal
+
+    def __post_init__(self):
+        if type(self.date) is not datetime:
+            self.date = datetime.fromtimestamp(self.date, tz=timezone.utc)
+
+    def to_dict(self):
+        return {**self.__dict__, 'date': int(self.date.timestamp())}
+
+
+@dataclass
+class StockSummary:
+    ticker: str
+    current_amount: DateAmount
+    previous_amount: DateAmount
+    alias_ticker: str = ''
+
+    def __post_init__(self):
+        self.current_amount = DateAmount(**self.current_amount)
+        if self.previous_amount:
+            self.previous_amount = DateAmount(**self.previous_amount)
 
     def to_dict(self):
         return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
@@ -99,6 +129,7 @@ class StockPosition:
 
 @dataclass
 class StockConsolidated:
+    subject: str
     ticker: str
     alias_ticker: str = ''
     initial_date: datetime = datetime(datetime.max.year, datetime.max.month, datetime.max.day, tzinfo=timezone.utc)
