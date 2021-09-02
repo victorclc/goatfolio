@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from itertools import groupby
 from uuid import uuid4
 
+from adapters import InvestmentRepository, PortfolioRepository
 from goatcommons.models import StockInvestment
 from goatcommons.portfolio.models import Portfolio, StockConsolidated, StockPosition, StockSummary, DateAmount
 from goatcommons.portfolio.utils import create_stock_position_wrapper_list, group_stock_position_per_month
@@ -27,7 +28,7 @@ class PortfolioCore:
         investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
                                   key=lambda i: i.ticker)
 
-        portfolio = self.repo.find(subject) or Portfolio(subject=subject)
+        portfolio = self.repo.find(subject) or Portfolio(subject=subject, ticker=subject)
         for ticker, investments in investments_map:
             consolidated = self.repo.find_ticker(subject, ticker) \
                            or self.repo.find_alias_ticker(subject, ticker) \
@@ -49,19 +50,21 @@ class PortfolioCore:
     def _consolidate_portfolio_stock(ticker: str, portfolio: Portfolio, stock_consolidated: StockConsolidated):
         monthly_positions = group_stock_position_per_month(sorted(stock_consolidated.history, key=lambda h: h.date))
         wrapper = create_stock_position_wrapper_list(monthly_positions)
+        if wrapper.tail is None:
+            return
         current = wrapper.tail
         previous = current.prev
 
-        current_amount = DateAmount(date=current.data.date, amount=current.current_amount)
+        current_amount = DateAmount(date=current.data.date, amount=current.amount)
         previous_amount = None
         if previous:
-            previous_amount = DateAmount(date=previous.data.date, amount=previous.current_amount)
+            previous_amount = DateAmount(date=previous.data.date, amount=previous.amount)
 
         stock_summary = next(
-            (stock for stock in portfolio.stocks if stock.ticker == ticker or stock.aliast_ticker == ticker), None)
+            (stock for stock in portfolio.stocks if stock.ticker == ticker or stock.alias_ticker == ticker), None)
         if stock_summary:
             stock_summary.ticker = stock_consolidated.ticker
-            stock_summary.alias_ticker = stock_consolidated.ticker
+            stock_summary.alias_ticker = stock_consolidated.alias_ticker
             stock_summary.current_amount = stock_consolidated.ticker
             stock_summary.previous_amount = stock_consolidated.ticker
         else:
@@ -137,3 +140,15 @@ class InvestmentCore:
 
             investments.append(investment)
         self.repo.batch_save(investments)
+
+
+def main():
+    subject = '41e4a793-3ef5-4413-82e2-80919bce7c1a'
+    core = PortfolioCore(repo=PortfolioRepository())
+    investments = InvestmentRepository().find_by_subject(subject)
+    response = core.consolidate_portfolio(subject, investments, [])
+    print(response)
+
+
+if __name__ == '__main__':
+    main()

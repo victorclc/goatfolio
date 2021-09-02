@@ -1,5 +1,4 @@
 import logging
-from dataclasses import asdict
 from typing import List
 
 import boto3
@@ -50,7 +49,7 @@ class PortfolioRepository:
             KeyConditionExpression=Key('subject').eq(subject) & Key('ticker').eq(subject))
         if result['Items']:
             return Portfolio(**result['Items'][0])
-        print(f"No Portfolio yet for subject: {subject}")
+        logger.info(f"No Portfolio yet for subject: {subject}")
 
     def find_ticker(self, subject, ticker) -> StockConsolidated:
         result = self._portfolio_table.query(
@@ -65,8 +64,8 @@ class PortfolioRepository:
                                                  ticker))
         if result['Items']:
             return StockConsolidated(**result['Items'][0])
-        print(f"No alias {ticker} yet for subject: {subject}")
+        logger.info(f"No alias {ticker} yet for subject: {subject}")
 
     def save(self, obj):
-        print(f'Saving: {asdict(obj)}')
+        logger.info(f'Saving: {obj.to_dict()}')
         self._portfolio_table.put_item(Item=obj.to_dict())
