@@ -24,37 +24,44 @@ class Portfolio:
 
 
 @dataclass
-class DateAmount:
+class StockPositionMonthlySummary:
     date: datetime
     amount: Decimal
+    invested_value: Decimal = field(default_factory=lambda: Decimal(0))
+    bought_value: Decimal = field(default_factory=lambda: Decimal(0))
 
     def __post_init__(self):
         if type(self.date) is not datetime:
             self.date = datetime.fromtimestamp(self.date, tz=timezone.utc)
 
     def to_dict(self):
-        return {**self.__dict__, 'date': int(self.date.timestamp())}
+        ret = {**self.__dict__, 'date': int(self.date.timestamp())}
+        if not self.invested_value:
+            ret.pop('invested_value')
+        if not self.bought_value:
+            ret.pop('bought_value')
+        return ret
 
 
 @dataclass
 class StockSummary:
     ticker: str
-    current_amount: DateAmount
-    previous_amount: DateAmount
+    latest_position: StockPositionMonthlySummary
+    previous_position: StockPositionMonthlySummary
     alias_ticker: str = ''
 
     def __post_init__(self):
-        if type(self.current_amount) is not DateAmount:
-            self.current_amount = DateAmount(**self.current_amount)
-        if self.previous_amount and type(self.previous_amount) is not DateAmount:
-            self.previous_amount = DateAmount(**self.previous_amount)
+        if type(self.latest_position) is not StockPositionMonthlySummary:
+            self.latest_position = StockPositionMonthlySummary(**self.latest_position)
+        if self.previous_position and type(self.previous_position) is not StockPositionMonthlySummary:
+            self.previous_position = StockPositionMonthlySummary(**self.previous_position)
 
     def to_dict(self):
         ret = {
-            **self.__dict__, 'current_amount': self.current_amount.to_dict()
+            **self.__dict__, 'latest_position': self.latest_position.to_dict()
         }
-        if self.previous_amount:
-            ret['previous_amount'] = self.previous_amount.to_dict()
+        if self.previous_position:
+            ret['previous_position'] = self.previous_position.to_dict()
         return ret
 
 
@@ -150,8 +157,8 @@ class StockConsolidated:
 
     def to_dict(self):
         ret = {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
-                'history': sorted([h.to_dict() for h in self.history], key=lambda h: h['date']),
-                'alias_ticker': self.alias_ticker or self.ticker}
+               'history': sorted([h.to_dict() for h in self.history], key=lambda h: h['date']),
+               'alias_ticker': self.alias_ticker or self.ticker}
         ret.pop('current_stock_price')
         ret.pop('current_day_change_percent')
         return ret
