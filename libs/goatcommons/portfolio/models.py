@@ -9,6 +9,7 @@ from goatcommons.models import StockInvestment
 @dataclass
 class Portfolio:
     subject: str
+    ticker: str
     initial_date: datetime = datetime(datetime.max.year, datetime.max.month, datetime.max.day, tzinfo=timezone.utc)
     stocks: list = field(default_factory=list)  # todo list type hint
 
@@ -43,13 +44,18 @@ class StockSummary:
     alias_ticker: str = ''
 
     def __post_init__(self):
-        self.current_amount = DateAmount(**self.current_amount)
-        if self.previous_amount:
+        if type(self.current_amount) is not DateAmount:
+            self.current_amount = DateAmount(**self.current_amount)
+        if self.previous_amount and type(self.previous_amount) is not DateAmount:
             self.previous_amount = DateAmount(**self.previous_amount)
 
     def to_dict(self):
-        return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
-                'stocks': [s.to_dict() for s in self.stocks]}
+        ret = {
+            **self.__dict__, 'current_amount': self.current_amount.to_dict()
+        }
+        if self.previous_amount:
+            ret['previous_amount'] = self.previous_amount.to_dict()
+        return ret
 
 
 @dataclass
@@ -143,5 +149,9 @@ class StockConsolidated:
         self.history = [StockPosition(**h) for h in self.history]
 
     def to_dict(self):
-        return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
-                'history': sorted([h.to_dict() for h in self.history], key=lambda h: h['date'])}
+        ret = {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
+                'history': sorted([h.to_dict() for h in self.history], key=lambda h: h['date']),
+                'alias_ticker': self.alias_ticker or self.ticker}
+        ret.pop('current_stock_price')
+        ret.pop('current_day_change_percent')
+        return ret
