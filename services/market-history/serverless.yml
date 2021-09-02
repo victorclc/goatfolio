@@ -7,10 +7,9 @@ provider:
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
   timeout: 60
-  tracing:
-    lambda: true
   environment:
     PYTHONPATH: "src:libs"
+    STAGE: ${self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -77,6 +76,9 @@ functions:
     handler: handlers.download_current_monthly_cotahist_file
     events:
       - schedule: cron(0 22 L * ? *)
+
+  manualCotaHistDownloader:
+    handler: handlers.download_monthly_cotahist_file
 
 resources:
   Resources:
