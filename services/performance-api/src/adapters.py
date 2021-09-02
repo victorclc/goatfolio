@@ -15,8 +15,9 @@ from redis import Redis
 
 from goatcommons.cedro.client import CedroMarketDataClient
 from goatcommons.models import Investment
+from goatcommons.portfolio.models import Portfolio
 from goatcommons.utils import InvestmentUtils
-from models import Portfolio, CandleData
+from models import CandleData
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
@@ -24,67 +25,106 @@ logger = logging.getLogger()
 IntraDayData = namedtuple('IntraDayData', 'price prev_close_price change name')
 MonthData = namedtuple('MonthlyData', 'open close')
 
-redis = Redis(host=os.getenv('REDIS_HOST'), port=6379, db=0)
 
+class RedisMarketData:
+    redis = Redis(host=os.getenv('REDIS_HOST'), port=6379, db=0)
 
-# TODO: UNIT TEST THIS STUFF
-def is_market_open(now):
-    return now.weekday() < 5 and 12 <= now.hour <= 21
-
-
-def next_market_opening(now):
-    next_day = now + relativedelta(days=1)
-    while next_day.weekday() > 4:
-        next_day = next_day + relativedelta(days=1)
-    return next_day.replace(hour=12, minute=0, second=0)
-
-
-def calculate_expiration_time():
-    now = datetime.now(tz=timezone.utc)
-    if is_market_open(now):
-        return 300
-    next_opening = next_market_opening(now)
-    return int(next_opening.timestamp() - now.timestamp())
-
-
-def cached_tuple(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        key_parts = [func.__name__] + list(args[1:])
-        key = '-'.join(key_parts)
-        result = None
-
+    def get_intraday_data(self, key):
         try:
-            result = redis.get(key)
+            result = self.redis.get(key.upper())
+            if result:
+                logger.info(f'{key} in cache, returning.')
+                return eval(result)
         except Exception as e:
             logger.exception('CAUGHT EXCEPTION getting key from redis: ', e)
 
-        if result is None:
-            value = func(*args, **kwargs)
-            try:
-                redis.setex(key, calculate_expiration_time(), str(value))
-            except Exception as e:
-                logger.exception('CAUGHT EXCEPTION putting key from redis: ', e)
-        else:
-            logger.info(f'{key} in cache, returning.')
-            value = eval(result)
-        return value
+    def put_intraday_data(self, ticker, data):
+        try:
+            self.redis.setex(ticker.upper(), self.calculate_expiration_time(), str(data))
+        except Exception as e:
+            logger.exception('CAUGHT EXCEPTION putting key from redis: ', e)
 
-    return wrapper
+    @staticmethod
+    def is_market_open(now):
+        return now.weekday() < 5 and 12 <= now.hour <= 21
+
+    @staticmethod
+    def next_market_opening(now):
+        next_day = now + relativedelta(days=1)
+        while next_day.weekday() > 4:
+            next_day = next_day + relativedelta(days=1)
+        return next_day.replace(hour=12, minute=0, second=0)
+
+    @staticmethod
+    def calculate_expiration_time():
+        now = datetime.now(tz=timezone.utc)
+        if RedisMarketData.is_market_open(now):
+            return 300
+        next_opening = RedisMarketData.next_market_opening(now)
+        return int(next_opening.timestamp() - now.timestamp())
+
+    @staticmethod
+    def cached_tuple(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            key_parts = [func.__name__] + list(args[1:])
+            key = '-'.join(key_parts)
+            result = None
+
+            try:
+                result = RedisMarketData.redis.get(key)
+            except Exception as e:
+                logger.exception('CAUGHT EXCEPTION getting key from redis: ', e)
+
+            if result is None:
+                value = func(*args, **kwargs)
+                try:
+                    RedisMarketData.redis.setex(key, RedisMarketData.calculate_expiration_time(), str(value))
+                except Exception as e:
+                    logger.exception('CAUGHT EXCEPTION putting key from redis: ', e)
+            else:
+                logger.info(f'{key} in cache, returning.')
+                value = eval(result)
+            return value
+
+        return wrapper
 
 
 class MarketData:
     def __init__(self):
         self.repo = MarketDataRepository()
         self.cedro = CedroMarketDataClient()
+        self.redis = RedisMarketData()
 
-    @cached_tuple
+    @RedisMarketData.cached_tuple
     def ticker_intraday_date(self, ticker: str):
         result = self.cedro.quote(ticker)
         return IntraDayData(Decimal(result['lastTrade'] or result['previous']).quantize(Decimal('0.01')),
                             Decimal(result['previous']).quantize(Decimal('0.01')),
                             Decimal((result['change'])).quantize(Decimal('0.01')),
                             result['company'])
+
+    def tickers_intraday_data(self, tickers):
+        response = {}
+        not_in_cache_tickers = []
+        for ticker in tickers:
+            cached_value = self.redis.get_intraday_data(ticker)
+            if cached_value:
+                response[ticker] = cached_value
+            else:
+                not_in_cache_tickers.append(ticker)
+
+        if not_in_cache_tickers:
+            quotes = self.cedro.quotes(not_in_cache_tickers)
+            for quote in quotes:
+                data = IntraDayData(Decimal(quote['lastTrade'] or quote['previous']).quantize(Decimal('0.01')),
+                                    Decimal(quote['previous']).quantize(Decimal('0.01')),
+                                    Decimal((quote['change'])).quantize(Decimal('0.01')), quote['company'])
+                ticker = quote['symbol'].upper()
+                response[ticker] = data
+                self.redis.put_intraday_data(ticker, data)
+
+        return response
 
     def ibov_from_date(self, date_from) -> List[CandleData]:
         return self.repo.find_by_ticker_from_date('IBOVESPA', date_from)
@@ -193,14 +233,11 @@ class PortfolioRepository:
         self._portfolio_table = boto3.resource('dynamodb').Table('Portfolio')
 
     def find(self, subject) -> Portfolio:
-        result = self._portfolio_table.query(KeyConditionExpression=Key('subject').eq(subject))
+        result = self._portfolio_table.query(
+            KeyConditionExpression=Key('subject').eq(subject) & Key('ticker').eq(subject))
         if result['Items']:
             return Portfolio(**result['Items'][0])
         print(f"No Portfolio yet for subject: {subject}")
-
-    def save(self, portfolio: Portfolio):
-        print(f'Saving portfolio: {asdict(portfolio)}')
-        self._portfolio_table.put_item(Item=portfolio.to_dict())
 
 
 if __name__ == '__main__':
