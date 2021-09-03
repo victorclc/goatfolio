@@ -115,6 +115,8 @@ class MarketData:
 
         if not_in_cache_tickers:
             quotes = self.cedro.quotes(not_in_cache_tickers)
+            if type(quotes) is not List:
+                quotes = [quotes]
             for quote in quotes:
                 data = IntraDayData(Decimal(quote['lastTrade'] or quote['previous']).quantize(Decimal('0.01')),
                                     Decimal(quote['previous']).quantize(Decimal('0.01')),
@@ -262,7 +264,7 @@ class PortfolioRepository:
 
     def find_alias_ticker(self, subject, ticker) -> StockConsolidated:
         result = self._portfolio_table.query(IndexName='subjectAliasTickerGlobalIndex',
-                                             KeyConditionExpression=Key('subject').eq(subject) & Key('ticker').eq(
+                                             KeyConditionExpression=Key('subject').eq(subject) & Key('alias_ticker').eq(
                                                  ticker))
         if result['Items']:
             return StockConsolidated(**result['Items'][0])

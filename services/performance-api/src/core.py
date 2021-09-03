@@ -159,12 +159,14 @@ class PerformanceCore:
 
         return PortfolioList(stock_gross_amount, reit_gross_amount, bdr_gross_amount, stocks, reits, bdrs, ibov_history)
 
-    def get_ticker_consolidated_history(self, subject, ticker):
-        stock_consolidated = self.repo.find_ticker(subject, ticker)
+    def get_ticker_consolidated_history(self, subject, ticker, alias_ticker):
+        stock_consolidated = self.repo.find_ticker(subject, ticker) or self.repo.find_alias_ticker(subject,
+                                                                                                   alias_ticker)
         if not stock_consolidated:
             return
 
-        intraday_map = self.market_data.tickers_intraday_data([stock_consolidated.ticker])
+        intraday_map = self.market_data.tickers_intraday_data(
+            [stock_consolidated.alias_ticker or stock_consolidated.ticker])
         wrappers = self._fetch_stocks_history_data(stock_consolidated, intraday_map)
         current = wrappers.head
         consolidated = []
@@ -183,7 +185,7 @@ def main():
     # response = core.get_portfolio_summary(subject)
     # response = core.get_portfolio_history(subject)
     # response = core.get_portfolio_list(subject)
-    response = core.get_ticker_consolidated_history(subject, 'BIDI11')
+    response = core.get_ticker_consolidated_history(subject, 'TIET11', None)
     print(response)
 
 
