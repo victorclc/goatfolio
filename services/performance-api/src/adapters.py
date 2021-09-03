@@ -1,6 +1,5 @@
 import logging
 import os
-import traceback
 from collections import namedtuple
 from datetime import datetime, timezone
 from decimal import Decimal
