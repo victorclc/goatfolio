@@ -29,6 +29,7 @@ class StockPositionMonthlySummary:
     amount: Decimal
     invested_value: Decimal = field(default_factory=lambda: Decimal(0))
     bought_value: Decimal = field(default_factory=lambda: Decimal(0))
+    average_price: Decimal = field(default_factory=lambda: Decimal(0))
 
     def __post_init__(self):
         if type(self.date) is not datetime:
@@ -40,6 +41,8 @@ class StockPositionMonthlySummary:
             ret.pop('invested_value')
         if not self.bought_value:
             ret.pop('bought_value')
+        if not self.average_price:
+            ret.pop('average_price')
         return ret
 
 
