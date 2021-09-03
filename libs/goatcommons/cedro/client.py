@@ -48,3 +48,4 @@ class CedroMarketDataClient:
             return response.json()
         except Exception as e:
             logger.exception(f'QUOTES ERROR: {response.status_code} - {response.content} - {response}', e)
+            raise e
