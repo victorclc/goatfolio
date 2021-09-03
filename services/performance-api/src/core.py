@@ -99,23 +99,14 @@ class PerformanceCore:
         while proc <= last:
             if proc == last:
                 candle = intraday_map[(stock.alias_ticker or stock.ticker)]
-                price = candle.price
+                current.data.close_price = candle.price
             else:
                 candle = monthly_map[proc.strftime('%Y%m01')]
-                if not candle:
-                    logger.info(f'CANDLE MISSING: {stock.ticker} {proc}')
-                price = candle.close if candle else Decimal(0)
+                current.data.close_price = candle.close
 
-            current.data.close_price = price
-            proc = proc + relativedelta(months=1)
+            proc += relativedelta(months=1)
 
-            if current.next:
-                if current.next.data.date != proc:
-                    new = StockPosition(proc)
-                    grouped_positions.append(new)
-                    wrappers.insert(current, new)
-                current = current.next
-            elif current.amount > 0 and proc <= last:
+            if current.next and current.next.data.date != proc or not current.next and current.amount > 0 and proc <= last:
                 new = StockPosition(proc)
                 grouped_positions.append(new)
                 wrappers.insert(current, new)
