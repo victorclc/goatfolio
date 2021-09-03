@@ -55,7 +55,7 @@ def cei_info_request_handler(event, context):
     try:
         subject = AWSEventUtils.get_event_subject(event)
         response = core.cei_info_request(subject)
-        return {'statusCode': HTTPStatus.OK.value, 'body': JsonUtils.dump(asdict(response) if response else {})}
+        return {'statusCode': HTTPStatus.OK.value, 'body': JsonUtils.dump(response) if response else []}
     except TypeError as e:
         logger.exception(e)
         return {'statusCode': HTTPStatus.BAD_REQUEST.value, 'body': JsonUtils.dump({"message": str(e)})}
