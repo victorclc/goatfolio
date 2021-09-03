@@ -115,7 +115,7 @@ class MarketData:
                     else:
                         not_in_cache_tickers.append(ticker)
 
-                logger.info(f'Not_in_cache_tickers: {not_in_cache_tickers}')
+                logger.info(f'not_in_cache_tickers: {not_in_cache_tickers}')
                 if not_in_cache_tickers:
                     quotes = self.cedro.quotes(not_in_cache_tickers)
                     if type(quotes) is not list:
