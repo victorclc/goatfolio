@@ -85,7 +85,9 @@ class CEICore:
 
     def cei_info_request(self, subject):
         assert subject
-        return self.cei_repo.find(subject=subject)
+        info = self.cei_repo.find(subject=subject)
+        if info:
+            return info.assets_quantities
 
     def import_status(self, subject, datetime):
         return self.repo.find(subject, datetime)
