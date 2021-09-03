@@ -43,7 +43,8 @@ class CedroMarketDataClient:
         for ticker in tickers:
             quotes += f'{ticker}/'
         response = self.session.get(self.__QUOTE_URL + quotes)
-        if response.status_code == HTTPStatus.OK:
+        try:
+
             return response.json()
-        logger.error(f'QUOTES ERROR: {response.status_code} - {response.content}')
-        # TODO PUT A THROW HERE
+        except Exception as e:
+            logger.exception(f'QUOTES ERROR: {response.status_code} - {response.content} - {response}', e)
