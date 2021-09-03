@@ -57,7 +57,7 @@ class PerformanceCore:
         portfolio, stock_consolidated = self.repo.find_all(subject) or (Portfolio(subject, subject), [])
         portfolio_history_map = {}
 
-        tickers = [s.alias_ticker or s.ticker for s in portfolio.stocks if s.latest_position.amount > 0]
+        tickers = [s.alias_ticker or s.ticker for s in portfolio.stocks]
         intraday_map = self.market_data.tickers_intraday_data(tickers)
 
         for stock in stock_consolidated:
@@ -80,6 +80,9 @@ class PerformanceCore:
 
         data = self.market_data.ibov_from_date(portfolio.initial_date)
         ibov_history = [BenchmarkPosition(candle.candle_date, candle.open_price, candle.close_price) for candle in data]
+        # TODO REMOVE THIS LOG
+        for value in sorted(portfolio_history_map.values(), key=lambda p: p.date):
+            print(value)
 
         return PortfolioHistory(history=list(portfolio_history_map.values()), ibov_history=ibov_history)
 
@@ -106,13 +109,17 @@ class PerformanceCore:
 
             proc += relativedelta(months=1)
 
-            if current.next and current.next.data.date != proc or not current.next and current.amount > 0 and proc <= last:
+            if current.next:
+                if current.next.data.date != proc:
+                    new = StockPosition(proc)
+                    grouped_positions.append(new)
+                    wrappers.insert(current, new)
+                current = current.next
+            elif proc <= last:
                 new = StockPosition(proc)
                 grouped_positions.append(new)
                 wrappers.insert(current, new)
                 current = current.next
-            else:
-                break
 
         return wrappers
 
@@ -174,9 +181,9 @@ def main():
     subject = '41e4a793-3ef5-4413-82e2-80919bce7c1a'
     core = PerformanceCore(repo=PortfolioRepository(), market_data=MarketData())
     # response = core.get_portfolio_summary(subject)
-    # response = core.get_portfolio_history(subject)
+    response = core.get_portfolio_history(subject)
     # response = core.get_portfolio_list(subject)
-    response = core.get_ticker_consolidated_history(subject, 'TIET11', None)
+    # response = core.get_ticker_consolidated_history(subject, 'TIET11', None)
     print(response)
 
 

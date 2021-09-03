@@ -114,7 +114,7 @@ class MarketData:
 
         if not_in_cache_tickers:
             quotes = self.cedro.quotes(not_in_cache_tickers)
-            if type(quotes) is not List:
+            if type(quotes) is not list:
                 quotes = [quotes]
             for quote in quotes:
                 data = IntraDayData(Decimal(quote['lastTrade'] or quote['previous']).quantize(Decimal('0.01')),
