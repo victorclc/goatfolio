@@ -27,8 +27,8 @@ class PerformanceCore:
 
         summary = PortfolioSummary()
         prev_month_adj_gross_amount = Decimal(0)
-        prev_month_start = datetime.now(tz=timezone.utc).replace(day=1) - relativedelta(months=1)
-        current_month_start = datetime.now(tz=timezone.utc).replace(day=1)
+        current_month_start = DatetimeUtils.month_first_day_datetime(datetime.now())
+        prev_month_start = DatetimeUtils.month_first_day_datetime(current_month_start - relativedelta(months=1))
 
         tickers = [s.alias_ticker or s.ticker for s in portfolio.stocks if s.latest_position.amount > 0]
         intraday_map = self.market_data.tickers_intraday_data(tickers)
@@ -188,8 +188,8 @@ class PerformanceCore:
 def main():
     subject = '41e4a793-3ef5-4413-82e2-80919bce7c1a'
     core = PerformanceCore(repo=PortfolioRepository(), market_data=MarketData())
-    # response = core.get_portfolio_summary(subject)
-    response = core.get_portfolio_history(subject)
+    response = core.get_portfolio_summary(subject)
+    # response = core.get_portfolio_history(subject)
     print(response)
 
 
