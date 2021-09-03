@@ -27,7 +27,12 @@ provider:
         - dynamodb:GetItem
         - dynamodb:PutItem
       Resource:
-        'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
+        - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
+        - Fn::Join:
+            - ''
+            - - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
+              - '/index/*'
+
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -66,14 +71,6 @@ custom:
     createRoute53Record: false
 
 functions:
-  consolidatePortfolio:
-    handler: src/handlers.consolidate_portfolio_handler
-    events:
-      - stream:
-          type: dynamodb
-          arn:
-            'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
-
   performanceSummary:
     handler: src/handlers.performance_summary_handler
     events:
