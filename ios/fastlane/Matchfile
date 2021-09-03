@@ -4,7 +4,7 @@ storage_mode("git")
 
 type("development") # The default type, can be: appstore, adhoc, enterprise or development
 
-app_identifier(["br.com.majestysolutions.goatfolio.prod"])
+app_identifier(["br.com.majestysolutions.goatfolio.prod", "br.com.majestysolutions.goatfolio.dev"])
 username(ENV['FASTLANE_USER']) # Your Apple Developer Portal username
 
 # For all available options run `fastlane match --help`

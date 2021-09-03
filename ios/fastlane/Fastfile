@@ -30,7 +30,7 @@ platform :ios do
       type: "appstore",
       readonly: is_ci
     )
-    build_app(workspace: "Runner.xcworkspace", scheme: "prod")
+    build_app(workspace: "Runner.xcworkspace", scheme: ENV['SCHEME'])
     upload_to_testflight(api_key: api_key, skip_waiting_for_build_processing: true)
   end
 end
