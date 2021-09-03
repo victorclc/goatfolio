@@ -181,9 +181,9 @@ def main():
     subject = '41e4a793-3ef5-4413-82e2-80919bce7c1a'
     core = PerformanceCore(repo=PortfolioRepository(), market_data=MarketData())
     # response = core.get_portfolio_summary(subject)
-    response = core.get_portfolio_history(subject)
+    # response = core.get_portfolio_history(subject)
     # response = core.get_portfolio_list(subject)
-    # response = core.get_ticker_consolidated_history(subject, 'TIET11', None)
+    response = core.get_ticker_consolidated_history(subject, 'BIDI11', None)
     print(response)
 
 
