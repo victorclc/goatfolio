@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from adapters import InvestmentRepository, PortfolioRepository
 from goatcommons.models import StockInvestment
-from goatcommons.portfolio.models import Portfolio, StockConsolidated, StockPosition, StockSummary, DateAmount
+from goatcommons.portfolio.models import Portfolio, StockConsolidated, StockPosition, StockSummary, StockPositionMonthlySummary
 from goatcommons.portfolio.utils import create_stock_position_wrapper_list, group_stock_position_per_month
 from goatcommons.utils import InvestmentUtils
 from model import InvestmentRequest
@@ -55,21 +55,23 @@ class PortfolioCore:
         current = wrapper.tail
         previous = current.prev
 
-        current_amount = DateAmount(date=current.data.date, amount=current.amount)
-        previous_amount = None
+        latest_position = StockPositionMonthlySummary(date=current.data.date, amount=current.amount,
+                                                      invested_value=current.current_invested_value,
+                                                      bought_value=current.data.bought_value)
+        previous_position = None
         if previous:
-            previous_amount = DateAmount(date=previous.data.date, amount=previous.amount)
+            previous_position = StockPositionMonthlySummary(date=previous.data.date, amount=previous.amount)
 
         stock_summary = next(
             (stock for stock in portfolio.stocks if stock.ticker == ticker or stock.alias_ticker == ticker), None)
         if stock_summary:
             stock_summary.ticker = stock_consolidated.ticker
             stock_summary.alias_ticker = stock_consolidated.alias_ticker
-            stock_summary.current_amount = stock_consolidated.ticker
-            stock_summary.previous_amount = stock_consolidated.ticker
+            stock_summary.latest_position = latest_position
+            stock_summary.previous_position = previous_position
         else:
             stock_summary = StockSummary(stock_consolidated.ticker, alias_ticker=stock_consolidated.alias_ticker,
-                                         current_amount=current_amount, previous_amount=previous_amount)
+                                         latest_position=latest_position, previous_position=previous_position)
             portfolio.stocks.append(stock_summary)
 
     @staticmethod

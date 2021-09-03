@@ -67,3 +67,7 @@ class DatetimeUtils:
     @staticmethod
     def month_first_day_datetime(_date: datetime):
         return datetime(_date.year, _date.month, 1, tzinfo=timezone.utc)
+
+    @staticmethod
+    def same_year_and_month(date1, date2):
+        return date1.year == date2.year and date1.month == date2.month

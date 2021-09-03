@@ -19,11 +19,11 @@ class PortfolioPosition:
 
 @dataclass
 class PortfolioSummary:
-    invested_amount: Decimal
-    gross_amount: Decimal
-    day_variation: Decimal
-    month_variation: Decimal
-    stocks_variation: list
+    invested_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    day_variation: Decimal = field(default_factory=lambda: Decimal(0))
+    month_variation: Decimal = field(default_factory=lambda: Decimal(0))
+    stocks_variation: list = field(default_factory=list)
 
     def to_dict(self):
         return {**self.__dict__, 'stocks_variation': [h.to_dict() for h in self.stocks_variation]}

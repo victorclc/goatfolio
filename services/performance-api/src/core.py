@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from dateutil.relativedelta import relativedelta
 
+from adapters import MarketData, PortfolioRepository
 from goatcommons.portfolio.models import Portfolio, StockPosition, StockConsolidated
 from goatcommons.portfolio.utils import group_stock_position_per_month, create_stock_position_wrapper_list
 from goatcommons.utils import DatetimeUtils
@@ -22,52 +23,45 @@ class PerformanceCore:
         self.market_data = market_data
 
     def get_portfolio_summary(self, subject):
-        portfolio = self.repo.find(subject) or Portfolio(subject=subject)
+        portfolio = self.repo.find(subject) or Portfolio(subject=subject, ticker=subject)
 
-        gross_amount = Decimal(0)
-        invested_amount = Decimal(0)
-        day_variation = Decimal(0)
+        summary = PortfolioSummary()
         prev_month_adj_gross_amount = Decimal(0)
-        month_variation = Decimal(0)
-        stock_variation = []
-
         prev_month_start = datetime.now(tz=timezone.utc).replace(day=1) - relativedelta(months=1)
         current_month_start = datetime.now(tz=timezone.utc).replace(day=1)
-        for stock in portfolio.stocks:
-            sorted_history = sorted(stock.history, key=lambda h: h.date)
-            grouped_positions = group_stock_position_per_month(sorted_history)
-            wrappers = create_stock_position_wrapper_list(grouped_positions)
-            current = wrappers.tail
 
-            if not current or current.amount <= 0:
-                continue
-            if current_month_start.date() != current.data.date.date():
-                wrappers.append(StockPosition(current_month_start))
-                current = wrappers.tail
+        tickers = [s.alias_ticker or s.ticker for s in portfolio.stocks if s.latest_position.amount > 0]
+        intraday_map = self.market_data.tickers_intraday_data(tickers)
 
-            data = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
-            gross_amount += current.amount * data.price
-            day_variation += current.amount * (data.price - data.prev_close_price)
-            invested_amount += current.current_invested_value
+        for stock in filter(lambda s: s.latest_position.amount > 0, portfolio.stocks):
+            data = intraday_map[stock.alias_ticker or stock.ticker]
+            summary.gross_amount += stock.latest_position.amount * data.price
+            summary.day_variation += stock.latest_position.amount * (data.price - data.prev_close_price)
+            summary.invested_amount += stock.latest_position.invested_value
 
-            previous = current.prev
-            if previous and previous.amount > 0:
+            if stock.latest_position.date < current_month_start:
                 month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start, stock.alias_ticker)
-                previous.data.close_price = month_data.close
-                prev_month_adj_gross_amount += current.prev_adjusted_gross_value
+                prev_month_adj_gross_amount += stock.latest_position.amount * month_data.close
+            elif stock.previous_position and stock.previous_position.amount > 0:
+                month_data = self.market_data.ticker_month_data(stock.ticker, prev_month_start, stock.alias_ticker)
+                prev_month_adj_gross_amount += stock.previous_position.amount * month_data.close
 
-            month_variation -= current.data.bought_value
-            stock_variation.append(StockVariation(stock.alias_ticker or stock.ticker, data.change, data.price))
+            if DatetimeUtils.same_year_and_month(current_month_start, stock.latest_position.date):
+                summary.month_variation -= stock.latest_position.bought_value
+            summary.stocks_variation.append(StockVariation(stock.alias_ticker or stock.ticker, data.change, data.price))
 
-        month_variation = month_variation + gross_amount - prev_month_adj_gross_amount
-        return PortfolioSummary(invested_amount, gross_amount, day_variation, month_variation, stock_variation)
+        summary.month_variation += summary.gross_amount - prev_month_adj_gross_amount
+        return summary
 
     def get_portfolio_history(self, subject):
-        portfolio = self.repo.find(subject) or Portfolio(subject=subject)
-
+        portfolio, stock_consolidated = self.repo.find_all(subject) or (Portfolio(subject, subject), [])
         portfolio_history_map = {}
-        for stock in portfolio.stocks:
-            wrappers = self._fetch_stocks_history_data(stock)
+
+        tickers = [s.alias_ticker or s.ticker for s in portfolio.stocks if s.latest_position.amount > 0]
+        intraday_map = self.market_data.tickers_intraday_data(tickers)
+
+        for stock in stock_consolidated:
+            wrappers = self._fetch_stocks_history_data(stock, intraday_map)
             if not wrappers:
                 continue
             current = wrappers.head
@@ -86,9 +80,10 @@ class PerformanceCore:
 
         data = self.market_data.ibov_from_date(portfolio.initial_date)
         ibov_history = [BenchmarkPosition(candle.candle_date, candle.open_price, candle.close_price) for candle in data]
+
         return PortfolioHistory(history=list(portfolio_history_map.values()), ibov_history=ibov_history)
 
-    def _fetch_stocks_history_data(self, stock: StockConsolidated):
+    def _fetch_stocks_history_data(self, stock: StockConsolidated, intraday_map):
         grouped_positions = group_stock_position_per_month(sorted(stock.history, key=lambda h: h.date))
 
         monthly_map = self.market_data.ticker_monthly_data_from(stock.ticker, stock.initial_date, stock.alias_ticker)
@@ -103,7 +98,7 @@ class PerformanceCore:
 
         while proc <= last:
             if proc == last:
-                candle = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
+                candle = intraday_map[(stock.alias_ticker or stock.ticker)]
                 price = candle.price
             else:
                 candle = monthly_map[proc.strftime('%Y%m01')]
@@ -120,11 +115,13 @@ class PerformanceCore:
                     grouped_positions.append(new)
                     wrappers.insert(current, new)
                 current = current.next
-            elif proc <= last:
+            elif current.amount > 0 and proc <= last:
                 new = StockPosition(proc)
                 grouped_positions.append(new)
                 wrappers.insert(current, new)
                 current = current.next
+            else:
+                break
 
         return wrappers
 
@@ -188,11 +185,13 @@ class PerformanceCore:
         return TickerConsolidatedHistory(consolidated)
 
 
+def main():
+    subject = '41e4a793-3ef5-4413-82e2-80919bce7c1a'
+    core = PerformanceCore(repo=PortfolioRepository(), market_data=MarketData())
+    # response = core.get_portfolio_summary(subject)
+    response = core.get_portfolio_history(subject)
+    print(response)
+
+
 if __name__ == '__main__':
-    # investmentss = InvestmentRepository().find_by_subject('440b0d96-395d-48bd-aaf2-58dbf7e68274')
-    # investmentss = list(filter(lambda i: i.id == 'ea5a8baa-0fd7-429f-aac1-ef28c4e039d3', investmentss))
-    #     print(PerformanceCore().consolidate_portfolio('440b0d96-395d-48bd-aaf2-58dbf7e68274', investmentss, []))
-    print(PerformanceCore().get_portfolio_summary('41e4a793-3ef5-4413-82e2-80919bce7c1a'))
-    # print(PerformanceCore().get_portfolio_history('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    # print(PerformanceCore().get_portfolio_list('440b0d96-395d-48bd-aaf2-58dbf7e68274'))
-    # print(PerformanceCore().get_ticker_consolidated_history('440b0d96-395d-48bd-aaf2-58dbf7e68274', 'BIDI11'))
+    main()
