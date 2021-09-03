@@ -30,7 +30,7 @@ class PerformanceCore:
         prev_month_start = datetime.now(tz=timezone.utc).replace(day=1) - relativedelta(months=1)
         current_month_start = datetime.now(tz=timezone.utc).replace(day=1)
 
-        tickers = [s.alias_ticker or s.ticker for s in portfolio.stocks if s.latest_position.amount]
+        tickers = [s.alias_ticker or s.ticker for s in portfolio.stocks if s.latest_position.amount > 0]
         intraday_map = self.market_data.tickers_intraday_data(tickers)
 
         for stock in filter(lambda s: s.latest_position.amount > 0, portfolio.stocks):
@@ -54,11 +54,14 @@ class PerformanceCore:
         return summary
 
     def get_portfolio_history(self, subject):
-        portfolio = self.repo.find(subject) or Portfolio(subject=subject)
-
+        portfolio, stock_consolidated = self.repo.find_all(subject) or (Portfolio(subject, subject), [])
         portfolio_history_map = {}
-        for stock in portfolio.stocks:
-            wrappers = self._fetch_stocks_history_data(stock)
+
+        tickers = [s.alias_ticker or s.ticker for s in portfolio.stocks if s.latest_position.amount > 0]
+        intraday_map = self.market_data.tickers_intraday_data(tickers)
+
+        for stock in stock_consolidated:
+            wrappers = self._fetch_stocks_history_data(stock, intraday_map)
             if not wrappers:
                 continue
             current = wrappers.head
@@ -77,9 +80,10 @@ class PerformanceCore:
 
         data = self.market_data.ibov_from_date(portfolio.initial_date)
         ibov_history = [BenchmarkPosition(candle.candle_date, candle.open_price, candle.close_price) for candle in data]
+
         return PortfolioHistory(history=list(portfolio_history_map.values()), ibov_history=ibov_history)
 
-    def _fetch_stocks_history_data(self, stock: StockConsolidated):
+    def _fetch_stocks_history_data(self, stock: StockConsolidated, intraday_map):
         grouped_positions = group_stock_position_per_month(sorted(stock.history, key=lambda h: h.date))
 
         monthly_map = self.market_data.ticker_monthly_data_from(stock.ticker, stock.initial_date, stock.alias_ticker)
@@ -94,7 +98,7 @@ class PerformanceCore:
 
         while proc <= last:
             if proc == last:
-                candle = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
+                candle = intraday_map[(stock.alias_ticker or stock.ticker)]
                 price = candle.price
             else:
                 candle = monthly_map[proc.strftime('%Y%m01')]
@@ -111,11 +115,13 @@ class PerformanceCore:
                     grouped_positions.append(new)
                     wrappers.insert(current, new)
                 current = current.next
-            elif proc <= last:
+            elif current.amount > 0 and proc <= last:
                 new = StockPosition(proc)
                 grouped_positions.append(new)
                 wrappers.insert(current, new)
                 current = current.next
+            else:
+                break
 
         return wrappers
 
@@ -182,7 +188,8 @@ class PerformanceCore:
 def main():
     subject = '41e4a793-3ef5-4413-82e2-80919bce7c1a'
     core = PerformanceCore(repo=PortfolioRepository(), market_data=MarketData())
-    response = core.get_portfolio_summary(subject)
+    # response = core.get_portfolio_summary(subject)
+    response = core.get_portfolio_history(subject)
     print(response)
 
 

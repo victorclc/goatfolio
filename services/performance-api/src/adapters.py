@@ -15,7 +15,7 @@ from redis import Redis
 
 from goatcommons.cedro.client import CedroMarketDataClient
 from goatcommons.models import Investment
-from goatcommons.portfolio.models import Portfolio
+from goatcommons.portfolio.models import Portfolio, StockConsolidated
 from goatcommons.utils import InvestmentUtils
 from models import CandleData
 
@@ -219,7 +219,7 @@ class InvestmentRepository:
 
     def find_by_subject(self, subject) -> List[Investment]:
         result = self.__investments_table.query(KeyConditionExpression=Key('subject').eq(subject))
-        print(f'RESULT: {result}')
+        logger.info(f'RESULT: {result}')
         return list(map(lambda i: InvestmentUtils.load_model_by_type(i['type'], i), result['Items']))
 
     def batch_save(self, investments: [Investment]):
@@ -237,22 +237,34 @@ class PortfolioRepository:
             KeyConditionExpression=Key('subject').eq(subject) & Key('ticker').eq(subject))
         if result['Items']:
             return Portfolio(**result['Items'][0])
-        print(f"No Portfolio yet for subject: {subject}")
+        logger.info(f"No Portfolio yet for subject: {subject}")
 
+    def find_all(self, subject) -> (Portfolio, [StockConsolidated]):
+        result = self._portfolio_table.query(KeyConditionExpression=Key('subject').eq(subject))
+        portfolio = None
+        stock_consolidated = []
+        if not result['Items']:
+            logger.info(f"No Portfolio yet for subject: {subject}")
+            return
+        for item in result['Items']:
+            if item['ticker'] == subject:
+                portfolio = Portfolio(**item)
+            else:
+                stock_consolidated.append(StockConsolidated(**item))
+        return portfolio, stock_consolidated
 
-if __name__ == '__main__':
-    start = datetime.now().timestamp()
-    cedro = CedroMarketDataClient()
-    cedro.quotes(['bidi11', 'ifix', 'sqia3', 'ibov', 'mglu3', 'wege3', 'ninj3'])
-    end = datetime.now().timestamp()
-    print(f"TOOKED: {end - start} seconds")
+    def find_ticker(self, subject, ticker) -> StockConsolidated:
+        result = self._portfolio_table.query(
+            KeyConditionExpression=Key('subject').eq(subject) & Key('ticker').eq(
+                ticker))
+        if result['Items']:
+            return StockConsolidated(**result['Items'][0])
+        logger.info(f"No Portfolio yet for subject: {subject}")
 
-# if __name__ == '__main__':
-# r = Redis(host='localhost', port=6379, db=0)
-# data = MarketData().ticker_intraday_date('BIDI11')
-# print(data)
-# print(isinstance(data, tuple))
-# # print(r.get('BIDI11'))
-# # # r.set('BIDI11', str(Decimal('231.05')))
-# # r.setex('BIDI11', 43200, str(data))
-# # print(eval(r.get('BIDI11')))
+    def find_alias_ticker(self, subject, ticker) -> StockConsolidated:
+        result = self._portfolio_table.query(IndexName='subjectAliasTickerGlobalIndex',
+                                             KeyConditionExpression=Key('subject').eq(subject) & Key('ticker').eq(
+                                                 ticker))
+        if result['Items']:
+            return StockConsolidated(**result['Items'][0])
+        logger.info(f"No Portfolio yet for subject: {subject}")
