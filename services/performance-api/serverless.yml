@@ -115,6 +115,7 @@ functions:
             parameters:
               paths:
                 ticker: true
+                alias_ticker: false
           method: get
           authorizer:
             type: COGNITO_USER_POOLS
