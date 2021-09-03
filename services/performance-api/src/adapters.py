@@ -115,6 +115,7 @@ class MarketData:
                     else:
                         not_in_cache_tickers.append(ticker)
 
+                logger.info(f'Not_in_cache_tickers: {not_in_cache_tickers}')
                 if not_in_cache_tickers:
                     quotes = self.cedro.quotes(not_in_cache_tickers)
                     if type(quotes) is not list:
@@ -128,7 +129,7 @@ class MarketData:
                         self.redis.put_intraday_data(ticker, data)
                 return response
             except Exception as e:
-                logger.exception(f'INTRADAY CAUGHT EXCEPTION. not_in_cache_tickers: {not_in_cache_tickers}', e)
+                logger.exception(f'CAUGHT EXCEPTION', e)
                 attempt += 1
 
     def ibov_from_date(self, date_from) -> List[CandleData]:
