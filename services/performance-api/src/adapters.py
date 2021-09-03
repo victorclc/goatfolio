@@ -1,7 +1,6 @@
 import logging
 import os
 from collections import namedtuple
-from dataclasses import asdict
 from datetime import datetime, timezone
 from decimal import Decimal
 from functools import wraps
