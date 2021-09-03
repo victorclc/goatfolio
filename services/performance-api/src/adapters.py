@@ -1,5 +1,6 @@
 import logging
 import os
+import traceback
 from collections import namedtuple
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -128,9 +129,9 @@ class MarketData:
                         response[ticker] = data
                         self.redis.put_intraday_data(ticker, data)
                 return response
-            except Exception as e:
-                logger.exception(f'CAUGHT EXCEPTION', e)
+            except Exception:
                 attempt += 1
+                logger.exception(f'ATTEMPET {attempt} FAILED.')
 
     def ibov_from_date(self, date_from) -> List[CandleData]:
         return self.repo.find_by_ticker_from_date('IBOVESPA', date_from)
