@@ -18,8 +18,7 @@ provider:
         - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
         - Fn::Join:
             - ''
-            -
-              - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+            - - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
               - '/index/*'
     - Effect: Allow
       Action:
@@ -27,7 +26,11 @@ provider:
         - dynamodb:GetItem
         - dynamodb:PutItem
       Resource:
-        'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
+        - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
+        - Fn::Join:
+            - ''
+            - - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
+              - '/index/*'
 
   apiGateway:
     apiKeys:
