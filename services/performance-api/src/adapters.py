@@ -67,8 +67,7 @@ class RedisMarketData:
     def cached_tuple(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            key_parts = [func.__name__] + list(args[1:])
-            key = '-'.join(key_parts)
+            key = args[1]
             result = None
 
             try:

@@ -126,7 +126,7 @@ class PerformanceCore:
         return wrappers
 
     def get_portfolio_list(self, subject):
-        portfolio = self.repo.find(subject) or Portfolio(subject=subject)
+        portfolio = self.repo.find(subject) or Portfolio(subject=subject, ticker=subject)
 
         stocks = []
         reits = []
@@ -135,33 +135,23 @@ class PerformanceCore:
         reit_gross_amount = Decimal(0)
         bdr_gross_amount = Decimal(0)
 
-        for stock in portfolio.stocks:
-            current = create_stock_position_wrapper_list(stock.history).tail
-            if not current:
-                continue
-            amount = current.amount
-            if amount <= 0:
-                continue
+        tickers = [s.alias_ticker or s.ticker for s in portfolio.stocks if s.latest_position.amount > 0]
+        intraday_map = self.market_data.tickers_intraday_data(tickers)
 
-            data = self.market_data.ticker_intraday_date(stock.alias_ticker or stock.ticker)
+        for stock in filter(lambda s: s.latest_position.amount > 0, portfolio.stocks):
+            data = intraday_map[stock.alias_ticker or stock.ticker]
+            amount = stock.latest_position.amount
 
+            summary = StockSummary(stock.ticker, stock.alias_ticker, amount, stock.latest_position.average_price,
+                                   stock.latest_position.invested_value, data.price, data.price * amount)
             if data.name.startswith('FII '):
-                reits.append(
-                    StockSummary(stock.ticker, stock.alias_ticker, amount, current.average_price,
-                                 current.current_invested_value,
-                                 data.price, data.price * amount))
+                reits.append(summary)
                 reit_gross_amount = reit_gross_amount + data.price * amount
             elif int(stock.ticker[4:]) >= 30:
-                bdrs.append(
-                    StockSummary(stock.ticker, stock.alias_ticker, amount, current.average_price,
-                                 current.current_invested_value,
-                                 data.price, data.price * amount))
+                bdrs.append(summary)
                 bdr_gross_amount = bdr_gross_amount + data.price * amount
             else:
-                stocks.append(
-                    StockSummary(stock.ticker, stock.alias_ticker, amount, current.average_price,
-                                 current.current_invested_value,
-                                 data.price, data.price * amount))
+                stocks.append(summary)
                 stock_gross_amount = stock_gross_amount + data.price * amount
 
         data = self.market_data.ibov_from_date(portfolio.initial_date)
@@ -188,8 +178,9 @@ class PerformanceCore:
 def main():
     subject = '41e4a793-3ef5-4413-82e2-80919bce7c1a'
     core = PerformanceCore(repo=PortfolioRepository(), market_data=MarketData())
-    response = core.get_portfolio_summary(subject)
+    # response = core.get_portfolio_summary(subject)
     # response = core.get_portfolio_history(subject)
+    response = core.get_portfolio_list(subject)
     print(response)
 
 
