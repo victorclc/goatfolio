@@ -44,6 +44,7 @@ class CedroMarketDataClient:
             quotes += f'{ticker}/'
         response = self.session.get(self.__QUOTE_URL + quotes)
         print(response)
+        print(response.content)
         try:
             return response.json()
         except Exception as e:
