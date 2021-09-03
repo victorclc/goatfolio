@@ -37,4 +37,18 @@ class VandelayClient {
     }
     return CeiImportResponse.fromJson(jsonDecode(response.body));
   }
+
+  Future<Map<String, int>> getCEIInfo() async {
+    final uri = Uri.parse(F.baseUrl + "vandelay/cei/info");
+    String accessToken = await userService.getSessionToken();
+
+    var response = await _client.get(
+      uri,
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': accessToken
+      },
+    );
+    return jsonDecode(response.body);
+  }
 }
