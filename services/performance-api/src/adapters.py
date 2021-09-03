@@ -103,28 +103,34 @@ class MarketData:
                             result['company'])
 
     def tickers_intraday_data(self, tickers):
-        response = {}
-        not_in_cache_tickers = []
-        for ticker in tickers:
-            cached_value = self.redis.get_intraday_data(ticker)
-            if cached_value:
-                response[ticker] = cached_value
-            else:
-                not_in_cache_tickers.append(ticker)
+        attempt = 0
+        while attempt < 3:
+            try:
+                response = {}
+                not_in_cache_tickers = []
+                for ticker in tickers:
+                    cached_value = self.redis.get_intraday_data(ticker)
+                    if cached_value:
+                        response[ticker] = cached_value
+                    else:
+                        not_in_cache_tickers.append(ticker)
 
-        if not_in_cache_tickers:
-            quotes = self.cedro.quotes(not_in_cache_tickers)
-            if type(quotes) is not list:
-                quotes = [quotes]
-            for quote in quotes:
-                data = IntraDayData(Decimal(quote['lastTrade'] or quote['previous']).quantize(Decimal('0.01')),
-                                    Decimal(quote['previous']).quantize(Decimal('0.01')),
-                                    Decimal((quote['change'])).quantize(Decimal('0.01')), quote['company'])
-                ticker = quote['symbol'].upper()
-                response[ticker] = data
-                self.redis.put_intraday_data(ticker, data)
-
-        return response
+                logger.info(f'not_in_cache_tickers: {not_in_cache_tickers}')
+                if not_in_cache_tickers:
+                    quotes = self.cedro.quotes(not_in_cache_tickers)
+                    if type(quotes) is not list:
+                        quotes = [quotes]
+                    for quote in quotes:
+                        data = IntraDayData(Decimal(quote['lastTrade'] or quote['previous']).quantize(Decimal('0.01')),
+                                            Decimal(quote['previous']).quantize(Decimal('0.01')),
+                                            Decimal((quote['change'])).quantize(Decimal('0.01')), quote['company'])
+                        ticker = quote['symbol'].upper()
+                        response[ticker] = data
+                        self.redis.put_intraday_data(ticker, data)
+                return response
+            except Exception as e:
+                logger.exception(f'CAUGHT EXCEPTION', e)
+                attempt += 1
 
     def ibov_from_date(self, date_from) -> List[CandleData]:
         return self.repo.find_by_ticker_from_date('IBOVESPA', date_from)
