@@ -5,7 +5,8 @@ from uuid import uuid4
 
 from adapters import InvestmentRepository, PortfolioRepository
 from goatcommons.models import StockInvestment
-from goatcommons.portfolio.models import Portfolio, StockConsolidated, StockPosition, StockSummary, StockPositionMonthlySummary
+from goatcommons.portfolio.models import Portfolio, StockConsolidated, StockPosition, StockSummary, \
+    StockPositionMonthlySummary
 from goatcommons.portfolio.utils import create_stock_position_wrapper_list, group_stock_position_per_month
 from goatcommons.utils import InvestmentUtils
 from model import InvestmentRequest
@@ -57,7 +58,8 @@ class PortfolioCore:
 
         latest_position = StockPositionMonthlySummary(date=current.data.date, amount=current.amount,
                                                       invested_value=current.current_invested_value,
-                                                      bought_value=current.data.bought_value)
+                                                      bought_value=current.data.bought_value,
+                                                      average_price=current.average_price)
         previous_position = None
         if previous:
             previous_position = StockPositionMonthlySummary(date=previous.data.date, amount=previous.amount)

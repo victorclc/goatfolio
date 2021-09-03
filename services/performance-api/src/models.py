@@ -59,15 +59,16 @@ class TickerConsolidatedHistory:
 
 @dataclass
 class PortfolioList:
-    stock_gross_amount: Decimal
-    reit_gross_amount: Decimal
-    bdr_gross_amount: Decimal
+    stock_gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    reit_gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    bdr_gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
 
-    stocks: list
-    reits: list
-    bdrs: list
+    stocks: list = field(default_factory=list)
+    reits: list = field(default_factory=list)
+    bdrs: list = field(default_factory=list)
 
-    ibov_history: list
+    # TODO change to benchmark?
+    ibov_history: list = field(default_factory=list)
 
     def to_dict(self):
         return {**self.__dict__, 'stocks': [s.to_dict() for s in self.stocks],
