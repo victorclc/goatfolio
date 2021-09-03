@@ -5,7 +5,8 @@ import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/widget/progress_indicator_scaffold.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
-import 'package:goatfolio/services/vandelay/client/client.dart';
+import 'package:goatfolio/services/vandelay/service/vandelay_service.dart';
+import 'package:goatfolio/services/vandelay/storage/import_history.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CeiLoginPage extends StatefulWidget {
@@ -20,8 +21,8 @@ class CeiLoginPage extends StatefulWidget {
 class _CeiLoginPageState extends State<CeiLoginPage> {
   TextEditingController _cpfController = new TextEditingController();
   TextEditingController _passwordController = new TextEditingController();
-  VandelayClient client;
-  Future<bool> _future;
+  VandelayService service;
+  Future _future;
 
   bool canSubmit() {
     return _cpfController.text.isNotEmpty &&
@@ -30,14 +31,14 @@ class _CeiLoginPageState extends State<CeiLoginPage> {
 
   Future submitRequest() async {
     _future =
-        client.importCEIRequest(_cpfController.text, _passwordController.text);
+        service.importCEIRequest(_cpfController.text, _passwordController.text);
     return _future;
   }
 
   @override
   void initState() {
     super.initState();
-    client = VandelayClient(widget.userService);
+    service = VandelayService(widget.userService);
   }
 
   @override

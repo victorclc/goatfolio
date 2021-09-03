@@ -46,9 +46,12 @@ class PerformanceClient {
   }
 
   Future<TickerConsolidatedHistory> getTickerConsolidatedHistory(
-      String ticker) async {
+      String ticker, String aliasTicker) async {
     String accessToken = await userService.getSessionToken();
-    String url = F.baseUrl + "performance/portfolio/$ticker";
+    String url = F.baseUrl + "performance/ticker?ticker=$ticker";
+    if (aliasTicker != null && aliasTicker.isNotEmpty) {
+      url += '&alias_ticker=$aliasTicker';
+    }
     final Response response =
         await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 

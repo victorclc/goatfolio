@@ -135,6 +135,7 @@ class _ExtractPageState extends State<ExtractPage> {
           controller: controller,
           slivers: [
             CupertinoSliverNavigationBar(
+              leading: Container(),
               heroTag: 'extractNavBar',
               largeTitle: Text(ExtractPage.title),
               backgroundColor:
