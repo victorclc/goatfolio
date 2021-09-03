@@ -28,6 +28,7 @@ platform :ios do
     setup_ci
     sync_code_signing(
       type: "appstore",
+      app_identifier: ["br.com.majestysolutions.goatfolio.prod", "br.com.majestysolutions.goatfolio.dev"],
       readonly: is_ci
     )
     build_app(workspace: "Runner.xcworkspace", scheme: ENV['SCHEME'])
