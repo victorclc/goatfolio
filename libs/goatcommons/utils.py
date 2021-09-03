@@ -22,6 +22,13 @@ class AWSEventUtils:
             return None
 
     @staticmethod
+    def get_query_param(event, param_name):
+        try:
+            return event['queryStringParameters'][param_name]
+        except KeyError:
+            return ''
+
+    @staticmethod
     def get_query_params(event):
         try:
             return event['queryStringParameters']
