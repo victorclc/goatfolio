@@ -14,9 +14,8 @@ import 'package:provider/provider.dart';
 class SummaryPage extends StatefulWidget {
   static const title = 'Resumo';
   static const icon = Icon(CupertinoIcons.chart_bar_square_fill);
-  final Function() openDrawerCb;
 
-  const SummaryPage({Key key, @required this.openDrawerCb}) : super(key: key);
+  const SummaryPage({Key key}) : super(key: key);
 
   @override
   _SummaryPageState createState() => _SummaryPageState();
@@ -47,6 +46,8 @@ class _SummaryPageState extends State<SummaryPage> {
 
   Widget buildAndroid(BuildContext context) {
     return Scaffold(
+      key: _key,
+      drawer: buildDrawer(),
       body: CupertinoTheme(
         data: Provider.of<ThemeChanger>(context).themeData,
         child: RefreshIndicator(
@@ -58,7 +59,22 @@ class _SummaryPageState extends State<SummaryPage> {
   }
 
   Widget buildIos(BuildContext context) {
-    return buildScrollView(context);
+    return Scaffold(
+      key: _key,
+      drawer: buildDrawer(),
+      body: buildScrollView(context),
+    );
+  }
+
+  Drawer buildDrawer() {
+    return Drawer(
+      child: ListView(
+        children: [
+          ListTile(title: Text('bagulho 1')),
+          ListTile(title: Text('bagulho 2')),
+        ],
+      ),
+    );
   }
 
   Widget buildScrollView(BuildContext context) {
@@ -71,7 +87,7 @@ class _SummaryPageState extends State<SummaryPage> {
               color: CupertinoTheme.of(context).textTheme.textStyle.color,
               size: 24,
             ),
-            onTap: widget.openDrawerCb,
+            onTap: () => _key.currentState.openDrawer(),
           ),
           heroTag: 'summaryNavBar',
           largeTitle: Text(SummaryPage.title),

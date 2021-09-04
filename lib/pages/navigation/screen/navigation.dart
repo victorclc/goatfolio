@@ -48,13 +48,11 @@ class _NavigationWidgetState extends State<NavigationWidget>
   int currentIndex = 0;
   List<CupertinoTabView> iosTabViews;
   List<Widget> androidTabViews;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
     controller = new CupertinoTabController();
-    initStateIos(); // TODO TIRAR DAQUI
     if (Platform.isIOS) {
       initStateIos();
     } else {
@@ -64,23 +62,11 @@ class _NavigationWidgetState extends State<NavigationWidget>
 
   void initStateAndroid() {
     androidTabViews = [
-      Builder(
-        builder: (context) => SummaryPage(
-          openDrawerCb: () => _scaffoldKey.currentState.openDrawer(),
-        ),
-      ),
-      Builder(
-        builder: (context) => PortfolioPage(),
-      ),
-      Builder(
-        builder: (context) => AddPage(),
-      ),
-      Builder(
-        builder: (context) => ExtractPage(),
-      ),
-      Builder(
-        builder: (context) => SettingsPage(),
-      ),
+      Builder(builder: (context) => SummaryPage()),
+      Builder(builder: (context) => PortfolioPage()),
+      Builder(builder: (context) => AddPage()),
+      Builder(builder: (context) => ExtractPage()),
+      Builder(builder: (context) => SettingsPage()),
     ];
   }
 
@@ -88,9 +74,7 @@ class _NavigationWidgetState extends State<NavigationWidget>
     iosTabViews = [
       CupertinoTabView(
         defaultTitle: SummaryPage.title,
-        builder: (context) {
-          return SummaryPage();
-        },
+        builder: (context) => SummaryPage(),
         navigatorKey: GlobalKey<NavigatorState>(),
       ),
       CupertinoTabView(
@@ -134,18 +118,7 @@ class _NavigationWidgetState extends State<NavigationWidget>
   Widget buildAndroid(BuildContext context) {
     final theme = CupertinoTheme.of(context);
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: theme.scaffoldBackgroundColor,
-      drawer: currentIndex == 0
-          ? Drawer(
-              child: ListView(
-                children: [
-                  ListTile(title: Text('bagulho 1')),
-                  ListTile(title: Text('bagulho 2')),
-                ],
-              ),
-            )
-          : null,
       body: IndexedStack(
         index: currentIndex,
         children: androidTabViews,
@@ -192,59 +165,46 @@ class _NavigationWidgetState extends State<NavigationWidget>
   }
 
   Widget buildIos(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: currentIndex == 0
-          ? Drawer(
-              child: ListView(
-                children: [
-                  ListTile(title: Text('bagulho 1')),
-                  ListTile(title: Text('bagulho 2')),
-                ],
-              ),
-            )
-          : null,
-      body: CupertinoTabScaffold(
-        controller: controller,
-        resizeToAvoidBottomInset: false,
-        tabBar: CupertinoTabBar(
-          onTap: (index) {
-            if (index == currentIndex) {
-              Navigator.of(iosTabViews[index].navigatorKey.currentContext)
-                  .popUntil((route) => route.isFirst);
-            }
-            currentIndex = index;
-          },
-          items: [
-            BottomNavigationBarItem(
-                label: SummaryPage.title, icon: SummaryPage.icon),
-            BottomNavigationBarItem(
-                label: PortfolioPage.title, icon: PortfolioPage.icon),
-            BottomNavigationBarItem(label: AddPage.title, icon: AddPage.icon),
-            BottomNavigationBarItem(
-                label: ExtractPage.title, icon: ExtractPage.icon),
-            BottomNavigationBarItem(
-                label: SettingsPage.title, icon: SettingsPage.icon),
-          ],
-        ),
-        tabBuilder: (context, index) {
-          switch (index) {
-            case 0:
-              return iosTabViews[0];
-            case 1:
-              return iosTabViews[1];
-            case 2:
-              return iosTabViews[2];
-            case 3:
-              return iosTabViews[3];
-            case 4:
-              return iosTabViews[4];
-            default:
-              assert(false, 'Unexpected tab');
-              return null;
+    return CupertinoTabScaffold(
+      controller: controller,
+      resizeToAvoidBottomInset: false,
+      tabBar: CupertinoTabBar(
+        onTap: (index) {
+          if (index == currentIndex) {
+            Navigator.of(iosTabViews[index].navigatorKey.currentContext)
+                .popUntil((route) => route.isFirst);
           }
+          currentIndex = index;
         },
+        items: [
+          BottomNavigationBarItem(
+              label: SummaryPage.title, icon: SummaryPage.icon),
+          BottomNavigationBarItem(
+              label: PortfolioPage.title, icon: PortfolioPage.icon),
+          BottomNavigationBarItem(label: AddPage.title, icon: AddPage.icon),
+          BottomNavigationBarItem(
+              label: ExtractPage.title, icon: ExtractPage.icon),
+          BottomNavigationBarItem(
+              label: SettingsPage.title, icon: SettingsPage.icon),
+        ],
       ),
+      tabBuilder: (context, index) {
+        switch (index) {
+          case 0:
+            return iosTabViews[0];
+          case 1:
+            return iosTabViews[1];
+          case 2:
+            return iosTabViews[2];
+          case 3:
+            return iosTabViews[3];
+          case 4:
+            return iosTabViews[4];
+          default:
+            assert(false, 'Unexpected tab');
+            return null;
+        }
+      },
     );
   }
 }
