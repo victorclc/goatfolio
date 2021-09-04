@@ -16,7 +16,7 @@ class Portfolio:
     def __post_init__(self):
         if not isinstance(self.initial_date, datetime):
             self.initial_date = datetime.fromtimestamp(float(self.initial_date), tz=timezone.utc)
-        self.stocks = [StockSummary(**s) for s in self.stocks]
+        self.stocks = [StockSummary(**s) if not isinstance(s, StockSummary) else s for s in self.stocks]
 
     def to_dict(self):
         return {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
@@ -50,7 +50,7 @@ class StockPositionMonthlySummary:
 class StockSummary:
     ticker: str
     latest_position: StockPositionMonthlySummary
-    previous_position: StockPositionMonthlySummary
+    previous_position: StockPositionMonthlySummary = None
     alias_ticker: str = ''
 
     def __post_init__(self):
@@ -156,7 +156,7 @@ class StockConsolidated:
     def __post_init__(self):
         if not isinstance(self.initial_date, datetime):
             self.initial_date = datetime.fromtimestamp(float(self.initial_date), tz=timezone.utc)
-        self.history = [StockPosition(**h) for h in self.history]
+        self.history = [StockPosition(**h) if not isinstance(h, StockPosition) else h for h in self.history]
 
     def to_dict(self):
         ret = {**self.__dict__, 'initial_date': int(self.initial_date.timestamp()),
