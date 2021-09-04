@@ -42,7 +42,8 @@ class PortfolioPage extends StatelessWidget {
               if (state == LoadingState.LOADING &&
                   cubit.portfolioPerformance == null) {
                 return PlatformAwareProgressIndicator();
-              } else if (state == LoadingState.LOADED) {
+              } else if (state == LoadingState.LOADED ||
+                  cubit.portfolioPerformance != null) {
                 return Column(
                   children: [
                     Container(
