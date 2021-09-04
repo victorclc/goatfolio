@@ -4,48 +4,16 @@ import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:goatfolio/common/bloc/loading/loading_state.dart';
 import 'package:goatfolio/common/theme/theme_changer.dart';
 import 'package:goatfolio/common/widget/loading_error.dart';
 import 'package:goatfolio/common/widget/platform_aware_progress_indicator.dart';
+import 'package:goatfolio/pages/summary/cubit/summary_cubit.dart';
 import 'package:goatfolio/pages/summary/widget/highest_highs_card.dart';
 import 'package:goatfolio/pages/summary/widget/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/widget/rentability_card.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
-import 'package:goatfolio/services/performance/client/performance_client.dart';
-import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
-import 'package:goatfolio/services/performance/notifier/portfolio_summary_notifier.dart';
 import 'package:provider/provider.dart';
-
-enum LoadingState { LOADING, LOADED, ERROR }
-
-class SummaryCubit extends Cubit<LoadingState> {
-  final PerformanceClient _client;
-  PortfolioSummary portfolioSummary;
-
-  SummaryCubit(UserService userService)
-      : _client = PerformanceClient(userService),
-        super(LoadingState.LOADING) {
-    refresh();
-  }
-
-  Future<void> refresh() async {
-    emit(LoadingState.LOADING);
-    try {
-      final summary = await _client.getPortfolioSummary();
-
-      if (portfolioSummary != null) {
-        portfolioSummary.copy(summary);
-      } else {
-        portfolioSummary = summary;
-      }
-    } catch (Exception) {
-      if (portfolioSummary == null) {
-        emit(LoadingState.ERROR);
-      }
-    }
-    emit(LoadingState.LOADED);
-  }
-}
 
 class SummaryContainer extends StatelessWidget {
   @override
