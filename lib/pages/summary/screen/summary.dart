@@ -13,7 +13,7 @@ import 'package:goatfolio/services/performance/cubit/summary_cubit.dart';
 import 'package:goatfolio/pages/summary/widget/highest_highs_card.dart';
 import 'package:goatfolio/pages/summary/widget/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/widget/rentability_card.dart';
-import 'package:goatfolio/services/performance/refresh_performance_observer.dart';
+import 'package:goatfolio/services/performance/observer/refresh_performance_observer.dart';
 import 'package:provider/provider.dart';
 
 class SummaryPage extends StatelessWidget {
