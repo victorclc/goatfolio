@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/pages/add/screen/stock_list.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
-import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 
@@ -70,28 +69,28 @@ class AddPage extends StatelessWidget {
                 CeiLoginPage(userService: userService),
               ),
             ),
-            SettingsTile(
-              title: 'Operação de compra',
-              iosLikeTile: true,
-              onPressed: (context) => goToInvestmentList(
-                context,
-                true,
-                userService,
-                Provider.of<PortfolioListNotifier>(context, listen: false)
-                    .futureList,
-              ),
-            ),
-            SettingsTile(
-              title: 'Operação de venda',
-              iosLikeTile: true,
-              onPressed: (context) => goToInvestmentList(
-                context,
-                false,
-                userService,
-                Provider.of<PortfolioListNotifier>(context, listen: false)
-                    .futureList,
-              ),
-            ),
+            // SettingsTile(
+            //   title: 'Operação de compra',
+            //   iosLikeTile: true,
+            //   onPressed: (context) => goToInvestmentList(
+            //     context,
+            //     true,
+            //     userService,
+            //     Provider.of<PortfolioListNotifier>(context, listen: false)
+            //         .futureList,
+            //   ),
+            // ),
+            // SettingsTile(
+            //   title: 'Operação de venda',
+            //   iosLikeTile: true,
+            //   onPressed: (context) => goToInvestmentList(
+            //     context,
+            //     false,
+            //     userService,
+            //     Provider.of<PortfolioListNotifier>(context, listen: false)
+            //         .futureList,
+            //   ),
+            // ),
           ],
         ),
         SettingsSection(

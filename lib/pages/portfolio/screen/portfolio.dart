@@ -2,15 +2,19 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:goatfolio/common/bloc/loading/loading_state.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/common/widget/cupertino_sliver_page.dart';
 import 'package:goatfolio/common/widget/expansion_tile_custom.dart';
+import 'package:goatfolio/common/widget/loading_error.dart';
+import 'package:goatfolio/common/widget/platform_aware_progress_indicator.dart';
 import 'package:goatfolio/pages/portfolio/widget/donut_chart.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
+import 'package:goatfolio/services/performance/cubit/performance_cubit.dart';
 import 'package:goatfolio/services/performance/model/benchmark_position.dart';
-import 'package:goatfolio/services/performance/model/portfolio_list.dart';
+import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/services/performance/model/stock_summary.dart';
-import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
 import 'package:provider/provider.dart';
 
 import 'dart:math' as math;
@@ -18,39 +22,27 @@ import 'package:charts_flutter/flutter.dart' as charts;
 
 import 'investment_details.dart';
 
-class PortfolioPage extends StatefulWidget {
+class PortfolioPage extends StatelessWidget {
   static const title = 'Portfolio';
   static const icon = Icon(Icons.trending_up);
-
-  @override
-  _PortfolioPageState createState() => _PortfolioPageState();
-}
-
-class _PortfolioPageState extends State<PortfolioPage> {
-  Map<String, Rgb> colors = Map();
-
-  PortfolioList portfolioList;
+  final Map<String, Rgb> colors = Map();
 
   @override
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
+    return BlocBuilder<PerformanceCubit, LoadingState>(
+        builder: (context, state) {
+      final cubit = BlocProvider.of<PerformanceCubit>(context);
 
-    return CupertinoSliverPage(largeTitle: PortfolioPage.title, children: [
-      FutureBuilder(
-        future: Provider.of<PortfolioListNotifier>(context, listen: true)
-            .futureList,
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-            case ConnectionState.active:
-              break;
-            case ConnectionState.waiting:
-              return Platform.isIOS
-                  ? CupertinoActivityIndicator()
-                  : Center(child: CircularProgressIndicator());
-            case ConnectionState.done:
-              if (snapshot.hasData) {
-                portfolioList = snapshot.data;
+      return CupertinoSliverPage(
+        largeTitle: PortfolioPage.title,
+        children: [
+          Builder(
+            builder: (_) {
+              if (state == LoadingState.LOADING &&
+                  cubit.portfolioPerformance == null) {
+                return PlatformAwareProgressIndicator();
+              } else if (state == LoadingState.LOADED) {
                 return Column(
                   children: [
                     Container(
@@ -65,11 +57,15 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       height: 240,
                       width: double.infinity,
                       child: DonutAutoLabelChart(
-                          portfolioList: portfolioList,
-                          typeSeries: buildSubtypeSeries(),
-                          stocksSeries: buildStockSeries(),
-                          reitsSeries: buildReitSeries(),
-                          bdrsSeries: buildBdrSeries()),
+                          portfolioList: cubit.portfolioPerformance,
+                          typeSeries:
+                              buildSubtypeSeries(cubit.portfolioPerformance),
+                          stocksSeries: buildStockSeries(
+                              cubit.portfolioPerformance.stocks),
+                          reitsSeries:
+                              buildReitSeries(cubit.portfolioPerformance.reits),
+                          bdrsSeries:
+                              buildBdrSeries(cubit.portfolioPerformance.bdrs)),
                     ),
                     SizedBox(
                       height: 16,
@@ -83,65 +79,41 @@ class _PortfolioPageState extends State<PortfolioPage> {
                     ),
                     InvestmentTypeExpansionTile(
                       title: 'Ações/ETFs',
-                      grossAmount: portfolioList.stockGrossAmount,
-                      items: portfolioList.stocks,
+                      grossAmount: cubit.portfolioPerformance.stockGrossAmount,
+                      items: cubit.portfolioPerformance.stocks,
                       colors: colors,
-                      totalAmount: portfolioList.grossAmount,
-                      ibovHistory: portfolioList.ibovHistory,
+                      totalAmount: cubit.portfolioPerformance.grossAmount,
+                      ibovHistory: cubit.portfolioPerformance.ibovHistory,
                     ),
                     InvestmentTypeExpansionTile(
                       title: 'BDRs',
-                      grossAmount: portfolioList.bdrGrossAmount,
-                      items: portfolioList.bdrs,
+                      grossAmount: cubit.portfolioPerformance.bdrGrossAmount,
+                      items: cubit.portfolioPerformance.bdrs,
                       colors: colors,
-                      totalAmount: portfolioList.grossAmount,
-                      ibovHistory: portfolioList.ibovHistory,
+                      totalAmount: cubit.portfolioPerformance.grossAmount,
+                      ibovHistory: cubit.portfolioPerformance.ibovHistory,
                     ),
                     InvestmentTypeExpansionTile(
                       title: 'FIIs',
-                      grossAmount: portfolioList.reitGrossAmount,
-                      items: portfolioList.reits,
+                      grossAmount: cubit.portfolioPerformance.reitGrossAmount,
+                      items: cubit.portfolioPerformance.reits,
                       colors: colors,
-                      totalAmount: portfolioList.grossAmount,
-                      ibovHistory: portfolioList.ibovHistory,
+                      totalAmount: cubit.portfolioPerformance.grossAmount,
+                      ibovHistory: cubit.portfolioPerformance.ibovHistory,
                     ),
                   ],
                 );
+              } else {
+                return LoadingError(onRefreshPressed: cubit.refresh);
               }
-          }
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: 32,
-              ),
-              Text("Tivemos um problema ao carregar",
-                  style: textTheme.textStyle),
-              Text(" as informações.", style: textTheme.textStyle),
-              SizedBox(
-                height: 8,
-              ),
-              Text("Toque para tentar novamente.", style: textTheme.textStyle),
-              CupertinoButton(
-                padding: EdgeInsets.all(0),
-                child: Icon(
-                  Icons.refresh_outlined,
-                  size: 32,
-                ),
-                onPressed: () {
-                  Provider.of<PortfolioListNotifier>(context, listen: false)
-                      .updatePerformance();
-                },
-              ),
-            ],
-          );
-        },
-      ),
-    ]);
+            },
+          ),
+        ],
+      );
+    });
   }
 
-  List<charts.Series<TickerTotals, String>> buildStockSeries() {
-    final stocks = portfolioList.stocks;
+  List<charts.Series<TickerTotals, String>> buildStockSeries(List stocks) {
     List<TickerTotals> data = stocks.map((p) {
       final color = Rgb.random();
       colors[p.ticker] = color;
@@ -166,9 +138,8 @@ class _PortfolioPageState extends State<PortfolioPage> {
     ];
   }
 
-  List<charts.Series<TickerTotals, String>> buildReitSeries() {
-    final stocks = portfolioList.reits;
-    List<TickerTotals> data = stocks.map((p) {
+  List<charts.Series<TickerTotals, String>> buildReitSeries(List reits) {
+    List<TickerTotals> data = reits.map((p) {
       final color = Rgb.random();
       colors[p.ticker] = color;
       if (p.amount <= 0) {
@@ -192,9 +163,8 @@ class _PortfolioPageState extends State<PortfolioPage> {
     ];
   }
 
-  List<charts.Series<TickerTotals, String>> buildBdrSeries() {
-    final stocks = portfolioList.bdrs;
-    List<TickerTotals> data = stocks.map((p) {
+  List<charts.Series<TickerTotals, String>> buildBdrSeries(List bdrs) {
+    List<TickerTotals> data = bdrs.map((p) {
       final color = Rgb.random();
       colors[p.ticker] = color;
       if (p.amount <= 0) {
@@ -218,31 +188,32 @@ class _PortfolioPageState extends State<PortfolioPage> {
     ];
   }
 
-  List<charts.Series<TickerTotals, String>> buildSubtypeSeries() {
+  List<charts.Series<TickerTotals, String>> buildSubtypeSeries(
+      PortfolioPerformance performance) {
     List<TickerTotals> data = [];
 
     // #5c36ad
     // #ec1a72
     // #ff8c12
     final stockColor = Color(0x5c36ad);
-    if (portfolioList.stockGrossAmount > 0) {
+    if (performance.stockGrossAmount > 0) {
       colors['Ações/ETFs'] =
           Rgb(stockColor.red, stockColor.green, stockColor.blue);
-      data.add(TickerTotals('Ações\ne ETFs', portfolioList.stockGrossAmount,
-          colors['Ações/ETFs']));
+      data.add(TickerTotals(
+          'Ações\ne ETFs', performance.stockGrossAmount, colors['Ações/ETFs']));
     }
     final reitColor = Color(0xf52d6f);
-    if (portfolioList.reitGrossAmount > 0) {
+    if (performance.reitGrossAmount > 0) {
       colors['FIIs'] = Rgb(reitColor.red, reitColor.green, reitColor.blue);
       data.add(
-          TickerTotals('FIIs', portfolioList.reitGrossAmount, colors['FIIs']));
+          TickerTotals('FIIs', performance.reitGrossAmount, colors['FIIs']));
     }
 
     final bdrColor = Color(0xffa514);
-    if (portfolioList.bdrGrossAmount > 0) {
+    if (performance.bdrGrossAmount > 0) {
       colors['BDRs'] = Rgb(bdrColor.red, bdrColor.green, bdrColor.blue);
       data.add(
-          TickerTotals('BDRs', portfolioList.reitGrossAmount, colors['BDRs']));
+          TickerTotals('BDRs', performance.reitGrossAmount, colors['BDRs']));
     }
 
     return [

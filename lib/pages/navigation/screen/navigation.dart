@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goatfolio/pages/add/screen/add.dart';
 import 'package:goatfolio/pages/extract/screen/extract.dart';
 import 'package:goatfolio/pages/portfolio/screen/portfolio.dart';
@@ -9,22 +10,25 @@ import 'package:goatfolio/pages/settings/screen/settings_page.dart';
 import 'package:goatfolio/pages/summary/screen/summary.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/notification/firebase/firebase.dart';
-import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
-import 'package:goatfolio/services/performance/notifier/portfolio_summary_notifier.dart';
+import 'package:goatfolio/services/performance/cubit/performance_cubit.dart';
+import 'package:goatfolio/services/performance/cubit/summary_cubit.dart';
 import 'package:provider/provider.dart';
 
 Widget buildNavigationPage(UserService userService) {
   setupPushNotifications(userService);
-  return MultiProvider(
-    child: NavigationWidget(),
-    providers: [
-      Provider(
-        create: (_) => userService,
-      ),
-      ChangeNotifierProvider(create: (_) => PortfolioListNotifier(userService)),
-      ChangeNotifierProvider(
-          create: (_) => PortfolioSummaryNotifier(userService))
-    ],
+  return Provider(
+    create: (_) => userService,
+    child: MultiBlocProvider(
+      child: NavigationWidget(),
+      providers: [
+        BlocProvider<SummaryCubit>(
+          create: (_) => SummaryCubit(userService),
+        ),
+        BlocProvider<PerformanceCubit>(
+          create: (_) => PerformanceCubit(userService),
+        ),
+      ],
+    ),
   );
 }
 
@@ -62,7 +66,7 @@ class _NavigationWidgetState extends State<NavigationWidget>
 
   void initStateAndroid() {
     androidTabViews = [
-      Builder(builder: (context) => SummaryContainer()),
+      Builder(builder: (context) => SummaryPage()),
       Builder(builder: (context) => PortfolioPage()),
       Builder(builder: (context) => AddPage()),
       Builder(builder: (context) => ExtractPage()),
@@ -74,7 +78,7 @@ class _NavigationWidgetState extends State<NavigationWidget>
     iosTabViews = [
       CupertinoTabView(
         defaultTitle: SummaryPage.title,
-        builder: (context) => SummaryContainer(),
+        builder: (context) => SummaryPage(),
         navigatorKey: GlobalKey<NavigatorState>(),
       ),
       CupertinoTabView(

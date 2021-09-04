@@ -9,11 +9,11 @@ import 'package:goatfolio/pages/add/screen/stock_add.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
-import 'package:goatfolio/services/performance/model/portfolio_list.dart';
+import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 void goToInvestmentList(BuildContext context, bool buyOperation,
-    UserService userService, Future<PortfolioList> portfolioListFuture) async {
+    UserService userService, Future<PortfolioPerformance> portfolioListFuture) async {
   await NavigatorUtils.push(
     context,
     (context) => InvestmentsList(
@@ -27,7 +27,7 @@ void goToInvestmentList(BuildContext context, bool buyOperation,
 class InvestmentsList extends StatefulWidget {
   final bool buyOperation;
   final UserService userService;
-  final Future<PortfolioList> future;
+  final Future<PortfolioPerformance> future;
 
   const InvestmentsList(
       {Key key, @required this.buyOperation, this.userService, this.future})
@@ -69,7 +69,7 @@ class _InvestmentsListState extends State<InvestmentsList> {
     service = StockInvestmentService(widget.userService);
   }
 
-  List<SettingsSection> buildAlphabetSections(PortfolioList portfolio) {
+  List<SettingsSection> buildAlphabetSections(PortfolioPerformance portfolio) {
     final stocks = (portfolio.stocks + portfolio.reits + portfolio.bdrs)
         .map((s) => s.currentTickerName)
         .toList()

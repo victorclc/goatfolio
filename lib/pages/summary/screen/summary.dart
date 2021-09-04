@@ -4,37 +4,27 @@ import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:goatfolio/common/bloc/loading/loading_observer.dart';
 import 'package:goatfolio/common/bloc/loading/loading_state.dart';
 import 'package:goatfolio/common/theme/theme_changer.dart';
 import 'package:goatfolio/common/widget/loading_error.dart';
 import 'package:goatfolio/common/widget/platform_aware_progress_indicator.dart';
-import 'package:goatfolio/pages/summary/cubit/summary_cubit.dart';
+import 'package:goatfolio/services/performance/cubit/summary_cubit.dart';
 import 'package:goatfolio/pages/summary/widget/highest_highs_card.dart';
 import 'package:goatfolio/pages/summary/widget/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/widget/rentability_card.dart';
-import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:provider/provider.dart';
-
-class SummaryContainer extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final userService = Provider.of<UserService>(context);
-
-    return BlocProvider(
-      create: (_) => SummaryCubit(userService),
-      child: SummaryPage(),
-    );
-  }
-}
 
 class SummaryPage extends StatelessWidget {
   static const title = 'Resumo';
   static const icon = Icon(CupertinoIcons.chart_bar_square_fill);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final List<LoadingStateObserver> loadingStateObservers = [];
 
   Widget build(BuildContext context) {
     return BlocConsumer<SummaryCubit, LoadingState>(
-      listener: (context, state) {},
+      listener: (context, state) =>
+          loadingStateObservers.forEach((o) => o.listen(context, state)),
       builder: (context, state) {
         final cubit = BlocProvider.of<SummaryCubit>(context);
         if (Platform.isIOS) {
@@ -118,8 +108,7 @@ class SummaryPage extends StatelessWidget {
                       if (state == LoadingState.LOADING &&
                           cubit.portfolioSummary == null) {
                         return PlatformAwareProgressIndicator();
-                      } else if (state == LoadingState.LOADED ||
-                          cubit.portfolioSummary != null) {
+                      } else if (state == LoadingState.LOADED) {
                         return Column(
                           children: [
                             RentabilityCard(cubit.portfolioSummary),
