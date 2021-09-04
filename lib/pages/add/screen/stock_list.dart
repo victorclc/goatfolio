@@ -2,45 +2,39 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:goatfolio/common/bloc/loading/loading_state.dart';
 import 'package:goatfolio/common/util/dialog.dart';
 import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/util/navigator.dart';
+import 'package:goatfolio/common/widget/platform_aware_progress_indicator.dart';
 import 'package:goatfolio/pages/add/screen/stock_add.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
+import 'package:goatfolio/services/performance/cubit/performance_cubit.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:settings_ui/settings_ui.dart';
 
-void goToInvestmentList(BuildContext context, bool buyOperation,
-    UserService userService, Future<PortfolioPerformance> portfolioListFuture) async {
+void goToInvestmentList(
+    BuildContext context, bool buyOperation, UserService userService) async {
   await NavigatorUtils.push(
     context,
-    (context) => InvestmentsList(
-      buyOperation: buyOperation,
-      userService: userService,
-      future: portfolioListFuture,
-    ),
+    (_) =>
+        InvestmentsList(buyOperation: buyOperation, userService: userService),
   );
 }
 
-class InvestmentsList extends StatefulWidget {
+class InvestmentsList extends StatelessWidget {
   final bool buyOperation;
   final UserService userService;
-  final Future<PortfolioPerformance> future;
+  final StockInvestmentService service;
 
-  const InvestmentsList(
-      {Key key, @required this.buyOperation, this.userService, this.future})
-      : super(key: key);
+  InvestmentsList({Key key, @required this.buyOperation, this.userService})
+      : this.service = StockInvestmentService(userService),
+        super(key: key);
 
-  @override
-  _InvestmentsListState createState() => _InvestmentsListState();
-}
-
-class _InvestmentsListState extends State<InvestmentsList> {
-  StockInvestmentService service;
-
-  Future<void> onStockSubmit(Map values) async {
+  Future<void> onStockSubmit(BuildContext context, Map values) async {
     final investment = StockInvestment(
       ticker: values['ticker'],
       amount: int.parse(values['amount']),
@@ -50,7 +44,7 @@ class _InvestmentsListState extends State<InvestmentsList> {
       costs: double.parse(values['costs']),
       broker: values['broker'],
       type: "STOCK",
-      operation: widget.buyOperation ? "BUY" : "SELL",
+      operation: buyOperation ? "BUY" : "SELL",
     );
     try {
       await service.addInvestment(investment);
@@ -61,12 +55,6 @@ class _InvestmentsListState extends State<InvestmentsList> {
     }
     await DialogUtils.showSuccessDialog(
         context, "Operação adicionada com sucesso!");
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    service = StockInvestmentService(widget.userService);
   }
 
   List<SettingsSection> buildAlphabetSections(PortfolioPerformance portfolio) {
@@ -98,8 +86,8 @@ class _InvestmentsListState extends State<InvestmentsList> {
                           context,
                           StockAdd(
                             ticker: ticker,
-                            buyOperation: widget.buyOperation,
-                            userService: widget.userService,
+                            buyOperation: buyOperation,
+                            userService: userService,
                           )),
                 ),
               )
@@ -126,7 +114,7 @@ class _InvestmentsListState extends State<InvestmentsList> {
         leading: BackButton(
           color: textColor,
         ),
-        actions: widget.buyOperation
+        actions: buyOperation
             ? [
                 IconButton(
                     alignment: Alignment.centerRight,
@@ -135,14 +123,14 @@ class _InvestmentsListState extends State<InvestmentsList> {
                     onPressed: () => ModalUtils.showDragableModalBottomSheet(
                           context,
                           StockAdd(
-                            buyOperation: widget.buyOperation,
-                            userService: widget.userService,
+                            buyOperation: buyOperation,
+                            userService: userService,
                           ),
                         ))
               ]
             : null,
         title: Text(
-          widget.buyOperation ? "Compra" : "Venda",
+          buyOperation ? "Compra" : "Venda",
           style: TextStyle(color: textColor),
         ),
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
@@ -157,7 +145,7 @@ class _InvestmentsListState extends State<InvestmentsList> {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         previousPageTitle: "",
-        trailing: widget.buyOperation
+        trailing: buyOperation
             ? IconButton(
                 alignment: Alignment.centerRight,
                 padding: EdgeInsets.all(0),
@@ -165,12 +153,12 @@ class _InvestmentsListState extends State<InvestmentsList> {
                 onPressed: () => ModalUtils.showDragableModalBottomSheet(
                       context,
                       StockAdd(
-                        buyOperation: widget.buyOperation,
-                        userService: widget.userService,
+                        buyOperation: buyOperation,
+                        userService: userService,
                       ),
                     ))
             : null,
-        middle: Text(widget.buyOperation ? "Compra" : "Venda"),
+        middle: Text(buyOperation ? "Compra" : "Venda"),
       ),
       child: buildContent(context),
     );
@@ -181,27 +169,23 @@ class _InvestmentsListState extends State<InvestmentsList> {
       child: Container(
         child: Column(
           children: [
-            FutureBuilder(
-                future: widget.future,
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.none:
-                    case ConnectionState.active:
-                      break;
-                    case ConnectionState.waiting:
-                      return Platform.isIOS
-                          ? CupertinoActivityIndicator()
-                          : Center(child: CircularProgressIndicator());
-                    case ConnectionState.done:
-                      if (snapshot.hasData) {
-                        return Expanded(
-                            child: SettingsList(
-                          sections: buildAlphabetSections(snapshot.data),
-                        ));
-                      }
-                  }
+            BlocBuilder<PerformanceCubit, LoadingState>(
+              builder: (context, state) {
+                if (state == LoadingState.LOADING) {
+                  return PlatformAwareProgressIndicator();
+                } else if (state == LoadingState.LOADED) {
+                  return Expanded(
+                    child: SettingsList(
+                      sections: buildAlphabetSections(
+                          BlocProvider.of<PerformanceCubit>(context, listen: false)
+                              .portfolioPerformance),
+                    ),
+                  );
+                } else {
                   return Container();
-                }),
+                }
+              },
+            ),
           ],
         ),
       ),

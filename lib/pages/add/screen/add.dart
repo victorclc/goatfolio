@@ -69,28 +69,24 @@ class AddPage extends StatelessWidget {
                 CeiLoginPage(userService: userService),
               ),
             ),
-            // SettingsTile(
-            //   title: 'Operação de compra',
-            //   iosLikeTile: true,
-            //   onPressed: (context) => goToInvestmentList(
-            //     context,
-            //     true,
-            //     userService,
-            //     Provider.of<PortfolioListNotifier>(context, listen: false)
-            //         .futureList,
-            //   ),
-            // ),
-            // SettingsTile(
-            //   title: 'Operação de venda',
-            //   iosLikeTile: true,
-            //   onPressed: (context) => goToInvestmentList(
-            //     context,
-            //     false,
-            //     userService,
-            //     Provider.of<PortfolioListNotifier>(context, listen: false)
-            //         .futureList,
-            //   ),
-            // ),
+            SettingsTile(
+              title: 'Operação de compra',
+              iosLikeTile: true,
+              onPressed: (_) => goToInvestmentList(
+                context,
+                true,
+                userService,
+              ),
+            ),
+            SettingsTile(
+              title: 'Operação de venda',
+              iosLikeTile: true,
+              onPressed: (_) => goToInvestmentList(
+                context,
+                false,
+                userService,
+              ),
+            ),
           ],
         ),
         SettingsSection(
