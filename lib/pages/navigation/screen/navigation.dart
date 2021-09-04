@@ -62,7 +62,7 @@ class _NavigationWidgetState extends State<NavigationWidget>
 
   void initStateAndroid() {
     androidTabViews = [
-      Builder(builder: (context) => SummaryPage()),
+      Builder(builder: (context) => SummaryContainer()),
       Builder(builder: (context) => PortfolioPage()),
       Builder(builder: (context) => AddPage()),
       Builder(builder: (context) => ExtractPage()),
@@ -74,7 +74,7 @@ class _NavigationWidgetState extends State<NavigationWidget>
     iosTabViews = [
       CupertinoTabView(
         defaultTitle: SummaryPage.title,
-        builder: (context) => SummaryPage(),
+        builder: (context) => SummaryContainer(),
         navigatorKey: GlobalKey<NavigatorState>(),
       ),
       CupertinoTabView(
