@@ -1,9 +1,14 @@
 import logging
+import zipfile
 from datetime import datetime
 from decimal import Decimal
+from io import BytesIO, StringIO
 from itertools import groupby
 
-from adapters import B3CotaHistBucket, CotaHistRepository, TickerInfoRepository, IBOVFetcher
+import requests
+from dateutil.relativedelta import relativedelta
+
+from adapters import B3CotaHistBucket, CotaHistRepository, TickerInfoRepository, IBOVFetcher, CotaHistDownloader
 from models import B3CotaHistData, BDICodes
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -84,7 +89,25 @@ class CotaHistTransformerCore:
         self.repo.save(ibov_data)
 
 
+class CotaHistDownloaderCore:
+    def __init__(self):
+        self.downloader = CotaHistDownloader()
+        self.bucket = B3CotaHistBucket()
+
+    def download_current_monthly_file(self):
+        now = datetime.now() - relativedelta(months=1)
+        file_buffer = self.downloader.download_monthly_file(now.year, now.month)
+        self.bucket.put(BytesIO(file_buffer), f'M{now.strftime("%Y%m")}.TXT')
+
+    def download_monthly_file(self, year, month):
+        file_buffer = self.downloader.download_monthly_file(year, month)
+        self.bucket.put(BytesIO(file_buffer), f'M{year}{month:02}.TXT')
+
+
 if __name__ == '__main__':
-    core = CotaHistTransformerCore()
+    # core = CotaHistTransformerCore()
     # core.transform_cota_hist(None, None)
-    core.update_ibov_history()
+    # core.update_ibov_history()
+    core = CotaHistDownloaderCore()
+    core.download_monthly_file(2021, 8)
+    # CRIAR UM BAGULHO PRA BAIXAR DIARIAMENTE, ASSIM TODOS OS NOVOS ATIVOS DE IPO E TUDO MAIS SERAO DISPONIBILIZADOS NO DIA SEGUINTE

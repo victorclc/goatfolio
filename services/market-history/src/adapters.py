@@ -1,12 +1,13 @@
 import logging
 import os
+import zipfile
 from datetime import datetime
 from decimal import Decimal
+from io import BytesIO
 from typing import List
 
 import boto3 as boto3
 import requests
-from dateutil.relativedelta import relativedelta
 
 from goatcommons.cedro.client import CedroMarketDataClient
 from models import B3CotaHistData
@@ -17,6 +18,8 @@ logger.setLevel(logging.INFO)
 
 
 class B3CotaHistBucket:
+    BUCKET_NAME = f"{os.getenv('STAGE')}-b3cotahist"
+
     def __init__(self):
         self.s3 = boto3.client('s3')
         self._downloaded_files = []
@@ -32,6 +35,9 @@ class B3CotaHistBucket:
     def move_file_to_archive(self, bucket, file_path):
         self.s3.copy_object(Bucket=bucket, CopySource=f'{bucket}/{file_path}', Key=f"archive/{file_path}")
         self.s3.delete_object(Bucket=bucket, Key=file_path)
+
+    def put(self, buffer: BytesIO, file_name):
+        self.s3.put_object(Body=buffer.getvalue(), Bucket=self.BUCKET_NAME, Key=f'monthly/{file_name}')
 
     def clean_up(self):
         for file in self._downloaded_files:
@@ -81,3 +87,15 @@ class IBOVFetcher:
                        Decimal(0).quantize(Decimal('0.01')),
                        Decimal(0).quantize(Decimal('0.01')))
         return data
+
+
+class CotaHistDownloader:
+    BASE_URL = 'https://bvmf.bmfbovespa.com.br/InstDados/SerHist/{0}'
+    TEMP_DIR = '.'
+
+    def download_monthly_file(self, year, month):
+        base_file_name = f"COTAHIST_M{month:02}{year}"
+        response = requests.get(self.BASE_URL.format(f'{base_file_name}.ZIP'), verify=False)
+
+        with zipfile.ZipFile(BytesIO(response.content), 'r') as zip_file:
+            return zip_file.read(f'{base_file_name}.TXT')
