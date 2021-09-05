@@ -18,9 +18,27 @@ provider:
         - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
         - Fn::Join:
             - ''
-            -
-              - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+            - - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
               - '/index/*'
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource:
+        - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
+        - Fn::Join:
+            - ''
+            - - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
+              - '/index/*'
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+        - sqs:GetQueueUrl
+      Resource:
+        'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+
+
   apiGateway:
     apiKeys:
       - portfolio-api-key
@@ -115,6 +133,14 @@ functions:
       - sqs:
           arn:
             Fn::GetAtt: [ AddInvestmentQueue, Arn ]
+
+  consolidatePortfolio:
+    handler: src/handlers.consolidate_portfolio_handler
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
 
 resources:
   Resources:

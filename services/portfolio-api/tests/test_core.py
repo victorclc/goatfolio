@@ -1,10 +1,14 @@
 import unittest
+from datetime import datetime, timezone
 from decimal import Decimal
 from unittest.mock import MagicMock
 from uuid import uuid4
 
 import core
 from goatcommons.constants import InvestmentsType, OperationType
+from goatcommons.models import StockInvestment
+from goatcommons.portfolio.models import Portfolio, StockConsolidated, StockPosition, StockSummary, \
+    StockPositionMonthlySummary
 from model import InvestmentRequest
 
 
@@ -132,5 +136,59 @@ class TestInvestmentCore(unittest.TestCase):
         return request
 
 
-if __name__ == '__main__':
-    unittest.main()
+class TestPortfolioCore(unittest.TestCase):
+    def setUp(self):
+        self.core = core.PortfolioCore(repo=MagicMock())
+        self.BUY_INVESTMENT = StockInvestment(Decimal(100), Decimal('15.50'), 'BIDI11', OperationType.BUY,
+                                              datetime(2021, 5, 12, tzinfo=timezone.utc), 'STOCK', 'Inter')
+        self.subject = '1111-2222-3333-4444'
+
+    def test_one_new_investment_without_an_portfolio_should_persis_an_portfolio_and_an_stock_consolidated_objects(self):
+        self.core.repo.find = MagicMock(return_value=None)
+        self.core.repo.find_ticker = MagicMock(return_value=None)
+        self.core.repo.find_alias_ticker = MagicMock(return_value=None)
+
+        self.core.consolidate_portfolio(self.subject, [self.BUY_INVESTMENT], [])
+
+        save_args = self.core.repo.save.call_args_list
+        stock_consolidated = save_args[0].args[0]
+        portfolio = save_args[1].args[0]
+        self.assertEqual(self.core.repo.save.call_count, 2)
+        self.assertIsInstance(stock_consolidated, StockConsolidated)
+        self.assertIsInstance(portfolio, Portfolio)
+        self.assertEqual(portfolio.stocks[0].latest_position.amount, self.BUY_INVESTMENT.amount)
+        self.assertEqual(portfolio.stocks[0].latest_position.invested_value,
+                         self.BUY_INVESTMENT.amount * self.BUY_INVESTMENT.price)
+        self.assertIsNone(portfolio.stocks[0].previous_position)
+        self.assertEqual(portfolio.initial_date, self.BUY_INVESTMENT.date)
+
+    def test_new_investment_with_an_existing_portfolio_and_existing_stock_consolidated_should_update_latest_and_previous_position_and_consolidate_history(
+            self):
+        position_summary = StockPositionMonthlySummary(date=datetime(2021, 4, 1, 0, 0, tzinfo=timezone.utc),
+                                                       amount=Decimal('100.00'), invested_value=Decimal('1550.00'),
+                                                       bought_value=Decimal('1550.00'), average_price=Decimal('15.50'))
+        stock_summary = StockSummary(ticker='BIDI11', latest_position=position_summary)
+        portfolio = Portfolio(subject=self.subject, ticker=self.subject,
+                              initial_date=datetime(2021, 4, 12, 0, 0, tzinfo=timezone.utc), stocks=[stock_summary])
+        stock_consolidated = StockConsolidated(subject='1111-2222-3333-4444', ticker='BIDI11', alias_ticker='',
+                                               initial_date=datetime(2021, 4, 12, 0, 0, tzinfo=timezone.utc),
+                                               history=[
+                                                   StockPosition(date=datetime(2021, 4, 12, 0, 0, tzinfo=timezone.utc),
+                                                                 bought_amount=Decimal('100.00'),
+                                                                 bought_value=Decimal('1550.00'))])
+
+        self.core.repo.find = MagicMock(return_value=portfolio)
+        self.core.repo.find_ticker = MagicMock(return_value=stock_consolidated)
+
+        self.core.consolidate_portfolio(self.subject, [self.BUY_INVESTMENT], [])
+
+        self.assertEqual(self.core.repo.save.call_count, 2)
+        self.assertIsNotNone(portfolio.stocks[0].previous_position)
+        self.assertEqual(portfolio.stocks[0].latest_position.amount,
+                         portfolio.stocks[0].previous_position.amount + self.BUY_INVESTMENT.amount)
+        self.assertEqual(len(stock_consolidated.history), 2)
+
+    # TODO TEST ALL KINDS OF INVESTMENTS TYPE
+
+    if __name__ == '__main__':
+        unittest.main()

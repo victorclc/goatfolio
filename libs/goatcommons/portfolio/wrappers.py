@@ -93,7 +93,7 @@ class StockPositionWrapper:
         return 0
 
 
-class PositionDoublyLinkedList:
+class StockPositionWrapperLinkedList:
     def __init__(self):
         self.head = None
         self.tail = None

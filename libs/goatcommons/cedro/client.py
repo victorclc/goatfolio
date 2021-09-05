@@ -31,7 +31,10 @@ class CedroMarketDataClient:
         if not self.is_authenticated:
             self.__authenticate()
         response = self.session.get(self.__QUOTE_URL + ticker)
-        return response.json()
+        if response.status_code == HTTPStatus.OK:
+            return response.json()
+        logger.error(f'QUOTES ERROR: {response.status_code} - {response.content}')
+        # TODO PUT A THROW HERE
 
     def quotes(self, tickers):
         if not self.is_authenticated:
@@ -40,4 +43,10 @@ class CedroMarketDataClient:
         for ticker in tickers:
             quotes += f'{ticker}/'
         response = self.session.get(self.__QUOTE_URL + quotes)
-        return response.json()
+        print(response)
+        print(response.content)
+        try:
+            return response.json()
+        except Exception as e:
+            logger.exception(f'QUOTES ERROR: {response}', e)
+            raise e
