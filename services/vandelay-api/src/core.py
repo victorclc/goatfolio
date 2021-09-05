@@ -89,5 +89,5 @@ class CEICore:
         if info:
             return info.assets_quantities
 
-    def import_status(self, subject, datetime):
-        return self.repo.find(subject, datetime)
+    def import_status(self, subject, date):
+        return self.repo.find(subject, date)
