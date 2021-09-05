@@ -44,7 +44,7 @@ def cei_import_result_handler(event, context):
     except Exception as e:
         logger.exception(e)
         ShitNotifierClient().send(NotifyLevel.ERROR, 'VANDELAY-API',
-                                  f'CEI IMPORT RESULT FAILED {traceback.format_exc()}')
+                                  f'CEI IMPORT RESULT FAILED  {traceback.format_exc()}')
 
         raise
 
