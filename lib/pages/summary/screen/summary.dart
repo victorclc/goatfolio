@@ -83,20 +83,20 @@ class SummaryPage extends StatelessWidget {
           heroTag: 'summaryNavBar',
           largeTitle: Text(SummaryPage.title),
           border: null,
-          leading: Badge(
-            padding: EdgeInsets.all(5.0), //EdgeInsets.zero,
-            position: BadgePosition.topEnd(top: 10, end: -2),
-            badgeContent: null,
-            child: IconButton(
-              constraints: BoxConstraints(),
-              padding: EdgeInsets.only(left: 0),
-              icon: Icon(
-                Icons.menu,
-                color: CupertinoTheme.of(context).textTheme.textStyle.color,
-              ),
-              onPressed: () => _scaffoldKey.currentState.openDrawer(),
-            ),
-          ),
+          // leading: Badge(
+          //   padding: EdgeInsets.all(5.0), //EdgeInsets.zero,
+          //   position: BadgePosition.topEnd(top: 10, end: -2),
+          //   badgeContent: null,
+          //   child: IconButton(
+          //     constraints: BoxConstraints(),
+          //     padding: EdgeInsets.only(left: 0),
+          //     icon: Icon(
+          //       Icons.menu,
+          //       color: CupertinoTheme.of(context).textTheme.textStyle.color,
+          //     ),
+          //     onPressed: () => _scaffoldKey.currentState.openDrawer(),
+          //   ),
+          // ),
           backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         ),
         if (Platform.isIOS)

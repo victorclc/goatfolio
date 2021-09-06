@@ -9,6 +9,7 @@ import 'package:goatfolio/pages/navigation/screen/navigation.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/cubit/performance_cubit.dart';
 import 'package:goatfolio/services/performance/cubit/summary_cubit.dart';
+import 'package:goatfolio/services/vandelay/cubit/vandelay_cubit.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'common/theme/theme_changer.dart';
@@ -50,6 +51,9 @@ class GoatfolioApp extends StatelessWidget {
           ),
           BlocProvider<PerformanceCubit>(
             create: (_) => PerformanceCubit(userService),
+          ),
+          BlocProvider<VandelayPendencyCubit>(
+            create: (_) => VandelayPendencyCubit(userService),
           ),
         ],
         child: Consumer<ThemeChanger>(

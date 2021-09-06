@@ -5,6 +5,7 @@ import 'package:goatfolio/common/bloc/loading/loading_state.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/cubit/performance_cubit.dart';
 import 'package:goatfolio/services/vandelay/client/client.dart';
+import 'package:goatfolio/services/vandelay/cubit/vandelay_cubit.dart';
 import 'package:goatfolio/services/vandelay/model/import_request.dart';
 import 'package:goatfolio/services/vandelay/storage/import_history.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,7 @@ class VandelayRefreshObserver extends LoadingStateObserver {
     final client = VandelayClient(userService);
     final latest = await _storage.getLatest();
 
+    // TODO POR DENTRO DO IF
     // if (latest.status == 'PROCESSING') {
     //
     // }
@@ -29,12 +31,15 @@ class VandelayRefreshObserver extends LoadingStateObserver {
       final info = await client.getCEIInfo();
       final performance =
           BlocProvider.of<PerformanceCubit>(context).portfolioPerformance;
+      final vandelay = BlocProvider.of<VandelayPendencyCubit>(context);
+
       print(info);
       performance.allStocks.forEach((stockSummary) {
         if (info.containsKey(stockSummary.currentTickerName)) {
           int ceiAmount = info[stockSummary.currentTickerName].toInt();
           if (stockSummary.amount != ceiAmount) {
-            print("${stockSummary.currentTickerName} TA DIVERGENTE");
+            vandelay.registerAmountDivergence(stockSummary.currentTickerName,
+                ceiAmount - stockSummary.amount);
           }
         }
       });

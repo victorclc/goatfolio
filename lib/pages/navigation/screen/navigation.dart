@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,24 +13,12 @@ import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/notification/firebase/firebase.dart';
 import 'package:goatfolio/services/performance/cubit/performance_cubit.dart';
 import 'package:goatfolio/services/performance/cubit/summary_cubit.dart';
+import 'package:goatfolio/services/vandelay/cubit/vandelay_cubit.dart';
 import 'package:provider/provider.dart';
 
 Widget buildNavigationPage(UserService userService) {
   setupPushNotifications(userService);
-  return Provider(
-    create: (_) => userService,
-    child: MultiBlocProvider(
-      child: NavigationWidget(),
-      providers: [
-        BlocProvider<SummaryCubit>(
-          create: (_) => SummaryCubit(userService),
-        ),
-        BlocProvider<PerformanceCubit>(
-          create: (_) => PerformanceCubit(userService),
-        ),
-      ],
-    ),
-  );
+  return NavigationWidget();
 }
 
 void goToNavigationPage(BuildContext context, UserService userService) async {
@@ -151,7 +140,16 @@ class _NavigationWidgetState extends State<NavigationWidget>
           BottomNavigationBarItem(
             backgroundColor: theme.barBackgroundColor,
             label: AddPage.title,
-            icon: AddPage.icon,
+            icon: BlocBuilder<VandelayPendencyCubit, PendencyState>(
+                builder: (context, state) {
+              return Badge(
+                padding: state == PendencyState.HAS_PENDENCY
+                    ? EdgeInsets.all(5)
+                    : EdgeInsets.zero,
+                position: BadgePosition.topEnd(top: -2, end: -4),
+                child: AddPage.icon,
+              );
+            }),
           ),
           BottomNavigationBarItem(
             backgroundColor: theme.barBackgroundColor,
@@ -185,7 +183,19 @@ class _NavigationWidgetState extends State<NavigationWidget>
               label: SummaryPage.title, icon: SummaryPage.icon),
           BottomNavigationBarItem(
               label: PortfolioPage.title, icon: PortfolioPage.icon),
-          BottomNavigationBarItem(label: AddPage.title, icon: AddPage.icon),
+          BottomNavigationBarItem(
+            label: AddPage.title,
+            icon: BlocBuilder<VandelayPendencyCubit, PendencyState>(
+                builder: (context, state) {
+              return Badge(
+                padding: state == PendencyState.HAS_PENDENCY
+                    ? EdgeInsets.all(5)
+                    : EdgeInsets.zero,
+                position: BadgePosition.topEnd(top: -2, end: -4),
+                child: AddPage.icon,
+              );
+            }),
+          ),
           BottomNavigationBarItem(
               label: ExtractPage.title, icon: ExtractPage.icon),
           BottomNavigationBarItem(
