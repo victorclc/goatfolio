@@ -4,6 +4,7 @@ from itertools import groupby
 from uuid import uuid4
 
 from adapters import InvestmentRepository, PortfolioRepository
+from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
 from goatcommons.portfolio.models import Portfolio, StockConsolidated, StockPosition, StockSummary, \
     StockPositionMonthlySummary
@@ -26,26 +27,33 @@ class PortfolioCore:
 
         for inv in old_investments:
             inv.amount = -1 * inv.amount
-        investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.ticker),
-                                  key=lambda i: i.ticker)
+        investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.current_ticker_name),
+                                  key=lambda i: i.current_ticker_name)
 
         portfolio = self.repo.find(subject) or Portfolio(subject=subject, ticker=subject)
-        for ticker, investments in investments_map:
-            consolidated = self.repo.find_ticker(subject, ticker) \
-                           or self.repo.find_alias_ticker(subject, ticker) \
-                           or StockConsolidated(subject=subject, ticker=ticker)
+        for current_ticker_name, all_investments in investments_map:
+            consolidated_list = []
 
-            investments = sorted(list(investments), key=lambda i: i.date)
-            for inv in investments:
-                if inv.amount > 0:
-                    portfolio.initial_date = min(portfolio.initial_date, inv.date)
-                self._consolidate_stock(consolidated, inv)
+            for ticker, investments in groupby(sorted(list(all_investments), key=lambda i: i.ticker),
+                                               key=lambda i: i.ticker):
 
-            self._consolidate_portfolio_stock(ticker, portfolio, consolidated)
-            self.repo.save(consolidated)
+                consolidated = self.repo.find_ticker(subject, ticker) \
+                               or StockConsolidated(subject=subject, ticker=ticker)
 
+                for inv in sorted(list(investments), key=lambda i: i.date):
+                    if inv.operation in [OperationType.INCORP_ADD, OperationType.INCORP_SUB]:
+                        results = list(filter(lambda s, i=inv: s.ticker == i.ticker, portfolio.stocks))
+                        if results:
+                            portfolio.stocks.remove(results[0])
+                    if inv.amount > 0:
+                        portfolio.initial_date = min(portfolio.initial_date, inv.date)
+                    self._consolidate_stock(consolidated, inv)
+                consolidated_list.append(consolidated)
+                self.repo.save(consolidated)
+
+            self._consolidate_portfolio_stock(current_ticker_name, portfolio,
+                                              sum(consolidated_list[1:], consolidated_list[0]))
         self.repo.save(portfolio)
-        return portfolio
 
     @staticmethod
     def _consolidate_portfolio_stock(ticker: str, portfolio: Portfolio, stock_consolidated: StockConsolidated):
