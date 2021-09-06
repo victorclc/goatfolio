@@ -44,7 +44,7 @@ class SummaryPage extends StatelessWidget {
       BuildContext context, SummaryCubit cubit, LoadingState state) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: buildDrawer(),
+      // drawer: buildDrawer(),
       body: CupertinoTheme(
         data: Provider.of<ThemeChanger>(context).themeData,
         child: RefreshIndicator(
@@ -59,7 +59,7 @@ class SummaryPage extends StatelessWidget {
       BuildContext context, SummaryCubit cubit, LoadingState state) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: buildDrawer(),
+      // drawer: buildDrawer(),
       body: buildContent(context, cubit, state),
     );
   }
