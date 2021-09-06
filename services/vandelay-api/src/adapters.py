@@ -30,7 +30,8 @@ class ImportsRepository:
         self._table.put_item(Item=data)
 
     def find(self, subject, datetime):
-        result = self._table.query(KeyConditionExpression=Key('subject').eq(subject) & Key('datetime').eq(datetime))
+        result = self._table.query(
+            KeyConditionExpression=Key('subject').eq(subject) & Key('datetime').eq(int(datetime)))
         if 'Items' in result and result['Items']:
             item = result['Items'][0]
             logger.info(f'Found import request: {item}')
