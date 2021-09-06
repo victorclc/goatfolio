@@ -38,7 +38,7 @@ class VandelayClient {
     return CeiImportResponse.fromJson(jsonDecode(response.body));
   }
 
-  Future<Map<String, int>> getCEIInfo() async {
+  Future<Map<String, double>> getCEIInfo() async {
     final uri = Uri.parse(F.baseUrl + "vandelay/cei/info");
     String accessToken = await userService.getSessionToken();
 
@@ -49,6 +49,23 @@ class VandelayClient {
         'Authorization': accessToken
       },
     );
-    return jsonDecode(response.body);
+    return Map<String, double>.from(jsonDecode(response.body));
+  }
+
+  Future<CeiImportResponse> getImportStatus(int datetime) async {
+    final uri = Uri.parse(F.baseUrl + "vandelay/cei?datetime=$datetime");
+    String accessToken = await userService.getSessionToken();
+
+    var response = await _client.get(
+      uri,
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': accessToken
+      },
+    );
+    if (response.statusCode != HttpStatus.ok) {
+      throw Exception("Import status failed.");
+    }
+    return CeiImportResponse.fromJson(jsonDecode(response.body));
   }
 }

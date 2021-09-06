@@ -14,7 +14,7 @@ class CeiImportResponse {
   CeiImportResponse({this.datetime, this.status});
 
   CeiImportResponse.fromJson(Map<String, dynamic> json)
-      : datetime = json['datetime'],
+      : datetime = json['datetime'].toInt(),
         status = json['status'];
 
   Map<String, dynamic> toJson() => {'datetime': datetime, 'status': status};

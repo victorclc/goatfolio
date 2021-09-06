@@ -19,7 +19,7 @@ Future<void> deleteImportHistoryDatabase() async {
 
 class ImportHistoryStorage {
   static const String TABLE_NAME = "imports";
-  final Future<Database> database;
+  final Future< Database> database;
 
   ImportHistoryStorage() : database = initDatabase();
 
@@ -32,28 +32,6 @@ class ImportHistoryStorage {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
-
-  // Future<void> update(StockInvestment investment) async {
-  //   final db = await database;
-  //
-  //   await db.update(
-  //     TABLE_NAME,
-  //     investment.toJson(),
-  //     where: "id = ?",
-  //     whereArgs: [investment.id],
-  //   );
-  // }
-  //
-  // Future<void> delete(StockInvestment investment) async {
-  //   final db = await database;
-  //
-  //   await db.delete(
-  //     TABLE_NAME,
-  //     where: "id = ?",
-  //     whereArgs: [investment.id],
-  //   );
-  // }
-  //
 
   Future<ImportStatus> get(String id) async {
     final db = await database;
@@ -69,11 +47,11 @@ class ImportHistoryStorage {
     return null;
   }
 
-  Future<ImportStatus> getLatest([int limit, int offset]) async {
+  Future<ImportStatus> getLatest() async {
     final db = await database;
 
-    final List<Map<String, dynamic>> maps = await db.query(TABLE_NAME,
-        orderBy: 'ID DESC', limit: limit, offset: offset);
+    final List<Map<String, dynamic>> maps =
+        await db.query(TABLE_NAME, orderBy: 'ID DESC', limit: 1);
 
     print(maps);
     return ImportStatus.fromJson(maps[0]);

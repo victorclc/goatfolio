@@ -13,6 +13,8 @@ class PortfolioPerformance {
 
   get grossAmount => stockGrossAmount + reitGrossAmount + bdrGrossAmount;
 
+  List<StockSummary> get allStocks => stocks + reits + bdrs;
+
   PortfolioPerformance.fromJson(Map<String, dynamic> json)
       : stockGrossAmount = json['stock_gross_amount'],
         reitGrossAmount = json['reit_gross_amount'],
