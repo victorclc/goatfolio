@@ -7,7 +7,8 @@ from uuid import uuid4
 import core
 from goatcommons.constants import InvestmentsType, OperationType
 from goatcommons.models import StockInvestment
-from goatcommons.portfolio.models import Portfolio, StockConsolidated, StockPosition
+from goatcommons.portfolio.models import Portfolio, StockConsolidated, StockPosition, StockSummary, \
+    StockPositionMonthlySummary
 from model import InvestmentRequest
 
 
@@ -135,211 +136,59 @@ class TestInvestmentCore(unittest.TestCase):
         return request
 
 
-# class TestPortfolioCore(unittest.TestCase):
-#     def setUp(self):
-#         self.core = core.PortfolioCore(repo=MagicMock())
-#         self.core.repo.find = MagicMock(return_value=None)
-#         self.core.repo.save = MagicMock(return_value=None)
-#
-#     # add multiple investment in different dates, must create multiple amount of StockPosition
-#     def test_new_buy_investment_with_no_portfolio_on_database_should_create_an_empty_portfolio_add_an_stock_position_object_and_persist_on_database(
-#             self):
-#         initial_date = datetime(2021, 5, 12, tzinfo=timezone.utc)
-#         investment = StockInvestment(Decimal(100), Decimal('15.50'), 'BIDI11', OperationType.BUY, initial_date, 'STOCK',
-#                                      'Inter')
-#         self.core.repo.find = MagicMock(return_value=None)
-#
-#         portfolio = self.core.consolidate_portfolio('1111-2222-3333-4444', [investment], [])
-#
-#         self.core.repo.save.assert_called_once()
-#         self.assertEqual(portfolio.initial_date, initial_date, 'Initial date doesnt match')
-#         self.assertTrue(len(portfolio.stocks) == 1, 'Unexpected stocks length')
-#         self.assertTrue(len(portfolio.stocks[0].history) == 1, 'Unexpected stock history length')
-#         self.assertEqual(portfolio.stocks[0].initial_date, initial_date, 'Stock initial date doesnt match')
-#         position = portfolio.stocks[0].history[0]
-#         self.assertEqual(position.date, initial_date)
-#         self.assertEqual(position.bought_amount, investment.amount)
-#         self.assertEqual(position.bought_value, investment.amount * investment.price)
-#         self.assertEqual(position.sold_amount, 0)
-#         self.assertEqual(position.sold_value, 0)
-#
-#     def test_new_sell_investment_with_no_portfolio_on_database_should_create_an_empty_portfolio_add_an_stock_position_object_and_persist_on_database(
-#             self):
-#         initial_date = datetime(2021, 5, 12, tzinfo=timezone.utc)
-#         investment = StockInvestment(Decimal(100), Decimal('15.50'), 'BIDI11', OperationType.SELL, initial_date,
-#                                      'STOCK', 'Inter')
-#         self.core.repo.find = MagicMock(return_value=None)
-#
-#         portfolio = self.core.consolidate_portfolio('1111-2222-3333-4444', [investment], [])
-#
-#         self.core.repo.save.assert_called_once()
-#         self.assertEqual(portfolio.initial_date, initial_date, 'Initial date doesnt match')
-#         self.assertTrue(len(portfolio.stocks) == 1, 'Unexpected stocks length')
-#         self.assertTrue(len(portfolio.stocks[0].history) == 1, 'Unexpected stock history length')
-#         self.assertEqual(portfolio.stocks[0].initial_date, initial_date, 'Stock initial date doesnt match')
-#         position = portfolio.stocks[0].history[0]
-#         self.assertEqual(position.date, initial_date)
-#         self.assertEqual(position.bought_amount, 0)
-#         self.assertEqual(position.bought_value, 0)
-#         self.assertEqual(position.sold_amount, investment.amount)
-#         self.assertEqual(position.sold_value, investment.amount * investment.price)
-#
-#     def test_new_split_investment_with_no_portfolio_on_database_should_create_an_empty_portfolio_add_an_stock_position_object_and_persist_on_database(
-#             self):
-#         initial_date = datetime(2021, 5, 12, tzinfo=timezone.utc)
-#         investment = StockInvestment(Decimal(100), Decimal('0'), 'BIDI11', OperationType.SPLIT, initial_date, 'STOCK',
-#                                      'Inter')
-#         self.core.repo.find = MagicMock(return_value=None)
-#
-#         portfolio = self.core.consolidate_portfolio('1111-2222-3333-4444', [investment], [])
-#
-#         self.core.repo.save.assert_called_once()
-#         self.assertEqual(portfolio.initial_date, initial_date, 'Initial date doesnt match')
-#         self.assertTrue(len(portfolio.stocks) == 1, 'Unexpected stocks length')
-#         self.assertTrue(len(portfolio.stocks[0].history) == 1, 'Unexpected stock history length')
-#         self.assertEqual(portfolio.stocks[0].initial_date, initial_date, 'Stock initial date doesnt match')
-#         position = portfolio.stocks[0].history[0]
-#         self.assertEqual(position.date, initial_date)
-#         self.assertEqual(position.bought_amount, investment.amount)
-#         self.assertEqual(position.bought_value, investment.amount * investment.price)
-#         self.assertEqual(position.sold_amount, 0)
-#         self.assertEqual(position.sold_value, 0)
-#
-#     def test_new_group_investment_with_no_portfolio_on_database_should_create_an_empty_portfolio_add_an_stock_position_object_and_persist_on_database(
-#             self):
-#         initial_date = datetime(2021, 5, 12, tzinfo=timezone.utc)
-#         investment = StockInvestment(Decimal(100), Decimal('0'), 'BIDI11', OperationType.GROUP, initial_date,
-#                                      'STOCK', 'Inter')
-#         self.core.repo.find = MagicMock(return_value=None)
-#
-#         portfolio = self.core.consolidate_portfolio('1111-2222-3333-4444', [investment], [])
-#
-#         self.core.repo.save.assert_called_once()
-#         self.assertEqual(portfolio.initial_date, initial_date, 'Initial date doesnt match')
-#         self.assertTrue(len(portfolio.stocks) == 1, 'Unexpected stocks length')
-#         self.assertTrue(len(portfolio.stocks[0].history) == 1, 'Unexpected stock history length')
-#         self.assertEqual(portfolio.stocks[0].initial_date, initial_date, 'Stock initial date doesnt match')
-#         position = portfolio.stocks[0].history[0]
-#         self.assertEqual(position.date, initial_date)
-#         self.assertEqual(position.bought_amount, 0)
-#         self.assertEqual(position.bought_value, 0)
-#         self.assertEqual(position.sold_amount, investment.amount)
-#         self.assertEqual(position.sold_value, investment.amount * investment.price)
-#
-#     def test_new_incorp_add_investment_with_no_portfolio_on_database_should_create_an_empty_portfolio_add_an_stock_position_object_and_persist_on_database(
-#             self):
-#         initial_date = datetime(2021, 5, 12, tzinfo=timezone.utc)
-#         investment = StockInvestment(Decimal(100), Decimal('0'), 'BIDI11', OperationType.INCORP_ADD, initial_date,
-#                                      'STOCK', 'Inter')
-#         self.core.repo.find = MagicMock(return_value=None)
-#
-#         portfolio = self.core.consolidate_portfolio('1111-2222-3333-4444', [investment], [])
-#
-#         self.core.repo.save.assert_called_once()
-#         self.assertEqual(portfolio.initial_date, initial_date, 'Initial date doesnt match')
-#         self.assertTrue(len(portfolio.stocks) == 1, 'Unexpected stocks length')
-#         self.assertTrue(len(portfolio.stocks[0].history) == 1, 'Unexpected stock history length')
-#         self.assertEqual(portfolio.stocks[0].initial_date, initial_date, 'Stock initial date doesnt match')
-#         position = portfolio.stocks[0].history[0]
-#         self.assertEqual(position.date, initial_date)
-#         self.assertEqual(position.bought_amount, investment.amount)
-#         self.assertEqual(position.bought_value, investment.amount * investment.price)
-#         self.assertEqual(position.sold_amount, 0)
-#         self.assertEqual(position.sold_value, 0)
-#
-#     def test_new_incorp_sub_investment_with_no_portfolio_on_database_should_create_an_empty_portfolio_add_an_stock_position_object_and_persist_on_database(
-#             self):
-#         initial_date = datetime(2021, 5, 12, tzinfo=timezone.utc)
-#         investment = StockInvestment(Decimal(100), Decimal('0'), 'BIDI11', OperationType.INCORP_SUB, initial_date,
-#                                      'STOCK', 'Inter')
-#         self.core.repo.find = MagicMock(return_value=None)
-#
-#         portfolio = self.core.consolidate_portfolio('1111-2222-3333-4444', [investment], [])
-#
-#         self.core.repo.save.assert_called_once()
-#         self.assertEqual(portfolio.initial_date, initial_date, 'Initial date doesnt match')
-#         self.assertTrue(len(portfolio.stocks) == 1, 'Unexpected stocks length')
-#         self.assertTrue(len(portfolio.stocks[0].history) == 1, 'Unexpected stock history length')
-#         self.assertEqual(portfolio.stocks[0].initial_date, initial_date, 'Stock initial date doesnt match')
-#         position = portfolio.stocks[0].history[0]
-#         self.assertEqual(position.date, initial_date)
-#         self.assertEqual(position.bought_amount, 0)
-#         self.assertEqual(position.bought_value, 0)
-#         self.assertEqual(position.sold_amount, investment.amount)
-#         self.assertEqual(position.sold_value, investment.amount * investment.price)
-#
-#     def test_new_buy_investment_with_the_same_date_of_position_on_user_portfolio_should_add_investment_date_with_the_position_and_persist_on_database(
-#             self):
-#         investment_date = datetime(2021, 5, 12, tzinfo=timezone.utc)
-#         repo_portfolio = Portfolio('1111-2222-3333-4444', investment_date,
-#                                    [StockConsolidated('1111-2222-3333-4444', 'BIDI11', initial_date=investment_date,
-#                                                       history=[
-#                                                           StockPosition(investment_date, Decimal(0), Decimal(100),
-#                                                                         Decimal(10000),
-#                                                                         Decimal(0)).to_dict()]).to_dict()])
-#
-#         self.core.repo.find = MagicMock(return_value=repo_portfolio)
-#         investment = StockInvestment(Decimal(100), Decimal('15.50'), 'BIDI11', OperationType.BUY, investment_date,
-#                                      'STOCK', 'Inter')
-#
-#         portfolio = self.core.consolidate_portfolio('1111-2222-3333-4444', [investment], [])
-#         self.core.repo.save.assert_called_once()
-#         self.assertTrue(len(portfolio.stocks) == 1, 'Unexpected stocks length')
-#         self.assertTrue(len(portfolio.stocks[0].history) == 1, 'Unexpected stock history length')
-#         position = portfolio.stocks[0].history[0]
-#         self.assertEqual(position.date, investment_date)
-#         self.assertEqual(position.bought_amount, 100 + investment.amount)
-#         self.assertEqual(position.bought_value, 10000 + investment.amount * investment.price)
-#         self.assertEqual(position.sold_amount, 0)
-#         self.assertEqual(position.sold_value, 0)
-#
-#     def test_new_buy_investment_with_different_date_of_position_on_user_portfolio_should_create_new_stock_position_and_persist_on_database(
-#             self):
-#         investment_date = datetime(2021, 5, 12, tzinfo=timezone.utc)
-#         repo_portfolio = Portfolio('1111-2222-3333-4444', investment_date,
-#                                    [StockConsolidated('BIDI11', initial_date=investment_date,
-#                                                       history=[StockPosition(investment_date, Decimal(0), Decimal(100),
-#                                                                              Decimal(10000),
-#                                                                              Decimal(0)).to_dict()]).to_dict()])
-#
-#         self.core.repo.find = MagicMock(return_value=repo_portfolio)
-#         investment = StockInvestment(Decimal(100), Decimal('15.50'), 'BIDI11', OperationType.BUY,
-#                                      datetime(2021, 5, 13, tzinfo=timezone.utc), 'STOCK', 'Inter')
-#
-#         portfolio = self.core.consolidate_portfolio('1111-2222-3333-4444', [investment], [])
-#
-#         self.core.repo.save.assert_called_once()
-#         self.assertTrue(len(portfolio.stocks) == 1, 'Unexpected stocks length')
-#         self.assertTrue(len(portfolio.stocks[0].history) == 2, 'Unexpected stock history length')
-#         prev_position = portfolio.stocks[0].history[0]
-#         new_position = portfolio.stocks[0].history[1]
-#         self.assertEqual(prev_position.date, investment_date)
-#         self.assertEqual(prev_position, repo_portfolio.stocks[0].history[0])
-#         self.assertEqual(new_position.date, investment.date)
-#         self.assertEqual(new_position.bought_amount, investment.amount)
-#         self.assertEqual(new_position.bought_value, investment.amount * investment.price)
-#         self.assertEqual(new_position.sold_amount, 0)
-#         self.assertEqual(new_position.sold_value, 0)
-#
-#     def test_old_investment_with_same_data_from_stock_position_in_portfolio_should_remove_stock_position_from_portfolio_and_persist_on_database(
-#             self):
-#         investment_date = datetime(2021, 5, 12, tzinfo=timezone.utc)
-#         repo_portfolio = Portfolio('1111-2222-3333-4444', investment_date,
-#                                    [StockConsolidated('BIDI11', initial_date=investment_date,
-#                                                       history=[StockPosition(investment_date, Decimal(0), Decimal(100),
-#                                                                              Decimal(10000),
-#                                                                              Decimal(0)).to_dict()]).to_dict()])
-#
-#         self.core.repo.find = MagicMock(return_value=repo_portfolio)
-#         investment = StockInvestment(Decimal(100), Decimal(100), 'BIDI11', OperationType.BUY, investment_date,
-#                                      'STOCK', 'Inter')
-#
-#         portfolio = self.core.consolidate_portfolio('1111-2222-3333-4444', [], [investment])
-#
-#         self.core.repo.save.assert_called_once()
-#         self.assertTrue(len(portfolio.stocks) == 1, 'Unexpected stocks length')
-#         self.assertTrue(len(portfolio.stocks[0].history) == 0, 'Unexpected stock history length')
+class TestPortfolioCore(unittest.TestCase):
+    def setUp(self):
+        self.core = core.PortfolioCore(repo=MagicMock())
+        self.BUY_INVESTMENT = StockInvestment(Decimal(100), Decimal('15.50'), 'BIDI11', OperationType.BUY,
+                                              datetime(2021, 5, 12, tzinfo=timezone.utc), 'STOCK', 'Inter')
+        self.subject = '1111-2222-3333-4444'
 
+    def test_one_new_investment_without_an_portfolio_should_persis_an_portfolio_and_an_stock_consolidated_objects(self):
+        self.core.repo.find = MagicMock(return_value=None)
+        self.core.repo.find_ticker = MagicMock(return_value=None)
+        self.core.repo.find_alias_ticker = MagicMock(return_value=None)
 
-if __name__ == '__main__':
-    unittest.main()
+        self.core.consolidate_portfolio(self.subject, [self.BUY_INVESTMENT], [])
+
+        save_args = self.core.repo.save.call_args_list
+        stock_consolidated = save_args[0].args[0]
+        portfolio = save_args[1].args[0]
+        self.assertEqual(self.core.repo.save.call_count, 2)
+        self.assertIsInstance(stock_consolidated, StockConsolidated)
+        self.assertIsInstance(portfolio, Portfolio)
+        self.assertEqual(portfolio.stocks[0].latest_position.amount, self.BUY_INVESTMENT.amount)
+        self.assertEqual(portfolio.stocks[0].latest_position.invested_value,
+                         self.BUY_INVESTMENT.amount * self.BUY_INVESTMENT.price)
+        self.assertIsNone(portfolio.stocks[0].previous_position)
+        self.assertEqual(portfolio.initial_date, self.BUY_INVESTMENT.date)
+
+    def test_new_investment_with_an_existing_portfolio_and_existing_stock_consolidated_should_update_latest_and_previous_position_and_consolidate_history(
+            self):
+        position_summary = StockPositionMonthlySummary(date=datetime(2021, 4, 1, 0, 0, tzinfo=timezone.utc),
+                                                       amount=Decimal('100.00'), invested_value=Decimal('1550.00'),
+                                                       bought_value=Decimal('1550.00'), average_price=Decimal('15.50'))
+        stock_summary = StockSummary(ticker='BIDI11', latest_position=position_summary)
+        portfolio = Portfolio(subject=self.subject, ticker=self.subject,
+                              initial_date=datetime(2021, 4, 12, 0, 0, tzinfo=timezone.utc), stocks=[stock_summary])
+        stock_consolidated = StockConsolidated(subject='1111-2222-3333-4444', ticker='BIDI11', alias_ticker='',
+                                               initial_date=datetime(2021, 4, 12, 0, 0, tzinfo=timezone.utc),
+                                               history=[
+                                                   StockPosition(date=datetime(2021, 4, 12, 0, 0, tzinfo=timezone.utc),
+                                                                 bought_amount=Decimal('100.00'),
+                                                                 bought_value=Decimal('1550.00'))])
+
+        self.core.repo.find = MagicMock(return_value=portfolio)
+        self.core.repo.find_ticker = MagicMock(return_value=stock_consolidated)
+
+        self.core.consolidate_portfolio(self.subject, [self.BUY_INVESTMENT], [])
+
+        self.assertEqual(self.core.repo.save.call_count, 2)
+        self.assertIsNotNone(portfolio.stocks[0].previous_position)
+        self.assertEqual(portfolio.stocks[0].latest_position.amount,
+                         portfolio.stocks[0].previous_position.amount + self.BUY_INVESTMENT.amount)
+        self.assertEqual(len(stock_consolidated.history), 2)
+
+    # TODO TEST ALL KINDS OF INVESTMENTS TYPE
+
+    if __name__ == '__main__':
+        unittest.main()

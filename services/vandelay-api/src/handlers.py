@@ -68,9 +68,11 @@ def import_status_handler(event, context):
     logger.info(f'EVENT: {event}')
     try:
         subject = AWSEventUtils.get_event_subject(event)
-        datetime = AWSEventUtils.get_query_params(event)['datetime']
-        response = core.import_status(subject, datetime)
-        return {'statusCode': HTTPStatus.OK.value, 'body': JsonUtils.dump(asdict(response) if response else {})}
+        date = AWSEventUtils.get_query_param(event, 'datetime')
+        response = core.import_status(subject, date)
+        if not response:
+            return {'statusCode': HTTPStatus.NOT_FOUND.value, 'body': JsonUtils.dump({"message": HTTPStatus.OK.phrase})}
+        return {'statusCode': HTTPStatus.OK.value, 'body': JsonUtils.dump(asdict(response))}
     except TypeError as e:
         logger.exception(e)
         return {'statusCode': HTTPStatus.BAD_REQUEST.value, 'body': JsonUtils.dump({"message": str(e)})}
