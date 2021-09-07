@@ -80,9 +80,6 @@ class PerformanceCore:
 
         data = self.market_data.ibov_from_date(portfolio.initial_date)
         ibov_history = [BenchmarkPosition(candle.candle_date, candle.open_price, candle.close_price) for candle in data]
-        # TODO REMOVE THIS LOG
-        for value in sorted(portfolio_history_map.values(), key=lambda p: p.date):
-            print(value)
 
         return PortfolioHistory(history=list(portfolio_history_map.values()), ibov_history=ibov_history)
 
@@ -157,24 +154,39 @@ class PerformanceCore:
 
         return PortfolioList(stock_gross_amount, reit_gross_amount, bdr_gross_amount, stocks, reits, bdrs, ibov_history)
 
-    def get_ticker_consolidated_history(self, subject, ticker, alias_ticker):
-        stock_consolidated = self.repo.find_ticker(subject, ticker) or self.repo.find_alias_ticker(subject,
-                                                                                                   alias_ticker)
-        if not stock_consolidated:
+    def get_ticker_consolidated_history(self, subject, ticker):
+        stocks_consolidated = self.repo.find_alias_ticker(subject, ticker)
+        if not stocks_consolidated:
             return
 
-        intraday_map = self.market_data.tickers_intraday_data(
-            [stock_consolidated.alias_ticker or stock_consolidated.ticker])
-        wrappers = self._fetch_stocks_history_data(stock_consolidated, intraday_map)
-        current = wrappers.head
-        consolidated = []
-        while current:
-            consolidated.append(
-                StockConsolidatedPosition(current.data.date, current.gross_value, current.current_invested_value,
-                                          current.month_variation_percent))
-            current = current.next
+        intraday_map = self.market_data.tickers_intraday_data([ticker])
+        consolidated_map = {}
+        for stock_consolidated in stocks_consolidated:
+            wrappers = self._fetch_stocks_history_data(stock_consolidated, intraday_map)
+            if not wrappers:
+                continue
+            current = wrappers.head
 
-        return TickerConsolidatedHistory(consolidated)
+            while current:
+                key = current.data.date.strftime('%Y%m%d')
+                if key not in consolidated_map:
+                    consolidated_map[key] = StockConsolidatedPosition(current.data.date, current.gross_value,
+                                                                      current.current_invested_value,
+                                                                      current.month_variation_percent)
+                else:
+                    consolidated = consolidated_map[key]
+                    prev_gross_value = (consolidated.gross_value * 100) / (100 + consolidated.variation_perc) + (
+                            current.gross_value * 100) / (100 + current.month_variation_perc)
+                    variation = (((
+                                          consolidated.gross_value + current.gross_value) * 100 / prev_gross_value) - 100).quantize(
+                        Decimal('0.01'))
+                    consolidated.gross_value += current.gross_value
+                    consolidated.invested_value += current.current_invested_value
+                    consolidated.variation_perc = variation
+
+                current = current.next
+
+        return TickerConsolidatedHistory(consolidated_map.values())
 
 
 def main():
@@ -183,7 +195,7 @@ def main():
     # response = core.get_portfolio_summary(subject)
     # response = core.get_portfolio_history(subject)
     # response = core.get_portfolio_list(subject)
-    response = core.get_ticker_consolidated_history(subject, 'BIDI11', None)
+    response = core.get_ticker_consolidated_history(subject, 'AESB3')
     print(response)
 
 
