@@ -37,6 +37,7 @@ def ticker_performance_handler(event, context):
     logger.info(f"EVENT: {event}")
     subject = AWSEventUtils.get_event_subject(event)
     ticker = AWSEventUtils.get_query_param(event, 'ticker').upper()
+    # TODO CHANGE NAMES
     alias_ticker = AWSEventUtils.get_query_param(event, 'alias_ticker').upper()
-    result = core.get_ticker_consolidated_history(subject, ticker, alias_ticker)
+    result = core.get_ticker_consolidated_history(subject, alias_ticker)
     return {'statusCode': HTTPStatus.OK, 'body': JsonUtils.dump(result.to_dict())}

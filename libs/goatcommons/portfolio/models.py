@@ -165,3 +165,8 @@ class StockConsolidated:
         ret.pop('current_stock_price')
         ret.pop('current_day_change_percent')
         return ret
+
+    def __add__(self, other):
+        initial_date = min(self.initial_date, other.initial_date)
+        return StockConsolidated(self.subject, self.alias_ticker, initial_date=initial_date,
+                                 history=self.history + other.history)
