@@ -168,5 +168,5 @@ class StockConsolidated:
 
     def __add__(self, other):
         initial_date = min(self.initial_date, other.initial_date)
-        return StockConsolidated(self.subject, self.alias_ticker, initial_date=initial_date,
+        return StockConsolidated(self.subject, self.alias_ticker or self.ticker, initial_date=initial_date,
                                  history=self.history + other.history)
