@@ -176,7 +176,7 @@ class PerformanceCore:
                 else:
                     consolidated = consolidated_map[key]
                     prev_gross_value = (consolidated.gross_value * 100) / (100 + consolidated.variation_perc) + (
-                            current.gross_value * 100) / (100 + current.month_variation_perc)
+                            current.gross_value * 100) / (100 + current.month_variation_percent)
                     variation = (((
                                           consolidated.gross_value + current.gross_value) * 100 / prev_gross_value) - 100).quantize(
                         Decimal('0.01'))
