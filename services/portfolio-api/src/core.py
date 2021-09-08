@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timezone
+from decimal import Decimal
 from itertools import groupby
 from uuid import uuid4
 
@@ -32,13 +33,17 @@ class PortfolioCore:
 
         portfolio = self.repo.find(subject) or Portfolio(subject=subject, ticker=subject)
         for current_ticker_name, all_investments in investments_map:
-            consolidated_list = []
+            consolidated_list = self.repo.find_alias_ticker(subject, current_ticker_name) or []
 
             for ticker, investments in groupby(sorted(list(all_investments), key=lambda i: i.ticker),
                                                key=lambda i: i.ticker):
+                consolidated = next(
+                    (stock for stock in consolidated_list if stock.ticker == ticker or stock.alias_ticker == ticker),
+                    None)
 
-                consolidated = self.repo.find_ticker(subject, ticker) \
-                               or StockConsolidated(subject=subject, ticker=ticker)
+                if not consolidated:
+                    consolidated = StockConsolidated(subject=subject, ticker=ticker)
+                    consolidated_list.append(consolidated)
 
                 for inv in sorted(list(investments), key=lambda i: i.date):
                     if inv.operation in [OperationType.INCORP_ADD, OperationType.INCORP_SUB]:
@@ -48,7 +53,7 @@ class PortfolioCore:
                     if inv.amount > 0:
                         portfolio.initial_date = min(portfolio.initial_date, inv.date)
                     self._consolidate_stock(consolidated, inv)
-                consolidated_list.append(consolidated)
+
                 self.repo.save(consolidated)
 
             self._consolidate_portfolio_stock(current_ticker_name, portfolio,

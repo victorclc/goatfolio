@@ -58,12 +58,12 @@ class PortfolioRepository:
             return StockConsolidated(**result['Items'][0])
         logger.info(f"No {ticker} yet for subject: {subject}")
 
-    def find_alias_ticker(self, subject, ticker) -> StockConsolidated:
+    def find_alias_ticker(self, subject, ticker) -> [StockConsolidated]:
         result = self._portfolio_table.query(IndexName='subjectAliasTickerGlobalIndex',
                                              KeyConditionExpression=Key('subject').eq(subject) & Key('alias_ticker').eq(
                                                  ticker))
         if result['Items']:
-            return StockConsolidated(**result['Items'][0])
+            return [StockConsolidated(**i) for i in result['Items']]
         logger.info(f"No alias {ticker} yet for subject: {subject}")
 
     def save(self, obj):
