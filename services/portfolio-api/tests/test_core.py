@@ -178,7 +178,7 @@ class TestPortfolioCore(unittest.TestCase):
                                                                  bought_value=Decimal('1550.00'))])
 
         self.core.repo.find = MagicMock(return_value=portfolio)
-        self.core.repo.find_ticker = MagicMock(return_value=stock_consolidated)
+        self.core.repo.find_alias_ticker = MagicMock(return_value=[stock_consolidated])
 
         self.core.consolidate_portfolio(self.subject, [self.BUY_INVESTMENT], [])
 
