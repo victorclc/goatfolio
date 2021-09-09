@@ -72,6 +72,10 @@ class StockInvestment(Investment, _StockInvestmentsBase):
         if not isinstance(self.costs, Decimal):
             self.costs = Decimal(self.costs).quantize(Decimal('0.01'))
 
+    @property
+    def current_ticker_name(self):
+        return self.alias_ticker or self.ticker
+
     def to_dict(self):
         return {**self.__dict__, 'date': int(self.date.timestamp())}
 

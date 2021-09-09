@@ -128,6 +128,8 @@ def consolidate_portfolio_handler(event, context):
         for subject, investment in investments_by_subject.items():
             new_investments = investments_by_subject[subject]['new_investments']
             old_investments = investments_by_subject[subject]['old_investments']
+            logger.info(f'New investments = {new_investments}')
+            logger.info(f'Old investments = {old_investments}')
             portfolio_core.consolidate_portfolio(subject, new_investments, old_investments)
     except Exception:
         traceback.print_exc()
