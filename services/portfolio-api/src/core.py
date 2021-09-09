@@ -56,7 +56,7 @@ class PortfolioCore:
             (stock for stock in consolidated_list if stock.ticker == ticker or stock.alias_ticker == ticker),
             None)
         if not consolidated:
-            response = self.repo.find_ticker(ticker)
+            response = self.repo.find_ticker(subject, ticker)
             if response:
                 consolidated = response[0]
             else:
