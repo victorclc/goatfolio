@@ -9,6 +9,11 @@ class VandelayPendencyCubit extends Cubit<PendencyState> {
 
   VandelayPendencyCubit(this.userService) : super(PendencyState.NO_PENDENCY);
 
+  void noAmountDivergence() {
+    divergences.clear();
+    emit(PendencyState.NO_PENDENCY);
+  }
+
   void registerAmountDivergence(String ticker, double amountMissing) {
     divergences.add({'ticker': ticker, 'amountMissing': amountMissing});
     emit(PendencyState.HAS_PENDENCY);

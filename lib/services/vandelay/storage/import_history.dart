@@ -19,7 +19,7 @@ Future<void> deleteImportHistoryDatabase() async {
 
 class ImportHistoryStorage {
   static const String TABLE_NAME = "imports";
-  final Future< Database> database;
+  final Future<Database> database;
 
   ImportHistoryStorage() : database = initDatabase();
 
@@ -29,6 +29,17 @@ class ImportHistoryStorage {
     await db.insert(
       TABLE_NAME,
       {'datetime': datetime, 'status': status},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> updateStatus(int id, String status) async {
+    final Database db = await database;
+
+    await db.update(
+      TABLE_NAME,
+      {'status': status},
+      where: 'id = $id',
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
