@@ -31,7 +31,7 @@ class PortfolioCore:
 
             for ticker, t_investments in groupby(sorted(list(investments), key=lambda i: i.ticker),
                                                  key=lambda i: i.ticker):
-                consolidated = self._find_ticker_in_consolidated_list(ticker, subject, consolidated_list)
+                consolidated = self._find_ticker_consolidated(ticker, subject, consolidated_list)
 
                 for inv in sorted(list(t_investments), key=lambda i: i.date):
                     if inv.operation in [OperationType.INCORP_ADD, OperationType.INCORP_SUB]:
@@ -51,13 +51,16 @@ class PortfolioCore:
             logger.info(f'Removing {ticker} from portfoio summary.')
             portfolio.stocks.remove(results[0])
 
-    @staticmethod
-    def _find_ticker_in_consolidated_list(ticker, subject, consolidated_list):
+    def _find_ticker_consolidated(self, ticker, subject, consolidated_list):
         consolidated = next(
             (stock for stock in consolidated_list if stock.ticker == ticker or stock.alias_ticker == ticker),
             None)
         if not consolidated:
-            consolidated = StockConsolidated(subject=subject, ticker=ticker)
+            response = self.repo.find_ticker(ticker)
+            if response:
+                consolidated = response[0]
+            else:
+                consolidated = StockConsolidated(subject=subject, ticker=ticker)
             consolidated_list.append(consolidated)
 
         return consolidated
