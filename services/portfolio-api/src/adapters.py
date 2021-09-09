@@ -50,6 +50,7 @@ class PortfolioRepository:
         if result['Items']:
             return Portfolio(**result['Items'][0])
         logger.info(f"No Portfolio yet for subject: {subject}")
+        return Portfolio(subject=subject, ticker=subject)
 
     def find_ticker(self, subject, ticker) -> [StockConsolidated]:
         result = self._portfolio_table.query(
@@ -65,6 +66,7 @@ class PortfolioRepository:
         if result['Items']:
             return [StockConsolidated(**i) for i in result['Items']]
         logger.info(f"No alias {ticker} yet for subject: {subject}")
+        return []
 
     def save(self, obj):
         logger.info(f'Saving: {obj.to_dict()}')

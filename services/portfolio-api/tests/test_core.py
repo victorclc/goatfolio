@@ -144,9 +144,8 @@ class TestPortfolioCore(unittest.TestCase):
         self.subject = '1111-2222-3333-4444'
 
     def test_one_new_investment_without_an_portfolio_should_persis_an_portfolio_and_an_stock_consolidated_objects(self):
-        self.core.repo.find = MagicMock(return_value=None)
-        self.core.repo.find_ticker = MagicMock(return_value=None)
-        self.core.repo.find_alias_ticker = MagicMock(return_value=None)
+        self.core.repo.find = MagicMock(return_value=Portfolio(self.subject, self.subject))
+        self.core.repo.find_alias_ticker = MagicMock(return_value=[])
 
         self.core.consolidate_portfolio(self.subject, [self.BUY_INVESTMENT], [])
 
@@ -217,7 +216,6 @@ class TestPortfolioCore(unittest.TestCase):
     #                                        alias_ticker='AESB3')]
     #
     #     self.core.consolidate_portfolio(self.subject, new_investments, old_investments)
-
 
     # TODO TEST ALL KINDS OF INVESTMENTS TYPE
 
