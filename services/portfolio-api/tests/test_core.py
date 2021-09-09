@@ -188,6 +188,37 @@ class TestPortfolioCore(unittest.TestCase):
                          portfolio.stocks[0].previous_position.amount + self.BUY_INVESTMENT.amount)
         self.assertEqual(len(stock_consolidated.history), 2)
 
+    # def test_bug(self):
+    #     new_investments = [StockInvestment(amount=Decimal('16'), price=Decimal('5.55'), ticker='TIET4', operation='BUY',
+    #                                        date=datetime(2020, 1, 1, 0, 0, tzinfo=timezone.utc), type='STOCK',
+    #                                        broker='Inter', external_system='',
+    #                                        subject='41e4a793-3ef5-4413-82e2-80919bce7c1a',
+    #                                        id='5379013d-1bde-489c-8d2f-7d43adb959e3', costs=Decimal('0'),
+    #                                        alias_ticker='AESB3'),
+    #                        StockInvestment(amount=Decimal('12'), price=Decimal('0'), ticker='TIET4',
+    #                                        operation='INCORP_SUB',
+    #                                        date=datetime(2021, 3, 27, 0, 0, tzinfo=timezone.utc), type='STOCK',
+    #                                        broker='', external_system='',
+    #                                        subject='41e4a793-3ef5-4413-82e2-80919bce7c1a',
+    #                                        id='TIET4INCORPORACAO2021012920210326BRAESBACNOR7', costs=Decimal('0'),
+    #                                        alias_ticker='AESB3')]
+    #     old_investments = [StockInvestment(amount=Decimal('16'), price=Decimal('5.55'), ticker='TIET4', operation='BUY',
+    #                                        date=datetime(2020, 1, 1, 0, 0, tzinfo=timezone.utc),
+    #                                        type='STOCK', broker='Inter', external_system='',
+    #                                        subject='41e4a793-3ef5-4413-82e2-80919bce7c1a',
+    #                                        id='5379013d-1bde-489c-8d2f-7d43adb959e3', costs=Decimal('0'),
+    #                                        alias_ticker=''),
+    #                        StockInvestment(amount=Decimal('0'), price=Decimal('0'), ticker='TIET4',
+    #                                        operation='INCORP_SUB',
+    #                                        date=datetime(2021, 3, 27, 0, 0, tzinfo=timezone.utc),
+    #                                        type='STOCK', broker='', external_system='',
+    #                                        subject='41e4a793-3ef5-4413-82e2-80919bce7c1a',
+    #                                        id='TIET4INCORPORACAO2021012920210326BRAESBACNOR7', costs=Decimal('0'),
+    #                                        alias_ticker='AESB3')]
+    #
+    #     self.core.consolidate_portfolio(self.subject, new_investments, old_investments)
+
+
     # TODO TEST ALL KINDS OF INVESTMENTS TYPE
 
     if __name__ == '__main__':

@@ -33,7 +33,8 @@ class PortfolioCore:
 
         portfolio = self.repo.find(subject) or Portfolio(subject=subject, ticker=subject)
         for current_ticker_name, all_investments in investments_map:
-            consolidated_list = self.repo.find_alias_ticker(subject, current_ticker_name) or []
+            consolidated_list = self.repo.find_alias_ticker(subject, current_ticker_name) or self.repo.find_ticker(
+                subject, current_ticker_name) or []
 
             for ticker, investments in groupby(sorted(list(all_investments), key=lambda i: i.ticker),
                                                key=lambda i: i.ticker):
