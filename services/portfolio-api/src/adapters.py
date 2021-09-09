@@ -51,11 +51,11 @@ class PortfolioRepository:
             return Portfolio(**result['Items'][0])
         logger.info(f"No Portfolio yet for subject: {subject}")
 
-    def find_ticker(self, subject, ticker) -> StockConsolidated:
+    def find_ticker(self, subject, ticker) -> [StockConsolidated]:
         result = self._portfolio_table.query(
             KeyConditionExpression=Key('subject').eq(subject) & Key('ticker').eq(ticker))
         if result['Items']:
-            return StockConsolidated(**result['Items'][0])
+            return [StockConsolidated(**i) for i in result['Items']]
         logger.info(f"No {ticker} yet for subject: {subject}")
 
     def find_alias_ticker(self, subject, ticker) -> [StockConsolidated]:
