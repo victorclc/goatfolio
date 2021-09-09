@@ -23,43 +23,61 @@ class PortfolioCore:
         self.repo = repo
 
     def consolidate_portfolio(self, subject, new_investments, old_investments):
-        logger.info(f'New investments = {new_investments}')
-        logger.info(f'Old investments = {old_investments}')
+        self._invert_investments_list(old_investments)
+        portfolio = self.repo.find(subject)
 
-        for inv in old_investments:
-            inv.amount = -1 * inv.amount
-        investments_map = groupby(sorted(new_investments + old_investments, key=lambda i: i.current_ticker_name),
-                                  key=lambda i: i.current_ticker_name)
+        for current_ticker, investments in self._group_by_current_ticker_name(new_investments + old_investments):
+            consolidated_list = self.repo.find_alias_ticker(subject, current_ticker)
 
-        portfolio = self.repo.find(subject) or Portfolio(subject=subject, ticker=subject)
-        for current_ticker_name, all_investments in investments_map:
-            consolidated_list = self.repo.find_alias_ticker(subject, current_ticker_name) or self.repo.find_ticker(
-                subject, current_ticker_name) or []
+            for ticker, t_investments in groupby(sorted(list(investments), key=lambda i: i.ticker),
+                                                 key=lambda i: i.ticker):
+                consolidated = self._find_ticker_in_consolidated_list(ticker, subject, consolidated_list)
 
-            for ticker, investments in groupby(sorted(list(all_investments), key=lambda i: i.ticker),
-                                               key=lambda i: i.ticker):
-                consolidated = next(
-                    (stock for stock in consolidated_list if stock.ticker == ticker or stock.alias_ticker == ticker),
-                    None)
-
-                if not consolidated:
-                    consolidated = StockConsolidated(subject=subject, ticker=ticker)
-                    consolidated_list.append(consolidated)
-
-                for inv in sorted(list(investments), key=lambda i: i.date):
+                for inv in sorted(list(t_investments), key=lambda i: i.date):
                     if inv.operation in [OperationType.INCORP_ADD, OperationType.INCORP_SUB]:
-                        results = list(filter(lambda s, i=inv: s.ticker == i.ticker, portfolio.stocks))
-                        if results:
-                            portfolio.stocks.remove(results[0])
+                        self._remove_ticker_from_portfolio_summary(ticker, portfolio)
                     if inv.amount > 0:
                         portfolio.initial_date = min(portfolio.initial_date, inv.date)
                     self._consolidate_stock(consolidated, inv)
-
                 self.repo.save(consolidated)
-
-            self._consolidate_portfolio_stock(current_ticker_name, portfolio,
+            self._consolidate_portfolio_stock(current_ticker, portfolio,
                                               sum(consolidated_list[1:], consolidated_list[0]))
         self.repo.save(portfolio)
+
+    @staticmethod
+    def _remove_ticker_from_portfolio_summary(ticker, portfolio):
+        results = list(filter(lambda s: s.ticker == ticker, portfolio.stocks))
+        if results:
+            logger.info(f'Removing {ticker} from portfoio summary.')
+            portfolio.stocks.remove(results[0])
+
+    @staticmethod
+    def _find_ticker_in_consolidated_list(ticker, subject, consolidated_list):
+        consolidated = next(
+            (stock for stock in consolidated_list if stock.ticker == ticker or stock.alias_ticker == ticker),
+            None)
+        if not consolidated:
+            consolidated = StockConsolidated(subject=subject, ticker=ticker)
+            consolidated_list.append(consolidated)
+
+        return consolidated
+
+    @staticmethod
+    def _group_by_current_ticker_name(investments):
+        by_ticker = groupby(sorted(investments, key=lambda i: i.ticker), key=lambda i: i.ticker)
+        for ticker, t_investments in by_ticker:
+            t_investments = list(t_investments)
+            alias_ticker = next((i.alias_ticker for i in t_investments if i.alias_ticker), None)
+            if alias_ticker:
+                for i in t_investments:
+                    i.alias_ticker = alias_ticker
+        return groupby(sorted(investments, key=lambda i: i.current_ticker_name), key=lambda i: i.current_ticker_name)
+
+    @staticmethod
+    def _invert_investments_list(investments):
+        for i in investments:
+            i.amount *= -1
+        return investments
 
     @staticmethod
     def _consolidate_portfolio_stock(ticker: str, portfolio: Portfolio, stock_consolidated: StockConsolidated):
