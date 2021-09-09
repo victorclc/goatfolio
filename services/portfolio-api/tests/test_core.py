@@ -145,6 +145,7 @@ class TestPortfolioCore(unittest.TestCase):
 
     def test_one_new_investment_without_an_portfolio_should_persis_an_portfolio_and_an_stock_consolidated_objects(self):
         self.core.repo.find = MagicMock(return_value=Portfolio(self.subject, self.subject))
+        self.core.repo.find_ticker = MagicMock(return_value=[])
         self.core.repo.find_alias_ticker = MagicMock(return_value=[])
 
         self.core.consolidate_portfolio(self.subject, [self.BUY_INVESTMENT], [])
@@ -177,6 +178,7 @@ class TestPortfolioCore(unittest.TestCase):
                                                                  bought_value=Decimal('1550.00'))])
 
         self.core.repo.find = MagicMock(return_value=portfolio)
+        self.core.repo.find_ticker = MagicMock(return_value=[])
         self.core.repo.find_alias_ticker = MagicMock(return_value=[stock_consolidated])
 
         self.core.consolidate_portfolio(self.subject, [self.BUY_INVESTMENT], [])
