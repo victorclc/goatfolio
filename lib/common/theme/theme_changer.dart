@@ -16,6 +16,7 @@ class ThemeChanger extends ChangeNotifier {
   String get configuredTheme => _configuredTheme;
 
   get themeData => _themeData;
+
   get androidTheme => _androidTheme;
 
   ThemeChanger(this._prefs) {
@@ -28,16 +29,25 @@ class ThemeChanger extends ChangeNotifier {
       case CFG_LIGHT_VALUE:
         _themeData = CupertinoThemeData.raw(
             Brightness.light, null, null, null, null, null);
-        _androidTheme = ThemeData(brightness: Brightness.light, backgroundColor: CupertinoColors.lightBackgroundGray, scaffoldBackgroundColor: CupertinoColors.white);
+        _androidTheme = ThemeData(
+            brightness: Brightness.light,
+            backgroundColor: CupertinoColors.lightBackgroundGray,
+            scaffoldBackgroundColor: CupertinoColors.white);
         break;
       case CFG_DARK_VALUE:
         _themeData = CupertinoThemeData.raw(
             Brightness.dark, null, null, null, null, null);
-        _androidTheme = ThemeData(brightness: Brightness.dark, backgroundColor: CupertinoColors.black, scaffoldBackgroundColor: CupertinoColors.black);
+        _androidTheme = ThemeData(
+            brightness: Brightness.dark,
+            backgroundColor: CupertinoColors.black,
+            scaffoldBackgroundColor: CupertinoColors.black);
         break;
       default:
         _themeData = CupertinoThemeData();
-        _androidTheme = ThemeData(brightness: Brightness.light, backgroundColor: CupertinoColors.lightBackgroundGray, scaffoldBackgroundColor: CupertinoColors.white);
+        _androidTheme = ThemeData(
+            brightness: Brightness.light,
+            backgroundColor: CupertinoColors.lightBackgroundGray,
+            scaffoldBackgroundColor: CupertinoColors.white);
         break;
     }
   }

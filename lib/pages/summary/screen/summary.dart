@@ -1,163 +1,143 @@
 import 'dart:io';
 
+import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:goatfolio/common/bloc/loading/loading_observer.dart';
+import 'package:goatfolio/common/bloc/loading/loading_state.dart';
 import 'package:goatfolio/common/theme/theme_changer.dart';
+import 'package:goatfolio/common/widget/loading_error.dart';
+import 'package:goatfolio/common/widget/platform_aware_progress_indicator.dart';
+import 'package:goatfolio/services/performance/cubit/summary_cubit.dart';
 import 'package:goatfolio/pages/summary/widget/highest_highs_card.dart';
 import 'package:goatfolio/pages/summary/widget/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/widget/rentability_card.dart';
-import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
-import 'package:goatfolio/services/performance/notifier/portfolio_performance_notifier.dart';
-import 'package:goatfolio/services/performance/notifier/portfolio_summary_notifier.dart';
+import 'package:goatfolio/services/performance/observer/refresh_performance_observer.dart';
+import 'package:goatfolio/services/vandelay/observer/vandelay_refresh_observer.dart';
 import 'package:provider/provider.dart';
 
-class SummaryPage extends StatefulWidget {
+class SummaryPage extends StatelessWidget {
   static const title = 'Resumo';
   static const icon = Icon(CupertinoIcons.chart_bar_square_fill);
-  final Function() openDrawerCb;
-
-  const SummaryPage({Key key, @required this.openDrawerCb}) : super(key: key);
-
-  @override
-  _SummaryPageState createState() => _SummaryPageState();
-}
-
-class _SummaryPageState extends State<SummaryPage> {
-  PortfolioSummary summary;
-  GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
-
-  void initState() {
-    Provider.of<PortfolioListNotifier>(context, listen: false);
-    super.initState();
-  }
-
-  Future<void> onRefresh() async {
-    Provider.of<PortfolioListNotifier>(context, listen: false)
-        .updatePerformance();
-    await Provider.of<PortfolioSummaryNotifier>(context, listen: false)
-        .updatePerformance();
-  }
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final List<LoadingStateObserver> loadingStateObservers = [
+    RefreshPerformanceObserver(),
+    VandelayRefreshObserver()
+  ];
 
   Widget build(BuildContext context) {
-    if (Platform.isIOS) {
-      return buildIos(context);
-    }
-    return buildAndroid(context);
+    return BlocConsumer<SummaryCubit, LoadingState>(
+      listener: (context, state) =>
+          loadingStateObservers.forEach((o) => o.listen(context, state)),
+      builder: (context, state) {
+        final cubit = BlocProvider.of<SummaryCubit>(context);
+        if (Platform.isIOS) {
+          return buildIos(context, cubit, state);
+        }
+        return buildAndroid(context, cubit, state);
+      },
+    );
   }
 
-  Widget buildAndroid(BuildContext context) {
+  Widget buildAndroid(
+      BuildContext context, SummaryCubit cubit, LoadingState state) {
     return Scaffold(
+      key: _scaffoldKey,
+      // drawer: buildDrawer(),
       body: CupertinoTheme(
         data: Provider.of<ThemeChanger>(context).themeData,
         child: RefreshIndicator(
-          onRefresh: onRefresh,
-          child: buildScrollView(context),
+          onRefresh: cubit.refresh,
+          child: buildContent(context, cubit, state),
         ),
       ),
     );
   }
 
-  Widget buildIos(BuildContext context) {
-    return buildScrollView(context);
+  Widget buildIos(
+      BuildContext context, SummaryCubit cubit, LoadingState state) {
+    return Scaffold(
+      key: _scaffoldKey,
+      // drawer: buildDrawer(),
+      body: buildContent(context, cubit, state),
+    );
   }
 
-  Widget buildScrollView(BuildContext context) {
+  Drawer buildDrawer() {
+    return Drawer(
+      child: ListView(
+        children: [
+          ListTile(title: Text('bagulho 1')),
+          ListTile(title: Text('bagulho 2')),
+        ],
+      ),
+    );
+  }
+
+  Widget buildContent(
+      BuildContext context, SummaryCubit cubit, LoadingState state) {
     return CustomScrollView(
       slivers: [
         CupertinoSliverNavigationBar(
-          leading: GestureDetector(
-            child: Icon(
-              Icons.menu,
-              color: CupertinoTheme.of(context).textTheme.textStyle.color,
-              size: 24,
-            ),
-            onTap: widget.openDrawerCb,
-          ),
           heroTag: 'summaryNavBar',
           largeTitle: Text(SummaryPage.title),
-          backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
           border: null,
+          // leading: Badge(
+          //   padding: EdgeInsets.all(5.0), //EdgeInsets.zero,
+          //   position: BadgePosition.topEnd(top: 10, end: -2),
+          //   badgeContent: null,
+          //   child: IconButton(
+          //     constraints: BoxConstraints(),
+          //     padding: EdgeInsets.only(left: 0),
+          //     icon: Icon(
+          //       Icons.menu,
+          //       color: CupertinoTheme.of(context).textTheme.textStyle.color,
+          //     ),
+          //     onPressed: () => _scaffoldKey.currentState.openDrawer(),
+          //   ),
+          // ),
+          backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         ),
         if (Platform.isIOS)
-          CupertinoSliverRefreshControl(onRefresh: () async {
-            Provider.of<PortfolioListNotifier>(context, listen: false)
-                .updatePerformance();
-            await Provider.of<PortfolioSummaryNotifier>(context, listen: false)
-                .updatePerformance();
-          }),
+          CupertinoSliverRefreshControl(onRefresh: cubit.refresh),
         SliverSafeArea(
           top: false,
           sliver: SliverPadding(
             padding: EdgeInsets.symmetric(vertical: 12),
             sliver: SliverList(
-              delegate: SliverChildListDelegate.fixed([
-                FutureBuilder(
-                  future: Provider.of<PortfolioSummaryNotifier>(context,
-                          listen: true)
-                      .futureSummary,
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.none:
-                      case ConnectionState.active:
-                        break;
-                      case ConnectionState.waiting:
-                        return Platform.isIOS
-                            ? CupertinoActivityIndicator()
-                            : Center(
-                                child:
-                                    Center(child: CircularProgressIndicator()));
-                      case ConnectionState.done:
-                        if (snapshot.hasData) {
-                          summary = snapshot.data;
-                          return Column(
-                            children: [
-                              RentabilityCard(summary),
-                              Row(
-                                children: [
-                                  Expanded(
-                                      child: HighestHighsCard(
-                                          summary.stocksVariation)),
-                                  Expanded(
-                                      child: LowestLowsCard(
-                                          summary.stocksVariation)),
-                                ],
-                              ),
-                            ],
-                          );
-                        }
-                    }
-                    final textTheme = CupertinoTheme.of(context).textTheme;
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 32,
-                        ),
-                        Text("Tivemos um problema ao carregar",
-                            style: textTheme.textStyle),
-                        Text(" as informações.", style: textTheme.textStyle),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Text("Toque para tentar novamente.",
-                            style: textTheme.textStyle),
-                        CupertinoButton(
-                          padding: EdgeInsets.all(0),
-                          child: Icon(
-                            Icons.refresh_outlined,
-                            size: 32,
-                          ),
-                          onPressed: () {
-                            Provider.of<PortfolioSummaryNotifier>(context,
-                                    listen: false)
-                                .updatePerformance();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ]),
+              delegate: SliverChildListDelegate.fixed(
+                [
+                  Builder(
+                    builder: (_) {
+                      if (state == LoadingState.LOADING &&
+                          cubit.portfolioSummary == null) {
+                        return PlatformAwareProgressIndicator();
+                      } else if (state == LoadingState.LOADED ||
+                          cubit.portfolioSummary != null) {
+                        return Column(
+                          children: [
+                            RentabilityCard(cubit.portfolioSummary),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: HighestHighsCard(
+                                      cubit.portfolioSummary.stocksVariation),
+                                ),
+                                Expanded(
+                                    child: LowestLowsCard(cubit
+                                        .portfolioSummary.stocksVariation)),
+                              ],
+                            ),
+                          ],
+                        );
+                      } else {
+                        return LoadingError(onRefreshPressed: cubit.refresh);
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 class NavigatorUtils {
   static Future<void> push(BuildContext context, Function builder) async {
     if (Platform.isIOS) {
-      return await Navigator.push(
-        context,
+      return await Navigator.of(context).push(
+
         CupertinoPageRoute(builder: builder),
       );
     } else {

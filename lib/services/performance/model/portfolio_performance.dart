@@ -2,7 +2,7 @@ import 'package:goatfolio/services/performance/model/stock_summary.dart';
 
 import 'benchmark_position.dart';
 
-class PortfolioList {
+class PortfolioPerformance {
   double stockGrossAmount;
   double reitGrossAmount;
   double bdrGrossAmount;
@@ -13,7 +13,9 @@ class PortfolioList {
 
   get grossAmount => stockGrossAmount + reitGrossAmount + bdrGrossAmount;
 
-  PortfolioList.fromJson(Map<String, dynamic> json)
+  List<StockSummary> get allStocks => stocks + reits + bdrs;
+
+  PortfolioPerformance.fromJson(Map<String, dynamic> json)
       : stockGrossAmount = json['stock_gross_amount'],
         reitGrossAmount = json['reit_gross_amount'],
         bdrGrossAmount = json['bdr_gross_amount'],
@@ -30,7 +32,7 @@ class PortfolioList {
             .map<BenchmarkPosition>((json) => BenchmarkPosition.fromJson(json))
             .toList();
 
-  void copy(PortfolioList other) {
+  void copy(PortfolioPerformance other) {
     stockGrossAmount = other.stockGrossAmount;
     reitGrossAmount = other.reitGrossAmount;
     bdrGrossAmount = other.bdrGrossAmount;

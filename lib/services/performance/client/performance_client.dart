@@ -3,7 +3,7 @@ import 'package:goatfolio/common/http/interceptor/logging.dart';
 import 'package:goatfolio/flavors.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/model/portfolio_history.dart';
-import 'package:goatfolio/services/performance/model/portfolio_list.dart';
+import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
 import 'package:goatfolio/services/performance/model/ticker_consolidated_history.dart';
 import 'package:http/http.dart';
@@ -18,13 +18,13 @@ class PerformanceClient {
             interceptors: [LoggingInterceptor()],
             requestTimeout: Duration(seconds: 30));
 
-  Future<PortfolioList> getPortfolioPerformance() async {
+  Future<PortfolioPerformance> getPortfolioPerformance() async {
     String accessToken = await userService.getSessionToken();
     String url = F.baseUrl + "performance/portfolio";
     final Response response =
         await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 
-    return PortfolioList.fromJson(jsonDecode(response.body));
+    return PortfolioPerformance.fromJson(jsonDecode(response.body));
   }
 
   Future<PortfolioSummary> getPortfolioSummary() async {

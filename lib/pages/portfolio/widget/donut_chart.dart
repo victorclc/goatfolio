@@ -2,11 +2,11 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/common/theme/theme_changer.dart';
-import 'package:goatfolio/services/performance/model/portfolio_list.dart';
+import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:provider/provider.dart';
 
 class DonutAutoLabelChart extends StatefulWidget {
-  final PortfolioList portfolioList;
+  final PortfolioPerformance portfolioList;
   final List<charts.Series> typeSeries;
   final List<charts.Series> stocksSeries;
   final List<charts.Series> reitsSeries;
