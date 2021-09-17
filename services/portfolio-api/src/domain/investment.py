@@ -1,12 +1,13 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
+from domain.ports.out.investment_repository import InvestmentRepository
 from goatcommons.utils import InvestmentUtils
 from domain.model.investment_request import InvestmentRequest
 
 
 class InvestmentCore:
-    def __init__(self, repo):
+    def __init__(self, repo: InvestmentRepository):
         self.repo = repo
 
     def get(self, subject):
