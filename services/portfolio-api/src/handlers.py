@@ -5,11 +5,12 @@ from http import HTTPStatus
 
 from adapters.out.dynamo_investment_repository import DynamoInvestmentRepository
 from adapters.out.dynamodb_portfolio_repository import DynamoPortfolioRepository
-from domain.investment import InvestmentCore
-from domain.model.investment_request import InvestmentRequest
-from domain.portfolio import PortfolioCore
+from domain.investment_core import InvestmentCore
+from domain.models.investment import StockInvestment
+from domain.models.investment_request import InvestmentRequest
+from domain.portfolio_core import PortfolioCore
 
-from goatcommons.models import StockInvestment
+
 from goatcommons.shit.client import ShitNotifierClient
 from goatcommons.shit.models import NotifyLevel
 from goatcommons.utils import AWSEventUtils, JsonUtils

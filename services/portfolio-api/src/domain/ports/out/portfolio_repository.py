@@ -1,6 +1,6 @@
 from typing import Protocol, Optional, List
 
-from goatcommons.portfolio.models import Portfolio, StockConsolidated
+from domain.models.portfolio import Portfolio, StockConsolidated
 
 
 class PortfolioRepository(Protocol):

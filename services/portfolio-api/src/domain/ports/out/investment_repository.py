@@ -1,6 +1,6 @@
 from typing import Protocol, List
 
-from goatcommons.models import Investment
+from domain.models.investment import Investment
 
 
 class InvestmentRepository(Protocol):

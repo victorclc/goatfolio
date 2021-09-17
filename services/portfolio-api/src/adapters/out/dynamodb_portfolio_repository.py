@@ -4,7 +4,7 @@ from typing import List, Optional
 import boto3
 from boto3.dynamodb.conditions import Key
 
-from goatcommons.portfolio.models import Portfolio, StockConsolidated
+from domain.models.portfolio import Portfolio, StockConsolidated
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"

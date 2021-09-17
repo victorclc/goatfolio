@@ -1,12 +1,22 @@
 import logging
 from itertools import groupby
 
+from domain.models.investment import StockInvestment
 from domain.ports.out.portfolio_repository import PortfolioRepository
-from goatcommons.constants import OperationType
-from goatcommons.models import StockInvestment
-from goatcommons.portfolio.models import StockConsolidated, Portfolio, StockPositionMonthlySummary, StockSummary, \
-    StockPosition
-from goatcommons.portfolio.utils import create_stock_position_wrapper_list, group_stock_position_per_month
+from domain.enums.operation_type import OperationType
+
+from domain.models.portfolio import (
+    Portfolio,
+    StockPositionMonthlySummary,
+    StockSummary,
+    StockConsolidated,
+    StockPosition,
+)
+
+from domain.utils.stock_position_wrapper import (
+    create_stock_position_wrapper_list,
+    group_stock_position_per_month,
+)
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
@@ -173,5 +183,3 @@ class PortfolioCore:
 
         if h_position.is_empty():
             stock_consolidated.history.remove(h_position)
-
-

@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from domain.ports.out.investment_repository import InvestmentRepository
 from goatcommons.utils import InvestmentUtils
-from domain.model.investment_request import InvestmentRequest
+from domain.models.investment_request import InvestmentRequest
 
 
 class InvestmentCore:

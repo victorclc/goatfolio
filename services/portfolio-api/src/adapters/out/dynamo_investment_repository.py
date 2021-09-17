@@ -3,7 +3,7 @@ from typing import List
 import boto3
 from boto3.dynamodb.conditions import Key
 
-from goatcommons.models import Investment
+from domain.models.investment import Investment
 from goatcommons.utils import InvestmentUtils
 
 
