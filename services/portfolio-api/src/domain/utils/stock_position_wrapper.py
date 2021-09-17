@@ -1,4 +1,7 @@
 from decimal import Decimal
+from itertools import groupby
+
+from domain.models.portfolio import StockPosition
 
 
 class StockPositionWrapper:
@@ -29,7 +32,7 @@ class StockPositionWrapper:
     def average_price(self):
         bought_amount = self.bought_amount
         if bought_amount > 0:
-            return (self.bought_value / bought_amount).quantize(Decimal('0.01'))
+            return (self.bought_value / bought_amount).quantize(Decimal("0.01"))
         return 0
 
     @property
@@ -41,20 +44,30 @@ class StockPositionWrapper:
     @property
     def invested_sold_value(self):
         if self.prev:
-            return self.prev.current_invested_sold_value + self.data.sold_amount * self.average_price
+            return (
+                self.prev.current_invested_sold_value
+                + self.data.sold_amount * self.average_price
+            )
         return self.data.sold_amount * self.average_price
 
     @property
     def current_invested_sold_value(self):
         if self.prev and self.prev.amount > 0:
-            return self.prev.current_invested_sold_value + self.data.sold_amount * self.average_price
+            return (
+                self.prev.current_invested_sold_value
+                + self.data.sold_amount * self.average_price
+            )
         return self.data.sold_amount * self.average_price
 
     @property
     def current_invested_value(self):
         if self.prev:
-            return (self.bought_value - self.current_invested_sold_value).quantize(Decimal('0.01'))
-        return (self.data.bought_value - self.current_invested_sold_value).quantize(Decimal('0.01'))
+            return (self.bought_value - self.current_invested_sold_value).quantize(
+                Decimal("0.01")
+            )
+        return (self.data.bought_value - self.current_invested_sold_value).quantize(
+            Decimal("0.01")
+        )
 
     @property
     def node_invested_value(self):
@@ -66,7 +79,9 @@ class StockPositionWrapper:
 
     @property
     def realized_profit(self):
-        return (self.gross_sold_value - self.invested_sold_value).quantize(Decimal('0.01'))
+        return (self.gross_sold_value - self.invested_sold_value).quantize(
+            Decimal("0.01")
+        )
 
     @property
     def gross_value(self):
@@ -76,7 +91,9 @@ class StockPositionWrapper:
     def prev_adjusted_gross_value(self):
         if self.prev and self.prev.amount > 0:
             if self.data.sold_amount > 0:
-                prev_month_amount = self.prev.amount - round(self.node_invested_sold_value / self.prev.average_price)
+                prev_month_amount = self.prev.amount - round(
+                    self.node_invested_sold_value / self.prev.average_price
+                )
             else:
                 prev_month_amount = self.prev.amount
             return prev_month_amount * self.prev.data.close_price
@@ -89,7 +106,9 @@ class StockPositionWrapper:
         else:
             prev_gross_value = self.current_invested_value
         if prev_gross_value > 0:
-            return ((self.gross_value * 100 / prev_gross_value) - 100).quantize(Decimal('0.01'))
+            return ((self.gross_value * 100 / prev_gross_value) - 100).quantize(
+                Decimal("0.01")
+            )
         return 0
 
 
@@ -148,3 +167,24 @@ class StockPositionWrapperLinkedList:
         while node:
             print(node.data),
             node = node.next
+
+
+def group_stock_position_per_month(stock_positions: [StockPosition]) -> [StockPosition]:
+    grouped_positions = []
+    for date, positions in groupby(
+        stock_positions, key=lambda p: p.date.replace(day=1)
+    ):
+        grouped = StockPosition(date)
+        for position in positions:
+            grouped = grouped + position
+        grouped_positions.append(grouped)
+    return grouped_positions
+
+
+def create_stock_position_wrapper_list(
+    stock_positions: [StockPosition],
+) -> StockPositionWrapperLinkedList:
+    doubly = StockPositionWrapperLinkedList()
+    for h in stock_positions:
+        doubly.append(h)
+    return doubly
