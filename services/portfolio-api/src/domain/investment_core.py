@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from domain.ports.out.investment_repository import InvestmentRepository
-from goatcommons.utils import InvestmentUtils
+from domain.utils.investment_loader import load_model_by_type
 from domain.models.investment_request import InvestmentRequest
 
 
@@ -15,7 +15,7 @@ class InvestmentCore:
 
     def add(self, subject, request: InvestmentRequest):
         # TODO REFACTOR THIS
-        investment = InvestmentUtils.load_model_by_type(
+        investment = load_model_by_type(
             request.type, request.investment
         )
         assert investment.date <= datetime.now(tz=timezone.utc), "invalid date"
@@ -28,7 +28,7 @@ class InvestmentCore:
 
     def edit(self, subject, request: InvestmentRequest):
         assert subject
-        investment = InvestmentUtils.load_model_by_type(
+        investment = load_model_by_type(
             request.type, request.investment
         )
         investment.subject = subject
@@ -47,7 +47,7 @@ class InvestmentCore:
     def batch_add(self, requests: [InvestmentRequest]):
         investments = []
         for request in requests:
-            investment = InvestmentUtils.load_model_by_type(
+            investment = load_model_by_type(
                 request.type, request.investment
             )
             assert investment.subject, "subject is empty"
