@@ -3,7 +3,8 @@ from dataclasses import asdict
 from decimal import Decimal
 from http import HTTPStatus
 
-from adapters.out.dynamo_investment_repository import InvestmentRepository
+from adapters.out.dynamo_investment_repository import DynamoInvestmentRepository
+from adapters.out.dynamodb_portfolio_repository import DynamoPortfolioRepository
 from domain.investment import InvestmentCore
 from domain.model.investment_request import InvestmentRequest
 from domain.portfolio import PortfolioCore
@@ -21,16 +22,15 @@ logging.basicConfig(
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-core = InvestmentCore(repo=InvestmentRepository())
+core = InvestmentCore(repo=DynamoInvestmentRepository())
 
 
 def get_investments_handler(event, context):
     logger.info(f"EVENT: {event}")
     try:
         subject = AWSEventUtils.get_event_subject(event)
-        query = AWSEventUtils.get_query_params(event)
+        investments = core.get(subject)
 
-        investments = core.get(subject, query_params=query)
         return {
             "statusCode": HTTPStatus.OK,
             "body": JsonUtils.dump([asdict(i) for i in investments]),
@@ -136,7 +136,7 @@ def async_add_investment_handler(event, context):
 def consolidate_portfolio_handler(event, context):
     logger.info(f"EVENT: {event}")
     investments_by_subject = {}
-    portfolio_core = PortfolioCore(repo=PortfolioRepository())
+    portfolio_core = PortfolioCore(repo=DynamoPortfolioRepository())
 
     try:
         for record in event["Records"]:

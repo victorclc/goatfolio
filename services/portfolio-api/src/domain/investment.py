@@ -2,26 +2,18 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from goatcommons.utils import InvestmentUtils
-from model import InvestmentRequest
+from domain.model.investment_request import InvestmentRequest
 
 
 class InvestmentCore:
     def __init__(self, repo):
         self.repo = repo
 
-    def get(self, subject, query_params):
-        assert subject
-        if query_params and "date" in query_params:
-            data = query_params["date"].split(".")
-            assert len(data) == 2, "invalid query param"
-            operand = data[0]
-            value = int(data[1])
-            assert operand in ["gt", "ge", "lt", "le", "eq"]
-            return self.repo.find_by_subject_and_date(subject, operand, value)
+    def get(self, subject):
         return self.repo.find_by_subject(subject)
 
     def add(self, subject, request: InvestmentRequest):
-        assert subject
+        # TODO REFACTOR THIS
         investment = InvestmentUtils.load_model_by_type(
             request.type, request.investment
         )

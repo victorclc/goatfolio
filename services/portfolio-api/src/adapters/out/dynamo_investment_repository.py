@@ -7,7 +7,7 @@ from goatcommons.models import Investment
 from goatcommons.utils import InvestmentUtils
 
 
-class InvestmentRepository:
+class DynamoInvestmentRepository:
     def __init__(self):
         self.__investments_table = boto3.resource("dynamodb").Table("Investments")
 

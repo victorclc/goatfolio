@@ -1,6 +1,7 @@
 import logging
 from itertools import groupby
 
+from domain.ports.out.portfolio_repository import PortfolioRepository
 from goatcommons.constants import OperationType
 from goatcommons.models import StockInvestment
 from goatcommons.portfolio.models import StockConsolidated, Portfolio, StockPositionMonthlySummary, StockSummary, \
@@ -15,7 +16,7 @@ logger.setLevel(logging.INFO)
 
 
 class PortfolioCore:
-    def __init__(self, repo):
+    def __init__(self, repo: PortfolioRepository):
         self.repo = repo
 
     def consolidate_portfolio(self, subject, new_investments, old_investments):
