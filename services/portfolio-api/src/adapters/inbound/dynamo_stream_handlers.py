@@ -1,7 +1,9 @@
 import logging
 import traceback
+from decimal import Decimal
 
 from adapters.inbound import portfolio_core
+from domain.models.investment import StockInvestment
 from goatcommons.shit.client import ShitNotifierClient
 from goatcommons.shit.models import NotifyLevel
 
