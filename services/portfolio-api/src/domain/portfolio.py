@@ -45,13 +45,13 @@ class PortfolioCore:
                     if inv.amount > 0:
                         portfolio.initial_date = min(portfolio.initial_date, inv.date)
                     self._consolidate_stock(consolidated, inv)
-                self.repo.save(consolidated)
+                self.repo.save_stock_consolidated(consolidated)
             self._consolidate_portfolio_stock(
                 current_ticker,
                 portfolio,
                 sum(consolidated_list[1:], consolidated_list[0]),
             )
-        self.repo.save(portfolio)
+        self.repo.save_portfolio(portfolio)
 
     @staticmethod
     def _remove_ticker_from_portfolio_summary(ticker, portfolio):
