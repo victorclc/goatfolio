@@ -2,7 +2,7 @@ import logging
 from itertools import groupby
 
 from domain.models.investment import StockInvestment
-from domain.ports.out.portfolio_repository import PortfolioRepository
+from domain.ports.outbound.portfolio_repository import PortfolioRepository
 from domain.enums.operation_type import OperationType
 
 from domain.models.portfolio import (

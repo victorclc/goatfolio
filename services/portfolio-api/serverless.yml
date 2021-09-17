@@ -68,7 +68,7 @@ custom:
 
 functions:
   getInvestments:
-    handler: src/handlers.get_investments_handler
+    handler: src/adapters/inbound/api_gateway_handlers.get_investments_handler
     events:
       - http:
           path: investments/
@@ -83,7 +83,7 @@ functions:
               Ref: ApiGatewayAuthorizer
 
   addInvestment:
-    handler: src/handlers.add_investment_handler
+    handler: src/adapters/inbound/api_gateway_handlers.add_investment_handler
     events:
       - http:
           path: investments/
@@ -94,7 +94,7 @@ functions:
               Ref: ApiGatewayAuthorizer
 
   editInvestment:
-    handler: src/handlers.edit_investment_handler
+    handler: src/adapters/inbound/api_gateway_handlers.edit_investment_handler
     events:
       - http:
           path: investments/
@@ -105,7 +105,7 @@ functions:
               Ref: ApiGatewayAuthorizer
 
   deleteInvestments:
-    handler: src/handlers.delete_investment_handler
+    handler: src/adapters/inbound/api_gateway_handlers.delete_investment_handler
     events:
       - http:
           path: investments/{investmentid}
@@ -120,7 +120,7 @@ functions:
               Ref: ApiGatewayAuthorizer
 
   batchAddInvestments:
-    handler: src/handlers.batch_add_investments_handler
+    handler: src/adapters/inbound/private_api_gateway_handlers.batch_add_investments_handler
     events:
       - http:
           path: investments/batch
@@ -128,14 +128,14 @@ functions:
           private: true
 
   asyncAddInvestment:
-    handler: src/handlers.async_add_investment_handler
+    handler: src/adapters/inbound/sqs_handlers.async_add_investment_handler
     events:
       - sqs:
           arn:
             Fn::GetAtt: [ AddInvestmentQueue, Arn ]
 
   consolidatePortfolio:
-    handler: src/handlers.consolidate_portfolio_handler
+    handler: src/adapters/inbound/dynamo_stream_handlers.consolidate_portfolio_handler
     events:
       - stream:
           type: dynamodb

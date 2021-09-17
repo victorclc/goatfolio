@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from unittest.mock import MagicMock
 
+from domain.enums.investment_type import InvestmentType
 from domain.enums.operation_type import OperationType
 from domain.models.investment import StockInvestment
 from domain.models.portfolio import (
@@ -24,7 +25,7 @@ class TestPortfolioCore(unittest.TestCase):
             "BIDI11",
             OperationType.BUY,
             datetime(2021, 5, 12, tzinfo=timezone.utc),
-            "STOCK",
+            InvestmentType.STOCK,
             "Inter",
         )
         self.subject = "1111-2222-3333-4444"
