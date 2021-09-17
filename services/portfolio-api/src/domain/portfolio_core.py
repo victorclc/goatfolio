@@ -1,5 +1,6 @@
 import logging
 from itertools import groupby
+from typing import List
 
 from domain.models.investment import StockInvestment
 from domain.ports.outbound.portfolio_repository import PortfolioRepository
@@ -29,7 +30,12 @@ class PortfolioCore:
     def __init__(self, repo: PortfolioRepository):
         self.repo = repo
 
-    def consolidate_portfolio(self, subject, new_investments, old_investments):
+    def consolidate_portfolio(
+        self,
+        subject: str,
+        new_investments: List[StockInvestment],
+        old_investments: List[StockInvestment],
+    ):
         self._invert_investments_list(old_investments)
         portfolio = self.repo.find(subject)
 
@@ -38,10 +44,7 @@ class PortfolioCore:
         ):
             consolidated_list = self.repo.find_alias_ticker(subject, current_ticker)
 
-            for ticker, t_investments in groupby(
-                sorted(list(investments), key=lambda i: i.ticker),
-                key=lambda i: i.ticker,
-            ):
+            for ticker, t_investments in self._group_by_ticker(list(investments)):
                 consolidated = self._find_ticker_consolidated(
                     ticker, subject, consolidated_list
                 )
@@ -70,7 +73,7 @@ class PortfolioCore:
             logger.info(f"Removing {ticker} from portfoio summary.")
             portfolio.stocks.remove(results[0])
 
-    def _find_ticker_consolidated(self, ticker, subject, consolidated_list):
+    def _find_ticker_consolidated(self, ticker: str, subject: str, consolidated_list: List[StockConsolidated]):
         consolidated = next(
             (
                 stock
@@ -105,6 +108,13 @@ class PortfolioCore:
         return groupby(
             sorted(investments, key=lambda i: i.current_ticker_name),
             key=lambda i: i.current_ticker_name,
+        )
+
+    @staticmethod
+    def _group_by_ticker(investments):
+        return groupby(
+            sorted(list(investments), key=lambda i: i.ticker),
+            key=lambda i: i.ticker,
         )
 
     @staticmethod

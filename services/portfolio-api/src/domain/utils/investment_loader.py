@@ -3,11 +3,11 @@ from domain.models.investment import (
     StockInvestment,
     PreFixedInvestment,
     PostFixedInvestment,
-    CheckingAccountInvestment,
+    CheckingAccountInvestment, Investment,
 )
 
 
-def load_model_by_type(_type, investment):
+def load_model_by_type(_type, investment) -> Investment:
     investment.pop("type", None)
     if _type == InvestmentType.STOCK:
         return StockInvestment(**investment, type=InvestmentType.STOCK)

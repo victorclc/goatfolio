@@ -6,6 +6,9 @@ from domain.utils.investment_loader import load_model_by_type
 from domain.models.investment_request import InvestmentRequest
 
 
+# TODO CUSTOM EXCEPTIONS INSTEAD OF ASSERT
+
+
 class InvestmentCore:
     def __init__(self, repo: InvestmentRepository):
         self.repo = repo
@@ -14,10 +17,7 @@ class InvestmentCore:
         return self.repo.find_by_subject(subject)
 
     def add(self, subject: str, request: InvestmentRequest):
-        # TODO REFACTOR THIS
-        investment = load_model_by_type(
-            request.type, request.investment
-        )
+        investment = load_model_by_type(request.type, request.investment)
         assert investment.date <= datetime.now(tz=timezone.utc), "invalid date"
         if not investment.id:
             investment.id = str(uuid4())
@@ -28,9 +28,7 @@ class InvestmentCore:
 
     def edit(self, subject: str, request: InvestmentRequest):
         assert subject
-        investment = load_model_by_type(
-            request.type, request.investment
-        )
+        investment = load_model_by_type(request.type, request.investment)
         investment.subject = subject
         assert investment.id, "investment id is empty"
         assert investment.date <= datetime.now(tz=timezone.utc), "invalid date"
@@ -47,9 +45,7 @@ class InvestmentCore:
     def batch_add(self, requests: [InvestmentRequest]):
         investments = []
         for request in requests:
-            investment = load_model_by_type(
-                request.type, request.investment
-            )
+            investment = load_model_by_type(request.type, request.investment)
             assert investment.subject, "subject is empty"
             assert investment.id, "investment id is empty"
 
