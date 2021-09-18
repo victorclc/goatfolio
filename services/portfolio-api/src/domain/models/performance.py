@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from decimal import Decimal
+from typing import Optional
 
 
 @dataclass
@@ -11,10 +12,10 @@ class PortfolioPosition:
 
     def __post_init__(self):
         if not isinstance(self.date, datetime):
-            self.date = datetime.fromtimestamp(float(self.date), tz=timezone.utc)
+            self.date = datetime.fromtimestamp(float(self.date), tz=timezone.utc)  # type: ignore
 
     def to_dict(self):
-        return {**self.__dict__, 'date': int(self.date.timestamp())}
+        return {**self.__dict__, "date": int(self.date.timestamp())}
 
 
 @dataclass
@@ -26,7 +27,10 @@ class PortfolioSummary:
     stocks_variation: list = field(default_factory=list)
 
     def to_dict(self):
-        return {**self.__dict__, 'stocks_variation': [h.to_dict() for h in self.stocks_variation]}
+        return {
+            **self.__dict__,
+            "stocks_variation": [h.to_dict() for h in self.stocks_variation],
+        }
 
 
 @dataclass
@@ -45,8 +49,10 @@ class PortfolioHistory:
     ibov_history: list
 
     def to_dict(self):
-        return {'history': [h.to_dict() for h in self.history],
-                'ibov_history': [h.to_dict() for h in self.ibov_history]}
+        return {
+            "history": [h.to_dict() for h in self.history],
+            "ibov_history": [h.to_dict() for h in self.ibov_history],
+        }
 
 
 @dataclass
@@ -54,7 +60,7 @@ class TickerConsolidatedHistory:
     history: list
 
     def to_dict(self):
-        return {'history': [h.to_dict() for h in self.history]}
+        return {"history": [h.to_dict() for h in self.history]}
 
 
 @dataclass
@@ -71,9 +77,13 @@ class PortfolioList:
     ibov_history: list = field(default_factory=list)
 
     def to_dict(self):
-        return {**self.__dict__, 'stocks': [s.to_dict() for s in self.stocks],
-                'reits': [r.to_dict() for r in self.reits], 'bdrs': [b.to_dict() for b in self.bdrs],
-                'ibov_history': [i.to_dict() for i in self.ibov_history]}
+        return {
+            **self.__dict__,
+            "stocks": [s.to_dict() for s in self.stocks],
+            "reits": [r.to_dict() for r in self.reits],
+            "bdrs": [b.to_dict() for b in self.bdrs],
+            "ibov_history": [i.to_dict() for i in self.ibov_history],
+        }
 
 
 @dataclass
@@ -100,13 +110,15 @@ class CandleData:
     isin_code: str
     open_price: Decimal
     volume: Decimal
-    max_price: Decimal = None
-    min_price: Decimal = None
+    max_price: Optional[Decimal] = None
+    min_price: Optional[Decimal] = None
 
     def __post_init__(self):
         if not isinstance(self.candle_date, datetime):
-            tmp_date = datetime.strptime(self.candle_date, '%Y%m%d')
-            self.candle_date = datetime(tmp_date.year, tmp_date.month, tmp_date.day, tzinfo=timezone.utc)
+            tmp_date = datetime.strptime(self.candle_date, "%Y%m%d")  # type: ignore
+            self.candle_date = datetime(
+                tmp_date.year, tmp_date.month, tmp_date.day, tzinfo=timezone.utc
+            )
 
 
 @dataclass
@@ -116,7 +128,7 @@ class BenchmarkPosition:
     close: Decimal
 
     def to_dict(self):
-        return {**self.__dict__, 'date': int(self.date.timestamp())}
+        return {**self.__dict__, "date": int(self.date.timestamp())}
 
 
 @dataclass
@@ -127,4 +139,4 @@ class StockConsolidatedPosition:
     variation_perc: Decimal
 
     def to_dict(self):
-        return {**self.__dict__, 'date': int(self.date.timestamp())}
+        return {**self.__dict__, "date": int(self.date.timestamp())}

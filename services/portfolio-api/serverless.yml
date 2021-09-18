@@ -142,6 +142,8 @@ functions:
           arn:
             'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
 
+  # TODO ADD PERFORMANCE ENDPOINTS
+
 resources:
   Resources:
     ApiGatewayAuthorizer:

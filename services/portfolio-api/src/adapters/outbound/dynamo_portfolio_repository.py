@@ -27,6 +27,22 @@ class DynamoPortfolioRepository:
         logger.info(f"No Portfolio yet for subject: {subject}")
         return Portfolio(subject=subject, ticker=subject)
 
+    def find_all(self, subject) -> (Portfolio, [StockConsolidated]):
+        result = self._portfolio_table.query(
+            KeyConditionExpression=Key("subject").eq(subject)
+        )
+        portfolio = None
+        stock_consolidated = []
+        if not result["Items"]:
+            logger.info(f"No Portfolio yet for subject: {subject}")
+            return
+        for item in result["Items"]:
+            if item["ticker"] == subject:
+                portfolio = Portfolio(**item)
+            else:
+                stock_consolidated.append(StockConsolidated(**item))
+        return portfolio, stock_consolidated
+
     def find_ticker(
         self, subject: str, ticker: str
     ) -> Optional[List[StockConsolidated]]:

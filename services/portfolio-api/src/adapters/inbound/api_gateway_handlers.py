@@ -91,3 +91,33 @@ def delete_investment_handler(event, context):
     except Exception as e:
         traceback.print_exc()
         raise e
+
+
+def performance_summary_handler(event, context):
+    logger.info(f"EVENT: {event}")
+    subject = AWSEventUtils.get_event_subject(event)
+    result = performance_core.get_portfolio_summary(subject)
+    return {"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())}
+
+
+def performance_history_handler(event, context):
+    logger.info(f"EVENT: {event}")
+    subject = AWSEventUtils.get_event_subject(event)
+    result = performance_core.get_portfolio_history(subject)
+    return {"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())}
+
+
+def portfolio_performance_handler(event, context):
+    logger.info(f"EVENT: {event}")
+    subject = AWSEventUtils.get_event_subject(event)
+    result = performance_core.get_portfolio_list(subject)
+    return {"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())}
+
+
+def ticker_performance_handler(event, context):
+    logger.info(f"EVENT: {event}")
+    subject = AWSEventUtils.get_event_subject(event)
+    ticker = AWSEventUtils.get_query_param(event, "ticker").upper()
+
+    result = performance_core.get_ticker_consolidated_history(subject, ticker)
+    return {"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())}

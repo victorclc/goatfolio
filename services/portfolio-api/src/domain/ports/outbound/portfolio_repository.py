@@ -12,6 +12,9 @@ class PortfolioRepository(Protocol):
     ) -> Optional[List[StockConsolidated]]:
         """Returns all StockConsolidated objects related to the given ticker and subject"""
 
+    def find_all(self, subject) -> (Portfolio, [StockConsolidated]):
+        """Returns a tupple containing the portfolio object and the list of all StockConsolidated of given subject"""
+
     def find_alias_ticker(
         self, subject: str, ticker: str
     ) -> Optional[List[StockConsolidated]]:
