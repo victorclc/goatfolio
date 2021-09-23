@@ -3,8 +3,9 @@ from typing import List
 import boto3
 from boto3.dynamodb.conditions import Key
 
+from domain.enums.investment_type import InvestmentType
 from domain.models.investment import Investment
-from goatcommons.utils import InvestmentUtils
+import domain.utils.investment_loader as il
 
 
 class DynamoInvestmentRepository:
@@ -17,7 +18,7 @@ class DynamoInvestmentRepository:
         )
         return list(
             map(
-                lambda i: InvestmentUtils.load_model_by_type(i["type"], i),
+                lambda i: il.load_model_by_type(InvestmentType.from_string(i["type"]), i),
                 result["Items"],
             )
         )
@@ -33,4 +34,5 @@ class DynamoInvestmentRepository:
     def batch_save(self, investments: List[Investment]):
         with self.__investments_table.batch_writer() as batch:
             for investment in investments:
+                print(investment.to_dict())
                 batch.put_item(Item=investment.to_dict())
