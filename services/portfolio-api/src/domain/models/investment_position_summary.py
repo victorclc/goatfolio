@@ -14,7 +14,7 @@ class InvestmentPositionSummary(ABC):
 
     def __post_init__(self):
         if isinstance(self.date, str):
-            self.date = dt.datetime.strptime(self.date, DATE_FORMAT)
+            self.date = dt.datetime.strptime(self.date, DATE_FORMAT).date()
 
     def to_dict(self) -> dict:
         ret = {**self.__dict__, "date": self.date.strftime(DATE_FORMAT)}

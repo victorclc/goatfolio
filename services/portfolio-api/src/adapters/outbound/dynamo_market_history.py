@@ -4,7 +4,7 @@ from collections import namedtuple
 from datetime import datetime, timezone
 from decimal import Decimal
 from functools import wraps
-from typing import List, Optional
+from typing import List, Optional, Set
 
 import boto3
 from boto3.dynamodb.conditions import Key
@@ -53,7 +53,7 @@ class DynamoMarketHistoryRepository:
         return []
 
     def batch_get_by_tickers_and_date(
-        self, tickers: List[str], _date: datetime.date
+        self, tickers: Set[str], _date: datetime.date
     ) -> Optional[List[CandleData]]:
         response = self.__client.batch_get_item(
             RequestItems={
@@ -216,7 +216,7 @@ class MarketData:
         open_price = Decimal(0)
         close_price = Decimal(0)
         if alias_ticker:
-            candles = self.repo.batch_get_by_tickers_and_date([ticker, alias_ticker], _date)
+            candles = self.repo.batch_get_by_tickers_and_date(set([ticker, alias_ticker]), _date)
             if candles:
                 if len(candles) == 2:
                     for candle in candles:

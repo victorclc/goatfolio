@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -21,6 +21,14 @@ class InvestmentSummary(ABC):
             ret["previous_position"] = self.previous_position.to_dict()
         return ret
 
+    @staticmethod
+    def has_active_previous_position(self) -> bool:
+        """Rather the previous position was active or not."""
+
+    @abstractmethod
+    def is_active(self) -> bool:
+        """ "Rather the investment is active or not."""
+
 
 @dataclass
 class StockSummary(InvestmentSummary):
@@ -29,3 +37,9 @@ class StockSummary(InvestmentSummary):
             self.latest_position = StockPositionSummary(**self.latest_position)
         if isinstance(self.previous_position, dict):
             self.previous_position = StockPositionSummary(**self.previous_position)
+
+    def is_active(self) -> bool:
+        return self.latest_position.amount > 0
+
+    def has_active_previous_position(self) -> bool:
+        return self.previous_position and self.previous_position.amount > 0

@@ -1,6 +1,6 @@
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from domain.models.investment_consolidated import (
     InvestmentConsolidated,
@@ -19,7 +19,7 @@ class Portfolio(PortfolioItem):
 
     def __post_init__(self):
         if isinstance(self.initial_date, str):
-            self.initial_date = dt.datetime.strptime(DATE_FORMAT, self.initial_date)
+            self.initial_date = dt.datetime.strptime(self.initial_date, DATE_FORMAT).date()
         new_stocks = {}
         for k, v in self.stocks.items():
             new_stocks[k] = v
@@ -45,3 +45,11 @@ class Portfolio(PortfolioItem):
                 if consolidated.alias_ticker and self.stocks.get(consolidated.ticker):
                     self.stocks.pop(consolidated.ticker)
                 self.stocks[consolidated.current_ticker_name()] = summary
+
+    def active_tickers(self) -> List[str]:
+        return [
+            ticker for ticker, summary in self.stocks.items() if summary.is_active()
+        ]
+
+    def get_stock_summary(self, ticker) -> StockSummary:
+        return self.stocks[ticker]

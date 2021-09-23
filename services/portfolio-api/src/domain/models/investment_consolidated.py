@@ -21,15 +21,15 @@ class InvestmentConsolidated(PortfolioItem, ABC):
     alias_ticker: str = field(default="")
 
     def __post_init__(self):
-        if isinstance(self.initial_date, str):
+        if not isinstance(self.initial_date, dt.date):
             self.initial_date = dt.datetime.strptime(
-                self.initial_date, DATE_FORMAT
+                str(self.initial_date), DATE_FORMAT
             ).date()
 
     def to_dict(self) -> dict:
         ret = {
             **self.__dict__,
-            "initial_date": int(self.initial_date.strftime(DATE_FORMAT)),
+            "initial_date": self.initial_date.strftime(DATE_FORMAT),
             "history": sorted(
                 [h.to_dict() for h in self.history], key=lambda h: h["date"]
             ),

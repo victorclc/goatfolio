@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from itertools import groupby
-from typing import List, Dict, Set, Callable, Optional, Type, ClassVar, Any
+from typing import List, Dict, Set, Callable, Optional, Any
 
 from adapters.outbound.dynamo_investment_repository import DynamoInvestmentRepository
 from adapters.outbound.dynamo_portfolio_repository import DynamoPortfolioRepository

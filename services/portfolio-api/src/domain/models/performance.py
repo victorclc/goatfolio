@@ -3,6 +3,9 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional
 
+from domain.models.investment_summary import StockSummary
+import domain.utils as utils
+
 
 @dataclass
 class PortfolioPosition:
@@ -31,6 +34,41 @@ class PortfolioSummary:
             **self.__dict__,
             "stocks_variation": [h.to_dict() for h in self.stocks_variation],
         }
+
+    def consolidate_stock_summary(
+        self,
+        stock_summary: StockSummary,
+        latest_price: Decimal,
+        yesterday_price: Decimal,
+        prev_month_price: Decimal,
+    ):
+        s_gross_amount = stock_summary.latest_position.amount * latest_price
+        self.gross_amount += s_gross_amount
+        self.month_variation += s_gross_amount
+
+        self.day_variation += stock_summary.latest_position.amount * (
+            latest_price - yesterday_price
+        )
+        self.invested_amount += stock_summary.latest_position.invested_value
+
+        if stock_summary.latest_position.date < utils.current_month_start():
+            self.month_variation -= (
+                    stock_summary.latest_position.amount * prev_month_price
+            )
+        elif (
+            stock_summary.has_active_previous_position()
+        ):
+            self.month_variation -= (
+                stock_summary.previous_position.amount * prev_month_price
+            )
+
+        if utils.is_on_same_year_and_month(
+            stock_summary.latest_position.date, utils.current_month_start()
+        ):
+            self.month_variation -= stock_summary.latest_position.bought_value
+
+    def add_stock_variation(self, ticker: str, change: Decimal, price: Decimal):
+        self.stocks_variation.append(StockVariation(ticker, change, price))
 
 
 @dataclass

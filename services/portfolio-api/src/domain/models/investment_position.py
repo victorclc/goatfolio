@@ -19,7 +19,7 @@ class InvestmentPosition(ABC):
 
     def __post_init__(self):
         if isinstance(self.date, str):
-            self.date = dt.datetime.strptime(self.date, DATE_FORMAT)
+            self.date = dt.datetime.strptime(self.date, DATE_FORMAT).date()
 
         self.sold_amount = Decimal(self.sold_amount).quantize(Decimal("0.01"))
         self.bought_amount = Decimal(self.bought_amount).quantize(Decimal("0.01"))
