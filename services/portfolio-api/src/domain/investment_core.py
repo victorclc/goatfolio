@@ -18,7 +18,7 @@ class InvestmentCore:
 
     def add(self, subject: str, request: InvestmentRequest):
         investment = load_model_by_type(request.type, request.investment)
-        assert investment.date <= datetime.now(tz=timezone.utc), "invalid date"
+        assert investment.date <= datetime.now().date(), "invalid date"
         if not investment.id:
             investment.id = str(uuid4())
         investment.subject = subject
@@ -31,7 +31,7 @@ class InvestmentCore:
         investment = load_model_by_type(request.type, request.investment)
         investment.subject = subject
         assert investment.id, "investment id is empty"
-        assert investment.date <= datetime.now(tz=timezone.utc), "invalid date"
+        assert investment.date <= datetime.now().date(), "invalid date"
 
         self.repo.save(investment)
         return investment
