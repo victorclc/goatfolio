@@ -5,7 +5,10 @@ from typing import Dict
 from dateutil.relativedelta import relativedelta
 
 import domain.utils as utils
-from adapters.outbound.dynamo_market_history import MarketData
+from adapters.outbound.cedro_stock_intraday_client import CedroStockIntradayClient
+from adapters.outbound.dynamo_stock_history_repository import (
+    DynamoStockHistoryRepository,
+)
 from adapters.outbound.dynamo_portfolio_repository import DynamoPortfolioRepository
 from domain.enums.investment_type import InvestmentType
 from domain.models.investment_summary import InvestmentSummary, StockSummary
@@ -56,8 +59,10 @@ class StockPerformanceCalculator(InvestmentPerformanceCalculator):
             ):
                 p.month_variation -= summary.latest_position.bought_value
 
-            p.ticker_variation += TickerVariation(
-                ticker, intra.today_variation_percentage, intra.current_price
+            p.ticker_variation.append(
+                TickerVariation(
+                    ticker, intra.today_variation_percentage, intra.current_price
+                )
             )
         p.month_variation += p.gross_amount - previous_month_gross_amount
 
@@ -81,7 +86,11 @@ class StockPerformanceCalculator(InvestmentPerformanceCalculator):
         return Decimal(0)
 
 
-CALCULATORS = {InvestmentType.STOCK: StockPerformanceCalculator(None, None)}
+CALCULATORS = {
+    InvestmentType.STOCK: StockPerformanceCalculator(
+        DynamoStockHistoryRepository(), CedroStockIntradayClient()
+    )
+}
 
 
 class PerformanceCore:
@@ -367,7 +376,7 @@ class PerformanceCore:
 
 def main():
     subject = "41e4a793-3ef5-4413-82e2-80919bce7c1a"
-    core = PerformanceCore(repo=DynamoPortfolioRepository(), market_data=MarketData())
+    core = PerformanceCore(DynamoPortfolioRepository())
     result = core.calculate_portfolio_summary(subject)
     print(result)
 
