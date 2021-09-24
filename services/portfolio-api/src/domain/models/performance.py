@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, List
 
 from domain.models.investment_summary import StockSummary
 import domain.utils as utils
@@ -22,63 +22,43 @@ class PortfolioPosition:
 
 
 @dataclass
-class PortfolioSummary:
-    invested_amount: Decimal = field(default_factory=lambda: Decimal(0))
-    gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
-    day_variation: Decimal = field(default_factory=lambda: Decimal(0))
-    month_variation: Decimal = field(default_factory=lambda: Decimal(0))
-    stocks_variation: list = field(default_factory=list)
-
-    def to_dict(self):
-        return {
-            **self.__dict__,
-            "stocks_variation": [h.to_dict() for h in self.stocks_variation],
-        }
-
-    def consolidate_stock_summary(
-        self,
-        stock_summary: StockSummary,
-        latest_price: Decimal,
-        yesterday_price: Decimal,
-        prev_month_price: Decimal,
-    ):
-        s_gross_amount = stock_summary.latest_position.amount * latest_price
-        self.gross_amount += s_gross_amount
-        self.month_variation += s_gross_amount
-
-        self.day_variation += stock_summary.latest_position.amount * (
-            latest_price - yesterday_price
-        )
-        self.invested_amount += stock_summary.latest_position.invested_value
-
-        if stock_summary.latest_position.date < utils.current_month_start():
-            self.month_variation -= (
-                    stock_summary.latest_position.amount * prev_month_price
-            )
-        elif (
-            stock_summary.has_active_previous_position()
-        ):
-            self.month_variation -= (
-                stock_summary.previous_position.amount * prev_month_price
-            )
-
-        if utils.is_on_same_year_and_month(
-            stock_summary.latest_position.date, utils.current_month_start()
-        ):
-            self.month_variation -= stock_summary.latest_position.bought_value
-
-    def add_stock_variation(self, ticker: str, change: Decimal, price: Decimal):
-        self.stocks_variation.append(StockVariation(ticker, change, price))
-
-
-@dataclass
-class StockVariation:
+class TickerVariation:
     ticker: str
     variation: Decimal
     last_price: Decimal
 
     def to_dict(self):
         return self.__dict__
+
+
+@dataclass
+class PerformanceSummary:
+    invested_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
+    day_variation: Decimal = field(default_factory=lambda: Decimal(0))
+    month_variation: Decimal = field(default_factory=lambda: Decimal(0))
+    ticker_variation: List[TickerVariation] = field(default_factory=list)
+
+    def __add__(self, other):
+        invested_amount = self.invested_amount + other.invested_amount
+        gross_amount = self.gross_amount + other.gross_amount
+        day_variation = self.day_variation + other.day_variation
+        month_variation = self.month_variation + other.month_variation
+        ticker_variation = self.ticker_variation + other.ticker_variation
+
+        return invested_amount(
+            invested_amount,
+            gross_amount,
+            day_variation,
+            month_variation,
+            ticker_variation,
+        )
+
+    def to_dict(self):
+        return {
+            **self.__dict__,
+            "ticker_variation": [h.to_dict() for h in self.ticker_variation],
+        }
 
 
 @dataclass

@@ -34,9 +34,13 @@ class InvestmentSummary(ABC):
 class StockSummary(InvestmentSummary):
     def __post_init__(self):
         if isinstance(self.latest_position, dict):
-            self.latest_position = StockPositionSummary(**self.latest_position)
+            self.latest_position: StockPositionSummary = StockPositionSummary(
+                **self.latest_position
+            )
         if isinstance(self.previous_position, dict):
-            self.previous_position = StockPositionSummary(**self.previous_position)
+            self.previous_position: StockPositionSummary = StockPositionSummary(
+                **self.previous_position
+            )
 
     def is_active(self) -> bool:
         return self.latest_position.amount > 0

@@ -19,7 +19,9 @@ class Portfolio(PortfolioItem):
 
     def __post_init__(self):
         if isinstance(self.initial_date, str):
-            self.initial_date = dt.datetime.strptime(self.initial_date, DATE_FORMAT).date()
+            self.initial_date = dt.datetime.strptime(
+                self.initial_date, DATE_FORMAT
+            ).date()
         new_stocks = {}
         for k, v in self.stocks.items():
             new_stocks[k] = v
@@ -45,6 +47,13 @@ class Portfolio(PortfolioItem):
                 if consolidated.alias_ticker and self.stocks.get(consolidated.ticker):
                     self.stocks.pop(consolidated.ticker)
                 self.stocks[consolidated.current_ticker_name()] = summary
+
+    def active_stocks(self) -> Dict[str, StockSummary]:
+        return {
+            stock: summary
+            for stock, summary in self.stocks.items()
+            if summary.is_active()
+        }
 
     def active_tickers(self) -> List[str]:
         return [

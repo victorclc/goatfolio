@@ -18,10 +18,6 @@ from goatcommons.cedro.client import CedroMarketDataClient
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
 
-# TODO CONVERT THIS TO A DOMAIN DATACLASS
-IntraDayData = namedtuple('IntraDayData', 'price prev_close_price change name')
-MonthData = namedtuple('MonthlyData', 'open close')
-
 
 class DynamoMarketHistoryRepository:
     DATE_FORMAT = "%Y%m01"
@@ -53,7 +49,7 @@ class DynamoMarketHistoryRepository:
         return []
 
     def batch_get_by_tickers_and_date(
-        self, tickers: Set[str], _date: datetime.date
+        self, tickers: List[str], _date: datetime.date
     ) -> Optional[List[CandleData]]:
         response = self.__client.batch_get_item(
             RequestItems={
@@ -63,7 +59,7 @@ class DynamoMarketHistoryRepository:
                             "ticker": {"S": ticker},
                             "candle_date": {"S": _date.strftime(self.DATE_FORMAT)},
                         }
-                        for ticker in tickers
+                        for ticker in set(tickers)
                     ],
                     "ConsistentRead": False,
                 }
@@ -74,6 +70,7 @@ class DynamoMarketHistoryRepository:
         for data in response["Responses"]["MarketData"]:
             candles.append(CandleData(**self.__deserializer.deserialize({"M": data})))
         return candles
+
 
 
 class RedisMarketData:
@@ -152,10 +149,14 @@ class MarketData:
     @RedisMarketData.cached_tuple
     def ticker_intraday_data(self, ticker: str):
         result = self.cedro.quote(ticker)
-        return IntraDayData(Decimal(result['lastTrade'] or result['previous']).quantize(Decimal('0.01')),
-                            Decimal(result['previous']).quantize(Decimal('0.01')),
-                            Decimal((result['change'])).quantize(Decimal('0.01')),
-                            result['company'])
+        return IntraDayData(
+            Decimal(result["lastTrade"] or result["previous"]).quantize(
+                Decimal("0.01")
+            ),
+            Decimal(result["previous"]).quantize(Decimal("0.01")),
+            Decimal((result["change"])).quantize(Decimal("0.01")),
+            result["company"],
+        )
 
     def tickers_intraday_data(self, tickers):
         attempt = 0
@@ -170,34 +171,45 @@ class MarketData:
                     else:
                         not_in_cache_tickers.append(ticker)
 
-                logger.info(f'not_in_cache_tickers: {not_in_cache_tickers}')
+                logger.info(f"not_in_cache_tickers: {not_in_cache_tickers}")
                 if not_in_cache_tickers:
                     quotes = self.cedro.quotes(not_in_cache_tickers)
                     if type(quotes) is not list:
                         quotes = [quotes]
                     for quote in quotes:
-                        data = IntraDayData(Decimal(quote['lastTrade'] or quote['previous']).quantize(Decimal('0.01')),
-                                            Decimal(quote['previous']).quantize(Decimal('0.01')),
-                                            Decimal((quote['change'])).quantize(Decimal('0.01')), quote['company'])
-                        ticker = quote['symbol'].upper()
+                        data = IntraDayData(
+                            Decimal(quote["lastTrade"] or quote["previous"]).quantize(
+                                Decimal("0.01")
+                            ),
+                            Decimal(quote["previous"]).quantize(Decimal("0.01")),
+                            Decimal((quote["change"])).quantize(Decimal("0.01")),
+                            quote["company"],
+                        )
+                        ticker = quote["symbol"].upper()
                         response[ticker] = data
                         self.redis.put_intraday_data(ticker, data)
                 return response
             except Exception:
                 attempt += 1
-                logger.exception(f'ATTEMPET {attempt} FAILED.')
+                logger.exception(f"ATTEMPET {attempt} FAILED.")
 
     def ibov_from_date(self, date_from) -> List[CandleData]:
-        return self.repo.find_by_ticker_from_date('IBOVESPA', date_from)
+        return self.repo.find_by_ticker_from_date("IBOVESPA", date_from)
 
-    def ticker_monthly_data_from(self, ticker, date_from, alias_ticker=''):
+    def ticker_monthly_data_from(self, ticker, date_from, alias_ticker=""):
         ticker_candles = self.repo.find_by_ticker_from_date(ticker, date_from)
 
         if alias_ticker:
             alias_candles = self.repo.find_by_ticker_from_date(alias_ticker, date_from)
             for candle in alias_candles:
-                ticker_candle = next((ticker_candle for ticker_candle in ticker_candles if
-                                      ticker_candle.candle_date == candle.candle_date), {})
+                ticker_candle = next(
+                    (
+                        ticker_candle
+                        for ticker_candle in ticker_candles
+                        if ticker_candle.candle_date == candle.candle_date
+                    ),
+                    {},
+                )
                 if ticker_candle:
                     ticker_candle.close_price = candle.close_price
                 else:
@@ -205,18 +217,22 @@ class MarketData:
 
         response_map = {}
         for candle in ticker_candles:
-            response_map[candle.candle_date.strftime('%Y%m01')] = MonthData(candle.open_price, candle.close_price)
+            response_map[candle.candle_date.strftime("%Y%m01")] = MonthData(
+                candle.open_price, candle.close_price
+            )
 
         return response_map
 
-    def ticker_month_data(self, ticker, _date, alias_ticker=''):
+    def ticker_month_data(self, ticker, _date, alias_ticker=""):
         """
-            Gets candle(open, close) for the entire date.year/date.month
+        Gets candle(open, close) for the entire date.year/date.month
         """
         open_price = Decimal(0)
         close_price = Decimal(0)
         if alias_ticker:
-            candles = self.repo.batch_get_by_tickers_and_date(set([ticker, alias_ticker]), _date)
+            candles = self.repo.batch_get_by_tickers_and_date(
+                set([ticker, alias_ticker]), _date
+            )
             if candles:
                 if len(candles) == 2:
                     for candle in candles:
@@ -234,6 +250,3 @@ class MarketData:
                 close_price = candle.close_price
 
         return MonthData(open_price, close_price)
-
-
-

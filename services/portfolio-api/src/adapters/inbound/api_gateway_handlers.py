@@ -6,7 +6,7 @@ from http import HTTPStatus
 from domain.models.investment_request import InvestmentRequest
 from goatcommons.utils import JsonUtils, AWSEventUtils
 
-from adapters.inbound import investment_core
+from adapters.inbound import investment_core, performance_core
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
