@@ -3,9 +3,6 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional, List
 
-from domain.models.investment_summary import StockSummary
-import domain.utils as utils
-
 
 @dataclass
 class PortfolioPosition:
@@ -102,20 +99,6 @@ class PortfolioList:
             "bdrs": [b.to_dict() for b in self.bdrs],
             "ibov_history": [i.to_dict() for i in self.ibov_history],
         }
-
-
-@dataclass
-class StockSummary:
-    ticker: str
-    alias_ticker: str
-    amount: Decimal
-    average_price: Decimal
-    invested_amount: Decimal
-    current_price: Decimal
-    gross_amount: Decimal
-
-    def to_dict(self):
-        return self.__dict__
 
 
 @dataclass

@@ -1,90 +1,15 @@
-from abc import ABC, abstractmethod
-from decimal import Decimal
-from typing import Dict
-
-from dateutil.relativedelta import relativedelta
-
-import domain.utils as utils
 from adapters.outbound.cedro_stock_intraday_client import CedroStockIntradayClient
+from adapters.outbound.dynamo_portfolio_repository import DynamoPortfolioRepository
 from adapters.outbound.dynamo_stock_history_repository import (
     DynamoStockHistoryRepository,
 )
-from adapters.outbound.dynamo_portfolio_repository import DynamoPortfolioRepository
 from domain.enums.investment_type import InvestmentType
-from domain.models.investment_summary import InvestmentSummary, StockSummary
 from domain.models.performance import (
     PerformanceSummary,
-    TickerVariation,
 )
 from domain.models.portfolio import Portfolio
+from domain.performance_calculators import StockPerformanceCalculator
 from domain.ports.outbound.portfolio_repository import PortfolioRepository
-from domain.ports.outbound.stock_history_repository import StockHistoryRepository
-from domain.ports.outbound.stock_instraday_client import StockIntradayClient
-
-
-class InvestmentPerformanceCalculator(ABC):
-    @abstractmethod
-    def calculate_performance_summary(
-        self, summaries_dict: Dict[str, InvestmentSummary]
-    ) -> PerformanceSummary:
-        """"""
-
-
-class StockPerformanceCalculator(InvestmentPerformanceCalculator):
-    def __init__(self, history: StockHistoryRepository, intraday: StockIntradayClient):
-        self.history = history
-        self.intraday = intraday
-
-    def calculate_performance_summary(
-        self, summaries_dict: Dict[str, StockSummary]
-    ) -> PerformanceSummary:
-        intraday_dict = self.intraday.batch_get_intraday_info(
-            list(summaries_dict.keys())
-        )
-
-        p = PerformanceSummary()
-        previous_month_gross_amount = Decimal(0)
-        for ticker, summary in summaries_dict.items():
-            intra = intraday_dict.get(ticker)
-            p.gross_amount += summary.latest_position.amount * intra.current_price
-            p.invested_amount += summary.latest_position.invested_value
-            p.day_variation += summary.latest_position.amount * (
-                intra.current_price - intra.yesterday_price
-            )
-            previous_month_gross_amount += self.previous_month_gross_amount(
-                ticker, summary
-            )
-            if utils.is_on_same_year_and_month(
-                summary.latest_position.date, utils.current_month_start()
-            ):
-                p.month_variation -= summary.latest_position.bought_value
-
-            p.ticker_variation.append(
-                TickerVariation(
-                    ticker, intra.today_variation_percentage, intra.current_price
-                )
-            )
-        p.month_variation += p.gross_amount - previous_month_gross_amount
-
-        return p
-
-    def previous_month_gross_amount(self, ticker, summary: StockSummary) -> Decimal:
-        if summary.latest_position.date < utils.current_month_start():
-            return (
-                summary.latest_position.amount
-                * self.history.find_by_ticker_and_date(
-                    ticker, utils.current_month_start() - relativedelta(months=1)
-                ).close_price
-            )
-        elif summary.has_active_previous_position():
-            return (
-                summary.previous_position.amount
-                * self.history.find_by_ticker_and_date(
-                    ticker, utils.current_month_start() - relativedelta(months=1)
-                ).close_price
-            )
-        return Decimal(0)
-
 
 CALCULATORS = {
     InvestmentType.STOCK: StockPerformanceCalculator(
@@ -109,83 +34,6 @@ class PerformanceCore:
 
         return performance
 
-    # def aacalculate_portfolio_summary(self, subject) -> PortfolioSummary:
-    #     prev_month_start = utils.current_month_start() - relativedelta(months=1)
-    #     portfolio = self.get_portfolio(subject)
-    #
-    #     active_tickers = portfolio.active_tickers()
-    #     intraday_map = self.market_data.tickers_intraday_data(active_tickers)
-    #
-    #     calculator = StockPerformanceCalculator(self.history, self.intraday)
-    #     calculator.calculate_performance_summary(portfolio.active_stocks())
-    #
-    #     summary = PortfolioSummary()
-    #
-    #     for ticker in active_tickers:
-    #         s_summary = portfolio.get_stock_summary(ticker)
-    #         prev_month_candle = self.market_data.ticker_month_data(
-    #             ticker, prev_month_start, s_summary.alias_ticker
-    #         )
-    #         intraday_data = intraday_map[ticker]
-    #         summary.consolidate_stock_summary(
-    #             s_summary,
-    #             intraday_data.price,
-    #             intraday_data.prev_close_price,
-    #             prev_month_candle.close,
-    #         )
-    #         summary.add_stock_variation(
-    #             ticker, intraday_data.change, intraday_data.price
-    #         )
-    #
-    #     return summary
-
-    # def get_portfolio_summary(self, subject):
-    #     portfolio = self.get_portfolio(subject)
-    #     summary = PortfolioSummary()
-    #
-    #     prev_month_adj_gross_amount = Decimal(0)
-    #
-    #     current_month_start = utils.current_month_start()
-    #     prev_month_start = current_month_start - relativedelta(months=1)
-    #
-    #     tickers = portfolio.active_tickers()
-    #     intraday_map = self.market_data.tickers_intraday_data(tickers)
-    #
-    #     for stock in filter(lambda s: s.latest_position.amount > 0, portfolio.stocks):
-    #         data = intraday_map[stock.alias_ticker or stock.ticker]
-    #         summary.gross_amount += stock.latest_position.amount * data.price
-    #         summary.day_variation += stock.latest_position.amount * (
-    #             data.price - data.prev_close_price
-    #         )
-    #         summary.invested_amount += stock.latest_position.invested_value
-    #
-    #         if stock.latest_position.date < current_month_start:
-    #             month_data = self.market_data.ticker_month_data(
-    #                 stock.ticker, prev_month_start, stock.alias_ticker
-    #             )
-    #             prev_month_adj_gross_amount += (
-    #                 stock.latest_position.amount * month_data.close
-    #             )
-    #         elif stock.previous_position and stock.previous_position.amount > 0:
-    #             month_data = self.market_data.ticker_month_data(
-    #                 stock.ticker, prev_month_start, stock.alias_ticker
-    #             )
-    #             prev_month_adj_gross_amount += (
-    #                 stock.previous_position.amount * month_data.close
-    #             )
-    #
-    #         if DatetimeUtils.same_year_and_month(
-    #             current_month_start, stock.latest_position.date
-    #         ):
-    #             summary.month_variation -= stock.latest_position.bought_value
-    #         summary.stocks_variation.append(
-    #             StockVariation(
-    #                 stock.alias_ticker or stock.ticker, data.change, data.price
-    #             )
-    #         )
-    #
-    #     summary.month_variation += summary.gross_amount - prev_month_adj_gross_amount
-    #     return summary
     #
     # def get_portfolio_history(self, subject):
     #     portfolio, stock_consolidated = self.repo.find_all(subject) or (
