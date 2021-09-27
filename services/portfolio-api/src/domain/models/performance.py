@@ -1,21 +1,17 @@
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+import datetime as dt
 from decimal import Decimal
 from typing import Optional, List
 
 
 @dataclass
 class PortfolioPosition:
-    date: datetime
+    date: dt.date
     invested_value: Decimal = field(default_factory=lambda: Decimal(0))
     gross_value: Decimal = field(default_factory=lambda: Decimal(0))
 
-    def __post_init__(self):
-        if not isinstance(self.date, datetime):
-            self.date = datetime.fromtimestamp(float(self.date), tz=timezone.utc)  # type: ignore
-
     def to_dict(self):
-        return {**self.__dict__, "date": int(self.date.timestamp())}
+        return {**self.__dict__, "date": self.date.strftime("%Y%m%d")}
 
 
 @dataclass
@@ -104,7 +100,7 @@ class PortfolioList:
 @dataclass
 class CandleData:
     ticker: str
-    candle_date: datetime
+    candle_date: dt.date
     average_price: Decimal
     close_price: Decimal
     company_name: str
@@ -115,29 +111,28 @@ class CandleData:
     min_price: Optional[Decimal] = None
 
     def __post_init__(self):
-        if not isinstance(self.candle_date, datetime):
-            tmp_date = datetime.strptime(self.candle_date, "%Y%m%d")  # type: ignore
-            self.candle_date = datetime(
-                tmp_date.year, tmp_date.month, tmp_date.day, tzinfo=timezone.utc
-            )
+        if isinstance(self.candle_date, str):
+            self.candle_date = dt.datetime.strptime(
+                str(self.candle_date), "%Y%m%d"
+            ).date()
 
 
 @dataclass
 class BenchmarkPosition:
-    date: datetime
+    date: dt.date
     open: Decimal
     close: Decimal
 
     def to_dict(self):
-        return {**self.__dict__, "date": int(self.date.timestamp())}
+        return {**self.__dict__, "date": self.date.strftime("%Y%m%d")}
 
 
 @dataclass
 class StockConsolidatedPosition:
-    date: datetime
+    date: dt.date
     gross_value: Decimal
     invested_value: Decimal
     variation_perc: Decimal
 
     def to_dict(self):
-        return {**self.__dict__, "date": int(self.date.timestamp())}
+        return {**self.__dict__, "date": self.date.strftime("%Y%m%d")}

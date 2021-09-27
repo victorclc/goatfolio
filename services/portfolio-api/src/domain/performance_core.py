@@ -6,15 +6,25 @@ from adapters.outbound.dynamo_stock_history_repository import (
 from domain.enums.investment_type import InvestmentType
 from domain.models.performance import (
     PerformanceSummary,
+    PortfolioHistory,
 )
 from domain.models.portfolio import Portfolio
-from domain.performance_calculators import StockPerformanceCalculator
+from domain.performance_calculators import (
+    StockPerformanceCalculator,
+    StockHistoricalConsolidator,
+)
 from domain.ports.outbound.portfolio_repository import PortfolioRepository
 
 CALCULATORS = {
     InvestmentType.STOCK: StockPerformanceCalculator(
         DynamoStockHistoryRepository(), CedroStockIntradayClient()
     )
+}
+
+HISTORICAL_CONSOLIDATOR = {
+    InvestmentType.STOCK: StockHistoricalConsolidator(
+        DynamoStockHistoryRepository(), CedroStockIntradayClient()
+    ),
 }
 
 
@@ -34,7 +44,15 @@ class PerformanceCore:
 
         return performance
 
-    #
+    def portfolio_history_chart(self, subject):
+        _, consolidations = self.repo.find_all(subject)
+
+        positions = HISTORICAL_CONSOLIDATOR[
+            InvestmentType.STOCK
+        ].consolidate_historical_data_monthly(consolidations)
+
+        return PortfolioHistory(positions, [])
+
     # def get_portfolio_history(self, subject):
     #     portfolio, stock_consolidated = self.repo.find_all(subject) or (
     #         Portfolio(subject, subject),
@@ -76,6 +94,7 @@ class PerformanceCore:
     #     return PortfolioHistory(
     #         history=list(portfolio_history_map.values()), ibov_history=ibov_history
     #     )
+
     #
     # def _fetch_stocks_history_data(self, stock: StockConsolidated, intraday_map):
     #     grouped_positions = group_stock_position_per_month(
@@ -225,7 +244,7 @@ class PerformanceCore:
 def main():
     subject = "41e4a793-3ef5-4413-82e2-80919bce7c1a"
     core = PerformanceCore(DynamoPortfolioRepository())
-    result = core.calculate_portfolio_summary(subject)
+    result = core.portfolio_history_chart(subject)
     print(result)
 
 

@@ -7,6 +7,7 @@ from domain.models.investment_consolidated import (
     InvestmentConsolidated,
     StockConsolidated,
 )
+from domain.ports.outbound.portfolio_repository import PortfolioRepository
 
 
 class InvestmentsConsolidationStrategy(ABC):
@@ -16,41 +17,30 @@ class InvestmentsConsolidationStrategy(ABC):
         subject: str,
         new: List[Investment],
         old: List[Investment],
-        find_consolidated_by_ticker_fn: Callable[
-            [str, str, Any],
-            List[InvestmentConsolidated],
-        ],
-        find_consolidated_by_alias_fn: Callable[
-            [str, str, Any],
-            List[InvestmentConsolidated],
-        ],
     ) -> List[InvestmentConsolidated]:
         """Consolidate new and old investments using as base current portfolio object and returns a new portfolio"""
 
 
 class StockConsolidationStrategy(InvestmentsConsolidationStrategy):
+    def __init__(self, portfolio_repo: PortfolioRepository):
+        self.repo = portfolio_repo
+
     def consolidate(
         self,
         subject: str,
         new: List[StockInvestment],
-        old: List[StockInvestment],
-        find_consolidated_fn: Callable[[str, str, Any], List[StockConsolidated]],
-        find_consolidated_by_alias_fn: Callable[
-            [str, str, Any], List[StockConsolidated]
-        ],
+        old: List[StockInvestment]
     ) -> List[InvestmentConsolidated]:
         self.invert_investments_amount_list(old)
         consolidated_response = []
 
         for current_ticker, investments in self.group_by_current_ticker_name(new + old):
-            consolidated_list = find_consolidated_by_alias_fn(
-                subject, current_ticker, StockConsolidated
-            )
+            consolidated_list = self.repo.find_alias_ticker(subject, current_ticker, StockConsolidated)
 
             for ticker, t_investments in self.group_by_ticker(list(investments)):
                 consolidated = self.find_ticker_consolidated(ticker, consolidated_list)
                 if not consolidated:
-                    response = find_consolidated_fn(subject, ticker, StockConsolidated)
+                    response = self.repo.find_ticker(subject, ticker, StockConsolidated)
                     if response:
                         consolidated = response[0]
                     else:
@@ -58,6 +48,8 @@ class StockConsolidationStrategy(InvestmentsConsolidationStrategy):
                     consolidated_list.append(consolidated)
                 for inv in t_investments:
                     consolidated.add_investment(inv)
+
+            self.repo.save_all(consolidated_list)
             consolidated_response.append(
                 sum(consolidated_list[1:], consolidated_list[0])
             )

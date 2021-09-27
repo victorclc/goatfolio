@@ -24,7 +24,7 @@ logger.setLevel(logging.INFO)
 
 
 CONSOLIDATE_STRATS: Dict[InvestmentType, InvestmentsConsolidationStrategy] = {
-    InvestmentType.STOCK: StockConsolidationStrategy()
+    InvestmentType.STOCK: StockConsolidationStrategy(DynamoPortfolioRepository())
 }
 
 
@@ -47,12 +47,10 @@ class PortfolioCore:
             all_items += CONSOLIDATE_STRATS[_type].consolidate(
                 subject,
                 filtered_new,
-                filtered_old,
-                self.repo.find_ticker,
-                self.repo.find_alias_ticker,
+                filtered_old
             )
         portfolio.update_summary(all_items)
-        self.repo.save_all([portfolio, *all_items])
+        self.repo.save(portfolio)
 
     def get_portfolio(self, subject) -> Portfolio:
         portfolio = self.repo.find(subject) or Portfolio(

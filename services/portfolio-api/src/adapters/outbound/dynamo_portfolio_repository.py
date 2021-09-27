@@ -4,6 +4,7 @@ from typing import List, Optional, ClassVar, Type
 import boto3
 from boto3.dynamodb.conditions import Key
 
+from domain.models.investment_consolidated import StockConsolidated
 from domain.models.portfolio import (
     Portfolio,
     PortfolioItem,
@@ -31,21 +32,20 @@ class DynamoPortfolioRepository:
         logger.info(f"No Portfolio yet for subject: {subject}")
 
     def find_all(self, subject) -> (Portfolio, [InvestmentConsolidated]):
-        pass
-        # result = self._portfolio_table.query(
-        #     KeyConditionExpression=Key("subject").eq(subject)
-        # )
-        # portfolio = None
-        # stock_consolidated = []
-        # if not result["Items"]:
-        #     logger.info(f"No Portfolio yet for subject: {subject}")
-        #     return
-        # for item in result["Items"]:
-        #     if item["ticker"] == subject:
-        #         portfolio = Portfolio(**item)
-        #     else:
-        #         stock_consolidated.append(StockConsolidated(**item))
-        # return portfolio, stock_consolidated
+        result = self._portfolio_table.query(
+            KeyConditionExpression=Key("subject").eq(subject)
+        )
+        portfolio = None
+        stock_consolidated = []
+        if not result["Items"]:
+            logger.info(f"No Portfolio yet for subject: {subject}")
+            return
+        for item in result["Items"]:
+            if item["ticker"] == subject:
+                portfolio = Portfolio(**item)
+            else:
+                stock_consolidated.append(StockConsolidated(**item))
+        return portfolio, stock_consolidated
 
     def find_ticker(
         self,
@@ -75,6 +75,9 @@ class DynamoPortfolioRepository:
             return [consolidated_type(**i) for i in result["Items"]]
         logger.info(f"No alias {ticker} yet for subject: {subject}")
         return []
+
+    def save(self, item: PortfolioItem):
+        self._portfolio_table.put_item(Item=item.to_dict())
 
     def save_all(self, items: [PortfolioItem]):
         with self._portfolio_table.batch_writer() as batch:

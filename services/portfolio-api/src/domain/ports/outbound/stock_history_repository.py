@@ -1,5 +1,5 @@
 import datetime
-from typing import Protocol, Optional, List
+from typing import Protocol, Optional, List, Dict
 
 from domain.models.performance import CandleData
 
@@ -12,7 +12,7 @@ class StockHistoryRepository(Protocol):
 
     def find_by_ticker_from_date(
         self, ticker: str, from_date: datetime.date
-    ) -> Optional[List[CandleData]]:
+    ) -> Dict[datetime.date, CandleData]:
         """Finds all CandlaDate from given ticker from this from_date"""
 
     def find_by_tickers_and_date(

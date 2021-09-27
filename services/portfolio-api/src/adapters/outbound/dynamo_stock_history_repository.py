@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import boto3
 from boto3.dynamodb.conditions import Key
@@ -31,14 +31,19 @@ class DynamoStockHistoryRepository:
 
     def find_by_ticker_from_date(
         self, ticker: str, _date: datetime.date
-    ) -> Optional[List[CandleData]]:
+    ) -> Dict[datetime.date, CandleData]:
         result = self.__table.query(
             KeyConditionExpression=Key("ticker").eq(ticker)
             & Key("candle_date").gte(_date.strftime(self.DATE_FORMAT))
         )
+
+        candles = {}
         if result["Items"]:
-            return [CandleData(**data) for data in result["Items"]]
-        return []
+            for item in result["Items"]:
+                candle = CandleData(**item)
+                candles[candle.candle_date] = candle
+
+        return candles
 
     def find_by_tickers_and_date(
         self, tickers: List[str], _date: datetime.date
