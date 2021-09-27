@@ -9,10 +9,9 @@ from domain.models.performance import (
     PortfolioHistory,
 )
 from domain.models.portfolio import Portfolio
-from domain.performance_calculators import (
-    StockPerformanceCalculator,
-    StockHistoricalConsolidator,
-)
+from domain.core.performance.calculators import StockPerformanceCalculator
+from domain.core.performance.historical_consolidators import StockHistoricalConsolidator
+
 from domain.ports.outbound.portfolio_repository import PortfolioRepository
 
 CALCULATORS = {

@@ -13,7 +13,7 @@ from domain.models.portfolio import (
     StockSummary,
     StockPosition,
 )
-from domain.portfolio_core import PortfolioCore
+from domain.core.portfolio.portfolio_core import PortfolioCore
 
 
 class TestPortfolioCore(unittest.TestCase):

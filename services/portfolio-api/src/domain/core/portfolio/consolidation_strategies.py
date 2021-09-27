@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 from itertools import groupby
-from typing import List, Callable, Any, Optional
+from typing import List, Optional
 
 from domain.models.investment import Investment, StockInvestment
 from domain.models.investment_consolidated import (

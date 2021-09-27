@@ -9,7 +9,7 @@ from domain.models.investment_request import InvestmentRequest
 from domain.enums.investment_type import InvestmentType
 
 from domain.enums.operation_type import OperationType
-from domain.investment_core import InvestmentCore
+from domain.core.investment.investment_core import InvestmentCore
 
 
 class TestInvestmentCore(unittest.TestCase):

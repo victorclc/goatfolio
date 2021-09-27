@@ -4,7 +4,7 @@ from typing import List, Dict, Set
 
 from adapters.outbound.dynamo_investment_repository import DynamoInvestmentRepository
 from adapters.outbound.dynamo_portfolio_repository import DynamoPortfolioRepository
-from domain.consolidation_strategies import (
+from domain.core.portfolio.consolidation_strategies import (
     InvestmentsConsolidationStrategy,
     StockConsolidationStrategy,
 )
