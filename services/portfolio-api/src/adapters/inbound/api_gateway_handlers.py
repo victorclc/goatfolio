@@ -93,7 +93,7 @@ def performance_history_handler(event, context):
 def ticker_performance_handler(event, context):
     logger.info(f"EVENT: {event}")
     subject = AWSEventUtils.get_event_subject(event)
-    ticker = AWSEventUtils.get_query_param(event, "ticker").upper()
+    ticker = AWSEventUtils.get_path_param(event, "ticker").upper()
 
     result = performance_core.ticker_history_chart(subject, ticker)
     return {"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())}
