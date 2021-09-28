@@ -5,6 +5,12 @@ provider:
   region: sa-east-1
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
+  vpc:
+    securityGroupIds:
+      - !GetAtt RedisSecurityGroup.GroupId
+    subnetIds:
+      - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet1ID
+      - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
   environment:
     PYTHONPATH: "src:libs"
     REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
