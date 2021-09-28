@@ -1,9 +1,8 @@
 from datetime import datetime
-from uuid import uuid4
 
+from domain.models.investment_request import InvestmentRequest
 from domain.ports.outbound.investment_repository import InvestmentRepository
 from domain.utils.investment_loader import load_model_by_type
-from domain.models.investment_request import InvestmentRequest
 
 
 # TODO CUSTOM EXCEPTIONS INSTEAD OF ASSERT

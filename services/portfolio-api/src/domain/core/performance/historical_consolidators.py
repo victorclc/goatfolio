@@ -11,7 +11,7 @@ from domain.ports.outbound.stock_instraday_client import StockIntradayClient
 import domain.utils as utils
 
 
-class InvestmentHistoricalConsolidator(ABC):
+class InvestmentHistoryConsolidator(ABC):
     @abstractmethod
     def consolidate_historical_data_monthly(
         self, consolidations: [InvestmentConsolidated]
@@ -19,7 +19,7 @@ class InvestmentHistoricalConsolidator(ABC):
         """Consolidates the historical data of a investment type"""
 
 
-class StockHistoricalConsolidator(InvestmentHistoricalConsolidator):
+class StockHistoryConsolidator(InvestmentHistoryConsolidator):
     def __init__(self, history: StockHistoryRepository, intraday: StockIntradayClient):
         self.ticker_history = history
         self.intraday = intraday
