@@ -4,6 +4,7 @@ from dataclasses import asdict
 from http import HTTPStatus
 
 from domain.models.investment_request import InvestmentRequest
+from domain.utils.investment_loader import MissingRequiredFields
 from goatcommons.utils import JsonUtils, AWSEventUtils
 
 from adapters.inbound import investment_core, performance_core
@@ -17,23 +18,14 @@ logger.setLevel(logging.INFO)
 
 def get_investments_handler(event, context):
     logger.info(f"EVENT: {event}")
-    try:
-        subject = AWSEventUtils.get_event_subject(event)
-        investments = investment_core.get(subject)
 
-        return {
-            "statusCode": HTTPStatus.OK,
-            "body": JsonUtils.dump([asdict(i) for i in investments]),
-        }
-    except AssertionError as ex:
-        traceback.print_exc()
-        return {
-            "statusCode": HTTPStatus.BAD_REQUEST,
-            "body": JsonUtils.dump({"message": str(ex)}),
-        }
-    except Exception as e:
-        traceback.print_exc()
-        raise e
+    subject = AWSEventUtils.get_event_subject(event)
+    investments = investment_core.get(subject)
+
+    return {
+        "statusCode": HTTPStatus.OK,
+        "body": JsonUtils.dump([asdict(i) for i in investments]),
+    }
 
 
 def add_investment_handler(event, context):
@@ -44,15 +36,12 @@ def add_investment_handler(event, context):
 
         result = investment_core.add(subject, investment)
         return {"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(asdict(result))}
-    except (AssertionError, TypeError) as ex:
-        traceback.print_exc()
+    except MissingRequiredFields as ex:
+        logger.exception("BAD REQUEST", ex)
         return {
             "statusCode": HTTPStatus.BAD_REQUEST,
             "body": JsonUtils.dump({"message": str(ex)}),
         }
-    except Exception as e:
-        traceback.print_exc()
-        raise e
 
 
 def edit_investment_handler(event, context):
@@ -63,15 +52,12 @@ def edit_investment_handler(event, context):
 
         result = investment_core.edit(subject, investment)
         return {"statusCode": 200, "body": JsonUtils.dump(asdict(result))}
-    except (AssertionError, TypeError) as ex:
-        traceback.print_exc()
+    except MissingRequiredFields as ex:
+        logger.exception("BAD REQUEST", ex)
         return {
             "statusCode": HTTPStatus.BAD_REQUEST,
             "body": JsonUtils.dump({"message": str(ex)}),
         }
-    except Exception as e:
-        traceback.print_exc()
-        raise e
 
 
 def delete_investment_handler(event, context):
@@ -88,9 +74,6 @@ def delete_investment_handler(event, context):
             "statusCode": HTTPStatus.BAD_REQUEST,
             "body": JsonUtils.dump({"message": str(ex)}),
         }
-    except Exception as e:
-        traceback.print_exc()
-        raise e
 
 
 def performance_summary_handler(event, context):

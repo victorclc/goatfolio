@@ -18,7 +18,7 @@ class Investment:
     broker: str
 
     def __post_init__(self):
-        if isinstance(self.date, Decimal):
+        if not isinstance(self.date, dt.date):
             self.date = dt.datetime.strptime(str(self.date), DATE_FORMAT).date()
         if isinstance(self.operation, str):
             self.operation = OperationType.from_string(self.operation)

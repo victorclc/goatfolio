@@ -10,6 +10,7 @@ from domain.enums.investment_type import InvestmentType
 
 from domain.enums.operation_type import OperationType
 from domain.core.investment.investment_core import InvestmentCore
+from domain.utils.investment_loader import MissingRequiredFields
 
 
 class TestInvestmentCore(unittest.TestCase):
@@ -28,7 +29,7 @@ class TestInvestmentCore(unittest.TestCase):
             investment={
                 "operation": OperationType.BUY,
                 "broker": "INTER",
-                "date": "123456",
+                "date":  "20210101",
                 "amount": Decimal(100),
                 "price": Decimal(50.5),
                 "ticker": "BIDI11",
@@ -94,7 +95,7 @@ class TestInvestmentCore(unittest.TestCase):
                 "ticker": "BIDI11",
             },
         )
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(MissingRequiredFields):
             self.core.edit(subject="1111-2222-333-4444", request=request)
 
         self.core.repo.save.assert_not_called()

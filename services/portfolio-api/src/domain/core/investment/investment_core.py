@@ -17,10 +17,9 @@ class InvestmentCore:
         return self.repo.find_by_subject(subject)
 
     def add(self, subject: str, request: InvestmentRequest):
+        request.investment['subject'] = subject
         investment = load_model_by_type(request.type, request.investment)
         assert investment.date <= datetime.now().date(), "invalid date"
-        if not investment.id:
-            investment.id = str(uuid4())
         investment.subject = subject
 
         self.repo.save(investment)
@@ -28,9 +27,8 @@ class InvestmentCore:
 
     def edit(self, subject: str, request: InvestmentRequest):
         assert subject
-        investment = load_model_by_type(request.type, request.investment)
-        investment.subject = subject
-        assert investment.id, "investment id is empty"
+        request.investment['subject'] = subject
+        investment = load_model_by_type(request.type, request.investment, generate_id=False)
         assert investment.date <= datetime.now().date(), "invalid date"
 
         self.repo.save(investment)
@@ -45,9 +43,8 @@ class InvestmentCore:
     def batch_add(self, requests: [InvestmentRequest]):
         investments = []
         for request in requests:
-            investment = load_model_by_type(request.type, request.investment)
+            investment = load_model_by_type(request.type, request.investment, generate_id=False)
             assert investment.subject, "subject is empty"
-            assert investment.id, "investment id is empty"
 
             investments.append(investment)
         self.repo.batch_save(investments)
