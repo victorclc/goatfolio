@@ -9,6 +9,8 @@ from goatcommons.utils import JsonUtils, AWSEventUtils
 
 from adapters.inbound import investment_core, performance_core
 
+import domain.utils as utils
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
 )
@@ -76,6 +78,7 @@ def delete_investment_handler(event, context):
         }
 
 
+@utils.logexceptions
 def performance_summary_handler(event, context):
     logger.info(f"EVENT: {event}")
     subject = AWSEventUtils.get_event_subject(event)
@@ -112,3 +115,14 @@ def calculate_group_position_summary_handler(event, context):
         for summary in results
     }
     return {"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(dict_response)}
+
+
+def main():
+    subject = "41e4a793-3ef5-4413-82e2-80919bce7c1a"
+    result = performance_core.calculate_portfolio_summary(subject)
+    print({"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())})
+
+
+
+if __name__ == "__main__":
+    main()

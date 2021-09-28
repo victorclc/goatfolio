@@ -38,6 +38,13 @@ provider:
         - sqs:GetQueueUrl
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
+        - dynamodb:BatchGetItem
+      Resource:
+        'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
 
 
   apiGateway:
