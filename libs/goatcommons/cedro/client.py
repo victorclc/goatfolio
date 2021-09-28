@@ -46,7 +46,10 @@ class CedroMarketDataClient:
         print(response)
         print(response.content)
         try:
-            return response.json()
+            json = response.json()
+            if type(json) is not list:
+                json = [json]
+            return json
         except Exception as e:
             logger.exception(f'QUOTES ERROR: {response}', e)
             raise e

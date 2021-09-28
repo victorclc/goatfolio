@@ -1,74 +1,50 @@
-from dataclasses import dataclass
-from datetime import datetime, timezone
+import datetime as dt
+from dataclasses import dataclass, field
 from decimal import Decimal
 
 from domain.enums.investment_type import InvestmentType
 from domain.enums.operation_type import OperationType
 
+DATE_FORMAT = "%Y%m%d"
+
 
 @dataclass
-class _InvestmentsBase:
-    operation: OperationType
-    date: datetime
+class Investment:
+    subject: str
+    id: str
+    date: dt.date
     type: InvestmentType
+    operation: OperationType
     broker: str
 
     def __post_init__(self):
+        if not isinstance(self.date, dt.date):
+            self.date = dt.datetime.strptime(str(self.date), DATE_FORMAT).date()
         if isinstance(self.operation, str):
             self.operation = OperationType.from_string(self.operation)
         if isinstance(self.type, str):
             self.type = InvestmentType.from_string(self.type)
 
+    def to_dict(self):
+        return {
+            **self.__dict__,
+            "date": int(self.date.strftime(DATE_FORMAT)),
+            "operation": self.operation.value,
+            "type": self.type.value,
+        }
+
 
 @dataclass
-class Investment(_InvestmentsBase):
-    external_system: str = ""
-    subject: str = ""
-    id: str = ""
-    costs: Decimal = Decimal(0)
-
-
-@dataclass
-class _StockInvestmentsBase:
+class StockInvestment(Investment):
+    ticker: str
     amount: Decimal
     price: Decimal
-    ticker: str
-
-
-@dataclass
-class _CheckingAccountInvestmentBase:
-    initial_date: str
-    value: Decimal
-    percent_over_cdi: Decimal
-
-
-@dataclass
-class _PostFixedInvestmentBase:
-    emitter: str
-    paper: str
-    indexer: str
-    percent_over_cdi: Decimal
-    expiration_date: str
-    value: Decimal
-
-
-@dataclass
-class _PreFixedInvestmentBase:
-    emitter: str
-    paper: str
-    annual_tax: Decimal
-    initial_date: str
-    expiration_date: str
-    value: Decimal
-
-
-@dataclass
-class StockInvestment(Investment, _StockInvestmentsBase):
+    costs: Decimal = field(default_factory=lambda: Decimal(0))
     alias_ticker: str = ""
+    external_system: str = ""
 
     def __post_init__(self):
-        if not isinstance(self.date, datetime):
-            self.date = datetime.fromtimestamp(float(self.date), tz=timezone.utc)  # type: ignore
+        super().__post_init__()
         if not isinstance(self.amount, Decimal):
             self.amount = Decimal(self.amount).quantize(Decimal("0.01"))
         if not isinstance(self.price, Decimal):
@@ -79,21 +55,3 @@ class StockInvestment(Investment, _StockInvestmentsBase):
     @property
     def current_ticker_name(self):
         return self.alias_ticker or self.ticker
-
-    def to_dict(self):
-        return {**self.__dict__, "date": int(self.date.timestamp())}
-
-
-@dataclass
-class CheckingAccountInvestment(Investment, _CheckingAccountInvestmentBase):
-    pass
-
-
-@dataclass
-class PostFixedInvestment(Investment, _PostFixedInvestmentBase):
-    pass
-
-
-@dataclass
-class PreFixedInvestment(Investment, _PreFixedInvestmentBase):
-    pass

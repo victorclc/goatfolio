@@ -3,7 +3,7 @@ import traceback
 from decimal import Decimal
 
 from adapters.inbound import portfolio_core
-from domain.models.investment import StockInvestment
+from domain.models.investment import StockInvestment, Investment
 from goatcommons.shit.client import ShitNotifierClient
 from goatcommons.shit.models import NotifyLevel
 
@@ -52,7 +52,7 @@ def consolidate_portfolio_handler(event, context):
         )
 
 
-def _dynamo_stream_to_stock_investment(stream):
+def _dynamo_stream_to_stock_investment(stream) -> Investment:
     return StockInvestment(
         **{
             "date": stream["date"]["N"],
