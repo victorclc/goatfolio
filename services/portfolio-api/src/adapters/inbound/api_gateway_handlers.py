@@ -96,21 +96,14 @@ def delete_investment_handler(event, context):
 def performance_summary_handler(event, context):
     logger.info(f"EVENT: {event}")
     subject = AWSEventUtils.get_event_subject(event)
-    result = performance_core.get_portfolio_summary(subject)
+    result = performance_core.calculate_portfolio_summary(subject)
     return {"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())}
 
 
 def performance_history_handler(event, context):
     logger.info(f"EVENT: {event}")
     subject = AWSEventUtils.get_event_subject(event)
-    result = performance_core.get_portfolio_history(subject)
-    return {"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())}
-
-
-def portfolio_performance_handler(event, context):
-    logger.info(f"EVENT: {event}")
-    subject = AWSEventUtils.get_event_subject(event)
-    result = performance_core.get_portfolio_list(subject)
+    result = performance_core.portfolio_history_chart(subject)
     return {"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())}
 
 
@@ -119,5 +112,20 @@ def ticker_performance_handler(event, context):
     subject = AWSEventUtils.get_event_subject(event)
     ticker = AWSEventUtils.get_query_param(event, "ticker").upper()
 
-    result = performance_core.get_ticker_consolidated_history(subject, ticker)
+    result = performance_core.ticker_history_chart(subject, ticker)
     return {"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())}
+
+
+def calculate_group_position_summary_handler(event, context):
+    logger.info(f"EVENT: {event}")
+    subject = AWSEventUtils.get_event_subject(event)
+    results = performance_core.calculate_portfolio_detailed_summary(subject)
+
+    dict_response = {
+        summary.group_name: {
+            "opened_positions": summary.opened_positions,
+            "gross_value": summary.gross_value,
+        }
+        for summary in results
+    }
+    return {"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(dict_response)}

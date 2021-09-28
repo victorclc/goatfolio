@@ -11,6 +11,7 @@ from domain.models.group_position_summary import (
     StocksPositionSummary,
     REITsPositionSummary,
     BDRsPositionSummary,
+    GroupPositionSummary,
 )
 from domain.models.intraday_info import IntradayInfo
 from domain.models.investment_summary import InvestmentSummary, StockSummary
@@ -87,10 +88,15 @@ class StockPerformanceCalculator(InvestmentPerformanceCalculator):
         return Decimal(0)
 
 
-# class GroupSummaryCalculator:
+class GroupSummaryCalculator(ABC):
+    def calculate_group_position_summary(
+        self, summaries_dict: Dict[str, InvestmentSummary]
+    ) -> List[GroupPositionSummary]:
+        """Calculates the position of a group of investments and returns a list of GroupPositionSummary for each
+        investment subgroup"""
 
 
-class StockGroupPositionCalculator:
+class StockGroupPositionCalculator(GroupSummaryCalculator):
     def __init__(self, intraday: StockIntradayClient):
         self.intraday = intraday
         self._active_tickers = []
@@ -133,7 +139,9 @@ class StockGroupPositionCalculator:
             if not s.is_empty()
         ]
 
-    def calculate_group_position_summary(self, summaries_dict: Dict[str, StockSummary]):
+    def calculate_group_position_summary(
+        self, summaries_dict: Dict[str, StockSummary]
+    ) -> List[StocksPositionSummary]:
         self.initialize(summaries_dict)
 
         for ticker, summary in summaries_dict.items():

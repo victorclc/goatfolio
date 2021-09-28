@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from adapters.outbound.cedro_stock_intraday_client import CedroStockIntradayClient
 from adapters.outbound.dynamo_portfolio_repository import DynamoPortfolioRepository
@@ -6,6 +6,7 @@ from adapters.outbound.dynamo_stock_history_repository import (
     DynamoStockHistoryRepository,
 )
 from domain.enums.investment_type import InvestmentType
+from domain.models.group_position_summary import GroupPositionSummary
 from domain.models.investment_consolidated import StockConsolidated
 from domain.models.performance import (
     PerformanceSummary,
@@ -76,7 +77,7 @@ class PerformanceCore:
 
         return TickerConsolidatedHistory(positions)
 
-    def calculate_portfolio_detailed_summary(self, subject: str):
+    def calculate_portfolio_detailed_summary(self, subject: str) -> List[GroupPositionSummary]:
         portfolio = self.get_portfolio(subject)
 
         performance = GROUPED_CALCULATOR.get(
@@ -90,9 +91,14 @@ def main():
     subject = "41e4a793-3ef5-4413-82e2-80919bce7c1a"
     core = PerformanceCore(DynamoPortfolioRepository())
     results = core.calculate_portfolio_detailed_summary(subject)
-    print(results)
-    for result in results:
-        print(result.to_dict())
+    dict_response = {
+        summary.group_name: {
+            "opened_positions": summary.opened_positions,
+            "gross_value": summary.gross_value,
+        }
+        for summary in results
+    }
+    print(dict_response)
 
 
 if __name__ == "__main__":
