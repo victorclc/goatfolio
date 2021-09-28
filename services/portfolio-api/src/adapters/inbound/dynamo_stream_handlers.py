@@ -47,12 +47,12 @@ def consolidate_portfolio_handler(event, context):
         traceback.print_exc()
         ShitNotifierClient().send(
             NotifyLevel.CRITICAL,
-            "PERFORMANCE-API",
+            "PORTFOLIO-API",
             f"CONSOLIDATE PORTFOLIO FAILED {traceback.format_exc()}",
         )
 
 
-def _dynamo_stream_to_stock_investment(stream) -> Investment:
+def _dynamo_stream_to_stock_investment(stream: dict) -> Investment:
     return StockInvestment(
         **{
             "date": stream["date"]["N"],
@@ -67,7 +67,7 @@ def _dynamo_stream_to_stock_investment(stream) -> Investment:
             "subject": stream["subject"]["S"],
             "id": stream["id"]["S"],
             "alias_ticker": stream["alias_ticker"]["S"]
-            if "NULL" not in stream["alias_ticker"]
+            if "alias_ticker" in stream and "NULL" not in stream["alias_ticker"]
             else "",
         }
     )
