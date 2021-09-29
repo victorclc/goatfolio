@@ -9,7 +9,7 @@ from domain.core.performance.historical_consolidators import (
 )
 from domain.enums.investment_type import InvestmentType
 from domain.models.group_position_summary import GroupPositionSummary
-from domain.models.investment_consolidated import StockConsolidated
+from domain.models.investment_consolidated import StockConsolidated, InvestmentConsolidated
 from domain.models.performance import (
     PerformanceSummary,
     TickerConsolidatedHistory,
@@ -43,7 +43,7 @@ class PerformanceCore:
 
         return performance
 
-    def portfolio_history_chart(self, subject: str):
+    def portfolio_history_chart(self, subject: str) -> List[InvestmentConsolidated]:
         _, consolidations = self.repo.find_all(subject)
 
         positions = self.history_consolidators[
