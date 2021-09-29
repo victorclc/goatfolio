@@ -167,15 +167,22 @@ class StockPositionWrapperLinkedList:
         self.head: Optional[StockPositionWrapper] = None
         self.tail: Optional[StockPositionWrapper] = None
         self._current: Optional[StockPositionWrapper] = None
+        self._first_interaction = False
 
     def __iter__(self):
+        self._first_interaction = True
         self._current = self.head
         return self
 
     def __next__(self) -> StockPositionWrapper:
-        if not self._current or not self._current.next:
+        if not self._current:
             raise StopIteration
+        if self._first_interaction:
+            self._first_interaction = False
+            return self._current
         self._current = self._current.next
+        if not self._current:
+            raise StopIteration
         return self._current
 
     def push(self, new_val: StockPosition):
@@ -312,6 +319,7 @@ class StockConsolidated(InvestmentConsolidated):
 
     def monthly_stock_position_wrapper_linked_list(
         self,
+        to_date: dt.date = None,
     ) -> StockPositionWrapperLinkedList:
         doubly = StockPositionWrapperLinkedList()
 
@@ -322,4 +330,9 @@ class StockConsolidated(InvestmentConsolidated):
                     doubly.append(StockPosition(prev_date))
                     prev_date += relativedelta(months=1)
             doubly.append(h)
+
+        while to_date and doubly.tail.date < to_date:
+            doubly.append(StockPosition(prev_date))
+            prev_date += relativedelta(months=1)
+
         return doubly
