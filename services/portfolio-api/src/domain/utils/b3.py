@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 from pytz import timezone
 
 MARKET_OPEN_HOUR = 10
-MARKET_CLOSE_HOUR = 18
+MARKET_CLOSE_HOUR = 17
 
 B3_TIMEZONE = timezone("America/Sao_Paulo")
 

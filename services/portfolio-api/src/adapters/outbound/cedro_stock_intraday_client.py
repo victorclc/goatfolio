@@ -12,6 +12,17 @@ from goatcommons.cedro.client import CedroMarketDataClient
 REDIS = Redis(host=os.getenv("REDIS_HOST"), port=6379, db=0)
 
 
+def cache_snapshot():
+    return {
+        key: {"value": REDIS.get(key), "ttl": REDIS.ttl(key)}
+        for key in REDIS.scan_iter()
+    }
+
+
+def invalidate_cache():
+    REDIS.delete(*[key for key in REDIS.scan_iter()])
+
+
 def cached_function(expiration_time_fn: Callable[[], int]):
     def wrapper(func):
         @wraps(func)
