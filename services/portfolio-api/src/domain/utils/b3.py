@@ -16,6 +16,9 @@ def is_b3_market_open() -> bool:
 
 def next_b3_market_opening() -> datetime.datetime:
     now = datetime.datetime.now().astimezone(B3_TIMEZONE)
+    if now.weekday() < 5 and now.hour < MARKET_OPEN_HOUR:
+        return now.replace(hour=MARKET_OPEN_HOUR, minute=0, second=0)
+
     next_day = now + relativedelta(days=1)
     while next_day.weekday() > 4:
         next_day = next_day + relativedelta(days=1)
