@@ -122,6 +122,7 @@ class StockGroupPositionCalculator(GroupSummaryCalculator):
             quantity=summary.latest_position.amount,
             average_price=summary.latest_position.average_price,
             last_price=self._intraday_dict[ticker].current_price,
+            invested_value=summary.latest_position.invested_value
         )
 
     def get_subtype_of_ticker(self, ticker) -> StockSubtype:
