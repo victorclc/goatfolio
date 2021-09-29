@@ -4,13 +4,9 @@ import 'benchmark_position.dart';
 
 class PortfolioHistory {
   List<PortfolioPosition> history;
-  List<BenchmarkPosition> ibovHistory;
 
-  PortfolioHistory.fromJson(Map<String, dynamic> json)
-      : history = json['history']
+  PortfolioHistory.fromJson(List json)
+      : history = json
             .map<PortfolioPosition>((json) => PortfolioPosition.fromJson(json))
-            .toList(),
-        ibovHistory = json['ibov_history']
-            .map<BenchmarkPosition>((json) => BenchmarkPosition.fromJson(json))
             .toList();
 }
