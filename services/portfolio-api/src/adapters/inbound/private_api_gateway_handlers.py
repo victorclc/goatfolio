@@ -3,6 +3,10 @@ import traceback
 from http import HTTPStatus
 
 from adapters.inbound import investment_core
+from adapters.outbound.cedro_stock_intraday_client import (
+    cache_snapshot,
+    invalidate_cache,
+)
 from domain.models.investment_request import InvestmentRequest
 from goatcommons.utils import JsonUtils
 
@@ -33,3 +37,18 @@ def batch_add_investments_handler(event, context):
     except Exception as e:
         traceback.print_exc()
         raise e
+
+
+def get_cache_snapshot_handler(event, context):
+    return {
+        "statusCode": HTTPStatus.OK,
+        "body": JsonUtils.dump(cache_snapshot()),
+    }
+
+
+def invalidate_cache_handler(event, context):
+    invalidate_cache()
+    return {
+        "statusCode": HTTPStatus.OK,
+        "body": JsonUtils.dump(HTTPStatus.OK.phrase),
+    }

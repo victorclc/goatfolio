@@ -207,6 +207,24 @@ functions:
 
   # Performance End
 
+  # MANAGEMENT AND METRICS ENDPOINTS
+  getCacheSnapshot:
+    handler: src/adapters/inbound/private_api_gateway_handlers.get_cache_snapshot_handler
+    events:
+      - http:
+          path: cache/snapshot
+          method: get
+          private: true
+
+  invalidateCache:
+    handler: src/adapters/inbound/private_api_gateway_handlers.invalidate_cache_handler
+    events:
+      - http:
+          path: cache/invalidate
+          method: post
+          private: true
+
+
 resources:
   Resources:
     ApiGatewayAuthorizer:
