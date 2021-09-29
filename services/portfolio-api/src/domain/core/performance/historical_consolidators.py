@@ -4,7 +4,10 @@ from decimal import Decimal
 from typing import Optional, Dict
 
 from domain.models.intraday_info import IntradayInfo
-from domain.models.investment_consolidated import InvestmentConsolidated, StockConsolidated
+from domain.models.investment_consolidated import (
+    InvestmentConsolidated,
+    StockConsolidated,
+)
 from domain.models.performance import PortfolioPosition, CandleData
 from domain.ports.outbound.stock_history_repository import StockHistoryRepository
 from domain.ports.outbound.stock_instraday_client import StockIntradayClient
@@ -35,8 +38,11 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
     ) -> [PortfolioPosition]:
         self.initialize([s.current_ticker_name() for s in consolidations])
 
+        current_month = utils.current_month_start()
         for consolidated in consolidations:
-            positions = consolidated.monthly_stock_position_wrapper_linked_list()
+            positions = consolidated.monthly_stock_position_wrapper_linked_list(
+                to_date=current_month
+            )
             if not positions:
                 continue
 

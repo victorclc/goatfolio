@@ -322,8 +322,6 @@ class StockConsolidated(InvestmentConsolidated):
         to_date: dt.date = None,
     ) -> StockPositionWrapperLinkedList:
         doubly = StockPositionWrapperLinkedList()
-        if not to_date:
-            to_date = dt.datetime.now().date().replace(day=1)
 
         prev_date = self.initial_date.replace(day=1)
         for h in self.grouped_by_month_stock_position():
@@ -333,7 +331,7 @@ class StockConsolidated(InvestmentConsolidated):
                     prev_date += relativedelta(months=1)
             doubly.append(h)
 
-        while doubly.tail.date < to_date:
+        while to_date and doubly.tail.date < to_date:
             doubly.append(StockPosition(prev_date))
             prev_date += relativedelta(months=1)
 
