@@ -331,8 +331,9 @@ class StockConsolidated(InvestmentConsolidated):
                     prev_date += relativedelta(months=1)
             doubly.append(h)
 
-        while to_date and doubly.tail.date < to_date:
-            doubly.append(StockPosition(prev_date))
-            prev_date += relativedelta(months=1)
+        if to_date and doubly.tail:
+            while doubly.tail.date < to_date:
+                doubly.append(StockPosition(prev_date))
+                prev_date += relativedelta(months=1)
 
         return doubly

@@ -48,6 +48,8 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
 
             historical_data = self.get_historical_data(consolidated)
             for p in positions:
+                if not self.has_price_from_date(consolidated, historical_data, p.date):
+                    continue
                 gross_value = p.amount * self.close_price_of(
                     consolidated, p.date, historical_data
                 )
@@ -72,7 +74,7 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
             data[
                 consolidated.alias_ticker
             ] = self.ticker_history.find_by_ticker_from_date(
-                consolidated.ticker, consolidated.initial_date
+                consolidated.alias_ticker, consolidated.initial_date
             )
         return data
 
@@ -105,3 +107,16 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
         position = self.get_portfolio_position(date)
         position.invested_value += invested_value
         position.gross_value += gross_value
+
+    @staticmethod
+    def has_price_from_date(
+        consolidated: StockConsolidated,
+        historical_data: Dict[str, Dict[datetime.date, CandleData]],
+        date: datetime.date,
+    ):
+        if date == utils.current_month_start():
+            return True
+
+        if consolidated.alias_ticker in historical_data:
+            return date in historical_data[consolidated.alias_ticker]
+        return date in historical_data[consolidated.ticker]
