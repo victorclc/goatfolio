@@ -12,7 +12,6 @@ from domain.models.group_position_summary import GroupPositionSummary
 from domain.models.investment_consolidated import StockConsolidated
 from domain.models.performance import (
     PerformanceSummary,
-    PortfolioHistory,
     TickerConsolidatedHistory,
 )
 from domain.models.portfolio import Portfolio
@@ -51,7 +50,7 @@ class PerformanceCore:
             InvestmentType.STOCK
         ].consolidate_historical_data_monthly(consolidations)
 
-        return PortfolioHistory(positions, [])
+        return positions
 
     def ticker_history_chart(
         self, subject: str, ticker: str

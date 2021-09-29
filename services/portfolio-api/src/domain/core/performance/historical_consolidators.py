@@ -57,7 +57,7 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
                     p.date, p.node_invested_value, gross_value
                 )
 
-        return list(self._history.values())
+        return list(sorted(self._history.values(), key=lambda s: s.date, reverse=False))
 
     def get_historical_data(
         self, consolidated: StockConsolidated
