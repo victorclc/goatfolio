@@ -14,7 +14,7 @@ REDIS = Redis(host=os.getenv("REDIS_HOST"), port=6379, db=0)
 
 def cache_snapshot():
     return {
-        key: {"value": REDIS.get(key), "ttl": REDIS.ttl(key)}
+        key.decode("utf-8"): {"value": REDIS.get(key), "ttl": REDIS.ttl(key)}
         for key in REDIS.scan_iter()
     }
 
