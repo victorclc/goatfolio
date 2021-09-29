@@ -55,18 +55,6 @@ class PerformanceSummary:
 
 
 @dataclass
-class PortfolioHistory:
-    history: list
-    ibov_history: list
-
-    def to_dict(self):
-        return {
-            "history": [h.to_dict() for h in self.history],
-            "ibov_history": [h.to_dict() for h in self.ibov_history],
-        }
-
-
-@dataclass
 class TickerConsolidatedHistory:
     history: list
 

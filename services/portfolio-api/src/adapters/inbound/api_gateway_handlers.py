@@ -119,7 +119,7 @@ def calculate_group_position_summary_handler(event, context):
 
 def main():
     subject = "41e4a793-3ef5-4413-82e2-80919bce7c1a"
-    result = performance_core.calculate_portfolio_summary(subject)
+    result = performance_core.portfolio_history_chart(subject)
     print(result)
     # print({"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())})
 
