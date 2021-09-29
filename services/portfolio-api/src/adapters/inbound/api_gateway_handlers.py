@@ -121,7 +121,7 @@ def main():
     subject = "41e4a793-3ef5-4413-82e2-80919bce7c1a"
     result = performance_core.ticker_history_chart(subject, 'BBAS3')
     print(result)
-    print({"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())})
+    # print({"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())})
 
 
 
