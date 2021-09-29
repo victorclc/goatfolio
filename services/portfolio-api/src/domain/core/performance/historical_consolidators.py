@@ -54,7 +54,7 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
                     consolidated, p.date, historical_data
                 )
                 self.add_to_portfolio_position(
-                    p.date, p.node_invested_value, gross_value
+                    p.date, p.current_invested_value, gross_value
                 )
 
         return list(sorted(self._history.values(), key=lambda s: s.date, reverse=False))
