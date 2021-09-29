@@ -58,7 +58,7 @@ class InvestmentsList extends StatelessWidget {
   }
 
   List<SettingsSection> buildAlphabetSections(PortfolioPerformance portfolio) {
-    final stocks = (portfolio.stocks + portfolio.reits + portfolio.bdrs)
+    final stocks = portfolio.allStocks
         .map((s) => s.currentTickerName)
         .toList()
           ..sort();

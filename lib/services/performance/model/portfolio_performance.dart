@@ -1,43 +1,49 @@
+import 'package:goatfolio/services/performance/model/group_position_summary.dart';
 import 'package:goatfolio/services/performance/model/stock_summary.dart';
 
-import 'benchmark_position.dart';
-
 class PortfolioPerformance {
-  double stockGrossAmount;
-  double reitGrossAmount;
-  double bdrGrossAmount;
-  List<StockSummary> stocks;
-  List<StockSummary> reits;
-  List<StockSummary> bdrs;
-  List<BenchmarkPosition> ibovHistory;
+  GroupPositionSummary stockSummary;
+  GroupPositionSummary reitSummary;
+  GroupPositionSummary bdrSummary;
 
-  get grossAmount => stockGrossAmount + reitGrossAmount + bdrGrossAmount;
+  get grossValue {
+    double grossAmount = 0;
+    if (stockSummary != null) grossAmount += stockSummary.grossValue;
+    if (reitSummary != null) grossAmount += reitSummary.grossValue;
+    if (bdrSummary != null) grossAmount += bdrSummary.grossValue;
 
-  List<StockSummary> get allStocks => stocks + reits + bdrs;
+    return grossAmount;
+  }
+
+  List<StockSummary> get allStocks {
+    List<StockSummary> stocks = [];
+    if (stockSummary != null) stocks += stockSummary.openedPositions;
+    if (reitSummary != null) stocks += reitSummary.openedPositions;
+    if (bdrSummary != null) stocks += bdrSummary.openedPositions;
+
+    return stocks;
+  }
+
+  bool get hasStocks => stockSummary != null;
+
+  bool get hasReits => reitSummary != null;
+
+  bool get hasBdrs => bdrSummary != null;
 
   PortfolioPerformance.fromJson(Map<String, dynamic> json)
-      : stockGrossAmount = json['stock_gross_amount'],
-        reitGrossAmount = json['reit_gross_amount'],
-        bdrGrossAmount = json['bdr_gross_amount'],
-        stocks = json['stocks']
-            .map<StockSummary>((json) => StockSummary.fromJson(json))
-            .toList(),
-        reits = json['reits']
-            .map<StockSummary>((json) => StockSummary.fromJson(json))
-            .toList(),
-        bdrs = json['bdrs']
-            .map<StockSummary>((json) => StockSummary.fromJson(json))
-            .toList(),
-        ibovHistory = json['ibov_history']
-            .map<BenchmarkPosition>((json) => BenchmarkPosition.fromJson(json))
-            .toList();
+      : stockSummary = json.containsKey('STOCKS')
+            ? GroupPositionSummary.fromJson(json['STOCKS'])
+            : null,
+        reitSummary = json.containsKey('REITS')
+            ? GroupPositionSummary.fromJson(json['REITS'])
+            : null,
+        bdrSummary = json.containsKey('BDRS')
+            ? GroupPositionSummary.fromJson(json['BDRS'])
+            : null;
 
   void copy(PortfolioPerformance other) {
-    stockGrossAmount = other.stockGrossAmount;
-    reitGrossAmount = other.reitGrossAmount;
-    bdrGrossAmount = other.bdrGrossAmount;
-    stocks = other.stocks;
-    reits = other.reits;
-    bdrs = other.bdrs;
+    stockSummary = other.stockSummary;
+    reitSummary = other.reitSummary;
+    bdrSummary = other.bdrSummary;
   }
 }
