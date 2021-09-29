@@ -5,8 +5,8 @@ from typing import List, Dict, Callable, Optional
 
 from redis import Redis
 
-from domain.models.intraday_info import IntradayInfo
 import domain.utils as utils
+from domain.models.intraday_info import IntradayInfo
 from goatcommons.cedro.client import CedroMarketDataClient
 
 REDIS = Redis(host=os.getenv("REDIS_HOST"), port=6379, db=0)
@@ -14,7 +14,10 @@ REDIS = Redis(host=os.getenv("REDIS_HOST"), port=6379, db=0)
 
 def cache_snapshot():
     return {
-        key.decode("utf-8"): {"value": REDIS.get(key), "ttl": REDIS.ttl(key)}
+        key.decode("utf-8"): {
+            "value": REDIS.get(key).decode("utf-8"),
+            "ttl": REDIS.ttl(key),
+        }
         for key in REDIS.scan_iter()
     }
 
