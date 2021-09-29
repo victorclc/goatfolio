@@ -133,21 +133,21 @@ class StockPositionWrapper:
             Decimal("0.01")
         )
 
-    @property
-    def gross_value(self):
-        return self.amount * self.data.close_price
-
-    @property
-    def prev_adjusted_gross_value(self):
-        if self.prev and self.prev.amount > 0:
-            if self.data.sold_amount > 0:
-                prev_month_amount = self.prev.amount - round(
-                    self.node_invested_sold_value / self.prev.average_price
-                )
-            else:
-                prev_month_amount = self.prev.amount
-            return prev_month_amount * self.prev.data.close_price
-        return 0
+    # @property
+    # def gross_value(self):
+    #     return self.amount * self.data.close_price
+    #
+    # @property
+    # def prev_adjusted_gross_value(self):
+    #     if self.prev and self.prev.amount > 0:
+    #         if self.data.sold_amount > 0:
+    #             prev_month_amount = self.prev.amount - round(
+    #                 self.node_invested_sold_value / self.prev.average_price
+    #             )
+    #         else:
+    #             prev_month_amount = self.prev.amount
+    #         return prev_month_amount * self.prev.data.close_price
+    #     return 0
 
     @property
     def month_variation_percent(self):
@@ -295,7 +295,10 @@ class StockConsolidated(InvestmentConsolidated):
         )
         if previous:
             previous_position = StockPositionSummary(
-                date=previous.data.date, amount=previous.amount
+                date=previous.data.date,
+                amount=previous.amount,
+                bought_value=previous.data.bought_value,
+                invested_value=previous.current_invested_value,
             )
 
         return StockSummary(
@@ -330,6 +333,7 @@ class StockConsolidated(InvestmentConsolidated):
                     doubly.append(StockPosition(prev_date))
                     prev_date += relativedelta(months=1)
             doubly.append(h)
+            prev_date = h.date.replace(day=1) + relativedelta(months=1)
 
         if to_date and doubly.tail:
             while doubly.tail.date < to_date:

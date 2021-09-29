@@ -44,7 +44,6 @@ class InvestmentPosition(ABC):
 
 @dataclass
 class StockPosition(InvestmentPosition):
-    close_price: Decimal = field(default_factory=lambda: Decimal(0))
 
     def __add__(self, other):
         sold_amount = self.sold_amount + other.sold_amount
