@@ -38,6 +38,7 @@ class StockItemInfo:
     quantity: Decimal
     average_price: Decimal
     last_price: Decimal
+    invested_value: Decimal
 
 
 class StocksPositionSummary(GroupPositionSummary):
