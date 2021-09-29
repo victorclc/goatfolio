@@ -62,7 +62,7 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
     super.initState();
     _client = PerformanceClient(widget.userService);
     _futureHistory = _client.getTickerConsolidatedHistory(
-        widget.item.ticker, widget.item.aliasTicker);
+        widget.item.currentTickerName);
     selectedTab = 'a';
   }
 
