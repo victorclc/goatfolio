@@ -2,7 +2,7 @@ from dataclasses import asdict
 
 import boto3
 
-from goatcommons.shit.models import NotifyRequest
+from event_notifier.models import NotifyRequest
 from goatcommons.utils import JsonUtils
 
 

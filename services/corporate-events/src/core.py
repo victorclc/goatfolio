@@ -1,5 +1,6 @@
 import logging
 import math
+import traceback
 from datetime import datetime
 from decimal import Decimal
 from io import StringIO
@@ -13,8 +14,8 @@ from adapters import B3CorporateEventsData, B3CorporateEventsBucket, CorporateEv
     AsyncPortfolioQueue, TickerInfoRepository
 from goatcommons.constants import OperationType, InvestmentsType
 from goatcommons.models import StockInvestment
-from goatcommons.shit.client import ShitNotifierClient
-from goatcommons.shit.models import NotifyLevel
+from event_notifier.client import ShitNotifierClient
+from event_notifier.models import NotifyLevel
 from model import EarningsInAssetCorporateEvent
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -236,3 +237,4 @@ if __name__ == '__main__':
     # base64_message = base64_bytes.decode('ascii')
     # print(base64_message)
     # # eyJjbnBqIjoiMCIsImlkZW50aWZpZXJGdW5kIjoiUkJSTSIsInR5cGVGdW5kIjo3fQ==
+

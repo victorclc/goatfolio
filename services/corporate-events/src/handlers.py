@@ -4,8 +4,8 @@ from decimal import Decimal
 
 from core import CorporateEventsCore, CorporateEventsCrawlerCore
 from goatcommons.models import StockInvestment
-from goatcommons.shit.client import ShitNotifierClient
-from goatcommons.shit.models import NotifyLevel
+from event_notifier.client import ShitNotifierClient
+from event_notifier.models import NotifyLevel
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
