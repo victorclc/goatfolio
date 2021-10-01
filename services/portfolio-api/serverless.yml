@@ -161,6 +161,19 @@ functions:
           arn:
             'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
 
+  fixStockAverage:
+    handler: src/adapters/inbound/api_gateway_handlers.fix_average_price_handler
+    events:
+      - http:
+          path: stock/fix-average
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+
+
   # Portfolio End
 
   # Performance Start

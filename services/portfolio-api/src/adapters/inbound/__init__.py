@@ -4,6 +4,7 @@ from adapters.outbound.dynamo_portfolio_repository import DynamoPortfolioReposit
 from adapters.outbound.dynamo_stock_history_repository import (
     DynamoStockHistoryRepository,
 )
+from adapters.outbound.rest_corporate_events_client import RESTCorporateEventsClient
 from domain.core.investment.investment_core import InvestmentCore
 from domain.core.performance.calculators import (
     StockPerformanceCalculator,
@@ -13,12 +14,14 @@ from domain.core.performance.historical_consolidators import StockHistoryConsoli
 from domain.core.performance.performance_core import PerformanceCore
 from domain.core.portfolio.consolidation_strategies import StockConsolidationStrategy
 from domain.core.portfolio.portfolio_core import PortfolioCore
+from domain.core.stock.stock_core import StockCore
 from domain.enums.investment_type import InvestmentType
 
 investment_repo = DynamoInvestmentRepository()
 portfolio_repo = DynamoPortfolioRepository()
 intraday_client = CedroStockIntradayClient()
 stock_history = DynamoStockHistoryRepository()
+transformation_client = RESTCorporateEventsClient()
 
 
 investment_core = InvestmentCore(repo=DynamoInvestmentRepository())
@@ -38,3 +41,4 @@ performance_core = PerformanceCore(
         InvestmentType.STOCK: StockHistoryConsolidator(stock_history, intraday_client)
     },
 )
+stock_core = StockCore(portfolio_repo, transformation_client)
