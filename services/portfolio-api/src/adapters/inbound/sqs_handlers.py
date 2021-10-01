@@ -2,7 +2,7 @@ import logging
 
 from adapters.inbound import investment_core
 from domain.models.investment_request import InvestmentRequest
-from goatcommons.utils import JsonUtils
+import goatcommons.utils.json as jsonutils
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
@@ -15,5 +15,5 @@ def async_add_investment_handler(event, context):
     logger.info(f"EVENT: {event}")
     for message in event["Records"]:
         logger.info(f"Processing message: {message}")
-        request = InvestmentRequest(**JsonUtils.load(message["body"]))
+        request = InvestmentRequest(**jsonutils.load(message["body"]))
         investment_core.add(request.subject, request)

@@ -8,7 +8,7 @@ from adapters.outbound.cedro_stock_intraday_client import (
     invalidate_cache,
 )
 from domain.models.investment_request import InvestmentRequest
-from goatcommons.utils import JsonUtils
+import goatcommons.utils.json as jsonutils
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
@@ -21,18 +21,18 @@ def batch_add_investments_handler(event, context):
     logger.info(f"EVENT: {event}")
     try:
         investments = map(
-            lambda i: InvestmentRequest(**i), JsonUtils.load(event["body"])
+            lambda i: InvestmentRequest(**i), jsonutils.load(event["body"])
         )
         investment_core.batch_add(investments)
         return {
             "statusCode": HTTPStatus.OK,
-            "body": JsonUtils.dump(HTTPStatus.OK.phrase),
+            "body": jsonutils.dump(HTTPStatus.OK.phrase),
         }
     except Exception as ex:
         logger.error(ex)
         return {
             "statusCode": HTTPStatus.BAD_REQUEST,
-            "body": JsonUtils.dump({"message": str(ex)}),
+            "body": jsonutils.dump({"message": str(ex)}),
         }
     except Exception as e:
         traceback.print_exc()
@@ -42,7 +42,7 @@ def batch_add_investments_handler(event, context):
 def get_cache_snapshot_handler(event, context):
     return {
         "statusCode": HTTPStatus.OK,
-        "body": JsonUtils.dump(cache_snapshot()),
+        "body": jsonutils.dump(cache_snapshot()),
     }
 
 
@@ -50,5 +50,5 @@ def invalidate_cache_handler(event, context):
     invalidate_cache()
     return {
         "statusCode": HTTPStatus.OK,
-        "body": JsonUtils.dump(HTTPStatus.OK.phrase),
+        "body": jsonutils.dump(HTTPStatus.OK.phrase),
     }
