@@ -1,21 +1,27 @@
+import datetime as dt
 from decimal import Decimal
 from uuid import uuid4
-import datetime as dt
-
-from dateutil.relativedelta import relativedelta
 
 from domain.enums.investment_type import InvestmentType
 from domain.enums.operation_type import OperationType
 from domain.models.investment import StockInvestment
 from domain.models.investment_consolidated import StockConsolidated
 from domain.ports.outbound.portfolio_repository import PortfolioRepository
+from domain.ports.outbound.ticker_transformation_client import (
+    TickerTransformationClient,
+)
 
 
 class StockCore:
-    """ "Stock only specific endpoints"""
+    """Stock only specific endpoints"""
 
-    def __init__(self, repo: PortfolioRepository):
+    def __init__(
+        self,
+        repo: PortfolioRepository,
+        transformation_client: TickerTransformationClient,
+    ):
         self.repo = repo
+        self.transformation_client = transformation_client
 
     def average_price_fix(
         self,
@@ -26,19 +32,21 @@ class StockCore:
         amount: Decimal,
         average_price: Decimal,
     ):
-        """Add a investment of ticker with quantity to fix the overall average_price"""
         consolidated = self.get_stock_consolidated(subject, ticker)
+        transformation = self.transformation_client.get_ticker_transformation(
+            ticker, date
+        )
+        i_amount = amount / transformation.grouping_factor
 
-        # TODO transformation = corporate-events.get_ticker_transformation_in_time(ticker, date)
-        # TODO calculate amount necessary and ticker in the date
-
-        price = self.calculate_new_investment_price(consolidated, amount, average_price)
+        price = self.calculate_new_investment_price(
+            consolidated, i_amount, average_price
+        )
         investment = self.create_stock_investment(
             subject,
             date,
             broker,
-            ticker,
-            amount,
+            transformation.ticker,
+            i_amount,
             price,
         )
 
