@@ -32,7 +32,7 @@ def handle_yesterday_split_events_handler(event, context):
 
 
 @notify_exception(Exception, NotifyLevel.CRITICAL)
-def handle_today_group_events_handler(event, context):
+def handle_yesterday_group_events_handler(event, context):
     yesterday = datetime.datetime.now().date() - relativedelta(days=1)
     corporate_events_core.handle_corporate_events(
         EventType.GROUP, yesterday, strategies.handle_group_event_strategy
@@ -40,7 +40,7 @@ def handle_today_group_events_handler(event, context):
 
 
 @notify_exception(Exception, NotifyLevel.CRITICAL)
-def handle_today_incorporation_events_handler(event, context):
+def handle_yesterday_incorporation_events_handler(event, context):
     yesterday = datetime.datetime.now().date() - relativedelta(days=1)
     corporate_events_core.handle_corporate_events(
         EventType.INCORPORATION,
