@@ -2,6 +2,7 @@ import datetime
 import logging
 import traceback
 from dataclasses import asdict
+from decimal import Decimal
 from http import HTTPStatus
 
 from domain.models.investment_request import InvestmentRequest
@@ -130,12 +131,15 @@ def fix_average_price_handler(event, context):
     subject = awsutils.get_event_subject(event)
     body = jsonutils.load(event["body"])
 
-    stock_core.average_price_fix(
+    investment = stock_core.average_price_fix(
         subject,
         body["ticker"],
         datetime.datetime.strptime(body["date_from"], "%Y%m%d").date(),
+        body["broker"],
+        Decimal(body["amount"]),
+        Decimal(body["average_price"]),
     )
-    return {"statusCode": 200, "body": jsonutils.dump({"message": "Success"})}
+    return {"statusCode": 200, "body": jsonutils.dump(investment.to_dict())}
 
 
 def main():
