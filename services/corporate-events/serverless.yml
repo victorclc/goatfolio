@@ -106,17 +106,17 @@ functions:
     events:
       - schedule: cron(0 23 ? * MON-FRI *)
 
-  handleYesterdaySplitCorporateEventsH:
+  yesterdaySplitEvents:
     handler: src/adapters/inbound/cloudwatch_cron_handlers.handle_yesterday_split_events_handler
     events:
       - schedule: cron(0 13 ? * * *)
 
-  handleYesterdayGroupCorporateEventsH:
+  yesterdayGroupEvents:
     handler: src/adapters/inbound/cloudwatch_cron_handlers.handle_yesterday_group_events_handler
     events:
       - schedule: cron(0 13 ? * * *)
 
-  handleYesterdayIncorporationCorporateEventsH:
+  yesterdayIncorporationEvents:
     handler: src/adapters/inbound/cloudwatch_cron_handlers.handle_yesterday_incorporation_events_handler
     events:
       - schedule: cron(0 13 ? * * *)
