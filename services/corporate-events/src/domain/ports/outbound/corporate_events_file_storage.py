@@ -14,5 +14,5 @@ class CorporateEventsFileStorage(Protocol):
     def move_to_archive(self, file_name: str):
         """Archive the file in the archive directory in storage"""
 
-    def move_to_unprocessed(self):
+    def move_to_unprocessed(self, file_name: str):
         """Moves the file to the unprocessed directory"""

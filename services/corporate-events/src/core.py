@@ -14,85 +14,12 @@ from adapters import B3CorporateEventsData, B3CorporateEventsBucket, CorporateEv
     AsyncPortfolioQueue, TickerInfoRepository
 from goatcommons.constants import OperationType, InvestmentsType
 from goatcommons.models import StockInvestment
-from event_notifier.client import ShitNotifierClient
-from event_notifier.models import NotifyLevel
-from model import EarningsInAssetCorporateEvent
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
-class CorporateEventsCrawlerCore:
-    def __init__(self):
-        self.b3 = B3CorporateEventsData()
-        self.bucket = B3CorporateEventsBucket()
-        self.repo = CorporateEventsRepository()
-
-    def download_today_corporate_events(self):
-        today = datetime.now().date()
-        companies_data = self.b3.get_updated_corporate_events_link(today)
-        success_count = 0
-        failed_urls = []
-
-        for data in companies_data:
-            if 'fundsPage' in data.url:
-                logger.info(f'Skipping funds page: {data.url}')
-                continue
-            attempts = 0
-            while attempts < 3:
-                logger.info(f'Processing (attempt {attempts}: {data.url}')
-                try:
-                    tables = pd.read_html(data.url)
-                    count = 0
-                    for table in tables:
-                        csv_name = f'{data.code_cvm}-{today.strftime("%Y%m%d")}-{count}.csv'
-                        csv_buffer = StringIO()
-                        table.to_csv(csv_buffer)
-                        self.bucket.put(csv_buffer, csv_name)
-                        count = count + 1
-                    success_count += 1
-                    break
-                except Exception as e:
-                    logger.exception(f'Attempt {attempts} failed.', e)
-                    if attempts == 3:
-                        failed_urls.append(data.url)
-                attempts = attempts + 1
-
-        ShitNotifierClient().send(NotifyLevel.INFO,
-                                  'corporate-events.download_today_corporate_events_handler',
-                                  self.__create_notify_message(success_count, failed_urls))
-
-    @staticmethod
-    def __create_notify_message(success_count, failed_urls):
-        message = f'Successful URLs: {success_count}\nFailed URLs: {len(failed_urls)}\n'
-        for url in failed_urls:
-            message += url + '\n'
-        return message
-
-    def process_corporate_events_file(self, bucket_name, file_path):
-        downloaded_path = self.bucket.download_file(bucket_name, file_path)
-        table = pd.read_csv(downloaded_path)
-
-        if set(table.columns) == {'Unnamed: 0', 'Proventos', 'Código ISIN', 'Deliberado em',
-                                  'Negócios com até', '% / Fator de Grupamento', 'Ativo Emitido',
-                                  'Observações'}:
-            logger.info('Procesing corporate event file.')
-            table.drop('Unnamed: 0', inplace=True, axis=1)
-            table.columns = ['type', 'isin_code', 'deliberate_on', 'with_date', 'grouping_factor', 'emitted_asset',
-                             'observations']
-
-            records = table.to_dict('records')
-            for record in records:
-                record['with_date'] = datetime.strptime(record['with_date'], '%d/%m/%Y').strftime('%Y%m%d')
-                record['deliberate_on'] = datetime.strptime(record['deliberate_on'], '%d/%m/%Y').strftime('%Y%m%d')
-            self.repo.batch_save([EarningsInAssetCorporateEvent(**row) for row in records])
-            self.bucket.move_file_to_archive(bucket_name, file_path)
-        else:
-            logger.info('Unidentified file type.')
-            self.bucket.move_file_to_unprocessed(bucket_name, file_path)
-
-        self.bucket.clean_up()
 
 
 class CorporateEventsCore:
@@ -114,9 +41,9 @@ class CorporateEventsCore:
             logger.info(f'Processing event: {event}')
             ticker = self.ticker_info.ticker_from_isin_code(event.isin_code)
             investments = sorted(self.investments_repo.find_by_ticker(ticker), key=lambda i: i.subject)
-            for subject, investments in groupby(investments, key=lambda i: i.subject):
+            for subject, s_investments in groupby(investments, key=lambda i: i.subject):
                 logger.info(f'handling {subject}')
-                self._handle_events(subject, ticker, [event], list(investments))
+                self._handle_events(subject, ticker, [event], list(s_investments))
 
     def check_for_applicable_corporate_events(self, subject, investments):
         investments = filter(

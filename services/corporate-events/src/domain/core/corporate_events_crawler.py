@@ -2,7 +2,7 @@ import datetime
 import logging
 import re
 from io import StringIO
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import requests
 import pandas as pd
@@ -15,6 +15,7 @@ from domain.ports.outbound.corporate_events_file_storage import (
 )
 from domain.ports.outbound.corporate_events_repository import CorporateEventsRepository
 import event_notifier.decorators as notifier
+from domain.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
@@ -24,11 +25,8 @@ logger.setLevel(logging.INFO)
 
 
 class B3CorporateEventsCrawler:
-    def __init__(
-        self, storage: CorporateEventsFileStorage, repository: CorporateEventsRepository
-    ):
+    def __init__(self, storage: CorporateEventsFileStorage):
         self.storage = storage
-        self.repository = repository
 
     @notifier.notify("Successful Count: {}\nFailed URLs: {}", NotifyLevel.INFO)
     def craw_corporate_events_from_date(self, date: datetime.date):
@@ -89,3 +87,63 @@ class B3CorporateEventsCrawler:
                 )
             )
         return filtered_data
+
+
+class B3CorporateEventsFileProcessor:
+    def __init__(
+        self, storage: CorporateEventsFileStorage, repository: CorporateEventsRepository
+    ):
+        self.storage = storage
+        self.repository = repository
+
+    def process_corporate_events_file(self, file_name: str):
+        downloaded_path = self.storage.download(file_name)
+        table = pd.read_csv(downloaded_path)
+
+        if self.is_earnings_in_assets(table.columns):
+            logger.info(f"Procesing earnings in asset type file: {file_name}.")
+            self.standardize_table_columns(table)
+            records = table.to_dict("records")
+            self.repository.batch_save(self.parse_to_earnings_in_asset(records))
+            self.storage.move_to_archive(file_name)
+        else:
+            self.storage.move_to_unprocessed(file_name)
+
+    @staticmethod
+    def parse_to_earnings_in_asset(
+        records: List[Dict],
+    ) -> List[EarningsInAssetCorporateEvent]:
+        for record in records:
+            record["with_date"] = datetime.datetime.strptime(
+                record["with_date"], "%d/%m/%Y"
+            ).strftime("%Y%m%d")
+            record["deliberate_on"] = datetime.datetime.strptime(
+                record["deliberate_on"], "%d/%m/%Y"
+            ).strftime("%Y%m%d")
+        return [EarningsInAssetCorporateEvent(**row) for row in records]
+
+    @staticmethod
+    def standardize_table_columns(table):
+        table.drop("Unnamed: 0", inplace=True, axis=1)
+        table.columns = [
+            "type",
+            "isin_code",
+            "deliberate_on",
+            "with_date",
+            "grouping_factor",
+            "emitted_asset",
+            "observations",
+        ]
+
+    @staticmethod
+    def is_earnings_in_assets(columns: List) -> bool:
+        return set(columns) == {
+            "Unnamed: 0",
+            "Proventos",
+            "Código ISIN",
+            "Deliberado em",
+            "Negócios com até",
+            "% / Fator de Grupamento",
+            "Ativo Emitido",
+            "Observações",
+        }
