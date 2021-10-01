@@ -17,6 +17,12 @@ class EarningsInAssetCorporateEvent:
     observations: str
     id: Optional[str] = None
 
+    @property
+    def factor(self):
+        if self.type == EventType.GROUP:
+            return Decimal(self.grouping_factor)
+        return Decimal(self.grouping_factor / 100)
+
     def __post_init__(self):
         if type(self.type) is str:
             self.type = EventType(self.type)

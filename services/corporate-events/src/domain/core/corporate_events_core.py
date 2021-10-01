@@ -1,5 +1,6 @@
 import datetime
 import logging
+from decimal import Decimal
 from itertools import groupby
 from typing import Callable, List
 
@@ -59,3 +60,22 @@ class CorporateEventsCore:
                 )
                 if new_investments:
                     self.investments.batch_save(new_investments)
+
+    def transformations_in_ticker(self, current_ticker: str, date_from: datetime.date):
+        ticker = current_ticker
+        isin = self.ticker.get_isin_code_from_ticker(ticker)
+        tmp = self.events.find_by_type_and_emitted_asset(
+            EventType.INCORPORATION, isin, date_from
+        )
+
+        events_list = self.events.find_by_isin_from_date(isin, date_from)
+        if tmp:
+            previous_isin = tmp[0].isin_code
+            ticker = self.ticker.get_ticker_from_isin_code(previous_isin)
+            events_list += self.events.find_by_isin_from_date(previous_isin, date_from)
+
+        factor = Decimal(1)
+        for event in events_list:
+            factor *= event.factor
+
+        return ticker, factor
