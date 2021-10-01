@@ -12,5 +12,5 @@ class CorporateEventsRepository(Protocol):
     def find_by_type_and_date(self, event_type: EventType, date: datetime.date) -> List[EarningsInAssetCorporateEvent]:
         """Get the events of event_type in date"""
 
-    def batch_save(self, records: List):
+    def batch_save(self, records: List[EarningsInAssetCorporateEvent]):
         """Saves a list of records"""

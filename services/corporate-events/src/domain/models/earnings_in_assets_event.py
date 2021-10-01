@@ -3,11 +3,13 @@ import datetime as dt
 from decimal import Decimal
 from typing import Optional
 
+from domain.enums.event_type import EventType
+
 
 @dataclass
 class EarningsInAssetCorporateEvent:
-    type: str
-    isin_code: str # TODO change to event type enum
+    type: EventType
+    isin_code: str
     deliberate_on: dt.date
     with_date: dt.date
     grouping_factor: Decimal
@@ -16,6 +18,8 @@ class EarningsInAssetCorporateEvent:
     id: Optional[str] = None
 
     def __post_init__(self):
+        if type(self.type) is str:
+            self.type = EventType(self.type)
         if type(self.with_date) is not dt.date:
             self.with_date = dt.datetime.strptime(str(self.with_date), "%Y%m%d")
         if type(self.deliberate_on) is not dt.date:
@@ -36,4 +40,5 @@ class EarningsInAssetCorporateEvent:
             **self.__dict__,
             "with_date": self.with_date.strftime("%Y%m%d"),
             "deliberate_on": self.deliberate_on.strftime("%Y%m%d"),
+            "type": EventType.value,
         }

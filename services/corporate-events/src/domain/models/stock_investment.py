@@ -32,3 +32,10 @@ class StockInvestment:
     @property
     def current_ticker_name(self):
         return self.alias_ticker or self.ticker
+
+    def to_dict(self):
+        return {
+            **self.__dict__,
+            "date": int(self.date.strftime("%Y%m%d")),
+            "operation": self.operation.value,
+        }

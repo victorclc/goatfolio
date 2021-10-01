@@ -1,0 +1,36 @@
+import datetime
+from typing import List
+
+import boto3
+from boto3.dynamodb.conditions import Key
+
+from domain.enums.event_type import EventType
+from domain.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
+
+
+class DynamoCorporateEventsRepository:
+    def __init__(self):
+        self.__table = boto3.resource("dynamodb").Table("CorporateEvents")
+
+    def find_by_isin_from_date(self, isin_code: str, date: datetime.date):
+        result = self.__table.query(
+            IndexName="isinDateGlobalIndex",
+            KeyConditionExpression=Key("isin_code").eq(isin_code)
+            & Key("with_date").gte(date.strftime("%Y%m%d")),
+        )
+        return list(map(lambda i: EarningsInAssetCorporateEvent(**i), result["Items"]))
+
+    def find_by_type_and_date(
+        self, event_type: EventType, date: datetime.date
+    ) -> List[EarningsInAssetCorporateEvent]:
+        result = self.__table.query(
+            IndexName="typeDateLocalIndex",
+            KeyConditionExpression=Key("type").eq(event_type.value)
+            & Key("with_date").eq(date.strftime("%Y%m%d")),
+        )
+        return list(map(lambda i: EarningsInAssetCorporateEvent(**i), result["Items"]))
+
+    def batch_save(self, records: List[EarningsInAssetCorporateEvent]):
+        with self.__table.batch_writer() as batch:
+            for record in records:
+                batch.put_item(Item=record.to_dict())

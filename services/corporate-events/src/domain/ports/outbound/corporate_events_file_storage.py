@@ -11,8 +11,8 @@ class CorporateEventsFileStorage(Protocol):
     def upload(self, buffer: StringIO, file_name: str):
         """Uploads the buffer to storage and save it with the file_name"""
 
-    def move_to_archive(self, file_name: str):
+    def move_to_archive(self, file_path: str):
         """Archive the file in the archive directory in storage"""
 
-    def move_to_unprocessed(self, file_name: str):
+    def move_to_unprocessed(self, file_path: str):
         """Moves the file to the unprocessed directory"""
