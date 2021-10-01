@@ -22,7 +22,7 @@ logger.setLevel(logging.INFO)
 
 
 
-class CorporateEventsCore:
+class CorporateEventsCoaaare:
     def __init__(self):
         self.repo = CorporateEventsRepository()
         self.ticker_info = TickerInfoRepository()

@@ -37,8 +37,6 @@ def notify_exception(exception_to_check, notify_level: str):
     def deco_notify(f):
         @wraps(f)
         def f_notify(*args, **kwargs):
-            print()
-            print(kwargs)
             try:
                 return f(*args, **kwargs)
             except exception_to_check as e:

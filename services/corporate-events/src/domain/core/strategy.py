@@ -12,8 +12,8 @@ from domain.ports.outbound.ticker_info_client import TickerInfoClient
 
 def handle_split_event_strategy(
     subject: str,
-    event: EarningsInAssetCorporateEvent,
     ticker: str,
+    event: EarningsInAssetCorporateEvent,
     investments: List[StockInvestment],
     ticker_info: TickerInfoClient,
 ) -> List[StockInvestment]:
@@ -35,8 +35,8 @@ def handle_split_event_strategy(
 
 def handle_group_event_strategy(
     subject: str,
-    event: EarningsInAssetCorporateEvent,
     ticker: str,
+    event: EarningsInAssetCorporateEvent,
     investments: List[StockInvestment],
     ticker_info: TickerInfoClient,
 ) -> List[StockInvestment]:
@@ -59,8 +59,8 @@ def handle_group_event_strategy(
 
 def handle_incorporation_event_strategy(
     subject: str,
-    event: EarningsInAssetCorporateEvent,
     ticker: str,
+    event: EarningsInAssetCorporateEvent,
     investments: List[StockInvestment],
     ticker_info: TickerInfoClient,
 ):
