@@ -3,6 +3,14 @@ import logging
 
 from dateutil.relativedelta import relativedelta
 
+from adapters.outbound.dynamo_corporate_events_repository import (
+    DynamoCorporateEventsRepository,
+)
+from adapters.outbound.dynamo_investment_repository import DynamoInvestmentRepository
+from adapters.outbound.dynamo_ticker_info_client import DynamoTickerInfoClient
+from adapters.outbound.s3_coporate_events_file_storage import (
+    S3CorporateEventsFileStorage,
+)
 from domain.core.corporate_events_core import CorporateEventsCore
 from domain.core.corporate_events_crawler import B3CorporateEventsCrawler
 from domain.enums.event_type import EventType
@@ -16,14 +24,18 @@ logging.basicConfig(
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+events_repo = DynamoCorporateEventsRepository()
+investment_repo = DynamoInvestmentRepository()
+ticker_client = DynamoTickerInfoClient()
+file_storage = S3CorporateEventsFileStorage()
 
-core = CorporateEventsCore()
+core = CorporateEventsCore(events_repo, ticker_client, investment_repo)
 
 
 @notify_exception(Exception, NotifyLevel.CRITICAL)
 def craw_today_corporate_events_handler(event, context):
     today = datetime.datetime.now().date()
-    crawler = B3CorporateEventsCrawler()
+    crawler = B3CorporateEventsCrawler(file_storage)
 
     crawler.craw_corporate_events_from_date(today)
 
