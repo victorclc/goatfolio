@@ -13,9 +13,15 @@ from domain.enums.investment_type import InvestmentType
 from domain.enums.operation_type import OperationType
 from domain.models.investment import StockInvestment
 from domain.models.investment_consolidated import StockConsolidated
+from domain.models.ticker_transformation import TickerTransformation
 
 
 class TestStockCore(unittest.TestCase):
+    def setUp(self) -> None:
+        repo = MagicMock()
+        transform_client = MagicMock()
+        self.core = StockCore(repo, transform_client)
+
     def test_average_price_fix(self):
         subject = "1111-2222-3333-4444-5555"
         ticker = "BIDI11"
@@ -30,15 +36,18 @@ class TestStockCore(unittest.TestCase):
         )
         consolidated.add_investment(buy_investment)
 
-        repo = MagicMock()
-        repo.find_alias_ticker = MagicMock(return_value=[consolidated])
-        core = StockCore(repo=repo)
-        investment = core.average_price_fix(
+        self.core.repo.find_alias_ticker = MagicMock(return_value=[consolidated])
+        self.core.transformation_client.get_ticker_transformation = MagicMock(
+            return_value=TickerTransformation("TESTE4", Decimal(2))
+        )
+
+        investment = self.core.average_price_fix(
             subject, ticker, date, broker, amount, average_price
         )
 
-        self.assertEqual(investment.price, Decimal(50))
-        self.assertEqual(investment.amount, Decimal(100))
+        self.assertEqual(investment.ticker, "TESTE4")
+        self.assertEqual(investment.price, Decimal(25))
+        self.assertEqual(investment.amount, Decimal(50))
 
     def create_buy_investment(
         self, date: dt.date, amount: Decimal, price: Decimal, alias_ticker: str = ""
