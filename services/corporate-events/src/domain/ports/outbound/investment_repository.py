@@ -12,3 +12,6 @@ class InvestmentRepository(Protocol):
         self, ticker, with_date: datetime.date
     ) -> List[StockInvestment]:
         """Returns all ticker investments from all users"""
+
+    def batch_save(self, investments: List[StockInvestment]):
+        """Persist a list of StockInvestments"""

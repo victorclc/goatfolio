@@ -33,7 +33,14 @@ class CorporateEventsCore:
         event_type: EventType,
         date: datetime.date,
         strategy: Callable[
-            [str, str, EarningsInAssetCorporateEvent, List[StockInvestment]], None
+            [
+                str,
+                str,
+                EarningsInAssetCorporateEvent,
+                List[StockInvestment],
+                TickerInfoClient,
+            ],
+            List[StockInvestment],
         ],
     ):
         events = self.events.find_by_type_and_date(event_type, date)
@@ -47,5 +54,8 @@ class CorporateEventsCore:
             )
             for subject, investments in groupby(investments, key=lambda i: i.subject):
                 logger.info(f"handling {subject}")
-                strategy(subject, ticker, event, list(investments))
-
+                new_investments = strategy(
+                    subject, ticker, event, list(investments), self.ticker
+                )
+                if new_investments:
+                    self.investments.batch_save(new_investments)
