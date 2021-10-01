@@ -2,8 +2,8 @@ from dataclasses import asdict
 
 import boto3
 
-from goatcommons.shit.models import NotifyRequest
-from goatcommons.utils import JsonUtils
+from event_notifier.models import NotifyRequest
+import goatcommons.utils.json as jsonutils
 
 
 class ShitNotifierClient:
@@ -12,4 +12,4 @@ class ShitNotifierClient:
 
     def send(self, level, service, message):
         request = NotifyRequest(level, service, message)
-        self._queue.send_message(MessageBody=JsonUtils.dump(asdict(request)))
+        self._queue.send_message(MessageBody=jsonutils.dump(asdict(request)))

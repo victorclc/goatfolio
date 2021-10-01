@@ -59,6 +59,8 @@ class StocksPositionSummary(GroupPositionSummary):
         return [asdict(p) for p in self._opened_positions]
 
     def add_item_info(self, info: StockItemInfo):
+        if info.quantity <= 0:
+            return
         self._gross_value += info.quantity * info.last_price
         self._opened_positions.append(info)
 
