@@ -13,6 +13,7 @@ provider:
       - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
   environment:
     PYTHONPATH: "src:libs"
+    CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
     REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
   iamRoleStatements:
     - Effect: Allow
@@ -51,6 +52,12 @@ provider:
         - dynamodb:BatchGetItem
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
+    - Effect: Allow
+      Action:
+        - ssm:GetParameter
+        - ssm:GetParameters
+        - ssm:DescribeParameters
+      Resource: arn:aws:ssm:${self:provider.region}:*:parameter/corporate-events-api-key
 
 
   apiGateway:
@@ -153,6 +160,19 @@ functions:
           type: dynamodb
           arn:
             'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
+
+  fixStockAverage:
+    handler: src/adapters/inbound/api_gateway_handlers.fix_average_price_handler
+    events:
+      - http:
+          path: stock/fix-average
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+
 
   # Portfolio End
 
