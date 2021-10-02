@@ -44,7 +44,6 @@ class InvestmentPosition(ABC):
 
 @dataclass
 class StockPosition(InvestmentPosition):
-
     def __add__(self, other):
         sold_amount = self.sold_amount + other.sold_amount
         bought_amount = self.bought_amount + other.bought_amount
