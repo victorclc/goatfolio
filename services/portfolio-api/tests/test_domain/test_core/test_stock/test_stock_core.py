@@ -2,8 +2,7 @@ import unittest
 from decimal import Decimal
 import datetime as dt
 
-# VALIDAR SE TEVE SPLIT GROUP E COISAS DO TIPO NO MEIO DO CAMINHO
-# DESCOBRI SE O TICKER TINHA UM NOME DIFERENTE 18 MESES ATRAS
+
 from unittest.mock import MagicMock
 
 from dateutil.relativedelta import relativedelta
@@ -20,7 +19,8 @@ class TestStockCore(unittest.TestCase):
     def setUp(self) -> None:
         repo = MagicMock()
         transform_client = MagicMock()
-        self.core = StockCore(repo, transform_client)
+        investment_repo = MagicMock()
+        self.core = StockCore(repo, investment_repo, transform_client)
 
     def test_average_price_fix(self):
         subject = "1111-2222-3333-4444-5555"
@@ -36,7 +36,7 @@ class TestStockCore(unittest.TestCase):
         )
         consolidated.add_investment(buy_investment)
 
-        self.core.repo.find_alias_ticker = MagicMock(return_value=[consolidated])
+        self.core.portfolio.find_alias_ticker = MagicMock(return_value=[consolidated])
         self.core.transformation_client.get_ticker_transformation = MagicMock(
             return_value=TickerTransformation("TESTE4", Decimal(2))
         )

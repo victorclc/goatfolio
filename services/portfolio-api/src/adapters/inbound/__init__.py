@@ -41,4 +41,4 @@ performance_core = PerformanceCore(
         InvestmentType.STOCK: StockHistoryConsolidator(stock_history, intraday_client)
     },
 )
-stock_core = StockCore(portfolio_repo, transformation_client)
+stock_core = StockCore(portfolio_repo, investment_repo, transformation_client)
