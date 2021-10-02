@@ -2,9 +2,11 @@ import logging
 from decimal import Decimal
 
 from adapters.inbound import corporate_events_core
+from domain.enums.event_type import EventType
 from domain.models.stock_investment import StockInvestment
 from event_notifier.decorators import notify_exception
 from event_notifier.models import NotifyLevel
+import domain.core.strategy as strategies
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
@@ -38,7 +40,16 @@ def check_for_applicable_corporate_events_handler(event, context):
         new_investments = investments_by_subject[subject]["new_investments"]
         old_investments = investments_by_subject[subject]["old_investments"]
         corporate_events_core.check_for_applicable_corporate_events(
-            subject, new_investments + old_investments
+            subject,
+            new_investments + old_investments,
+            {
+                EventType.INCORPORATION,
+                strategies.handle_incorporation_event_strategy,
+                EventType.GROUP,
+                strategies.handle_group_event_strategy,
+                EventType.SPLIT,
+                strategies.handle_split_event_strategy,
+            },
         )
 
 
