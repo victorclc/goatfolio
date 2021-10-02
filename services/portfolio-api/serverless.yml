@@ -33,6 +33,7 @@ provider:
         - dynamodb:Query
         - dynamodb:GetItem
         - dynamodb:PutItem
+        - dynamodb:BatchWriteItem
       Resource:
         - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
         - Fn::Join:
