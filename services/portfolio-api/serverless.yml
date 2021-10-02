@@ -71,6 +71,7 @@ package:
     - node_modules/**
   include:
     - ../../libs/goatcommons/**
+    - ../../libs/event_notifier/**
 
 plugins:
   - serverless-domain-manager
