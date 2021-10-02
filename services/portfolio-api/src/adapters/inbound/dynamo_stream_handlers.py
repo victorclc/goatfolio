@@ -39,7 +39,7 @@ def consolidate_portfolio_handler(event, context):
         old_investments = investments_by_subject[subject]["old_investments"]
         logger.info(f"New investments = {new_investments}")
         logger.info(f"Old investments = {old_investments}")
-        portfolio_core.consolidate_portfolio(subject, new_investments, old_investments)
+        portfolio_core.consolidate_investments(subject, new_investments, old_investments)
 
 
 def _dynamo_stream_to_stock_investment(stream: dict) -> Investment:
