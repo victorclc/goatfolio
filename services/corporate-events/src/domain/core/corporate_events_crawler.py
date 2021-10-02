@@ -86,7 +86,7 @@ class B3CorporateEventsCrawler:
                     events,
                 )
             )
-        return filtered_data
+        return filtered_data[0]['results']
 
 
 class B3CorporateEventsFileProcessor:
