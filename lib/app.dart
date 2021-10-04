@@ -21,7 +21,11 @@ class GoatfolioApp extends StatelessWidget {
   final UserService userService;
   final SharedPreferences prefs;
 
-  GoatfolioApp({Key key, this.hasValidSession, this.userService, this.prefs})
+  GoatfolioApp(
+      {Key? key,
+      required this.hasValidSession,
+      required this.userService,
+      required this.prefs})
       : super(key: key);
 
   ThemeData androidDarkThemeData(BuildContext context, ThemeChanger theme) {

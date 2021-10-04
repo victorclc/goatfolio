@@ -4,7 +4,7 @@ enum Flavor {
 }
 
 class F {
-  static Flavor appFlavor;
+  static late Flavor appFlavor;
 
   static String get title {
     switch (appFlavor) {
