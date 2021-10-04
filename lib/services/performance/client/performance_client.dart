@@ -20,7 +20,7 @@ class PerformanceClient {
 
   Future<PortfolioPerformance> getPortfolioPerformance() async {
     String accessToken = await userService.getSessionToken();
-    String url = F.baseUrl + "performance/portfolio";
+    String url = F.baseUrl + "portfolio/summary/grouped";
     final Response response =
         await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 
@@ -29,7 +29,7 @@ class PerformanceClient {
 
   Future<PortfolioSummary> getPortfolioSummary() async {
     String accessToken = await userService.getSessionToken();
-    String url = F.baseUrl + "performance/summary";
+    String url = F.baseUrl + "portfolio/summary";
     final Response response =
         await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 
@@ -38,7 +38,7 @@ class PerformanceClient {
 
   Future<PortfolioHistory> getPortfolioRentabilityHistory() async {
     String accessToken = await userService.getSessionToken();
-    String url = F.baseUrl + "performance/rentability";
+    String url = F.baseUrl + "portfolio/history";
     final Response response =
         await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 
@@ -46,12 +46,10 @@ class PerformanceClient {
   }
 
   Future<TickerConsolidatedHistory> getTickerConsolidatedHistory(
-      String ticker, String aliasTicker) async {
+      String ticker) async {
     String accessToken = await userService.getSessionToken();
-    String url = F.baseUrl + "performance/ticker?ticker=$ticker";
-    if (aliasTicker != null && aliasTicker.isNotEmpty) {
-      url += '&alias_ticker=$aliasTicker';
-    }
+    String url = F.baseUrl + "portfolio/history/$ticker";
+
     final Response response =
         await _client.get(Uri.parse(url), headers: {'Authorization': accessToken});
 

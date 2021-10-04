@@ -20,7 +20,7 @@ class VandelayRefreshObserver extends LoadingStateObserver {
     final client = VandelayClient(userService);
     final latest = await _storage.getLatest();
 
-    if (latest.status == 'PROCESSING') {
+    if (latest.status != 'PROCESSING') {
       final response = await client.getImportStatus(latest.datetime);
       await checkForDivergences(context, client, vandelay);
       if (response.status == 'SUCCESS') {
@@ -42,12 +42,12 @@ class VandelayRefreshObserver extends LoadingStateObserver {
       (stockSummary) {
         if (info.containsKey(stockSummary.currentTickerName)) {
           int ceiAmount = info[stockSummary.currentTickerName].toInt();
-          if (stockSummary.amount != ceiAmount) {
+          if (stockSummary.quantity != ceiAmount) {
             hasDivergence = true;
             print(
-                'MISSING ${stockSummary.currentTickerName}\nCEI: $ceiAmount\nPortfolio: ${stockSummary.amount}');
+                'MISSING ${stockSummary.currentTickerName}\nCEI: $ceiAmount\nPortfolio: ${stockSummary.quantity}');
             vandelay.registerAmountDivergence(stockSummary.currentTickerName,
-                ceiAmount - stockSummary.amount);
+                ceiAmount - stockSummary.quantity);
           }
         }
       },

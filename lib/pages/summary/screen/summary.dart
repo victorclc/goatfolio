@@ -122,11 +122,11 @@ class SummaryPage extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: HighestHighsCard(
-                                      cubit.portfolioSummary.stocksVariation),
+                                      cubit.portfolioSummary.tickerVariation),
                                 ),
                                 Expanded(
                                     child: LowestLowsCard(cubit
-                                        .portfolioSummary.stocksVariation)),
+                                        .portfolioSummary.tickerVariation)),
                               ],
                             ),
                           ],

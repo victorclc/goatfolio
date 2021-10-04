@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:goatfolio/common/formatter/brazil.dart';
 import 'package:goatfolio/pages/portfolio/screen/investment_details.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
-import 'package:goatfolio/services/performance/model/benchmark_position.dart';
 import 'package:goatfolio/services/performance/model/stock_summary.dart';
 import 'package:provider/provider.dart';
 
@@ -12,28 +11,26 @@ class StockInvestmentSummaryItem extends StatelessWidget {
   final Color color;
   final double portfolioTotalAmount;
   final double typeTotalAmount;
-  final List<BenchmarkPosition> ibovHistory;
 
-  const StockInvestmentSummaryItem(
-      {Key key,
-        @required this.summary,
-        this.portfolioTotalAmount,
-        @required this.color,
-        this.typeTotalAmount,
-        this.ibovHistory})
-      : super(key: key);
+  const StockInvestmentSummaryItem({
+    Key key,
+    @required this.summary,
+    this.portfolioTotalAmount,
+    @required this.color,
+    this.typeTotalAmount,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
     final userService = Provider.of<UserService>(context, listen: false);
-    final currentValue = summary.amount *
-        (summary.currentPrice != null ? summary.currentPrice : 0.0);
+    final currentValue = summary.quantity *
+        (summary.lastPrice != null ? summary.lastPrice : 0.0);
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: () {
         navigateToInvestmentDetails(
-            context, summary, color, ibovHistory, userService);
+            context, summary, color, userService);
       },
       child: Container(
         child: Column(
@@ -87,10 +84,10 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  moneyFormatter.format(currentValue - summary.investedAmount),
+                  moneyFormatter.format(currentValue - summary.investedValue),
                   style: textTheme.textStyle.copyWith(
                       fontSize: 16,
-                      color: currentValue - summary.investedAmount < 0
+                      color: currentValue - summary.investedValue < 0
                           ? Colors.red
                           : Colors.green),
                   // style: coloredStyle,
@@ -113,7 +110,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                 ),
                 Text(
                   percentFormatter.format(
-                      (summary.currentPrice * summary.amount) /
+                      (summary.lastPrice * summary.quantity) /
                           typeTotalAmount),
                   style: textTheme.textStyle.copyWith(fontSize: 16),
                 ),
@@ -132,7 +129,7 @@ class StockInvestmentSummaryItem extends StatelessWidget {
                 ),
                 Text(
                   percentFormatter.format(
-                      (summary.currentPrice * summary.amount) /
+                      (summary.lastPrice * summary.quantity) /
                           portfolioTotalAmount),
                   style: textTheme.textStyle.copyWith(fontSize: 16),
                 ),

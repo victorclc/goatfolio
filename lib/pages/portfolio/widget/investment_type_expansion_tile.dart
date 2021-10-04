@@ -12,7 +12,6 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
   final double totalAmount;
   final List<StockSummary> items;
   final Map<String, Rgb> colors;
-  final List<BenchmarkPosition> ibovHistory;
   final bool initiallyExpanded;
 
   InvestmentTypeExpansionTile(
@@ -22,7 +21,6 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
       this.totalAmount,
       this.items,
       this.colors,
-      this.ibovHistory,
       this.initiallyExpanded = false})
       : super(key: key);
 
@@ -126,7 +124,6 @@ class InvestmentTypeExpansionTile extends StatelessWidget {
                 color: color,
                 portfolioTotalAmount: totalAmount,
                 typeTotalAmount: grossAmount,
-                ibovHistory: ibovHistory,
               );
             },
             itemCount: sortedItems.length,

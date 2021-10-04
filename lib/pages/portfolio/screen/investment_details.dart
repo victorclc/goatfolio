@@ -17,14 +17,13 @@ import 'package:intl/intl.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 void navigateToInvestmentDetails(BuildContext context, StockSummary item,
-    Color color, List<BenchmarkPosition> ibovHistory, UserService userService) {
+    Color color, UserService userService) {
   NavigatorUtils.push(
     context,
     (context) => InvestmentDetails(
       title: "Detalhes",
       item: item,
       color: color,
-      ibovHistory: ibovHistory,
       userService: userService,
     ),
   );
@@ -34,7 +33,6 @@ class InvestmentDetails extends StatefulWidget {
   final String title;
   final StockSummary item;
   final Color color;
-  final List<BenchmarkPosition> ibovHistory;
   final UserService userService;
 
   const InvestmentDetails(
@@ -42,7 +40,6 @@ class InvestmentDetails extends StatefulWidget {
       this.item,
       this.title,
       this.color,
-      this.ibovHistory,
       this.userService})
       : super(key: key);
 
@@ -62,7 +59,7 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
     super.initState();
     _client = PerformanceClient(widget.userService);
     _futureHistory = _client.getTickerConsolidatedHistory(
-        widget.item.ticker, widget.item.aliasTicker);
+        widget.item.currentTickerName);
     selectedTab = 'a';
   }
 
@@ -75,8 +72,8 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
 
   Widget _buildBody() {
     final textTheme = CupertinoTheme.of(context).textTheme;
-    final currentValue = widget.item.amount *
-        (widget.item.currentPrice != null ? widget.item.currentPrice : 0.0);
+    final currentValue = widget.item.quantity *
+        (widget.item.lastPrice != null ? widget.item.lastPrice : 0.0);
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -147,17 +144,17 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
               SizedBox(
                 height: 16,
               ),
-              _buildContentRow("Quantidade", widget.item.amount.toString(),
+              _buildContentRow("Quantidade", widget.item.quantity.toString(),
                   textTheme.textStyle, textTheme.textStyle),
               _buildContentRow(
                   "Saldo bruto",
                   moneyFormatter
-                      .format(widget.item.amount * widget.item.currentPrice),
+                      .format(widget.item.quantity * widget.item.lastPrice),
                   textTheme.textStyle,
                   textTheme.textStyle),
               _buildContentRow(
                   "Valor investido",
-                  moneyFormatter.format(widget.item.investedAmount),
+                  moneyFormatter.format(widget.item.investedValue),
                   textTheme.textStyle,
                   textTheme.textStyle),
               SizedBox(
@@ -173,10 +170,10 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
                   ),
                   Text(
                     moneyFormatter
-                        .format(currentValue - widget.item.investedAmount),
+                        .format(currentValue - widget.item.investedValue),
                     style: textTheme.textStyle.copyWith(
                         fontSize: 16,
-                        color: currentValue - widget.item.investedAmount >= 0
+                        color: currentValue - widget.item.investedValue >= 0
                             ? Colors.green
                             : Colors.red),
                   ),
@@ -187,7 +184,7 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
               ),
               _buildContentRow(
                   "Cotação atual",
-                  moneyFormatter.format(widget.item.currentPrice),
+                  moneyFormatter.format(widget.item.lastPrice),
                   textTheme.textStyle,
                   textTheme.textStyle),
               _buildContentRow(
@@ -201,7 +198,7 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
               _buildContentRow(
                   "% preço médio",
                   percentFormatter.format(
-                      (widget.item.currentPrice / widget.item.averagePrice) -
+                      (widget.item.lastPrice / widget.item.averagePrice) -
                           1),
                   textTheme.textStyle,
                   textTheme.textStyle),
@@ -268,22 +265,22 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
     double prevMonthTotal = 0.0;
     acumulatedRentability = 0.0;
 
-    widget.ibovHistory
-        .where((element) => element.date.compareTo(initialDate) >= 0)
-        .toList()
-          ..sort((a, b) => a.date.compareTo(b.date))
-          ..forEach(
-            (element) {
-              if (prevMonthTotal == 0) {
-                prevMonthTotal = element.open;
-              }
-              acumulatedRentability +=
-                  (element.close / prevMonthTotal - 1) * 100;
-              prevMonthTotal = element.close;
-              ibovSeries
-                  .add(MoneyDateSeries(element.date, acumulatedRentability));
-            },
-          );
+    // widget.ibovHistory
+    //     .where((element) => element.date.compareTo(initialDate) >= 0)
+    //     .toList()
+    //       ..sort((a, b) => a.date.compareTo(b.date))
+    //       ..forEach(
+    //         (element) {
+    //           if (prevMonthTotal == 0) {
+    //             prevMonthTotal = element.open;
+    //           }
+    //           acumulatedRentability +=
+    //               (element.close / prevMonthTotal - 1) * 100;
+    //           prevMonthTotal = element.close;
+    //           ibovSeries
+    //               .add(MoneyDateSeries(element.date, acumulatedRentability));
+    //         },
+    //       );
 
     return [
       new charts.Series<MoneyDateSeries, DateTime>(

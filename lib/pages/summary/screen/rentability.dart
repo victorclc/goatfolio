@@ -154,92 +154,20 @@ class _RentabilityPageState extends State<RentabilityPage> {
     );
   }
 
-  Future<List<charts.Series<MoneyDateSeries, String>>>
-      createRentabilitySeries() async {
-    PortfolioHistory portfolioHistory = await _futureHistory;
-    List<MoneyDateSeries> series = [];
-    portfolioHistory.history.sort((a, b) => a.date.compareTo(b.date));
-    double prevMonthTotal = 0.0;
-    double acumulatedRentability = 0.0;
-
-    for (PortfolioPosition element in portfolioHistory.history) {
-      final monthTotal = element.grossValue;
-      acumulatedRentability =
-          ((monthTotal) / (prevMonthTotal + element.investedValue) - 1) * 100;
-      prevMonthTotal = monthTotal;
-      series.add(MoneyDateSeries(element.date, acumulatedRentability));
-    }
-    final now = DateTime.now();
-    acumulatedRentability +=
-        (widget.summary.grossAmount / prevMonthTotal - 1) * 100;
-    series.add(MoneyDateSeries(
-        DateTime(now.year, now.month, 1), acumulatedRentability));
-
-    List<MoneyDateSeries> ibovSeries = [];
-    portfolioHistory.ibovHistory.sort((a, b) => a.date.compareTo(b.date));
-    prevMonthTotal = 0.0;
-    acumulatedRentability = 0.0;
-    portfolioHistory.ibovHistory.forEach((element) {
-      // if (element.date.year < widget.performance.initialDate.year ||
-      //     element.date.year == widget.performance.initialDate.year &&
-      //         element.date.month < widget.performance.initialDate.month)
-      //   print("data antiga");
-      // else {
-      //   print('data nova');
-      if (prevMonthTotal == 0) {
-        prevMonthTotal = element.open;
-      }
-      acumulatedRentability = (element.close / prevMonthTotal - 1) * 100;
-
-      prevMonthTotal = element.close;
-      ibovSeries.add(MoneyDateSeries(element.date, acumulatedRentability));
-    }
-        // }
-        );
-    return [
-      new charts.Series<MoneyDateSeries, String>(
-        id: "Rentabilidade",
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (MoneyDateSeries history, _) =>
-            DateFormat('MM-yy').format(history.date),
-        areaColorFn: (_, __) =>
-            charts.MaterialPalette.blue.shadeDefault.lighter,
-        measureFn: (MoneyDateSeries history, _) => history.money,
-        data: series,
-      ),
-      new charts.Series<MoneyDateSeries, String>(
-        id: "IBOV",
-        colorFn: (_, __) => charts.MaterialPalette.deepOrange.shadeDefault,
-        domainFn: (MoneyDateSeries history, _) =>
-            DateFormat('MM-yy').format(history.date),
-        areaColorFn: (_, __) =>
-            charts.MaterialPalette.deepOrange.shadeDefault.lighter,
-        measureFn: (MoneyDateSeries history, _) => history.money,
-        data: ibovSeries,
-      ),
-    ];
-  }
 
   Future<List<charts.Series<MoneyDateSeries, DateTime>>>
       createTotalAmountSeries() async {
+    // TODO CHANGE THIS TO PORTFOLIO HISTORY CLASS
     PortfolioHistory portfolioHistory = await _futureHistory;
     List<MoneyDateSeries> seriesGross = [];
     List<MoneyDateSeries> seriesInvested = [];
 
     portfolioHistory.history.sort((a, b) => a.date.compareTo(b.date));
 
-    double investedAmount = 0.0;
     portfolioHistory.history.forEach((element) {
-      investedAmount += element.investedValue;
-      seriesInvested.add(MoneyDateSeries(element.date, investedAmount));
+      seriesInvested.add(MoneyDateSeries(element.date, element.investedValue));
       seriesGross.add(MoneyDateSeries(element.date, element.grossValue));
     });
-
-    final now = DateTime.now();
-    seriesGross.add(MoneyDateSeries(
-        DateTime(now.year, now.month, 1), widget.summary.grossAmount));
-    seriesInvested.add(MoneyDateSeries(
-        DateTime(now.year, now.month, 1), widget.summary.investedAmount));
 
     return [
       new charts.Series<MoneyDateSeries, DateTime>(

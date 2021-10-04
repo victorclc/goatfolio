@@ -1,11 +1,12 @@
 class StockSummary {
   String ticker;
   String aliasTicker;
-  double amount;
+  double quantity;
   double averagePrice;
-  double investedAmount;
-  double currentPrice;
-  double grossAmount;
+  double investedValue;
+  double lastPrice;
+
+  get grossValue => quantity * lastPrice;
 
   get currentTickerName =>
       aliasTicker == null || aliasTicker.isEmpty ? ticker : aliasTicker;
@@ -13,9 +14,8 @@ class StockSummary {
   StockSummary.fromJson(Map<String, dynamic> json)
       : ticker = json['ticker'],
         aliasTicker = json['alias_ticker'],
-        amount = json['amount'],
+        quantity = json['quantity'],
         averagePrice = json['average_price'],
-        investedAmount = json['invested_amount'],
-        currentPrice = json['current_price'],
-        grossAmount = json['gross_amount'];
+        investedValue = json['invested_value'],
+        lastPrice = json['last_price'];
 }

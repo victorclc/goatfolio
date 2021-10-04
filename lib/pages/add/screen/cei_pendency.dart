@@ -53,17 +53,17 @@ class CeiPendency extends StatelessWidget {
                           numeric: true,
                         ),
                       ],
-                      rows: cubit.divergences.map(
-                        (e) {
+                      rows: cubit.divergences.entries.map<DataRow>(
+                        (map) {
                           var controller = TextEditingController();
-                          tickerController[e['TICKER']] = controller;
+                          tickerController[map.key] = controller;
                           return DataRow(
                             cells: [
                               DataCell(
-                                Text(e['TICKER']),
+                                Text(map.key),
                               ),
                               DataCell(
-                                Text('${e['AMOUNT_MISSING']}'),
+                                Text('${map.value}'),
                               ),
                               DataCell(
                                 CupertinoTextField(

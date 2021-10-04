@@ -9,8 +9,8 @@ import 'package:goatfolio/common/util/modal.dart';
 import 'package:goatfolio/common/widget/animated_button.dart';
 import 'package:goatfolio/common/widget/multi_prompt.dart';
 import 'package:goatfolio/common/widget/preety_text_field.dart';
-import 'package:goatfolio/pages/login/prompt/signin.dart';
-import 'package:goatfolio/pages/login/widget/terms_acceptance.dart';
+import 'package:goatfolio/pages/login/signin_prompts.dart';
+import 'package:goatfolio/pages/login/terms_acceptance.dart';
 import 'package:goatfolio/services/authentication/model/user.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 

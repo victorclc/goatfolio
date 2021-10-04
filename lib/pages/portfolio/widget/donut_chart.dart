@@ -35,7 +35,7 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
 
   void initState() {
     super.initState();
-    grossAmount = widget.portfolioList.grossAmount;
+    grossAmount = widget.portfolioList.grossValue;
   }
 
   Widget buildChart(BuildContext context) {
@@ -107,8 +107,8 @@ class _DonutAutoLabelChartState extends State<DonutAutoLabelChart> {
       }
       if (chart == null ||
           mustRebuild ||
-          grossAmount != widget.portfolioList.grossAmount) {
-        grossAmount = widget.portfolioList.grossAmount;
+          grossAmount != widget.portfolioList.grossValue) {
+        grossAmount = widget.portfolioList.grossValue;
         mustRebuild = false;
         chart = buildChart(context);
       }

@@ -53,16 +53,26 @@ class PortfolioPage extends StatelessWidget {
                         portfolioList: cubit.portfolioPerformance,
                         typeSeries:
                             buildSubtypeSeries(cubit.portfolioPerformance),
-                        stocksSeries: buildSeries(
-                          'stocks',
-                          cubit.portfolioPerformance.stocks,
-                        ),
-                        reitsSeries: buildSeries(
-                          'reits',
-                          cubit.portfolioPerformance.reits,
-                        ),
-                        bdrsSeries: buildSeries(
-                            'bdrs', cubit.portfolioPerformance.bdrs),
+                        stocksSeries: cubit.portfolioPerformance.hasStocks
+                            ? buildSeries(
+                                'stocks',
+                                cubit.portfolioPerformance.stockSummary
+                                    .openedPositions,
+                              )
+                            : null,
+                        reitsSeries: cubit.portfolioPerformance.hasReits
+                            ? buildSeries(
+                                'reits',
+                                cubit.portfolioPerformance.reitSummary
+                                    .openedPositions,
+                              )
+                            : null,
+                        bdrsSeries: cubit.portfolioPerformance.hasBdrs
+                            ? buildSeries(
+                                'bdrs',
+                                cubit.portfolioPerformance.bdrSummary
+                                    .openedPositions)
+                            : null,
                       ),
                     ),
                     SizedBox(
@@ -75,30 +85,30 @@ class PortfolioPage extends StatelessWidget {
                         color: Colors.grey,
                       ),
                     ),
-                    InvestmentTypeExpansionTile(
-                      title: 'Ações/ETFs',
-                      grossAmount: cubit.portfolioPerformance.stockGrossAmount,
-                      items: cubit.portfolioPerformance.stocks,
-                      colors: colors,
-                      totalAmount: cubit.portfolioPerformance.grossAmount,
-                      ibovHistory: cubit.portfolioPerformance.ibovHistory,
-                    ),
-                    InvestmentTypeExpansionTile(
-                      title: 'BDRs',
-                      grossAmount: cubit.portfolioPerformance.bdrGrossAmount,
-                      items: cubit.portfolioPerformance.bdrs,
-                      colors: colors,
-                      totalAmount: cubit.portfolioPerformance.grossAmount,
-                      ibovHistory: cubit.portfolioPerformance.ibovHistory,
-                    ),
-                    InvestmentTypeExpansionTile(
-                      title: 'FIIs',
-                      grossAmount: cubit.portfolioPerformance.reitGrossAmount,
-                      items: cubit.portfolioPerformance.reits,
-                      colors: colors,
-                      totalAmount: cubit.portfolioPerformance.grossAmount,
-                      ibovHistory: cubit.portfolioPerformance.ibovHistory,
-                    ),
+                    if (cubit.portfolioPerformance.hasStocks)
+                      InvestmentTypeExpansionTile(
+                        title: 'Ações/ETFs',
+                        grossAmount: cubit.portfolioPerformance.stockSummary.grossValue,
+                        items: cubit.portfolioPerformance.stockSummary.openedPositions,
+                        colors: colors,
+                        totalAmount: cubit.portfolioPerformance.grossValue,
+                      ),
+                    if (cubit.portfolioPerformance.hasBdrs)
+                      InvestmentTypeExpansionTile(
+                        title: 'BDRs',
+                        grossAmount: cubit.portfolioPerformance.bdrSummary.grossValue,
+                        items: cubit.portfolioPerformance.bdrSummary.openedPositions,
+                        colors: colors,
+                        totalAmount: cubit.portfolioPerformance.grossValue,
+                      ),
+                    if (cubit.portfolioPerformance.hasReits)
+                      InvestmentTypeExpansionTile(
+                        title: 'FIIs',
+                        grossAmount: cubit.portfolioPerformance.reitSummary.grossValue,
+                        items: cubit.portfolioPerformance.reitSummary.openedPositions,
+                        colors: colors,
+                        totalAmount: cubit.portfolioPerformance.grossValue,
+                      ),
                   ],
                 );
               } else {
@@ -116,10 +126,10 @@ class PortfolioPage extends StatelessWidget {
     List<TickerTotals> data = stocks.map((p) {
       final color = Rgb.random();
       colors[p.ticker] = color;
-      if (p.amount <= 0) {
+      if (p.quantity <= 0) {
         return null;
       }
-      return TickerTotals(p.currentTickerName, p.grossAmount, color);
+      return TickerTotals(p.currentTickerName, p.grossValue, color);
     }).toList()
       ..removeWhere((element) => element == null);
     return [
@@ -145,24 +155,24 @@ class PortfolioPage extends StatelessWidget {
     // #ec1a72
     // #ff8c12
     final stockColor = Color(0x5c36ad);
-    if (performance.stockGrossAmount > 0) {
+    if (performance.hasStocks && performance.stockSummary.grossValue > 0) {
       colors['Ações/ETFs'] =
           Rgb(stockColor.red, stockColor.green, stockColor.blue);
-      data.add(TickerTotals(
-          'Ações\ne ETFs', performance.stockGrossAmount, colors['Ações/ETFs']));
+      data.add(TickerTotals('Ações\ne ETFs',
+          performance.stockSummary.grossValue, colors['Ações/ETFs']));
     }
     final reitColor = Color(0xf52d6f);
-    if (performance.reitGrossAmount > 0) {
+    if (performance.hasReits && performance.reitSummary.grossValue > 0) {
       colors['FIIs'] = Rgb(reitColor.red, reitColor.green, reitColor.blue);
-      data.add(
-          TickerTotals('FIIs', performance.reitGrossAmount, colors['FIIs']));
+      data.add(TickerTotals(
+          'FIIs', performance.reitSummary.grossValue, colors['FIIs']));
     }
 
     final bdrColor = Color(0xffa514);
-    if (performance.bdrGrossAmount > 0) {
+    if (performance.hasBdrs && performance.bdrSummary.grossValue > 0) {
       colors['BDRs'] = Rgb(bdrColor.red, bdrColor.green, bdrColor.blue);
-      data.add(
-          TickerTotals('BDRs', performance.reitGrossAmount, colors['BDRs']));
+      data.add(TickerTotals(
+          'BDRs', performance.bdrSummary.grossValue, colors['BDRs']));
     }
 
     return [

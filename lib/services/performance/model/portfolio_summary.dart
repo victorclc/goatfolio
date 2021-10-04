@@ -5,14 +5,14 @@ class PortfolioSummary {
   double grossAmount;
   double dayVariation;
   double monthVariation;
-  List<StockVariation> stocksVariation;
+  List<StockVariation> tickerVariation;
 
   PortfolioSummary.fromJson(Map<String, dynamic> json)
       : investedAmount = json['invested_amount'],
         grossAmount = json['gross_amount'],
         dayVariation = json['day_variation'],
         monthVariation = json['month_variation'],
-        stocksVariation = json['stocks_variation']
+        tickerVariation = json['ticker_variation']
             .map<StockVariation>((json) => StockVariation.fromJson(json))
             .toList();
 
@@ -21,6 +21,6 @@ class PortfolioSummary {
     grossAmount = other.grossAmount;
     dayVariation = other.dayVariation;
     monthVariation = other.monthVariation;
-    stocksVariation = other.stocksVariation;
+    tickerVariation = other.tickerVariation;
   }
 }

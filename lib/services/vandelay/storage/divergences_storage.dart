@@ -3,9 +3,9 @@ import 'package:sqflite/sqflite.dart';
 
 Future<Database> initDatabase() async {
   return openDatabase(join(await getDatabasesPath(), 'divergences.db'),
-      version: 1, onCreate: (db, version) {
+      version: 2, onCreate: (db, version) {
     db.execute("CREATE TABLE divergences("
-        "TICKER TEXT,"
+        "TICKER TEXT PRIMARY KEY,"
         'AMOUNT_MISSING INTEGER'
         ")");
   });
@@ -31,12 +31,19 @@ class DivergenceStorage {
     );
   }
 
-  Future<List<Map<String, Object>>> getAll() async {
+  Future<List<Map<String, int>>> getAll() async {
     final db = await database;
     final results = await db.query(
       TABLE_NAME,
     );
-    return results;
+
+    return results
+        .map<Map<String, int>>((e) {
+          Map<String, int> tmp = {};
+          tmp[e['TICKER']] = e['AMOUNT_MISSING'];
+          return tmp;
+        })
+        .toList();
   }
 
   Future<void> delete(String ticker) async {

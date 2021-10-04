@@ -8,12 +8,19 @@ class VandelayPendencyCubit extends Cubit<PendencyState> {
   DivergenceStorage _storage = DivergenceStorage();
   final UserService userService;
 
-  List divergences = [];
+  Map<String, int> divergences = {};
 
   VandelayPendencyCubit(this.userService) : super(PendencyState.NO_PENDENCY) {
+    updateDivergences();
+  }
+
+  void updateDivergences() {
     _storage.getAll().then((value) {
-      divergences = value;
-      if (value.isNotEmpty) {
+      value.forEach((element) {
+        divergences[element.keys.first]= element.values.first;
+      });
+      print(divergences);
+      if (divergences.isNotEmpty) {
         emit(PendencyState.HAS_PENDENCY);
       }
     });
@@ -25,9 +32,10 @@ class VandelayPendencyCubit extends Cubit<PendencyState> {
     emit(PendencyState.NO_PENDENCY);
   }
 
-  Future<void> registerAmountDivergence(String ticker, double amountMissing) async {
+  Future<void> registerAmountDivergence(
+      String ticker, double amountMissing) async {
     await _storage.insert(ticker, amountMissing.toInt());
-    divergences = await _storage.getAll();
+    updateDivergences();
     emit(PendencyState.HAS_PENDENCY);
   }
 }

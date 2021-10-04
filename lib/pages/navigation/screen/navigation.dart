@@ -11,10 +11,7 @@ import 'package:goatfolio/pages/settings/screen/settings_page.dart';
 import 'package:goatfolio/pages/summary/screen/summary.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/notification/firebase/firebase.dart';
-import 'package:goatfolio/services/performance/cubit/performance_cubit.dart';
-import 'package:goatfolio/services/performance/cubit/summary_cubit.dart';
 import 'package:goatfolio/services/vandelay/cubit/vandelay_cubit.dart';
-import 'package:provider/provider.dart';
 
 Widget buildNavigationPage(UserService userService) {
   setupPushNotifications(userService);
