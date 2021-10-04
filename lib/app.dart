@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:goatfolio/pages/login/screen/login.dart';
+import 'package:goatfolio/pages/login/login.dart';
 import 'package:goatfolio/pages/navigation/screen/navigation.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';
 import 'package:goatfolio/services/performance/cubit/performance_cubit.dart';

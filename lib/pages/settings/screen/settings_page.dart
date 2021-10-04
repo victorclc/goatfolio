@@ -4,7 +4,7 @@ import 'package:app_settings/app_settings.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/pages/login/screen/login.dart';
+import 'package:goatfolio/pages/login/login.dart';
 import 'package:goatfolio/pages/navigation/screen/navigation.dart';
 import 'package:goatfolio/pages/settings/screen/theme_page.dart';
 import 'package:goatfolio/services/authentication/service/cognito.dart';

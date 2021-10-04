@@ -20,7 +20,7 @@ class VandelayRefreshObserver extends LoadingStateObserver {
     final client = VandelayClient(userService);
     final latest = await _storage.getLatest();
 
-    if (latest.status == 'PROCESSING') {
+    if (latest.status != 'PROCESSING') {
       final response = await client.getImportStatus(latest.datetime);
       await checkForDivergences(context, client, vandelay);
       if (response.status == 'SUCCESS') {
