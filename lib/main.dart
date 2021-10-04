@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:goatfolio/app.dart';
 import 'package:goatfolio/authentication/cognito.dart';
 import 'package:goatfolio/flavors.dart';
-import 'package:goatfolio/services/notification/firebase/firebase.dart';
+import 'package:goatfolio/notification/firebase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {

@@ -55,4 +55,6 @@ class F {
         return 'https://dev.goatfolio.com.br/';
     }
   }
+
+  static String get appLogo => "images/logo/logo.png";
 }
