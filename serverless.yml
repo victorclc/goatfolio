@@ -367,7 +367,7 @@ resources:
 
   - ${file(resources/cognito-cf-resources.yml)}
 
-  Outputs:
+  - Outputs:
     Name:
       Description: VPC Stack Name
       Value: !Ref AWS::StackName
