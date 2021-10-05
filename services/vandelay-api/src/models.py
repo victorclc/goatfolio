@@ -39,3 +39,9 @@ class Import:
 class InvestmentRequest:
     type: InvestmentsType
     investment: dict
+
+
+@dataclass
+class CEIInfo:
+    subject: str
+    assets_quantities: dict
