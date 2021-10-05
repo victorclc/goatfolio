@@ -31,7 +31,6 @@ Resources:
       UsernameConfiguration:
         CaseSensitive: false
       UserPoolName: GoatfolioPool
-
   MobilePoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
