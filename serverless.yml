@@ -14,6 +14,7 @@ resources:
       Type: AWS::EC2::AvailabilityZone::Name
       ConstraintDescription: Must be a valid availability zone
       Default: sa-east-1a
+
     AvailabilityZone2:
       Description: The second availability zone in the region
       Type: AWS::EC2::AvailabilityZone::Name
@@ -53,7 +54,7 @@ resources:
       Private2:
         CIDR: 10.50.96.0/19
 
-  - Resources:
+  Resources:
     # NETWORK RESOURCES
     VPC:
       Type: AWS::EC2::VPC
@@ -206,7 +207,61 @@ resources:
 
     # APP RESOURCES AND STUFF
 
+    GoatfolioAppUserPool:
+      Type: 'AWS::Cognito::UserPool'
+      Properties:
+        AccountRecoverySetting:
+          RecoveryMechanisms:
+            - Name: verified_email
+              Priority: 1
+        EmailVerificationSubject: "GOATFOLIO - Código de verificação"
+        EmailVerificationMessage: "O código de verificação é {####}"
+        EmailConfiguration:
+          EmailSendingAccount: DEVELOPER
+          From: ${self:provider.sesFrom}
+          SourceArn: ${self:provider.sesArn}
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireLowercase: true
+            RequireNumbers: true
+            RequireSymbols: false
+            RequireUppercase: true
+            TemporaryPasswordValidityDays: 1
+        AutoVerifiedAttributes:
+          - email
+        UsernameAttributes:
+          - email
+        Schema:
+          - Name: given_name
+            Required: true
+            Mutable: true
+        UsernameConfiguration:
+          CaseSensitive: false
+        UserPoolName: GoatfolioPool
 
+    MobilePoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: 'mobile-pool'
+        TokenValidityUnits:
+          AccessToken: minutes
+          IdToken: minutes
+          RefreshToken: days
+        RefreshTokenValidity: 3650
+        AccessTokenValidity: 60
+        IdTokenValidity: 60
+        ExplicitAuthFlows:
+          - ALLOW_ADMIN_USER_PASSWORD_AUTH
+          - ALLOW_CUSTOM_AUTH
+          - ALLOW_USER_PASSWORD_AUTH
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        GenerateSecret: false
+        PreventUserExistenceErrors: ENABLED
+        EnableTokenRevocation: false
+        UserPoolId:
+          Ref: GoatfolioAppUserPool
 
     InvestmentsTable:
       Type: 'AWS::DynamoDB::Table'
@@ -361,9 +416,7 @@ resources:
             Projection:
               ProjectionType: ALL
 
-  - ${file(resources/cognito-cf-resources.yml)}
-
-  - Outputs:
+  Outputs:
     Name:
       Description: VPC Stack Name
       Value: !Ref AWS::StackName
