@@ -8,21 +8,19 @@ provider:
   sesFrom: ${env:SES_FROM}
 
 resources:
-  - Parameters:
+  Parameters:
     AvailabilityZone1:
       Description: The first availability zone in the region
       Type: AWS::EC2::AvailabilityZone::Name
       ConstraintDescription: Must be a valid availability zone
       Default: sa-east-1a
-
-  - Parameters:
     AvailabilityZone2:
       Description: The second availability zone in the region
       Type: AWS::EC2::AvailabilityZone::Name
       ConstraintDescription: Must be a valid availability zone
       Default: sa-east-1b
 
-  - Metadata:
+  Metadata:
     AWS::CloudFormation::Interface:
       ParameterGroups:
         - Label:
@@ -41,7 +39,7 @@ resources:
         AvailabilityZone2:
           default: Availability Zone 2
 
-  - Mappings:
+  Mappings:
     # Maps CIDR blocks to VPC and various subnets
     CIDRMap:
       VPC:
