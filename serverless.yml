@@ -221,7 +221,7 @@ resources:
             Projection:
               ProjectionType: ALL
 
-  Outputs:
+  - Outputs:
     Name:
       Description: VPC Stack Name
       Value: !Ref AWS::StackName
