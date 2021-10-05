@@ -4,15 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:goatfolio/global.dart' as bloc;
+import 'package:goatfolio/navigation.dart';
 import 'package:goatfolio/pages/login/login.dart';
-import 'package:goatfolio/pages/navigation/screen/navigation.dart';
-import 'package:goatfolio/services/authentication/service/cognito.dart';
-import 'package:goatfolio/services/performance/cubit/performance_cubit.dart';
-import 'package:goatfolio/services/performance/cubit/summary_cubit.dart';
-import 'package:goatfolio/services/vandelay/cubit/vandelay_cubit.dart';
+import 'package:goatfolio/theme/theme_changer.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'common/theme/theme_changer.dart';
+import 'authentication/cognito.dart';
 import 'flavors.dart';
 
 class GoatfolioApp extends StatelessWidget {
@@ -21,19 +19,12 @@ class GoatfolioApp extends StatelessWidget {
   final UserService userService;
   final SharedPreferences prefs;
 
-  GoatfolioApp({Key key, this.hasValidSession, this.userService, this.prefs})
+  GoatfolioApp(
+      {Key? key,
+      required this.hasValidSession,
+      required this.userService,
+      required this.prefs})
       : super(key: key);
-
-  ThemeData androidDarkThemeData(BuildContext context, ThemeChanger theme) {
-    if (theme.configuredTheme == null ||
-        theme.configuredTheme == ThemeChanger.CFG_AUTOMATIC_VALUE) {
-      return ThemeData(
-          brightness: Brightness.dark,
-          backgroundColor: CupertinoColors.black,
-          scaffoldBackgroundColor: CupertinoColors.black);
-    }
-    return null;
-  }
 
   @override
   Widget build(context) {
@@ -45,17 +36,7 @@ class GoatfolioApp extends StatelessWidget {
         )
       ],
       child: MultiBlocProvider(
-        providers: [
-          BlocProvider<SummaryCubit>(
-            create: (_) => SummaryCubit(userService),
-          ),
-          BlocProvider<PerformanceCubit>(
-            create: (_) => PerformanceCubit(userService),
-          ),
-          BlocProvider<VandelayPendencyCubit>(
-            create: (_) => VandelayPendencyCubit(userService),
-          ),
-        ],
+        providers: bloc.buildGlobalProviders(userService),
         child: Consumer<ThemeChanger>(
           builder: (context, model, _) => MaterialApp(
             title: F.title,
@@ -63,7 +44,7 @@ class GoatfolioApp extends StatelessWidget {
               FirebaseAnalyticsObserver(analytics: analytics),
             ],
             theme: model.androidTheme,
-            darkTheme: androidDarkThemeData(context, model),
+            darkTheme: model.androidDarkThemeData,
             localizationsDelegates: [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,

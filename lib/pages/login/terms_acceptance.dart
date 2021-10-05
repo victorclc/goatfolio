@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 class TermsAcceptanceWidget extends StatefulWidget {
   final Function onAccepted;
 
-  const TermsAcceptanceWidget({Key key, @required this.onAccepted})
+  const TermsAcceptanceWidget({Key? key, required this.onAccepted})
       : super(key: key);
 
   @override
@@ -14,9 +14,9 @@ class TermsAcceptanceWidget extends StatefulWidget {
 }
 
 class _TermsAcceptanceWidgetState extends State<TermsAcceptanceWidget> {
-  bool lgpdBox;
-  bool termsBox;
-  bool processing;
+  late bool lgpdBox;
+  late bool termsBox;
+  late bool processing;
 
   @override
   void initState() {
@@ -101,7 +101,7 @@ class _TermsAcceptanceWidgetState extends State<TermsAcceptanceWidget> {
                     value: lgpdBox,
                     onChanged: (value) {
                       setState(() {
-                        lgpdBox = value;
+                        lgpdBox = value!;
                       });
                     },
                     title: Text(
@@ -117,7 +117,7 @@ class _TermsAcceptanceWidgetState extends State<TermsAcceptanceWidget> {
                     value: termsBox,
                     onChanged: (value) {
                       setState(() {
-                        termsBox = value;
+                        termsBox = value!;
                       });
                     },
                     title: Text(

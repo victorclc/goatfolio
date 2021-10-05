@@ -4,7 +4,7 @@ enum Flavor {
 }
 
 class F {
-  static Flavor appFlavor;
+  static late Flavor appFlavor;
 
   static String get title {
     switch (appFlavor) {
@@ -55,4 +55,6 @@ class F {
         return 'https://dev.goatfolio.com.br/';
     }
   }
+
+  static String get appLogo => "images/logo/logo.png";
 }

@@ -1,18 +1,20 @@
 import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:goatfolio/common/constant/app.dart';
-import 'package:goatfolio/common/helper/theme_helper.dart';
-import 'package:goatfolio/common/util/dialog.dart';
-import 'package:goatfolio/common/util/focus.dart';
-import 'package:goatfolio/common/util/modal.dart';
-import 'package:goatfolio/common/widget/animated_button.dart';
-import 'package:goatfolio/common/widget/multi_prompt.dart';
-import 'package:goatfolio/common/widget/preety_text_field.dart';
+import 'package:goatfolio/authentication/cognito.dart';
+import 'package:goatfolio/authentication/user.dart';
+import 'package:goatfolio/flavors.dart';
+
 import 'package:goatfolio/pages/login/signin_prompts.dart';
 import 'package:goatfolio/pages/login/terms_acceptance.dart';
-import 'package:goatfolio/services/authentication/model/user.dart';
-import 'package:goatfolio/services/authentication/service/cognito.dart';
+import 'package:goatfolio/theme/helper.dart' as theme;
+import 'package:goatfolio/utils/dialog.dart' as dialog;
+import 'package:goatfolio/utils/modal.dart' as modal;
+import 'package:goatfolio/widgets/animated_button.dart';
+import 'package:goatfolio/widgets/multi_prompt.dart';
+import 'package:goatfolio/widgets/preety_text_field.dart';
+import 'package:goatfolio/widgets/remove_focus_detector.dart';
+
 
 class LoginPage extends StatelessWidget {
   final TextEditingController userController = TextEditingController();
@@ -23,13 +25,12 @@ class LoginPage extends StatelessWidget {
 
   final Function onLoggedOn;
 
-  LoginPage({Key key, @required this.onLoggedOn, this.userService})
+  LoginPage({Key? key, required this.onLoggedOn, required this.userService})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusUtils.unfocus(context),
+    return RemoveFocusDetector(
       child: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -39,10 +40,10 @@ class LoginPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Image(
-                    color: CupertinoThemeHelper.isDarkMode(context)
+                    color: theme.isDarkMode(context)
                         ? Colors.grey
                         : null,
-                    image: AssetImage(AppConstants.APP_LOGO),
+                    image: AssetImage(F.appLogo),
                     height: 152,
                     width: 152,
                   ),
@@ -76,7 +77,7 @@ class LoginPage extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   child: AnimatedButton(
-                    onPressed: () => _onLoginSubmit(context, userService),
+                    onPressed: () => _onLoginSubmit(context),
                     animatedText: "...",
                     normalText: "ENTRAR",
                     filled: true,
@@ -92,7 +93,7 @@ class LoginPage extends StatelessWidget {
                     CupertinoButton(
                       padding: EdgeInsets.all(0),
                       child: Text("Criar conta"),
-                      onPressed: () => _onSigUpTap(context, userService),
+                      onPressed: () => _onSigUpTap(context),
                     ),
                   ],
                 ),
@@ -104,7 +105,7 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  void _onLoginSubmit(BuildContext context, UserService userService) async {
+  void _onLoginSubmit(BuildContext context) async {
     final String username = userController.text;
     final String password = passwordController.text;
 
@@ -133,11 +134,11 @@ class LoginPage extends StatelessWidget {
       debugPrint(e.toString());
       message = 'Ops. Aconteceu um erro';
     }
-    await DialogUtils.showErrorDialog(context, message);
+    await dialog.showErrorDialog(context, message);
   }
 
-  void _onSigUpTap(BuildContext context, UserService userService) async {
-    await ModalUtils.showUnDismissibleModalBottomSheet(
+  void _onSigUpTap(BuildContext context) async {
+    await modal.showUnDismissibleModalBottomSheet(
         context,
         MultiPrompt(
           keepOpenOnError: true,
@@ -148,14 +149,14 @@ class LoginPage extends StatelessWidget {
             SignInPasswordConfirmationPrompt()
           ],
           onSubmit: (Map values) async =>
-              ModalUtils.showUnDismissibleModalBottomSheet(
-            context,
-            TermsAcceptanceWidget(
-              onAccepted: () async {
-                await onSignUpSubmit(context, userService, values);
-              },
-            ),
-          ),
+              modal.showUnDismissibleModalBottomSheet(
+                context,
+                TermsAcceptanceWidget(
+                  onAccepted: () async {
+                    await onSignUpSubmit(context, userService, values);
+                  },
+                ),
+              ),
         ));
   }
 
@@ -166,14 +167,14 @@ class LoginPage extends StatelessWidget {
           attributes: {"given_name": values['name']});
       print(user);
       if (user != null) {
-        await Navigator.of(context).pop();
+        Navigator.of(context).pop();
         print("CONFIRM ACCOUNT");
         await _confirmAccount(
             context, userService, values['email'], values['password']);
       }
     } on CognitoClientException catch (e) {
       if (e.name == "UsernameExistsException") {
-        await DialogUtils.showErrorDialog(context, "E-mail ja cadastrado.");
+        await dialog.showErrorDialog(context, "E-mail ja cadastrado.");
       } else {
         debugPrint(e.toString());
       }
@@ -182,7 +183,7 @@ class LoginPage extends StatelessWidget {
 
   Future<void> _confirmAccount(BuildContext context, UserService userService,
       String email, String password) async {
-    await ModalUtils.showUnDismissibleModalBottomSheet(
+    await modal.showUnDismissibleModalBottomSheet(
         context,
         MultiPrompt(
           keepOpenOnError: true,
@@ -196,7 +197,7 @@ class LoginPage extends StatelessWidget {
 
   Future<void> _forgotPassword(
       BuildContext context, UserService userService) async {
-    await ModalUtils.showUnDismissibleModalBottomSheet(
+    await modal.showUnDismissibleModalBottomSheet(
       context,
       MultiPrompt(
         promptRequests: [
@@ -208,10 +209,10 @@ class LoginPage extends StatelessWidget {
             await _confirmPassword(context, userService, values['email']);
           } on CognitoClientException catch (e) {
             if (e.name == "LimitExceededException") {
-              await DialogUtils.showErrorDialog(context,
+              await dialog.showErrorDialog(context,
                   "Você excedeu o número de tentativas, volte mais tarde.");
             } else if (e.name == "CodeMismatchException") {
-              await DialogUtils.showErrorDialog(
+              await dialog.showErrorDialog(
                   context, "Código de verificação inválido");
             }
             rethrow;
@@ -223,7 +224,7 @@ class LoginPage extends StatelessWidget {
 
   Future<void> _confirmPassword(
       BuildContext context, UserService userService, String email) async {
-    await ModalUtils.showUnDismissibleModalBottomSheet(
+    await modal.showUnDismissibleModalBottomSheet(
       context,
       MultiPrompt(
         promptRequests: [
@@ -235,7 +236,7 @@ class LoginPage extends StatelessWidget {
           print("_confirmPassword onSubmit");
           await userService.confirmPassword(
               email, values['confirmationCode'], values['password']);
-          await DialogUtils.showSuccessDialog(
+          await dialog.showSuccessDialog(
               context, "Sua senha foi alterada com sucesso!");
         },
       ),
@@ -252,13 +253,14 @@ class LoginPage extends StatelessWidget {
       await userService.confirmAccount(email, values['confirmationCode']);
       userController.text = email;
       passwordController.text = password;
-      _onLoginSubmit(context, userService);
+      _onLoginSubmit(context);
     } on CognitoClientException catch (e) {
       if (e.name == "CodeMismatchException") {
-        await DialogUtils.showErrorDialog(
+        await dialog.showErrorDialog(
             context, "Código de verificação inválido");
       }
       rethrow;
     }
   }
+
 }
