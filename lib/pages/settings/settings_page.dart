@@ -10,6 +10,7 @@ import 'package:goatfolio/navigation.dart';
 import 'package:goatfolio/notification/notification.dart';
 import 'package:goatfolio/pages/login/login.dart';
 import 'package:goatfolio/pages/settings/theme_page.dart';
+import 'package:goatfolio/vandelay/storage/divergences_storage.dart';
 
 import 'package:launch_review/launch_review.dart';
 import 'package:provider/provider.dart';
@@ -97,6 +98,7 @@ class SettingsPage extends StatelessWidget {
                 final userService =
                     Provider.of<UserService>(context, listen: false);
                 await deleteInvestmentsDatabase();
+                await deleteImportHistoryDatabase();
                 await NotificationClient(userService).unregisterToken(
                     (await FirebaseMessaging.instance.getToken())!);
                 await userService.signOut();
