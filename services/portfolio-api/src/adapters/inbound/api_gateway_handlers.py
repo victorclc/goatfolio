@@ -29,7 +29,7 @@ def get_investments_handler(event, context):
 
     return {
         "statusCode": HTTPStatus.OK,
-        "body": jsonutils.dump([asdict(i) for i in investments]),
+        "body": jsonutils.dump([i.to_dict() for i in investments]),
     }
 
 
@@ -40,7 +40,7 @@ def add_investment_handler(event, context):
         subject = awsutils.get_event_subject(event)
 
         result = investment_core.add(subject, investment)
-        return {"statusCode": HTTPStatus.OK, "body": jsonutils.dump(asdict(result))}
+        return {"statusCode": HTTPStatus.OK, "body": jsonutils.dump(result.to_dict())}
     except MissingRequiredFields as ex:
         logger.exception("BAD REQUEST", ex)
         return {
@@ -56,7 +56,7 @@ def edit_investment_handler(event, context):
         subject = awsutils.get_event_subject(event)
 
         result = investment_core.edit(subject, investment)
-        return {"statusCode": 200, "body": jsonutils.dump(asdict(result))}
+        return {"statusCode": 200, "body": jsonutils.dump(result.to_dict())}
     except MissingRequiredFields as ex:
         logger.exception("BAD REQUEST", ex)
         return {

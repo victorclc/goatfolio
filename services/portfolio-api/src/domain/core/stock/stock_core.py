@@ -35,6 +35,7 @@ class StockCore:
         amount: Decimal,
         average_price: Decimal,
     ):
+        # TODO VALIDAR PRECO NEGATIVO
         consolidated = self.get_stock_consolidated(subject, ticker)
         transformation = self.transformation_client.get_ticker_transformation(
             ticker, date
