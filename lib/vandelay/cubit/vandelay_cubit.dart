@@ -27,8 +27,8 @@ class VandelayPendencyCubit extends Cubit<PendencyState> {
     updateDivergences();
   }
 
-  void updateDivergences() {
-    _storage.getAll().then((value) {
+  Future<void> updateDivergences() async {
+    await _storage.getAll().then((value) {
       divergences = {};
       value.forEach((element) {
         divergences[element.keys.first] = element.values.first;
@@ -51,7 +51,7 @@ class VandelayPendencyCubit extends Cubit<PendencyState> {
   Future<void> registerAmountDivergence(
       String ticker, double amountMissing) async {
     await _storage.insert(ticker, amountMissing.toInt());
-    updateDivergences();
+    await updateDivergences();
     emit(PendencyState.HAS_PENDENCY);
   }
 }
