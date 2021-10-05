@@ -1,0 +1,55 @@
+Resources:
+  GoatfolioAppUserPool:
+    Type: 'AWS::Cognito::UserPool'
+    Properties:
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      EmailVerificationSubject: "GOATFOLIO - Código de verificação"
+      EmailVerificationMessage: "O código de verificação é {####}"
+      EmailConfiguration:
+        EmailSendingAccount: DEVELOPER
+        From: ${self:provider.sesFrom}
+        SourceArn: ${self:provider.sesArn}
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: true
+          TemporaryPasswordValidityDays: 1
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Schema:
+        - Name: given_name
+          Required: true
+          Mutable: true
+      UsernameConfiguration:
+        CaseSensitive: false
+      UserPoolName: GoatfolioPool
+  MobilePoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: 'mobile-pool'
+      TokenValidityUnits:
+        AccessToken: minutes
+        IdToken: minutes
+        RefreshToken: days
+      RefreshTokenValidity: 3650
+      AccessTokenValidity: 60
+      IdTokenValidity: 60
+      ExplicitAuthFlows:
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_CUSTOM_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      GenerateSecret: false
+      PreventUserExistenceErrors: ENABLED
+      EnableTokenRevocation: false
+      UserPoolId:
+        Ref: GoatfolioAppUserPool

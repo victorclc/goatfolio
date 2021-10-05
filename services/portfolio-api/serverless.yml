@@ -15,50 +15,7 @@ provider:
     PYTHONPATH: "src:libs"
     CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
     REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:PutItem
-        - dynamodb:DeleteItem
-        - dynamodb:BatchWriteItem
-      Resource:
-        - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
-        - Fn::Join:
-            - ''
-            - - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
-              - '/index/*'
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:BatchWriteItem
-      Resource:
-        - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
-        - Fn::Join:
-            - ''
-            - - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
-              - '/index/*'
-    - Effect: Allow
-      Action:
-        - sqs:SendMessage
-        - sqs:GetQueueUrl
-      Resource:
-        'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:GetItem
-        - dynamodb:BatchGetItem
-      Resource:
-        'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
-    - Effect: Allow
-      Action:
-        - ssm:GetParameter
-        - ssm:GetParameters
-        - ssm:DescribeParameters
-      Resource: arn:aws:ssm:${self:provider.region}:*:parameter/corporate-events-api-key
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
 
 
   apiGateway:
@@ -70,6 +27,7 @@ package:
     - .cache/**
     - tests/**
     - node_modules/**
+    - resources/**
   include:
     - ../../libs/goatcommons/**
     - ../../libs/event_notifier/**
@@ -248,73 +206,6 @@ functions:
 
 
 resources:
-  Resources:
-    ApiGatewayAuthorizer:
-      Type: AWS::ApiGateway::Authorizer
-      Properties:
-        AuthorizerResultTtlInSeconds: 10
-        IdentitySource: method.request.header.Authorization
-        Name: GoatCognitoAuthorizer
-        RestApiId:
-          Ref: ApiGatewayRestApi
-        Type: COGNITO_USER_POOLS
-        ProviderARNs:
-          - 'Fn::ImportValue': ${self:provider.stage}-GoatfolioAppUserPoolArnOutput
-
-    AddInvestmentQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        RedrivePolicy:
-          deadLetterTargetArn:
-            Fn::GetAtt:
-              - "AddInvestmentQueueDLQ"
-              - "Arn"
-          maxReceiveCount: 5
-        QueueName: AddInvestmentQueue
-        VisibilityTimeout: 300
-
-    AddInvestmentQueueDLQ:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: AddInvestmentQueueDLQ
-
-    RedisSecurityGroup:
-      Type: AWS::EC2::SecurityGroup
-      Properties:
-        GroupDescription: ElastiCache Security Group
-        VpcId:
-          Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-VpcID
-        SecurityGroupIngress:
-          - IpProtocol: tcp
-            FromPort: 6379
-            ToPort: 6379
-            CidrIp: 10.50.64.0/19
-          - IpProtocol: tcp
-            FromPort: 6379
-            ToPort: 6379
-            CidrIp: 10.50.96.0/19
-
-    RedisSubnetGroup:
-      Type: AWS::ElastiCache::SubnetGroup
-      Properties:
-        Description: Cache Subnet Group
-        SubnetIds:
-          - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet1ID
-          - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
-
-    RedisElasticacheCluster:
-      Type: 'AWS::ElastiCache::CacheCluster'
-      Properties:
-        Engine: redis
-        CacheNodeType: cache.t2.micro
-        NumCacheNodes: '1'
-        CacheSubnetGroupName: !Ref RedisSubnetGroup
-        VpcSecurityGroupIds:
-          - !GetAtt RedisSecurityGroup.GroupId
-
-  Outputs:
-    AddInvestmentQueueArn:
-      Value:
-        Fn::GetAtt: [ AddInvestmentQueue, Arn ]
-      Export:
-        Name: ${self:provider.stage}-AddInvestmentQueueArn
+  - ${file(resources/authorizer-cf-resources.yml)}
+  - ${file(resources/elasticache-cf-resources.yml)}
+  - ${file(resources/queue-cf-resources.yml)}
