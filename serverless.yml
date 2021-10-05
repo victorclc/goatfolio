@@ -21,7 +21,7 @@ resources:
       ConstraintDescription: Must be a valid availability zone
       Default: sa-east-1b
 
-  - Metadata:
+  Metadata:
     AWS::CloudFormation::Interface:
       ParameterGroups:
         - Label:
@@ -40,7 +40,7 @@ resources:
         AvailabilityZone2:
           default: Availability Zone 2
 
-  - Mappings:
+  Mappings:
     # Maps CIDR blocks to VPC and various subnets
     CIDRMap:
       VPC:
@@ -53,8 +53,6 @@ resources:
         CIDR: 10.50.64.0/19
       Private2:
         CIDR: 10.50.96.0/19
-
-
 
   - Resources:
     # NETWORK RESOURCES
