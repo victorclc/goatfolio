@@ -15,50 +15,7 @@ provider:
     PYTHONPATH: "src:libs"
     CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
     REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:PutItem
-        - dynamodb:DeleteItem
-        - dynamodb:BatchWriteItem
-      Resource:
-        - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
-        - Fn::Join:
-            - ''
-            - - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
-              - '/index/*'
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:BatchWriteItem
-      Resource:
-        - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
-        - Fn::Join:
-            - ''
-            - - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
-              - '/index/*'
-    - Effect: Allow
-      Action:
-        - sqs:SendMessage
-        - sqs:GetQueueUrl
-      Resource:
-        'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:GetItem
-        - dynamodb:BatchGetItem
-      Resource:
-        'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
-    - Effect: Allow
-      Action:
-        - ssm:GetParameter
-        - ssm:GetParameters
-        - ssm:DescribeParameters
-      Resource: arn:aws:ssm:${self:provider.region}:*:parameter/corporate-events-api-key
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
 
 
   apiGateway:
