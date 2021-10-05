@@ -10,6 +10,9 @@ env:
   STAGE: dev
 
 jobs:
+  defaults:
+    run:
+      working-directory: backend
   deploy:
     runs-on: ubuntu-latest
     steps:

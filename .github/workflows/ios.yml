@@ -3,12 +3,15 @@ name: Deploy to App Store Connect
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    paths:
+  - 'mobile/**'
 
   workflow_dispatch:
 
 jobs:
+  defaults:
+    run:
+      working-directory: mobile
   deploy:
     runs-on: macos-latest
     steps:

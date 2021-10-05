@@ -4,13 +4,13 @@ on:
   push:
     branches: [ master, develop ]
     paths:
-      - 'services/push-notifications/**'
+      - 'backend/services/push-notifications/**'
       
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 env:
-  SERVICE_PATH: ./services/push-notifications
+  SERVICE_PATH: ./backend/services/push-notifications
 
 jobs:
   deploy:
