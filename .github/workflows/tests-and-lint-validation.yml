@@ -10,11 +10,11 @@ env:
   STAGE: dev
 
 jobs:
-  defaults:
-    run:
-      working-directory: backend
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+    run:
+      working-directory: backend
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
