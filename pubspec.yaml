@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.1.15+2
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.14.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -27,27 +27,27 @@ dependencies:
     sdk: flutter
   intl: ^0.17.0
   amazon_cognito_identity_dart_2: ^1.0.3
-  shared_preferences: ^2.0.5
-  progress_indicators: ^0.1.5
+  shared_preferences: ^2.0.8
+  progress_indicators: ^1.0.0
   modal_bottom_sheet: ^2.0.0
-  provider: ^5.0.0
-  http: ^0.13.0
-  http_interceptor: ^1.0.1
-  sqflite:
-  path:
-  charts_flutter: ^0.10.0
+  provider: ^6.0.1
+  http: ^0.13.4
+  http_interceptor: ^1.0.2
+  sqflite: ^2.0.0
+  path: ^1.8.0
+  charts_flutter: ^0.11.0
   settings_ui:
     path: ./packages/flutter-settings-ui
   #  settings_ui: ^1.0.0
-  url_launcher: ^6.0.2
-  mask_text_input_formatter: ^1.2.1
-  package_info: ^2.0.0
+  url_launcher: ^6.0.12
+  mask_text_input_formatter: ^2.0.0
+  package_info: ^2.0.2
   launch_review: ^3.0.1
-  firebase_core: ^1.4.0
-  firebase_messaging: ^10.0.4
-  app_settings: 4.1.0
-  firebase_analytics: ^8.2.0
-  flutter_bloc: ^7.1.0
+  firebase_core: ^1.7.0
+  firebase_messaging: ^10.0.8
+  app_settings: 4.1.1
+  firebase_analytics: ^8.3.3
+  flutter_bloc: ^7.3.0
   badges: ^2.0.1
 
   # The following adds the Cupertino Icons font to your application.

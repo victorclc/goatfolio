@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:goatfolio/global.dart' as bloc;
+import 'package:goatfolio/navigation.dart';
 import 'package:goatfolio/pages/login/login.dart';
 import 'package:goatfolio/theme/theme_changer.dart';
 import 'package:provider/provider.dart';
@@ -35,7 +36,7 @@ class GoatfolioApp extends StatelessWidget {
         )
       ],
       child: MultiBlocProvider(
-        providers: bloc.buildGlobalProviders(),
+        providers: bloc.buildGlobalProviders(userService),
         child: Consumer<ThemeChanger>(
           builder: (context, model, _) => MaterialApp(
             title: F.title,
@@ -57,11 +58,11 @@ class GoatfolioApp extends StatelessWidget {
               );
             },
             home: Scaffold(
-              body:
-                  // ? buildNavigationPage(userService)
-                  LoginPage(
+              body: hasValidSession
+                  ? buildNavigationPage(userService)
+                  : LoginPage(
                       userService: userService,
-                      onLoggedOn: () => 1,
+                      onLoggedOn: goToNavigationPage,
                     ),
             ),
           ),
