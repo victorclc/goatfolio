@@ -9,13 +9,13 @@ provider:
 
 resources:
   - Parameters:
-    AvailabilityZone1:
+    - AvailabilityZone1:
       Description: The first availability zone in the region
       Type: AWS::EC2::AvailabilityZone::Name
       ConstraintDescription: Must be a valid availability zone
       Default: sa-east-1a
 
-    AvailabilityZone2:
+    - AvailabilityZone2:
       Description: The second availability zone in the region
       Type: AWS::EC2::AvailabilityZone::Name
       ConstraintDescription: Must be a valid availability zone
