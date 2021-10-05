@@ -1,0 +1,23 @@
+Resources:
+  AddInvestmentQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "AddInvestmentQueueDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+      QueueName: AddInvestmentQueue
+      VisibilityTimeout: 300
+  AddInvestmentQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: AddInvestmentQueueDLQ
+
+Outputs:
+  AddInvestmentQueueArn:
+    Value:
+      Fn::GetAtt: [ AddInvestmentQueue, Arn ]
+    Export:
+      Name: ${self:provider.stage}-AddInvestmentQueueArn

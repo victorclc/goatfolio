@@ -1,0 +1,44 @@
+name: goatfolio-serverless
+
+on:
+  push:
+    branches: [ master, develop ]
+    paths:
+      - 'backend/serverless.yml'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  STAGE: dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set environment variables
+        run: |
+            echo $GITHUB_REF
+            if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
+                echo "STAGE=prod" >> "$GITHUB_ENV"
+                echo "SES_ARN=arn:aws:ses:sa-east-1:810300526230:identity/noreply@goatfolio.com.br" >> "$GITHUB_ENV"
+                echo "SES_FROM=noreply@goatfolio.com.br" >> "$GITHUB_ENV"
+                echo "AWS_ACCESS_KEY_ID=${{secrets.AWS_ACCESS_KEY_ID}}" >> "$GITHUB_ENV"
+                echo "AWS_SECRET_ACCESS_KEY=${{secrets.AWS_SECRET_ACCESS_KEY}}" >> "$GITHUB_ENV"
+            else
+                echo "STAGE=dev" >> "$GITHUB_ENV"
+                echo "SES_ARN=arn:aws:ses:sa-east-1:138414734174:identity/noreply+dev@goatfolio.com.br" >> "$GITHUB_ENV"
+                echo "SES_FROM=noreply+dev@goatfolio.com.br" >> "$GITHUB_ENV"
+                echo "AWS_ACCESS_KEY_ID=${{secrets.DEV_AWS_ACCESS_KEY_ID}}" >> "$GITHUB_ENV"
+                echo "AWS_SECRET_ACCESS_KEY=${{secrets.DEV_AWS_SECRET_ACCESS_KEY}}" >> "$GITHUB_ENV"
+            fi
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Deploy
+        run: npx serverless deploy
+      - name: Discord Notification
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
