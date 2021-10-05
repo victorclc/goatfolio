@@ -8,7 +8,7 @@ provider:
   sesFrom: ${env:SES_FROM}
 
 resources:
-  - Parameters:
+  Parameters:
     AvailabilityZone1:
       Description: The first availability zone in the region
       Type: AWS::EC2::AvailabilityZone::Name
