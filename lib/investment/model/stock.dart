@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class StockInvestment {
   String type;
   String operation;
@@ -39,8 +41,7 @@ class StockInvestment {
   StockInvestment.fromJson(Map<String, dynamic> json)
       : type = json['type'],
         operation = json['operation'],
-        date = DateTime.fromMillisecondsSinceEpoch(json['date'] * 1000,
-            isUtc: true),
+        date = DateTime.parse('${json['date']}'),
         broker = json['broker'],
         id = json['id'],
         subject = json['subject'],
@@ -53,7 +54,7 @@ class StockInvestment {
   Map<String, dynamic> toJson() => {
         'type': type,
         'operation': operation,
-        'date': date.millisecondsSinceEpoch ~/ 1000,
+        'date': DateFormat("yyyyMMdd").format(date),
         'broker': broker,
         'id': id,
         'ticker': ticker,

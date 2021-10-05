@@ -8,6 +8,7 @@ import 'package:goatfolio/vandelay/model/import_request.dart';
 
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
+import 'package:intl/intl.dart';
 
 class VandelayClient {
   final UserService userService;
@@ -20,7 +21,6 @@ class VandelayClient {
 
   Future<String> get accessToken async =>
       (await this.userService.getSessionToken())!;
-
 
   Future<CeiImportResponse> importCEIRequest(
       String username, String password) async {
@@ -69,5 +69,30 @@ class VandelayClient {
       throw Exception("Import status failed.");
     }
     return CeiImportResponse.fromJson(jsonDecode(response.body));
+  }
+
+  Future<void> fixAveragePrice(String ticker, DateTime date,
+      String broker, double amount, double averagePrice) async {
+
+    final request = {
+      'ticker': ticker,
+      'date_from': DateFormat("yyyyMMdd").format(date),
+      'broker': broker,
+      'amount': amount,
+      'average_price': averagePrice
+    };
+
+    var response = await _client.post(
+      Uri.parse(F.baseUrl + "portfolio/stock/fix-average"),
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': await accessToken
+      },
+      body: jsonEncode(request),
+    );
+
+    if (response.statusCode != HttpStatus.ok) {
+      throw Exception("Import request failed");
+    }
   }
 }

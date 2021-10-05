@@ -40,7 +40,7 @@ class DivergenceStorage {
     return results
         .map<Map<String, int>>((e) {
           Map<String, int> tmp = {};
-          // tmp[e['TICKER']] = e['AMOUNT_MISSING'];
+          tmp[e['TICKER'] as String] = e['AMOUNT_MISSING'] as int;
           return tmp;
         })
         .toList();

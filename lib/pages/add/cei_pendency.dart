@@ -83,7 +83,7 @@ class CeiPendency extends StatelessWidget {
                       ).toList(),
                     ),
                   ),
-                  ElevatedButton(child: Text("ENVIAR"), onPressed: onSubmit),
+                  ElevatedButton(child: Text("ENVIAR"), onPressed: () => onSubmit(context, cubit)),
                 ],
               ),
             ),
@@ -93,15 +93,16 @@ class CeiPendency extends StatelessWidget {
     );
   }
 
-  void onSubmit() {
+  void onSubmit(BuildContext context, VandelayPendencyCubit cubit) {
     tickerController.forEach(
       (ticker, controller) {
         if (controller.text.isNotEmpty) {
           final averagePrice = getDoubleFromMoneyFormat(controller.text);
-          print(averagePrice);
+          cubit.resolvePendency(ticker, averagePrice);
         }
       },
     );
+    Navigator.pop(context);
   }
 
   double getDoubleFromMoneyFormat(String formatted) {
