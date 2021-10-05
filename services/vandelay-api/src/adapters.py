@@ -7,9 +7,9 @@ import requests
 from boto3.dynamodb.conditions import Key
 
 from exceptions import BatchSavingException
-from goatcommons.constants import InvestmentsType
+from investments.models import InvestmentType
 from goatcommons.configuration.system_manager import ConfigurationClient
-from goatcommons.utils import JsonUtils
+import goatcommons.utils.json as jsonutils
 from models import Import, CEIOutboundRequest, InvestmentRequest, CEIInfo
 import logging
 
@@ -52,7 +52,7 @@ class CEIImportsQueue:
         self._queue = boto3.resource('sqs').get_queue_by_name(QueueName='CeiImportRequest')
 
     def send(self, request: CEIOutboundRequest):
-        self._queue.send_message(MessageBody=JsonUtils.dump(asdict(request)))
+        self._queue.send_message(MessageBody=jsonutils.dump(asdict(request)))
 
 
 class PortfolioClient:
@@ -64,8 +64,8 @@ class PortfolioClient:
     def batch_save(self, investments):
         url = f'https://{self.BASE_API_URL}/portfolio/investments/batch'
         body = list(
-            map(lambda i: asdict(InvestmentRequest(type=InvestmentsType.STOCK, investment=asdict(i))), investments))
-        response = requests.post(url, data=JsonUtils.dump(body),
+            map(lambda i: asdict(InvestmentRequest(type=InvestmentType.STOCK, investment=asdict(i))), investments))
+        response = requests.post(url, data=jsonutils.dump(body),
                                  headers={'x-api-key': ConfigurationClient().get_secret('portfolio-api-key')})
 
         if response.status_code != HTTPStatus.OK:

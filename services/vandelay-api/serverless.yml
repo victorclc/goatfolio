@@ -63,6 +63,7 @@ package:
   include:
     - ../../libs/goatcommons/**
     - ../../libs/brutils/**
+    - ../../libs/investments/**
 
 plugins:
   - serverless-domain-manager
