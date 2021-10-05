@@ -143,4 +143,4 @@ functions:
           private: true
 
 resources:
-  - ${file(resources/network-cf-resources.yml)}
+  - ${file(resources/dynamo-cf-resources.yml)}
