@@ -27,6 +27,7 @@ package:
     - .cache/**
     - tests/**
     - node_modules/**
+    - resources/**
   include:
     - ../../libs/goatcommons/**
     - ../../libs/event_notifier/**
