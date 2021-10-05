@@ -1,0 +1,9 @@
+.idea/
+venv/
+.serverless/
+node_modules/
+__pycache__/
+test-env/
+*.log
+*.csv
+.aws-sam/
