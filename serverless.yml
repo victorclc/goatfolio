@@ -10,8 +10,8 @@ provider:
 resources:
   - ${file(resources/network-cf-resources.yml)}
 
-    # APP RESOURCES AND STUFF
-  Resources:
+  # APP RESOURCES AND STUFF
+  - Resources:
     GoatfolioAppUserPool:
       Type: 'AWS::Cognito::UserPool'
       Properties:
