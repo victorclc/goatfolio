@@ -2,6 +2,7 @@
 
 It's the back-end of the goatfolio_app.
 
+
 ## CI/CD
 ### Master
 [![cei-crawler](https://github.com/victorclc/goatfolio-serverless/actions/workflows/cei-crawler.yml/badge.svg)](https://github.com/victorclc/goatfolio-serverless/actions/workflows/cei-crawler.yml)
