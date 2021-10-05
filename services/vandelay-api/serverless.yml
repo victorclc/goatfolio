@@ -46,6 +46,13 @@ provider:
         - ssm:GetParameters
         - ssm:DescribeParameters
       Resource: arn:aws:ssm:${self:provider.region}:*:parameter/portfolio-api-key
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource:
+        Fn::GetAtt: [ CEIInfoTable, Arn ]
 
 package:
   exclude:
@@ -56,6 +63,7 @@ package:
   include:
     - ../../libs/goatcommons/**
     - ../../libs/brutils/**
+    - ../../libs/investments/**
 
 plugins:
   - serverless-domain-manager
@@ -91,11 +99,25 @@ functions:
           arn:
             'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
 
-  ceiImportStatus:
-    handler: src/handlers.cei_import_status_handler
+  getCEIInfo:
+    handler: src/handlers.cei_info_request_handler
     events:
       - http:
-          path: cei/latest
+          path: cei/info
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  getImportStatus:
+    handler: src/handlers.import_status_handler
+    events:
+      - http:
+          path: cei
+          parameters:
+            querystrings:
+              datetime: true
           method: get
           authorizer:
             type: COGNITO_USER_POOLS
@@ -142,3 +164,15 @@ resources:
                 KeyType: "RANGE"
             Projection:
               ProjectionType: KEYS_ONLY
+
+    CEIInfoTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: "CEIInfo"
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: "subject"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "subject"
+            KeyType: "HASH"

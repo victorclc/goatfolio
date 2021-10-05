@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from goatcommons.constants import InvestmentsType
+from investments.models import InvestmentType
 
 
 @dataclass
@@ -37,5 +37,11 @@ class Import:
 
 @dataclass
 class InvestmentRequest:
-    type: InvestmentsType
+    type: InvestmentType
     investment: dict
+
+
+@dataclass
+class CEIInfo:
+    subject: str
+    assets_quantities: dict

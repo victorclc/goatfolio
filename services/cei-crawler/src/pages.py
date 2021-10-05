@@ -1,7 +1,9 @@
 import logging
+import math
 import re
 from time import sleep
 
+import pandas as pd
 from selenium.common.exceptions import UnexpectedAlertPresentException, StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
@@ -51,6 +53,7 @@ class LoginPage(object):
 
 class HomePage(object):
     ASSETS_EXTRACT_PATH = 'negociacao-de-ativos.aspx'
+    ASSET_INQUIRY_PATH = 'ConsultarCarteiraAtivos.aspx'
     LOGGER = logging.getLogger()
 
     def __init__(self, driver):
@@ -61,6 +64,12 @@ class HomePage(object):
         self.driver.execute_script("window.location.href = '" + self.ASSETS_EXTRACT_PATH + "'")
         self.LOGGER.info('Redirect to extract page END')
         return ExtractPage(self.driver)
+
+    def go_to_asset_inquiry_page(self):
+        self.LOGGER.info('Redirect to asset inquiry page START')
+        self.driver.execute_script("window.location.href = '" + self.ASSET_INQUIRY_PATH + "'")
+        self.LOGGER.info('Redirect to asset inquiry page END')
+        return AssetInquiryPage(self.driver)
 
 
 class ExtractPage(object):
@@ -129,3 +138,47 @@ class ExtractPage(object):
     def _pythonfy_text(text):
         new_text = text.replace('(R$)', '').strip()
         return re.sub(r'[ /]', "_", unidecode(new_text).lower())
+
+
+class AssetInquiryPage(object):
+    LOGGER = logging.getLogger()
+    INQUIRY_BUTTON_ID = 'ctl00_ContentPlaceHolder1_btnConsultar'
+
+    def __init__(self, driver):
+        self.driver = driver
+
+    def get_assets_quantity(self):
+        self.LOGGER.info('START Get all brokers assets')
+
+        inquire_button = self.driver.find_element_by_id(self.INQUIRY_BUTTON_ID)
+
+        WebDriverWait(self.driver, 30, ignored_exceptions=StaleElementReferenceException).until(
+            expected_conditions.element_to_be_clickable(
+                (By.ID, self.INQUIRY_BUTTON_ID)
+            ))
+        inquire_button.click()
+
+        sleep(3)
+        assets_qty = {}
+        tables = pd.read_html(self.driver.page_source)
+        self.LOGGER.info(f'Found {len(tables)} tables.')
+        for table in tables:
+            self.LOGGER.info(f'Table columns: {table.head}')
+            for row in table.iterrows():
+                if len(row[1]) < 6:
+                    continue
+                ticker = row[1][2]
+                quantity = row[1][5]
+                if type(ticker) == float and math.isnan(ticker) or math.isnan(quantity):
+                    continue
+                self._add_quantity(assets_qty, ticker, quantity)
+
+        self.LOGGER.info(f'END Get all brokers assets: {assets_qty}')
+        return assets_qty
+
+    @staticmethod
+    def _add_quantity(asset_dict, ticker, quantity):
+        if ticker in asset_dict:
+            asset_dict[ticker] += quantity
+        else:
+            asset_dict[ticker] = quantity

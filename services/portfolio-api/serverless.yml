@@ -5,8 +5,16 @@ provider:
   region: sa-east-1
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
+  vpc:
+    securityGroupIds:
+      - !GetAtt RedisSecurityGroup.GroupId
+    subnetIds:
+      - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet1ID
+      - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
   environment:
     PYTHONPATH: "src:libs"
+    CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
+    REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -25,6 +33,7 @@ provider:
         - dynamodb:Query
         - dynamodb:GetItem
         - dynamodb:PutItem
+        - dynamodb:BatchWriteItem
       Resource:
         - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
         - Fn::Join:
@@ -37,6 +46,19 @@ provider:
         - sqs:GetQueueUrl
       Resource:
         'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
+        - dynamodb:BatchGetItem
+      Resource:
+        'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
+    - Effect: Allow
+      Action:
+        - ssm:GetParameter
+        - ssm:GetParameters
+        - ssm:DescribeParameters
+      Resource: arn:aws:ssm:${self:provider.region}:*:parameter/corporate-events-api-key
 
 
   apiGateway:
@@ -50,6 +72,7 @@ package:
     - node_modules/**
   include:
     - ../../libs/goatcommons/**
+    - ../../libs/event_notifier/**
 
 plugins:
   - serverless-domain-manager
@@ -67,8 +90,9 @@ custom:
     endpointType: 'regional'
 
 functions:
+  # Investments Start
   getInvestments:
-    handler: src/handlers.get_investments_handler
+    handler: src/adapters/inbound/api_gateway_handlers.get_investments_handler
     events:
       - http:
           path: investments/
@@ -81,9 +105,8 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
-
   addInvestment:
-    handler: src/handlers.add_investment_handler
+    handler: src/adapters/inbound/api_gateway_handlers.add_investment_handler
     events:
       - http:
           path: investments/
@@ -92,9 +115,8 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
-
   editInvestment:
-    handler: src/handlers.edit_investment_handler
+    handler: src/adapters/inbound/api_gateway_handlers.edit_investment_handler
     events:
       - http:
           path: investments/
@@ -103,9 +125,8 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
-
   deleteInvestments:
-    handler: src/handlers.delete_investment_handler
+    handler: src/adapters/inbound/api_gateway_handlers.delete_investment_handler
     events:
       - http:
           path: investments/{investmentid}
@@ -118,29 +139,113 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
-
   batchAddInvestments:
-    handler: src/handlers.batch_add_investments_handler
+    handler: src/adapters/inbound/private_api_gateway_handlers.batch_add_investments_handler
     events:
       - http:
           path: investments/batch
           method: post
           private: true
-
   asyncAddInvestment:
-    handler: src/handlers.async_add_investment_handler
+    handler: src/adapters/inbound/sqs_handlers.async_add_investment_handler
     events:
       - sqs:
           arn:
             Fn::GetAtt: [ AddInvestmentQueue, Arn ]
+  # Investments End
 
+  # Portfolio Start
   consolidatePortfolio:
-    handler: src/handlers.consolidate_portfolio_handler
+    handler: src/adapters/inbound/dynamo_stream_handlers.consolidate_portfolio_handler
     events:
       - stream:
           type: dynamodb
           arn:
             'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
+
+  fixStockAverage:
+    handler: src/adapters/inbound/api_gateway_handlers.fix_average_price_handler
+    events:
+      - http:
+          path: stock/fix-average
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+
+
+  # Portfolio End
+
+  # Performance Start
+  performanceSummary:
+    handler: src/adapters/inbound/api_gateway_handlers.performance_summary_handler
+    events:
+      - http:
+          path: summary
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  performanceHistory:
+    handler: src/adapters/inbound/api_gateway_handlers.performance_history_handler
+    events:
+      - http:
+          path: history
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  portfolioPerformance:
+    handler: src/adapters/inbound/api_gateway_handlers.calculate_group_position_summary_handler
+    events:
+      - http:
+          path: summary/grouped
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  tickerPerformance:
+    handler: src/adapters/inbound/api_gateway_handlers.ticker_performance_handler
+    events:
+      - http:
+          path: history/{ticker}
+          request:
+            parameters:
+              paths:
+                ticker: true
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  # Performance End
+
+  # MANAGEMENT AND METRICS ENDPOINTS
+  getCacheSnapshot:
+    handler: src/adapters/inbound/private_api_gateway_handlers.get_cache_snapshot_handler
+    events:
+      - http:
+          path: cache/snapshot
+          method: get
+          private: true
+
+  invalidateCache:
+    handler: src/adapters/inbound/private_api_gateway_handlers.invalidate_cache_handler
+    events:
+      - http:
+          path: cache/invalidate
+          method: post
+          private: true
+
 
 resources:
   Resources:
@@ -172,6 +277,40 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: AddInvestmentQueueDLQ
+
+    RedisSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: ElastiCache Security Group
+        VpcId:
+          Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-VpcID
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 6379
+            ToPort: 6379
+            CidrIp: 10.50.64.0/19
+          - IpProtocol: tcp
+            FromPort: 6379
+            ToPort: 6379
+            CidrIp: 10.50.96.0/19
+
+    RedisSubnetGroup:
+      Type: AWS::ElastiCache::SubnetGroup
+      Properties:
+        Description: Cache Subnet Group
+        SubnetIds:
+          - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet1ID
+          - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
+
+    RedisElasticacheCluster:
+      Type: 'AWS::ElastiCache::CacheCluster'
+      Properties:
+        Engine: redis
+        CacheNodeType: cache.t2.micro
+        NumCacheNodes: '1'
+        CacheSubnetGroupName: !Ref RedisSubnetGroup
+        VpcSecurityGroupIds:
+          - !GetAtt RedisSecurityGroup.GroupId
 
   Outputs:
     AddInvestmentQueueArn:
