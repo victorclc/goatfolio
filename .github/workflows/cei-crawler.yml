@@ -4,13 +4,13 @@ on:
   push:
     branches: [ master, develop ]
     paths:
-      - 'backend/services/cei-crawler/**'
+      - 'backend/cei-crawler/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 env:
-  SERVICE_PATH: ./backend/services/cei-crawler
+  SERVICE_PATH: ./backend/cei-crawler
 
 jobs:
   deploy:
