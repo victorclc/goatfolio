@@ -6,7 +6,7 @@ provider:
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
   environment:
-    PYTHONPATH: "src:libs"
+    PYTHONPATH: "src:shared/libs"
     BASE_API_URL: ${env:DOMAIN_NAME}
     API_KEY_SECRET_NAME: ${env:API_KEY_SECRET_NAME}
   iamRoleStatements:
@@ -61,9 +61,9 @@ package:
     - test-env/**
     - node_modules/**
   include:
-    - ../../libs/goatcommons/**
-    - ../../libs/brutils/**
-    - ../../libs/investments/**
+    - ../../shared/libs/goatcommons/**
+    - ../../shared/libs/brutils/**
+    - ../../shared/libs/investments/**
 
 plugins:
   - serverless-domain-manager
