@@ -43,7 +43,7 @@ jobs:
           pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Setting up environment variables
-        run: echo PYTHONPATH="../../libs:src:tests" >> $GITHUB_ENV
+        run: echo PYTHONPATH="../shared/libs:src:tests" >> $GITHUB_ENV
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
