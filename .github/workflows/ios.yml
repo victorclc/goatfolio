@@ -2,9 +2,9 @@ name: Deploy to App Store Connect
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, develop ]
     paths:
-  - 'mobile/**'
+      - 'mobile/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -28,6 +28,16 @@ jobs:
           ruby-version: '2.6'
           bundler-cache: true
           working-directory: ios
+      - name: Set environment variables
+        run: |
+          echo $GITHUB_REF
+          if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
+            echo "BUNDLE_ID=br.com.majestysolutions.goatfolio.prod" >> "$GITHUB_ENV"
+            echo "SCHEME=prod" >> "$GITHUB_ENV"
+          else
+            echo "BUNDLE_ID=br.com.majestysolutions.goatfolio.dev" >> "$GITHUB_ENV"
+            echo "SCHEME=dev" >> "$GITHUB_ENV"
+          fi
       - name: Install Dependencies
         run: |
           flutter pub get

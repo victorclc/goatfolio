@@ -521,12 +521,12 @@
 			baseConfigurationReference = FAEDA1F81234EAC320DC32CF /* devDebug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = TQ863BZ846;
 				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.dev;
 				PRODUCT_NAME = Runner;
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore br.com.majestysolutions.goatfolio.dev";
 			};
 			name = "Debug-dev";
 		};
@@ -535,12 +535,12 @@
 			baseConfigurationReference = 71546F7216ED5480370B0B2D /* Pods-Runner.profile-dev.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = TQ863BZ846;
 				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.dev;
 				PRODUCT_NAME = Runner;
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore br.com.majestysolutions.goatfolio.dev";
 			};
 			name = "Profile-dev";
 		};
@@ -549,12 +549,12 @@
 			baseConfigurationReference = 32235B706DD57A6D16200316 /* devRelease.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = TQ863BZ846;
 				PRODUCT_BUNDLE_IDENTIFIER = br.com.majestysolutions.goatfolio.dev;
 				PRODUCT_NAME = Runner;
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore br.com.majestysolutions.goatfolio.dev";
 			};
 			name = "Release-dev";
 		};
