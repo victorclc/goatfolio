@@ -32,7 +32,7 @@ package:
     - test-env/**
     - node_modules/**
   include:
-    - ../../shared/libs/goatcommons/**
+    - ../shared/libs/goatcommons/**
 
 plugins:
   - serverless-domain-manager
