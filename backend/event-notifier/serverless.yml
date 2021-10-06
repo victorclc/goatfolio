@@ -18,7 +18,7 @@ package:
     - tests/**
     - node_modules/**
   include:
-    - ../../shared/libs/goatcommons/**
+    - ../shared/libs/goatcommons/**
 
 plugins:
   - serverless-python-requirements

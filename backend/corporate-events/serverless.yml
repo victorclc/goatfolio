@@ -72,8 +72,8 @@ package:
     - test-env/**
     - node_modules/**
   include:
-    - ../../shared/libs/goatcommons/**
-    - ../../shared/libs/event_notifier/**
+    - ../shared/libs/goatcommons/**
+    - ../shared/libs/event_notifier/**
 
 plugins:
   - serverless-domain-manager

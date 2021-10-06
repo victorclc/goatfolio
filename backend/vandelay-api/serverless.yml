@@ -61,9 +61,9 @@ package:
     - test-env/**
     - node_modules/**
   include:
-    - ../../shared/libs/goatcommons/**
-    - ../../shared/libs/brutils/**
-    - ../../shared/libs/investments/**
+    - ../shared/libs/goatcommons/**
+    - ../shared/libs/brutils/**
+    - ../shared/libs/investments/**
 
 plugins:
   - serverless-domain-manager

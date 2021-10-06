@@ -36,8 +36,8 @@ package:
     - tests/**
     - node_modules/**
   include:
-    - ../../shared/libs/goatcommons/**
-    - ../../shared/libs/lessmium/**
+    - ../shared/libs/goatcommons/**
+    - ../shared/libs/lessmium/**
 
 plugins:
   - serverless-python-requirements
