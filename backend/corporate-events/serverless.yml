@@ -11,7 +11,7 @@ provider:
     apiKeys:
       - corporate-events-api-key
   environment:
-    PYTHONPATH: "src:libs"
+    PYTHONPATH: "src:shared/libs"
     CORPORATE_BUCKET: ${self:provider.stage}-b3-corporate-events
   iamRoleStatements:
     - Effect: Allow
@@ -72,8 +72,8 @@ package:
     - test-env/**
     - node_modules/**
   include:
-    - ../../libs/goatcommons/**
-    - ../../libs/event_notifier/**
+    - ../../shared/libs/goatcommons/**
+    - ../../shared/libs/event_notifier/**
 
 plugins:
   - serverless-domain-manager

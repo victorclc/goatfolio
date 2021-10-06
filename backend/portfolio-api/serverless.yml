@@ -12,7 +12,7 @@ provider:
       - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet1ID
       - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
   environment:
-    PYTHONPATH: "src:libs"
+    PYTHONPATH: "src:shared/libs"
     CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
     REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
@@ -29,8 +29,8 @@ package:
     - node_modules/**
     - resources/**
   include:
-    - ../../libs/goatcommons/**
-    - ../../libs/event_notifier/**
+    - ../../shared/libs/goatcommons/**
+    - ../../shared/libs/event_notifier/**
 
 plugins:
   - serverless-domain-manager

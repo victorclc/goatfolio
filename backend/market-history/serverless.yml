@@ -8,7 +8,7 @@ provider:
   runtime: python3.8
   timeout: 60
   environment:
-    PYTHONPATH: "src:libs"
+    PYTHONPATH: "src:shared/libs"
     STAGE: ${self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
@@ -46,8 +46,8 @@ package:
     - test-env/**
     - node_modules/**
   include:
-    - ../../libs/auroradata/**
-    - ../../libs/goatcommons/**
+    - ../../shared/libs/auroradata/**
+    - ../../shared/libs/goatcommons/**
 
 plugins:
   - serverless-python-requirements

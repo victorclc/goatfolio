@@ -7,7 +7,7 @@ provider:
   timeout: 300
   runtime: python3.8
   environment:
-    PYTHONPATH: "src:libs"
+    PYTHONPATH: "src:shared/libs"
     BUCKET_NAME: ${self:provider.stage}-headlesschromium
     LOGIN_URL: 'https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx'
   iamRoleStatements:
@@ -36,8 +36,8 @@ package:
     - tests/**
     - node_modules/**
   include:
-    - ../../libs/goatcommons/**
-    - ../../libs/lessmium/**
+    - ../../shared/libs/goatcommons/**
+    - ../../shared/libs/lessmium/**
 
 plugins:
   - serverless-python-requirements

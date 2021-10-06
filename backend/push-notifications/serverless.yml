@@ -7,7 +7,7 @@ provider:
   runtime: python3.8
   memorySize: 512
   environment:
-    PYTHONPATH: "src:libs"
+    PYTHONPATH: "src:shared/libs"
     STAGE: ${env:STAGE, 'dev'}
   iamRoleStatements:
     - Effect: Allow
@@ -32,7 +32,7 @@ package:
     - test-env/**
     - node_modules/**
   include:
-    - ../../libs/goatcommons/**
+    - ../../shared/libs/goatcommons/**
 
 plugins:
   - serverless-domain-manager
