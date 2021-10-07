@@ -1,14 +1,24 @@
 - Effect: Allow
   Action:
-    - sqs:SendMessage
-    - sqs:GetQueueUrl
-  Resource:
-    'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
-- Effect: Allow
-  Action:
     - s3:ListBucket
     - s3:GetObject
-  Resource: arn:aws:s3:::${self:provider.stage}-headlesschromium/*
+    - s3:PutObject
+    - s3:DeleteObject
+  Resource: arn:aws:s3:::${self:provider.stage}-b3cotahist/*
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:PutItem
+    - dynamodb:BatchWriteItem
+  Resource:
+    'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:PutItem
+    - dynamodb:BatchWriteItem
+  Resource:
+    Fn::GetAtt: [ TickerInfoTable, Arn ]
 - Effect: Allow
   Action:
     - sqs:SendMessage

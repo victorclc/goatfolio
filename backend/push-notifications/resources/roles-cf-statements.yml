@@ -1,17 +1,14 @@
 - Effect: Allow
   Action:
-    - sqs:SendMessage
-    - sqs:GetQueueUrl
+    - dynamodb:Query
+    - dynamodb:PutItem
+    - dynamodb:DeleteItem
+    - dynamodb:BatchWriteItem
   Resource:
-    'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
+    - Fn::GetAtt: [ NotificationTokensTable, Arn ]
 - Effect: Allow
   Action:
-    - s3:ListBucket
-    - s3:GetObject
-  Resource: arn:aws:s3:::${self:provider.stage}-headlesschromium/*
-- Effect: Allow
-  Action:
-    - sqs:SendMessage
-    - sqs:GetQueueUrl
-  Resource:
-    'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    - ssm:GetParameter
+    - ssm:GetParameters
+    - ssm:DescribeParameters
+  Resource: arn:aws:ssm:${self:provider.region}:*:parameter/firebase-credentials

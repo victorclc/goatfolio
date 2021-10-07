@@ -17,6 +17,7 @@ package:
     - .cache/**
     - tests/**
     - node_modules/**
+    - resources/**
   include:
     - ../shared/libs/goatcommons/**
     - ../shared/libs/lessmium/**

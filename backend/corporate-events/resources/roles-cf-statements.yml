@@ -1,14 +1,47 @@
 - Effect: Allow
   Action:
-    - sqs:SendMessage
-    - sqs:GetQueueUrl
+    - dynamodb:Query
+    - dynamodb:BatchWriteItem
   Resource:
-    'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
+    - Fn::GetAtt: [ CorporateEventsTable, Arn ]
+    - Fn::Join:
+        - ''
+        - - Fn::GetAtt: [ CorporateEventsTable, Arn ]
+          - '/index/*'
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+  Resource:
+    - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
+    - Fn::Join:
+        - ''
+        - - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
+          - '/index/*'
+- Effect: Allow
+  Action:
+    - s3:GetObject
+    - s3:PutObject
+    - s3:DeleteObject
+  Resource: arn:aws:s3:::${self:provider.stage}-b3-corporate-events/*
 - Effect: Allow
   Action:
     - s3:ListBucket
-    - s3:GetObject
-  Resource: arn:aws:s3:::${self:provider.stage}-headlesschromium/*
+  Resource: arn:aws:s3:::${self:provider.stage}-b3-corporate-events/
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    'Fn::ImportValue': ${self:provider.stage}-AddInvestmentQueueArn
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+  Resource:
+    - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+    - Fn::Join:
+        - ''
+        - - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
+          - '/index/*'
 - Effect: Allow
   Action:
     - sqs:SendMessage
