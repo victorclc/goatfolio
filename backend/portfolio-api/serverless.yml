@@ -53,6 +53,7 @@ functions:
     handler: src/adapters/inbound/api_gateway_handlers.get_investments_handler
     events:
       - http:
+          endpointType: private
           path: investments/
           method: get
           request:
