@@ -10,34 +10,7 @@ provider:
   environment:
     PYTHONPATH: "src:shared/libs"
     STAGE: ${self:provider.stage}
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - s3:ListBucket
-        - s3:GetObject
-        - s3:PutObject
-        - s3:DeleteObject
-      Resource: arn:aws:s3:::${self:provider.stage}-b3cotahist/*
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:PutItem
-        - dynamodb:BatchWriteItem
-      Resource:
-        'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:PutItem
-        - dynamodb:BatchWriteItem
-      Resource:
-        Fn::GetAtt: [ TickerInfoTable, Arn ]
-    - Effect: Allow
-      Action:
-        - sqs:SendMessage
-        - sqs:GetQueueUrl
-      Resource:
-        'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
 
 package:
   exclude:
@@ -45,6 +18,7 @@ package:
     - tests/**
     - test-env/**
     - node_modules/**
+    - resources/**
   include:
     - ../shared/libs/auroradata/**
     - ../shared/libs/goatcommons/**
@@ -81,31 +55,4 @@ functions:
     handler: handlers.download_monthly_cotahist_file
 
 resources:
-  Resources:
-    TickerInfoTable:
-      Type: 'AWS::DynamoDB::Table'
-      Properties:
-        TableName: "TickerInfo"
-        BillingMode: PAY_PER_REQUEST
-        AttributeDefinitions:
-          - AttributeName: "ticker"
-            AttributeType: "S"
-          - AttributeName: "isin"
-            AttributeType: "S"
-        KeySchema:
-          - AttributeName: "ticker"
-            KeyType: "HASH"
-        GlobalSecondaryIndexes:
-          - IndexName: isinGlobalIndex
-            KeySchema:
-              - AttributeName: "isin"
-                KeyType: "HASH"
-            Projection:
-              ProjectionType: ALL
-
-  Outputs:
-    TickerInfoTableArnOutput:
-      Value:
-        Fn::GetAtt: [ TickerInfoTable, Arn ]
-      Export:
-        Name: ${self:provider.stage}-TickerInfoTableArnOutput
+  - ${file(resources/dynamo-cf-resources.yml)}

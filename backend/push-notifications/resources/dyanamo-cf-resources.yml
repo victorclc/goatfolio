@@ -1,0 +1,14 @@
+Resources:
+  NotificationTokensTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: "NotificationTokens"
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: "subject"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "subject"
+          KeyType: "HASH"

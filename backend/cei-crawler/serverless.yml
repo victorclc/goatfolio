@@ -10,31 +10,14 @@ provider:
     PYTHONPATH: "src:shared/libs"
     BUCKET_NAME: ${self:provider.stage}-headlesschromium
     LOGIN_URL: 'https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx'
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - sqs:SendMessage
-        - sqs:GetQueueUrl
-      Resource:
-        'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
-    - Effect: Allow
-      Action:
-        - s3:ListBucket
-        - s3:GetObject
-      Resource: arn:aws:s3:::${self:provider.stage}-headlesschromium/*
-    - Effect: Allow
-      Action:
-        - sqs:SendMessage
-        - sqs:GetQueueUrl
-      Resource:
-        'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
-
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
 
 package:
   exclude:
     - .cache/**
     - tests/**
     - node_modules/**
+    - resources/**
   include:
     - ../shared/libs/goatcommons/**
     - ../shared/libs/lessmium/**
@@ -46,7 +29,6 @@ custom:
   pythonRequirements:
     pythonBin: python3.8
     cacheLocation: '.cache/'
-
 
 functions:
   ceiExtractHandler:

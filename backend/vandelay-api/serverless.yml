@@ -9,50 +9,7 @@ provider:
     PYTHONPATH: "src:shared/libs"
     BASE_API_URL: ${env:DOMAIN_NAME}
     API_KEY_SECRET_NAME: ${env:API_KEY_SECRET_NAME}
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-      Resource:
-        Fn::GetAtt: [ ImportsTable, Arn ]
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-      Resource:
-        'Fn::ImportValue': ${self:provider.stage}-NotificationMessagesConfigTableArnOutput
-    - Effect: Allow
-      Action:
-        - sqs:SendMessage
-        - sqs:GetQueueUrl
-      Resource:
-        'Fn::ImportValue': ${self:provider.stage}-CeiImportRequestQueueArn
-    - Effect: Allow
-      Action:
-        - sqs:SendMessage
-        - sqs:GetQueueUrl
-      Resource:
-        'Fn::ImportValue': ${self:provider.stage}-PushNotificationRequestArnOutput
-    - Effect: Allow
-      Action:
-        - sqs:SendMessage
-        - sqs:GetQueueUrl
-      Resource:
-        'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
-    - Effect: Allow
-      Action:
-        - ssm:GetParameter
-        - ssm:GetParameters
-        - ssm:DescribeParameters
-      Resource: arn:aws:ssm:${self:provider.region}:*:parameter/portfolio-api-key
-    - Effect: Allow
-      Action:
-        - dynamodb:Query
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-      Resource:
-        Fn::GetAtt: [ CEIInfoTable, Arn ]
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
 
 package:
   exclude:
@@ -60,6 +17,7 @@ package:
     - tests/**
     - test-env/**
     - node_modules/**
+    - resources/**
   include:
     - ../shared/libs/goatcommons/**
     - ../shared/libs/brutils/**
@@ -126,18 +84,6 @@ functions:
 
 resources:
   Resources:
-    ApiGatewayAuthorizer:
-      Type: AWS::ApiGateway::Authorizer
-      Properties:
-        AuthorizerResultTtlInSeconds: 10
-        IdentitySource: method.request.header.Authorization
-        Name: GoatCognitoAuthorizer
-        RestApiId:
-          Ref: ApiGatewayRestApi
-        Type: COGNITO_USER_POOLS
-        ProviderARNs:
-          - 'Fn::ImportValue': ${self:provider.stage}-GoatfolioAppUserPoolArnOutput
-
     ImportsTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
