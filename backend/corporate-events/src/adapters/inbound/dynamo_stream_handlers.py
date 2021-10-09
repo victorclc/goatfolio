@@ -36,6 +36,7 @@ def check_for_applicable_corporate_events_handler(event, context):
         if "OldImage" in dynamodb:
             old = _dynamo_stream_to_stock_investment(dynamodb["OldImage"])
             old_investments.append(old)
+
     for subject, investment in investments_by_subject.items():
         new_investments = investments_by_subject[subject]["new_investments"]
         old_investments = investments_by_subject[subject]["old_investments"]

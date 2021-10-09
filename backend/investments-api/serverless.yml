@@ -101,6 +101,10 @@ functions:
           private: true
   asyncAddInvestment:
     handler: src/adapters/inbound/sqs_handlers.async_add_investment_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ AddInvestmentQueue, Arn ]
 
   investmentsChangesPublisher:
     handler: src/adapters/inbound/dynamo_stream_handlers.publish_investment_update_handler
