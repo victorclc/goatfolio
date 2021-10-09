@@ -7,6 +7,7 @@ provider:
   sesArn: ${env:SES_ARN}
   sesFrom: ${env:SES_FROM}
 
+
 resources:
   Parameters:
     AvailabilityZone1:
