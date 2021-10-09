@@ -52,10 +52,10 @@ functions:
 
   ceiImportResult:
     handler: src/handlers.cei_import_result_handler
-    events:
-      - sqs:
-          arn:
-            'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
+#    events:
+#      - sqs:
+#          arn:
+#            'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
 
   getCEIInfo:
     handler: src/handlers.cei_info_request_handler

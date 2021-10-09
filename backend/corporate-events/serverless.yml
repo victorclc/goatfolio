@@ -13,7 +13,7 @@ provider:
   environment:
     PYTHONPATH: "src:shared/libs"
     CORPORATE_BUCKET: ${self:provider.stage}-b3-corporate-events
-  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+#  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
 
 package:
   exclude:
