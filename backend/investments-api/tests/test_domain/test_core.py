@@ -1,17 +1,13 @@
-import os
 import unittest
 from decimal import Decimal
 from unittest.mock import MagicMock
 from uuid import uuid4
 
+from domain.core import InvestmentCore
 from domain.exceptions import FieldMissingError
 from domain.investment_request import InvestmentRequest
-
 from domain.investment_type import InvestmentType
-
 from domain.operation_type import OperationType
-from domain.core import InvestmentCore
-from domain.investment_loader import MissingRequiredFields
 
 
 class TestInvestmentCore(unittest.TestCase):
