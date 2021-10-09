@@ -115,11 +115,11 @@ functions:
   # Portfolio Start
   consolidatePortfolio:
     handler: src/adapters/inbound/dynamo_stream_handlers.consolidate_portfolio_handler
-    events:
-      - stream:
-          type: dynamodb
-          arn:
-            'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
+#    events:
+#      - stream:
+#          type: dynamodb
+#          arn:
+#            'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
 
   fixStockAverage:
     handler: src/adapters/inbound/api_gateway_handlers.fix_average_price_handler
