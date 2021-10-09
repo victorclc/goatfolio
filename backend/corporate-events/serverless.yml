@@ -74,11 +74,11 @@ functions:
 
   checkForApplicableCorpoEvents:
     handler: src/adapters/inbound/dynamo_stream_handlers.check_for_applicable_corporate_events_handler
-    events:
-      - stream:
-          type: dynamodb
-          arn:
-            'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
+#    events:
+#      - stream:
+#          type: dynamodb
+#          arn:
+#            'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
 
   getTickerTransformation:
     handler: src/adapters/inbound/private_api_gateway_handlers.get_ticker_transformations_handler
