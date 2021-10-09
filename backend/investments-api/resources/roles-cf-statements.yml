@@ -1,0 +1,13 @@
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:PutItem
+    - dynamodb:DeleteItem
+    - dynamodb:BatchWriteItem
+  Resource:
+    - Fn::GetAtt: [ InvestmentsTable, Arn ]
+    - Fn::Join:
+        - ''
+        - - Fn::GetAtt: [ InvestmentsTable, Arn ]
+          - '/index/*'
+
