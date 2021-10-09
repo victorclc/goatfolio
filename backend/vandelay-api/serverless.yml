@@ -9,7 +9,7 @@ provider:
     PYTHONPATH: "src:shared/libs"
     BASE_API_URL: ${env:DOMAIN_NAME}
     API_KEY_SECRET_NAME: ${env:API_KEY_SECRET_NAME}
-  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+#  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
 
 package:
   exclude:
