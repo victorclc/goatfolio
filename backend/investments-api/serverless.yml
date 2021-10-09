@@ -102,6 +102,16 @@ functions:
   asyncAddInvestment:
     handler: src/adapters/inbound/sqs_handlers.async_add_investment_handler
 
+  investmentsChangesPublisher:
+    handler: src/adapters/inbound/dynamo_stream_handlers.publish_investment_update_handler
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt: [ InvestmentsTable, StreamArn ]
+
+
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/dynamo-cf-resources.yml)}
+  - ${file(resources/sns-cf-resources.yml)}

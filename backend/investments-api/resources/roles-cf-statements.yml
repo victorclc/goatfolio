@@ -10,4 +10,8 @@
         - ''
         - - Fn::GetAtt: [ InvestmentsTable, Arn ]
           - '/index/*'
-
+- Effect: Allow
+  Action:
+    - sns:Publish
+  Resource:
+    - Fn::GetAtt: [ AddedOrUpdatedInvestmentTopic, Arn ]

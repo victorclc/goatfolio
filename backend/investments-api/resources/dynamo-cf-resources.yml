@@ -3,6 +3,8 @@ Resources:
     Type: 'AWS::DynamoDB::Table'
     Properties:
       TableName: Investments
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: "id"
