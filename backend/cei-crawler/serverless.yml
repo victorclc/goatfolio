@@ -33,7 +33,6 @@ custom:
 functions:
   ceiExtractHandler:
     handler: src/handlers.cei_extract_handler
-    reservedConcurrency: 10
     events:
       - sqs:
           arn:
