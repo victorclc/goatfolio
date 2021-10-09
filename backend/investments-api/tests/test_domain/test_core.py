@@ -4,6 +4,7 @@ from decimal import Decimal
 from unittest.mock import MagicMock
 from uuid import uuid4
 
+from domain.exceptions import FieldMissingError
 from domain.investment_request import InvestmentRequest
 
 from domain.investment_type import InvestmentType
@@ -15,8 +16,7 @@ from domain.investment_loader import MissingRequiredFields
 
 class TestInvestmentCore(unittest.TestCase):
     def setUp(self):
-        print(os.getenv("PYTHONPATH"))
-        self.core = InvestmentCore(repo=MagicMock())
+        self.core = InvestmentCore(repo=MagicMock(), publisher=MagicMock())
         self.core.repo.save = MagicMock(return_value=None)
         self.core.repo.batch_save = MagicMock(return_value=None)
         self.core.repo.delete = MagicMock(return_value=None)
@@ -95,7 +95,7 @@ class TestInvestmentCore(unittest.TestCase):
                 "ticker": "BIDI11",
             },
         )
-        with self.assertRaises(MissingRequiredFields):
+        with self.assertRaises(FieldMissingError):
             self.core.edit(subject="1111-2222-333-4444", request=request)
 
         self.core.repo.save.assert_not_called()
@@ -107,7 +107,7 @@ class TestInvestmentCore(unittest.TestCase):
         self.core.repo.delete.assert_called_once()
 
     def test_delete_investment_with_investment_id_blank_should_raise_exception(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(FieldMissingError):
             self.core.delete(subject="1111-2222-333-4444", investment_id="")
 
         self.core.repo.save.assert_not_called()
@@ -131,7 +131,7 @@ class TestInvestmentCore(unittest.TestCase):
             self._create_valid_investment_request_with_subject_and_id(None, None),
             self._create_valid_investment_request_with_subject_and_id(None, None),
         ]
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(FieldMissingError):
             self.core.batch_add(requests=requests)
 
         self.core.repo.batch_save.assert_not_called()
@@ -145,7 +145,7 @@ class TestInvestmentCore(unittest.TestCase):
             self._create_valid_investment_request_with_subject_and_id(None, None),
             self._create_valid_investment_request_with_subject_and_id(subject, uuid4()),
         ]
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(FieldMissingError):
             self.core.batch_add(requests=requests)
 
         self.core.repo.batch_save.assert_not_called()
