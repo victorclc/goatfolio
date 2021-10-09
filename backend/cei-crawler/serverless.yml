@@ -10,7 +10,7 @@ provider:
     PYTHONPATH: "src:shared/libs"
     BUCKET_NAME: ${self:provider.stage}-headlesschromium
     LOGIN_URL: 'https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx'
-  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+#  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
 
 package:
   exclude:
@@ -34,7 +34,7 @@ functions:
   ceiExtractHandler:
     handler: src/handlers.cei_extract_handler
     reservedConcurrency: 10
-    events:
-      - sqs:
-          arn:
-            'Fn::ImportValue': ${self:provider.stage}-CeiImportRequestQueueArn
+#    events:
+#      - sqs:
+#          arn:
+#            'Fn::ImportValue': ${self:provider.stage}-CeiImportRequestQueueArn

@@ -15,8 +15,7 @@ provider:
     PYTHONPATH: "src:shared/libs"
     CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
     REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
-  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
-
+#  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
 
   apiGateway:
     apiKeys:
@@ -107,10 +106,10 @@ functions:
           private: true
   asyncAddInvestment:
     handler: src/adapters/inbound/sqs_handlers.async_add_investment_handler
-    events:
-      - sqs:
-          arn:
-            Fn::GetAtt: [ AddInvestmentQueue, Arn ]
+#    events:
+#      - sqs:
+#          arn:
+#            Fn::GetAtt: [ AddInvestmentQueue, Arn ]
   # Investments End
 
   # Portfolio Start
