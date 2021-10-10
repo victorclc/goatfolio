@@ -7,11 +7,11 @@ from typing import List, Optional
 
 from dateutil.relativedelta import relativedelta
 
-from domain.models.investment import StockInvestment
-from domain.models.investment_position import InvestmentPosition, StockPosition
-from domain.models.investment_position_summary import StockPositionSummary
-from domain.models.investment_summary import InvestmentSummary, StockSummary
-from domain.models.portfolio_item import PortfolioItem
+from domain.common.investments import StockInvestment
+from domain.common.investment_position import InvestmentPosition, StockPosition
+from domain.common.investment_position_summary import StockPositionSummary
+from domain.common.investment_summary import InvestmentSummary, StockSummary
+from domain.common.portfolio_item import PortfolioItem
 
 DATE_FORMAT = "%Y%m%d"
 

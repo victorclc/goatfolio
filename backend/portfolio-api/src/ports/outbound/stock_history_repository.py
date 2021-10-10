@@ -1,7 +1,7 @@
 import datetime
 from typing import Protocol, Optional, List, Dict
 
-from domain.models.performance import CandleData
+from domain.performance.performance import CandleData
 
 
 class StockHistoryRepository(Protocol):

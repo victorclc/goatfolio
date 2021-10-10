@@ -2,16 +2,16 @@ import logging
 from itertools import groupby
 from typing import List, Dict, Set
 
-from domain.core.portfolio.consolidation_strategies import (
+from domain.portfolio.consolidation_strategies import (
     InvestmentsConsolidationStrategy,
 )
 from domain.enums.investment_type import InvestmentType
 from domain.models.investment import Investment
-from domain.models.portfolio import (
+from domain.common.portfolio import (
     Portfolio,
     InvestmentConsolidated,
 )
-from domain.ports.outbound.portfolio_repository import PortfolioRepository
+from ports.outbound.portfolio_repository import PortfolioRepository
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"

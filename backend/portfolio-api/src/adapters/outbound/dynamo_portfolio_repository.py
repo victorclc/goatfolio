@@ -4,8 +4,8 @@ from typing import List, Optional, ClassVar, Type
 import boto3
 from boto3.dynamodb.conditions import Key
 
-from domain.models.investment_consolidated import StockConsolidated
-from domain.models.portfolio import (
+from domain.common.investment_consolidated import StockConsolidated
+from domain.common.portfolio import (
     Portfolio,
     PortfolioItem,
     InvestmentConsolidated,

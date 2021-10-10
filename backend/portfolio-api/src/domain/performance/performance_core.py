@@ -8,14 +8,14 @@ from domain.core.performance.historical_consolidators import (
     InvestmentHistoryConsolidator,
 )
 from domain.enums.investment_type import InvestmentType
-from domain.models.group_position_summary import GroupPositionSummary
-from domain.models.investment_consolidated import StockConsolidated, InvestmentConsolidated
-from domain.models.performance import (
+from domain.performance.group_position_summary import GroupPositionSummary
+from domain.common.investment_consolidated import StockConsolidated, InvestmentConsolidated
+from domain.performance.performance import (
     PerformanceSummary,
     TickerConsolidatedHistory,
 )
-from domain.models.portfolio import Portfolio
-from domain.ports.outbound.portfolio_repository import PortfolioRepository
+from domain.common.portfolio import Portfolio
+from ports import PortfolioRepository
 
 
 class PerformanceCore:

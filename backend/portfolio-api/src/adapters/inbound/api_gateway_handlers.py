@@ -1,84 +1,18 @@
 import datetime
 import logging
-import traceback
-from dataclasses import asdict
 from decimal import Decimal
 from http import HTTPStatus
 
-from domain.models.investment_request import InvestmentRequest
-from domain.utils.investment_loader import MissingRequiredFields
-import goatcommons.utils.json as jsonutils
+import utils as utils
 import goatcommons.utils.aws as awsutils
-
-from adapters.inbound import investment_core, performance_core, stock_core
-
-import domain.utils as utils
+import goatcommons.utils.json as jsonutils
+from adapters.inbound import performance_core, stock_core
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
 )
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
-
-def get_investments_handler(event, context):
-    logger.info(f"EVENT: {event}")
-
-    subject = awsutils.get_event_subject(event)
-    investments = investment_core.get(subject)
-
-    return {
-        "statusCode": HTTPStatus.OK,
-        "body": jsonutils.dump([i.to_dict() for i in investments]),
-    }
-
-
-def add_investment_handler(event, context):
-    logger.info(f"EVENT: {event}")
-    try:
-        investment = InvestmentRequest(**jsonutils.load(event["body"]))
-        subject = awsutils.get_event_subject(event)
-
-        result = investment_core.add(subject, investment)
-        return {"statusCode": HTTPStatus.OK, "body": jsonutils.dump(result.to_dict())}
-    except MissingRequiredFields as ex:
-        logger.exception("BAD REQUEST", ex)
-        return {
-            "statusCode": HTTPStatus.BAD_REQUEST,
-            "body": jsonutils.dump({"message": str(ex)}),
-        }
-
-
-def edit_investment_handler(event, context):
-    logger.info(f"EVENT: {event}")
-    try:
-        investment = InvestmentRequest(**jsonutils.load(event["body"]))
-        subject = awsutils.get_event_subject(event)
-
-        result = investment_core.edit(subject, investment)
-        return {"statusCode": 200, "body": jsonutils.dump(result.to_dict())}
-    except MissingRequiredFields as ex:
-        logger.exception("BAD REQUEST", ex)
-        return {
-            "statusCode": HTTPStatus.BAD_REQUEST,
-            "body": jsonutils.dump({"message": str(ex)}),
-        }
-
-
-def delete_investment_handler(event, context):
-    logger.info(f"Event: {event}")
-    try:
-        subject = awsutils.get_event_subject(event)
-        investment_id = awsutils.get_path_param(event, "investmentid")
-
-        investment_core.delete(subject, investment_id)
-        return {"statusCode": 200, "body": jsonutils.dump({"message": "Success"})}
-    except AssertionError as ex:
-        traceback.print_exc()
-        return {
-            "statusCode": HTTPStatus.BAD_REQUEST,
-            "body": jsonutils.dump({"message": str(ex)}),
-        }
 
 
 @utils.logexceptions

@@ -1,11 +1,37 @@
 import datetime as dt
 from dataclasses import dataclass, field
 from decimal import Decimal
+from enum import Enum
 
-from domain.enums.investment_type import InvestmentType
-from domain.enums.operation_type import OperationType
 
 DATE_FORMAT = "%Y%m%d"
+
+
+class InvestmentType(Enum):
+    STOCK = "STOCK"
+    US_STOCK = "US_STOCK"
+    FIXED_INCOME = "FIXED_INCOME"
+    PRE_FIXED = "PRE_FIXED"
+    POST_FIXED = "POST_FIXED"
+    CHECKING_ACCOUNT = "CHECKING_ACCOUNT"
+    CRYPTO = "CRYPTO"
+
+    @classmethod
+    def from_string(cls, _type: str):
+        return cls(_type)
+
+
+class OperationType(Enum):
+    BUY = "BUY"
+    SELL = "SELL"
+    SPLIT = "SPLIT"
+    GROUP = "GROUP"
+    INCORP_ADD = "INCORP_ADD"
+    INCORP_SUB = "INCORP_SUB"
+
+    @classmethod
+    def from_string(cls, _type: str):
+        return cls(_type)
 
 
 @dataclass

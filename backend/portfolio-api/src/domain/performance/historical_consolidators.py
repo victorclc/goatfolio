@@ -3,15 +3,15 @@ import datetime
 from decimal import Decimal
 from typing import Optional, Dict
 
-from domain.models.intraday_info import IntradayInfo
-from domain.models.investment_consolidated import (
+from domain.performance.intraday_info import IntradayInfo
+from domain.common.investment_consolidated import (
     InvestmentConsolidated,
     StockConsolidated,
 )
-from domain.models.performance import PortfolioPosition, CandleData
-from domain.ports.outbound.stock_history_repository import StockHistoryRepository
-from domain.ports.outbound.stock_instraday_client import StockIntradayClient
-import domain.utils as utils
+from domain.performance.performance import PortfolioPosition, CandleData
+from ports.outbound.stock_history_repository import StockHistoryRepository
+from ports.outbound.stock_instraday_client import StockIntradayClient
+import utils as utils
 
 
 class InvestmentHistoryConsolidator(ABC):

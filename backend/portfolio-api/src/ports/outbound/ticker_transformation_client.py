@@ -1,7 +1,7 @@
 import datetime
 from typing import Protocol
 
-from domain.models.ticker_transformation import TickerTransformation
+from domain.performance.ticker_transformation import TickerTransformation
 
 
 class TickerTransformationClient(Protocol):

@@ -1,6 +1,6 @@
 from typing import Protocol, List
 
-from domain.models.investment import Investment
+from domain.investment import Investment
 
 
 class InvestmentRepository(Protocol):

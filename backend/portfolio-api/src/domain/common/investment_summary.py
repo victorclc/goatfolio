@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Optional
 
-from domain.models.investment_position_summary import (
+from domain.common.investment_position_summary import (
     InvestmentPositionSummary,
     StockPositionSummary,
 )

@@ -2,12 +2,12 @@ import datetime as dt
 from dataclasses import dataclass, field
 from typing import List, Dict
 
-from domain.models.investment_consolidated import (
+from domain.common.investment_consolidated import (
     InvestmentConsolidated,
     StockConsolidated,
 )
-from domain.models.investment_summary import StockSummary
-from domain.models.portfolio_item import PortfolioItem
+from domain.common.investment_summary import StockSummary
+from domain.common.portfolio_item import PortfolioItem
 
 DATE_FORMAT = "%Y%m%d"
 

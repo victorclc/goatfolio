@@ -2,12 +2,12 @@ from abc import abstractmethod, ABC
 from itertools import groupby
 from typing import List, Optional
 
-from domain.models.investment import Investment, StockInvestment
-from domain.models.investment_consolidated import (
+from domain.common.investments import Investment, StockInvestment
+from domain.common.investment_consolidated import (
     InvestmentConsolidated,
     StockConsolidated,
 )
-from domain.ports.outbound.portfolio_repository import PortfolioRepository
+from ports.outbound.portfolio_repository import PortfolioRepository
 
 
 class InvestmentsConsolidationStrategy(ABC):

@@ -2,13 +2,11 @@ import datetime as dt
 from decimal import Decimal
 from uuid import uuid4
 
-from domain.enums.investment_type import InvestmentType
-from domain.enums.operation_type import OperationType
-from domain.models.investment import StockInvestment
-from domain.models.investment_consolidated import StockConsolidated
-from domain.ports.outbound.investment_repository import InvestmentRepository
-from domain.ports.outbound.portfolio_repository import PortfolioRepository
-from domain.ports.outbound.ticker_transformation_client import (
+from domain.common.investments import InvestmentType, OperationType, StockInvestment
+from domain.common.investment_consolidated import StockConsolidated
+from ports.outbound.investment_repository import InvestmentRepository
+from ports.outbound.portfolio_repository import PortfolioRepository
+from ports.outbound.ticker_transformation_client import (
     TickerTransformationClient,
 )
 

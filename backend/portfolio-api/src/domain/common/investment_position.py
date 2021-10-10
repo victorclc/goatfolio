@@ -3,8 +3,7 @@ from dataclasses import dataclass, field
 import datetime as dt
 from decimal import Decimal
 
-from domain.enums.operation_type import OperationType
-from domain.models.investment import Investment, StockInvestment
+from domain.common.investments import OperationType, Investment, StockInvestment
 
 DATE_FORMAT = "%Y%m%d"
 

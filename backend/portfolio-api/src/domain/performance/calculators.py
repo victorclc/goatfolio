@@ -4,23 +4,23 @@ from typing import Dict, Optional, List
 
 from dateutil.relativedelta import relativedelta
 
-import domain.utils as utils
-from domain.enums.stock_subtypes import StockSubtype
-from domain.models.group_position_summary import (
+import utils as utils
+from domain.performance.stock_subtypes import StockSubtype
+from domain.performance.group_position_summary import (
     StockItemInfo,
     StocksPositionSummary,
     REITsPositionSummary,
     BDRsPositionSummary,
     GroupPositionSummary,
 )
-from domain.models.intraday_info import IntradayInfo
-from domain.models.investment_summary import InvestmentSummary, StockSummary
-from domain.models.performance import (
+from domain.performance.intraday_info import IntradayInfo
+from domain.common.investment_summary import InvestmentSummary, StockSummary
+from domain.performance.performance import (
     PerformanceSummary,
     TickerVariation,
 )
-from domain.ports.outbound.stock_history_repository import StockHistoryRepository
-from domain.ports.outbound.stock_instraday_client import StockIntradayClient
+from ports.outbound.stock_history_repository import StockHistoryRepository
+from ports.outbound.stock_instraday_client import StockIntradayClient
 
 
 class InvestmentPerformanceCalculator(ABC):

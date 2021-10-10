@@ -1,6 +1,6 @@
 from typing import Protocol, List, Dict
 
-from domain.models.intraday_info import IntradayInfo
+from domain.performance.intraday_info import IntradayInfo
 
 
 class StockIntradayClient(Protocol):
