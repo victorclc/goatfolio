@@ -117,5 +117,6 @@ functions:
 
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
+  - ${file(resources/queue-cf-resources.yml)}
   - ${file(resources/dynamo-cf-resources.yml)}
   - ${file(resources/sns-cf-resources.yml)}
