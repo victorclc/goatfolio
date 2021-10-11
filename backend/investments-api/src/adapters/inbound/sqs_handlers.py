@@ -1,18 +1,16 @@
-import logging
+from aws_lambda_powertools import Logger, Tracer
 
-from adapters.inbound import investment_core
-from domain.models.investment_request import InvestmentRequest
 import goatcommons.utils.json as jsonutils
+from adapters.inbound import investment_core
+from domain.investment_request import InvestmentRequest
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
-)
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = Logger()
+tracer = Tracer()
 
 
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
 def async_add_investment_handler(event, context):
-    logger.info(f"EVENT: {event}")
     for message in event["Records"]:
         logger.info(f"Processing message: {message}")
         request = InvestmentRequest(**jsonutils.load(message["body"]))
