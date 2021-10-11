@@ -1,6 +1,6 @@
 from typing import Optional
 
-from typing_extensions import Protocol
+from typing import Protocol
 
 from domain.investment import Investment
 
