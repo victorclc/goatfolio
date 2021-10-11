@@ -1,0 +1,38 @@
+Resources:
+  PortfolioAddOrUpdatedInvestmentSubscriber:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "AddInvestmentQueueDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+        FifoQueue: true
+        FifoThroughputLimit: perMessageGroupId
+      QueueName: PortfolioAddOrUpdatedInvestmentSubscriber
+      VisibilityTimeout: 300
+
+  PortfolioAddOrUpdatedInvestmentSubscriberDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: PortfolioAddOrUpdatedInvestmentSubscriberDLQ
+
+  Subscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      TopicArn:
+        'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
+      Endpoint: !GetAtt
+        - PortfolioAddOrUpdatedInvestmentSubscriber
+        - Arn
+      Protocol: sqs
+      RawMessageDelivery: 'true'
+
+  SnsSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: sqs
+      Endpoint: !GetAtt Queue.Arn
+      Region: !Ref TopicRegion
+      TopicArn: !Ref SNSTopicARN
