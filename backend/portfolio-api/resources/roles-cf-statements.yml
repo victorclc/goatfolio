@@ -1,18 +1,6 @@
 - Effect: Allow
   Action:
     - dynamodb:Query
-    - dynamodb:PutItem
-    - dynamodb:DeleteItem
-    - dynamodb:BatchWriteItem
-  Resource:
-    - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
-    - Fn::Join:
-        - ''
-        - - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
-          - '/index/*'
-- Effect: Allow
-  Action:
-    - dynamodb:Query
     - dynamodb:GetItem
     - dynamodb:PutItem
     - dynamodb:BatchWriteItem

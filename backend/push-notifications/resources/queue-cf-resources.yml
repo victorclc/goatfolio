@@ -1,0 +1,24 @@
+Resources:
+  PushNotificationRequestQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "PushNotificationRequestDLQ"
+            - "Arn"
+        maxReceiveCount: 3
+      QueueName: PushNotificationRequest
+      VisibilityTimeout: 300
+
+  PushNotificationRequestDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: PushNotificationRequestDLQ
+
+Outputs:
+  PushNotificationRequestArnOutput:
+    Value:
+      Fn::GetAtt: [ PushNotificationRequestQueue, Arn ]
+    Export:
+      Name: ${self:provider.stage}-PushNotificationRequestArnOutput

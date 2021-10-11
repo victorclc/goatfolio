@@ -8,8 +8,8 @@ provider:
   environment:
     PYTHONPATH: "src:shared/libs"
     BASE_API_URL: ${env:DOMAIN_NAME}
-    API_KEY_SECRET_NAME: ${env:API_KEY_SECRET_NAME}
-#  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  endpointType: regional
 
 package:
   exclude:
@@ -52,10 +52,10 @@ functions:
 
   ceiImportResult:
     handler: src/handlers.cei_import_result_handler
-#    events:
-#      - sqs:
-#          arn:
-#            'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ CeiImportResultQueue, Arn ]
 
   getCEIInfo:
     handler: src/handlers.cei_info_request_handler
@@ -85,3 +85,4 @@ functions:
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/dynamo-cf-resources.yml)}
+  - ${file(resources/queue-cf-resources.yml)}

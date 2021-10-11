@@ -2,7 +2,7 @@ import logging
 from decimal import Decimal
 
 from adapters.inbound import portfolio_core
-from domain.models.investment import StockInvestment, Investment
+from domain.common.investments import StockInvestment, Investment
 from event_notifier.decorators import notify_exception
 from event_notifier.models import NotifyLevel
 

@@ -3,7 +3,7 @@ import os
 
 import requests
 
-from domain.models.ticker_transformation import TickerTransformation
+from domain.performance.ticker_transformation import TickerTransformation
 from goatcommons.configuration.system_manager import ConfigurationClient
 
 

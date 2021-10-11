@@ -1,0 +1,24 @@
+Resources:
+  CeiImportRequestQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "CeiImportRequestDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+      QueueName: CeiImportRequest
+      VisibilityTimeout: 900
+
+  CeiImportRequestDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: CeiImportRequestDLQ
+
+Output:
+  CeiImportRequestQueueArn:
+    Value:
+      Fn::GetAtt: [ CeiImportRequestQueue, Arn ]
+    Export:
+      Name: ${self:provider.stage}-CeiImportRequestQueueArn

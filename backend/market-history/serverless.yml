@@ -10,7 +10,7 @@ provider:
   environment:
     PYTHONPATH: "src:shared/libs"
     STAGE: ${self:provider.stage}
-#  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
 
 package:
   exclude:

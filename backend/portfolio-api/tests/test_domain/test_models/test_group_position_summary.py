@@ -2,7 +2,7 @@ import unittest
 from dataclasses import asdict
 from decimal import Decimal
 
-from domain.models.group_position_summary import StocksPositionSummary, StockItemInfo
+from domain.performance.group_position_summary import StocksPositionSummary, StockItemInfo
 
 
 class TestStocksPositionSummary(unittest.TestCase):

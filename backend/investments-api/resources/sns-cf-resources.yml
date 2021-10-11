@@ -1,0 +1,13 @@
+Resources:
+  AddedOrUpdatedInvestmentTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: AddedOrUpdatedInvestment
+      FifoTopic: true
+
+Outputs:
+  AddedOrUpdatedInvestmentTopicOutput:
+    Value:
+      Fn::GetAtt: [ AddedOrUpdatedInvestmentTopic, Arn ]
+    Export:
+      Name: ${self:provider.stage}-AddedOrUpdatedInvestmentTopic

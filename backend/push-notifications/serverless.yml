@@ -9,7 +9,8 @@ provider:
   environment:
     PYTHONPATH: "src:shared/libs"
     STAGE: ${env:STAGE, 'dev'}
-#  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  endpointType: regional
 
 package:
   exclude:
@@ -61,11 +62,12 @@ functions:
 
   sendNotification:
     handler: src/handlers.send_notification_handler
-#    events:
-#      - sqs:
-#          arn:
-#            'Fn::ImportValue': ${self:provider.stage}-PushNotificationRequestArnOutput
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ PushNotificationRequestQueue, Arn ]
 
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/dynamo-cf-resources.yml)}
+  - ${file(resources/queue-cf-resources.yml)}

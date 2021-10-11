@@ -2,10 +2,8 @@ import unittest
 import datetime as dt
 from decimal import Decimal
 
-from domain.enums.investment_type import InvestmentType
-from domain.enums.operation_type import OperationType
-from domain.models.investment import StockInvestment
-from domain.models.investment_consolidated import StockConsolidated
+from domain.common.investments import InvestmentType, OperationType, StockInvestment
+from domain.common.investment_consolidated import StockConsolidated
 
 
 class TestStockConsolidated(unittest.TestCase):

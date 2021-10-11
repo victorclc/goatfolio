@@ -6,7 +6,7 @@ import boto3
 from boto3.dynamodb.conditions import Key
 from boto3.dynamodb.types import TypeDeserializer
 
-from domain.models.performance import CandleData
+from domain.performance.performance import CandleData
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()

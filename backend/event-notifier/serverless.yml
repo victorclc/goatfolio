@@ -32,7 +32,7 @@ custom:
 functions:
   shitNotifierHandler:
     handler: src/handlers.shit_notify_handler
-#    events:
-#      - sqs:
-#          arn:
-#            'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ EventsToNotifyQueue, Arn ]

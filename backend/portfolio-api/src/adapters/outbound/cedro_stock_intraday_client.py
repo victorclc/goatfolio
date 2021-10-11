@@ -5,8 +5,8 @@ from typing import List, Dict, Callable, Optional
 
 from redis import Redis
 
-import domain.utils as utils
-from domain.models.intraday_info import IntradayInfo
+import utils as utils
+from domain.performance.intraday_info import IntradayInfo
 from goatcommons.cedro.client import CedroMarketDataClient
 
 REDIS = Redis(host=os.getenv("REDIS_HOST"), port=6379, db=0)
