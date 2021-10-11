@@ -36,17 +36,16 @@ class Portfolio(PortfolioItem):
             "stocks": {k: v.to_dict() for k, v in self.stocks.items()},
         }
 
-    def update_summary(self, consolidated_list: List[InvestmentConsolidated]):
-        for consolidated in consolidated_list:
-            self.initial_date = min(self.initial_date, consolidated.initial_date)
-            summary = consolidated.export_investment_summary()
-            if not summary:
-                return
+    def update_summary(self, consolidated: InvestmentConsolidated):
+        self.initial_date = min(self.initial_date, consolidated.initial_date)
+        summary = consolidated.export_investment_summary()
+        if not summary:
+            return
 
-            if isinstance(consolidated, StockConsolidated):
-                if consolidated.alias_ticker and self.stocks.get(consolidated.ticker):
-                    self.stocks.pop(consolidated.ticker)
-                self.stocks[consolidated.current_ticker_name()] = summary
+        if isinstance(consolidated, StockConsolidated):
+            if consolidated.alias_ticker and self.stocks.get(consolidated.ticker):
+                self.stocks.pop(consolidated.ticker)
+            self.stocks[consolidated.current_ticker_name()] = summary
 
     def active_stocks(self) -> Dict[str, StockSummary]:
         return {

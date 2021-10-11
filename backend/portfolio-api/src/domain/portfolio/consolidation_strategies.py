@@ -1,12 +1,11 @@
 from abc import abstractmethod, ABC
-from itertools import groupby
 from typing import List, Optional
 
-from domain.common.investments import Investment, StockInvestment
 from domain.common.investment_consolidated import (
     InvestmentConsolidated,
     StockConsolidated,
 )
+from domain.common.investments import Investment, StockInvestment
 from ports.outbound.portfolio_repository import PortfolioRepository
 
 
@@ -15,8 +14,8 @@ class InvestmentsConsolidationStrategy(ABC):
     def consolidate(
         self,
         subject: str,
-        new: List[Investment],
-        old: List[Investment],
+        new: Optional[Investment],
+        old: Optional[Investment],
     ) -> List[InvestmentConsolidated]:
         """Consolidate new and old investments using as base current portfolio object and returns a new portfolio"""
 
@@ -28,63 +27,24 @@ class StockConsolidationStrategy(InvestmentsConsolidationStrategy):
     def consolidate(
         self,
         subject: str,
-        new: List[StockInvestment],
-        old: List[StockInvestment]
-    ) -> List[InvestmentConsolidated]:
-        self.invert_investments_amount_list(old)
-        consolidated_response = []
+        new: Optional[StockInvestment],
+        old: Optional[StockInvestment],
+    ) -> InvestmentConsolidated:
+        consolidated_list = []
 
-        for current_ticker, investments in self.group_by_current_ticker_name(new + old):
-            consolidated_list = self.repo.find_alias_ticker(subject, current_ticker, StockConsolidated)
+        if new:
+            consolidated_list = self.consolidate_investment(new, consolidated_list)
+        if old:
+            self.invert_investment_amount(old)
+            consolidated_list = self.consolidate_investment(old, consolidated_list)
 
-            for ticker, t_investments in self.group_by_ticker(list(investments)):
-                consolidated = self.find_ticker_consolidated(ticker, consolidated_list)
-                if not consolidated:
-                    response = self.repo.find_ticker(subject, ticker, StockConsolidated)
-                    if response:
-                        consolidated = response[0]
-                    else:
-                        consolidated = StockConsolidated(subject=subject, ticker=ticker)
-                    consolidated_list.append(consolidated)
-                for inv in t_investments:
-                    consolidated.add_investment(inv)
+        self.repo.save_all(consolidated_list)
 
-            self.repo.save_all(consolidated_list)
-            consolidated_response.append(
-                sum(consolidated_list[1:], consolidated_list[0])
-            )
-
-        return consolidated_response
+        return sum(consolidated_list[1:], consolidated_list[0])
 
     @staticmethod
-    def invert_investments_amount_list(investments: List[StockInvestment]):
-        for i in investments:
-            i.amount *= -1
-
-    @staticmethod
-    def group_by_current_ticker_name(investments: List[StockInvestment]):
-        by_ticker = groupby(
-            sorted(investments, key=lambda i: i.ticker), key=lambda i: i.ticker
-        )
-        for ticker, t_investments in by_ticker:
-            t_investments = list(t_investments)
-            alias_ticker = next(
-                (i.alias_ticker for i in t_investments if i.alias_ticker), None
-            )
-            if alias_ticker:
-                for i in t_investments:
-                    i.alias_ticker = alias_ticker
-        return groupby(
-            sorted(investments, key=lambda i: i.current_ticker_name),
-            key=lambda i: i.current_ticker_name,
-        )
-
-    @staticmethod
-    def group_by_ticker(investments):
-        return groupby(
-            sorted(list(investments), key=lambda i: i.ticker),
-            key=lambda i: i.ticker,
-        )
+    def invert_investment_amount(investment: StockInvestment):
+        investment.amount *= -1
 
     @staticmethod
     def find_ticker_consolidated(
@@ -98,3 +58,43 @@ class StockConsolidationStrategy(InvestmentsConsolidationStrategy):
             ),
             None,
         )
+
+    def append_alias_consolidated_list_if_needed(
+        self, investment: StockInvestment, consolidated_list: List[StockConsolidated]
+    ):
+        alias_consolidated = self.find_ticker_consolidated(
+            investment.alias_ticker, consolidated_list
+        )
+        if not alias_consolidated:
+            alias_list = self.repo.find_alias_ticker(
+                investment.subject, investment.alias_ticker, StockConsolidated
+            )
+            if alias_list:
+                consolidated_list += alias_list
+
+    def consolidate_investment(
+        self, investment: StockInvestment, consolidated_list: List[StockConsolidated]
+    ) -> List[StockConsolidated]:
+        consolidated_copy = consolidated_list.copy()
+
+        if investment.alias_ticker:
+            self.append_alias_consolidated_list_if_needed(investment, consolidated_copy)
+
+        consolidated = self.find_ticker_consolidated(
+            investment.ticker, consolidated_copy
+        )
+        if not consolidated:
+            response = self.repo.find_ticker(
+                investment.subject, investment.ticker, StockConsolidated
+            )
+            if response:
+                consolidated = response[0]
+            else:
+                consolidated = StockConsolidated(
+                    subject=investment.subject, ticker=investment.ticker
+                )
+            consolidated_copy.append(consolidated)
+
+        consolidated.add_investment(investment)
+
+        return consolidated_copy

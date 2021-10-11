@@ -1,12 +1,12 @@
 import logging
 from itertools import groupby
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Optional
 
+from domain.common.investments import InvestmentType, Investment
 from domain.portfolio.consolidation_strategies import (
     InvestmentsConsolidationStrategy,
 )
-from domain.enums.investment_type import InvestmentType
-from domain.models.investment import Investment
+
 from domain.common.portfolio import (
     Portfolio,
     InvestmentConsolidated,
@@ -30,19 +30,21 @@ class PortfolioCore:
         self.strategies = strategies
 
     def consolidate_investments(
-        self, subject: str, new: List[Investment], old: List[Investment]
+        self, subject: str, new: Optional[Investment], old: Optional[Investment]
     ):
         portfolio = self.get_portfolio(subject)
-        all_items: List[InvestmentConsolidated] = []
-        for _type in self.types_of_investments_in(new + old):
-            filtered_new = list(filter(lambda i, t=_type: i.type == t, new))
-            filtered_old = list(filter(lambda i, t=_type: i.type == t, old))
 
-            all_items += self.strategies[_type].consolidate(
-                subject, filtered_new, filtered_old
-            )
-        portfolio.update_summary(all_items)
+        _type = self.get_type_if_investment(new, old)
+        inv_consolidated = self.strategies[_type].consolidate(subject, new, old)
+        portfolio.update_summary(inv_consolidated)
         self.repo.save(portfolio)
+
+    @staticmethod
+    def get_type_if_investment(new: Optional[Investment], old: Optional[Investment]):
+        if new:
+            return new.type
+        if old:
+            return old.type
 
     def get_portfolio(self, subject) -> Portfolio:
         portfolio = self.repo.find(subject) or Portfolio(
