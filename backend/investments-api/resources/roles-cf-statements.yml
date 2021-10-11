@@ -13,5 +13,4 @@
 - Effect: Allow
   Action:
     - sns:Publish
-  Resource:
-    - Fn::GetAtt: [ AddedOrUpdatedInvestmentTopic, Arn ]
+  Resource: !Ref AddedOrUpdatedInvestmentTopic
