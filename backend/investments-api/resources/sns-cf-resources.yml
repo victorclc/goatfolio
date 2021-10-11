@@ -7,7 +7,6 @@ Resources:
 
 Outputs:
   AddedOrUpdatedInvestmentTopicOutput:
-    Value:
-      Fn::GetAtt: [ AddedOrUpdatedInvestmentTopic, Arn ]
+    Value: !Ref AddedOrUpdatedInvestmentTopic
     Export:
       Name: ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
