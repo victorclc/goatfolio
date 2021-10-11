@@ -4,6 +4,7 @@ from uuid import uuid4
 import boto3
 from boto3.dynamodb.conditions import Key
 
+from domain.common.investment_loader import load_model_by_type
 from domain.common.investments import InvestmentType, Investment, StockInvestment
 
 

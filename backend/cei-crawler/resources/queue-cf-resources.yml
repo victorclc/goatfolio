@@ -28,10 +28,10 @@ Resources:
       QueueName: CeiImportRequest
       VisibilityTimeout: 900
 
-    CeiImportRequestDLQ:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: CeiImportRequestDLQ
+  CeiImportRequestDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: CeiImportRequestDLQ
 
 Outputs:
   CeiImportResultQueueArn:
