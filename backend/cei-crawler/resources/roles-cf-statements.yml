@@ -3,7 +3,7 @@
     - sqs:SendMessage
     - sqs:GetQueueUrl
   Resource:
-    'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
+    Fn::GetAtt: [ CeiImportResultQueue, Arn ]
 - Effect: Allow
   Action:
     - s3:ListBucket
