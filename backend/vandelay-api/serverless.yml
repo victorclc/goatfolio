@@ -55,7 +55,7 @@ functions:
     events:
       - sqs:
           arn:
-            Fn::GetAtt: [ CeiImportResultQueue, Arn ]
+            'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
 
   getCEIInfo:
     handler: src/handlers.cei_info_request_handler
@@ -85,4 +85,3 @@ functions:
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/dynamo-cf-resources.yml)}
-  - ${file(resources/queue-cf-resources.yml)}
