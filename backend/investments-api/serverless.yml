@@ -8,8 +8,7 @@ provider:
   environment:
     PYTHONPATH: "src:shared/libs"
     CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
-    ADDED_INVESTMENT_TOPIC:
-      Fn::GetAtt: [ AddedOrUpdatedInvestmentTopic, Arn ]
+    ADDED_INVESTMENT_TOPIC: !Ref AddedOrUpdatedInvestmentTopic
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
   apiGateway:
