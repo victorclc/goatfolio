@@ -11,7 +11,7 @@
     - dynamodb:PutItem
     - dynamodb:BatchWriteItem
   Resource:
-    'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
+    Fn::GetAtt: [ MarketDataTable, Arn ]
 - Effect: Allow
   Action:
     - dynamodb:Query
