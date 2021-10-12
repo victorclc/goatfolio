@@ -50,12 +50,11 @@ functions:
 
   # Portfolio Start
   consolidatePortfolio:
-    handler: src/adapters/inbound/dynamo_stream_handlers.consolidate_portfolio_handler
-#    events:
-#      - stream:
-#          type: dynamodb
-#          arn:
-#            'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
+    handler: src/adapters/inbound/sqs_handlers.consolidate_investment_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ PortfolioAddOrUpdatedInvestmentSubscriber, Arn ]
 
   fixStockAverage:
     handler: src/adapters/inbound/api_gateway_handlers.fix_average_price_handler
@@ -145,3 +144,4 @@ resources:
   - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/elasticache-cf-resources.yml)}
   - ${file(resources/dynamo-cf-resources.yml)}
+  - ${file(resources/sqs-cf-resources.yml)}
