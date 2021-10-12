@@ -59,7 +59,7 @@ class TickerConsolidatedHistory:
     history: list
 
     def to_dict(self):
-        return {"history": [h.to_dict() for h in self.history]}
+        return {"history": [h.to_json() for h in self.history]}
 
 
 @dataclass
@@ -78,10 +78,10 @@ class PortfolioList:
     def to_dict(self):
         return {
             **self.__dict__,
-            "stocks": [s.to_dict() for s in self.stocks],
-            "reits": [r.to_dict() for r in self.reits],
-            "bdrs": [b.to_dict() for b in self.bdrs],
-            "ibov_history": [i.to_dict() for i in self.ibov_history],
+            "stocks": [s.to_json() for s in self.stocks],
+            "reits": [r.to_json() for r in self.reits],
+            "bdrs": [b.to_json() for b in self.bdrs],
+            "ibov_history": [i.to_json() for i in self.ibov_history],
         }
 
 

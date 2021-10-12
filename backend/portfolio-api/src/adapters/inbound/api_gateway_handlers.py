@@ -20,7 +20,7 @@ def performance_summary_handler(event, context):
     logger.info(f"EVENT: {event}")
     subject = awsutils.get_event_subject(event)
     result = performance_core.calculate_portfolio_summary(subject)
-    return {"statusCode": HTTPStatus.OK, "body": jsonutils.dump(result.to_dict())}
+    return {"statusCode": HTTPStatus.OK, "body": jsonutils.dump(result.to_json())}
 
 
 def performance_history_handler(event, context):
@@ -31,7 +31,7 @@ def performance_history_handler(event, context):
         result = []
     return {
         "statusCode": HTTPStatus.OK,
-        "body": jsonutils.dump([i.to_dict() for i in result]),
+        "body": jsonutils.dump([i.to_json() for i in result]),
     }
 
 
@@ -41,7 +41,7 @@ def ticker_performance_handler(event, context):
     ticker = awsutils.get_path_param(event, "ticker").upper()
 
     result = performance_core.ticker_history_chart(subject, ticker)
-    return {"statusCode": HTTPStatus.OK, "body": jsonutils.dump(result.to_dict())}
+    return {"statusCode": HTTPStatus.OK, "body": jsonutils.dump(result.to_json())}
 
 
 def calculate_group_position_summary_handler(event, context):
@@ -73,7 +73,7 @@ def fix_average_price_handler(event, context):
         Decimal(body["amount"]),
         Decimal(body["average_price"]),
     )
-    return {"statusCode": 200, "body": jsonutils.dump(investment.to_dict())}
+    return {"statusCode": 200, "body": jsonutils.dump(investment.to_json())}
 
 
 def main():

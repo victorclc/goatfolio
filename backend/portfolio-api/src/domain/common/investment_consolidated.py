@@ -20,7 +20,6 @@ DATE_FORMAT = "%Y%m%d"
 class InvestmentConsolidated(PortfolioItem, ABC):
     initial_date: dt.date = dt.datetime.max.date()
     history: List[InvestmentPosition] = field(default_factory=list)
-    alias_ticker: str = field(default="")
 
     def __post_init__(self):
         if not isinstance(self.initial_date, dt.date):
@@ -28,19 +27,15 @@ class InvestmentConsolidated(PortfolioItem, ABC):
                 str(self.initial_date), DATE_FORMAT
             ).date()
 
-    def to_dict(self) -> dict:
+    def to_json(self) -> dict:
         ret = {
-            **self.__dict__,
+            **super().to_json(),
             "initial_date": self.initial_date.strftime(DATE_FORMAT),
             "history": sorted(
                 [h.to_dict() for h in self.history], key=lambda h: h["date"]
             ),
-            "alias_ticker": self.alias_ticker or self.ticker,
         }
         return ret
-
-    def current_ticker_name(self):
-        return self.alias_ticker or self.ticker
 
     @abstractmethod
     def add_investment(self, investment):
@@ -238,17 +233,36 @@ class StockPositionWrapperLinkedList:
 
 @dataclass
 class StockConsolidated(InvestmentConsolidated):
+    ticker: str = field(default="")
+    alias_ticker: str = field(default="")
+
     def __post_init__(self):
         super().__post_init__()
         self.history = [
             StockPosition(**h) if isinstance(h, dict) else h for h in self.history
         ]
 
+    @property
+    def sk(self) -> str:
+        sk = f"TICKER#{self.ticker}"
+        return sk
+
+    def to_json(self) -> dict:
+        _dict = super().to_json()
+        _dict["alias_ticker"] = (self.alias_ticker or self.ticker,)
+        _dict["ticker"] = self.ticker
+
+        return _dict
+
+    def current_ticker_name(self):
+        return self.alias_ticker or self.ticker
+
     def __add__(self, other):
         initial_date = min(self.initial_date, other.initial_date)
         return StockConsolidated(
-            self.subject,
-            self.alias_ticker or self.ticker,
+            subject=self.subject,
+            ticker=self.ticker,
+            alias_ticker=self.alias_ticker,
             initial_date=initial_date,
             history=self.history + other.history,
         )

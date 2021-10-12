@@ -2,7 +2,7 @@ import logging
 from typing import List, Optional, ClassVar, Type
 
 import boto3
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, Attr
 
 from domain.common.investment_consolidated import StockConsolidated
 from domain.common.portfolio import (
@@ -25,7 +25,7 @@ class DynamoPortfolioRepository:
     def find(self, subject: str) -> Portfolio:
         result = self._portfolio_table.query(
             KeyConditionExpression=Key("subject").eq(subject)
-            & Key("ticker").eq(subject)
+            & Key("sk").eq("PORTFOLIO#")
         )
         if result["Items"]:
             return Portfolio(**result["Items"][0])
@@ -41,7 +41,7 @@ class DynamoPortfolioRepository:
             logger.info(f"No Portfolio yet for subject: {subject}")
             return
         for item in result["Items"]:
-            if item["ticker"] == subject:
+            if item["sk"] == "PORTFOLIO#":
                 portfolio = Portfolio(**item)
             else:
                 stock_consolidated.append(StockConsolidated(**item))
@@ -54,7 +54,7 @@ class DynamoPortfolioRepository:
         consolidated_type: ClassVar[Type[InvestmentConsolidated]],
     ) -> Optional[List[Type[InvestmentConsolidated]]]:
         result = self._portfolio_table.query(
-            KeyConditionExpression=Key("subject").eq(subject) & Key("ticker").eq(ticker)
+            KeyConditionExpression=Key("subject").eq(subject) & Key("sk").begins_with(f"TICKER#{ticker}")
         )
         if result["Items"]:
             return [consolidated_type(**i) for i in result["Items"]]
@@ -67,9 +67,9 @@ class DynamoPortfolioRepository:
         consolidated_type: ClassVar[Type[InvestmentConsolidated]],
     ) -> Optional[List[InvestmentConsolidated]]:
         result = self._portfolio_table.query(
-            IndexName="subjectAliasTickerGlobalIndex",
             KeyConditionExpression=Key("subject").eq(subject)
-            & Key("alias_ticker").eq(ticker),
+            & Key("sk").begins_with(f"TICKER#"),
+            FilterExpression=Attr("alias_ticker").eq(ticker)
         )
         if result["Items"]:
             return [consolidated_type(**i) for i in result["Items"]]
@@ -77,10 +77,10 @@ class DynamoPortfolioRepository:
         return []
 
     def save(self, item: PortfolioItem):
-        self._portfolio_table.put_item(Item=item.to_dict())
+        self._portfolio_table.put_item(Item=item.to_json())
 
     def save_all(self, items: [PortfolioItem]):
         with self._portfolio_table.batch_writer() as batch:
             for item in items:
-                print(item.to_dict())
-                batch.put_item(Item=item.to_dict())
+                print(item.to_json())
+                batch.put_item(Item=item.to_json())
