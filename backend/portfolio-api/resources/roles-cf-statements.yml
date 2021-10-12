@@ -5,10 +5,10 @@
     - dynamodb:PutItem
     - dynamodb:BatchWriteItem
   Resource:
-    - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
+    - 'Fn::ImportValue': !GetAtt PortfolioTable.Arn
     - Fn::Join:
         - ''
-        - - 'Fn::ImportValue': ${self:provider.stage}-PortfolioTableArnOutput
+        - !GetAtt PortfolioTable.Arn
           - '/index/*'
 - Effect: Allow
   Action:
