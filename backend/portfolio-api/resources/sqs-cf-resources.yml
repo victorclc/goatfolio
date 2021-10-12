@@ -26,3 +26,19 @@ Resources:
       Endpoint: !GetAtt PortfolioAddOrUpdatedInvestmentSubscriber.Arn
       Protocol: sqs
       RawMessageDelivery: 'true'
+
+  SNS2QueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref PortfolioAddOrUpdatedInvestmentSubscriber
+      PolicyDocument:
+        -
+          Effect: "Allow"
+          Principal:
+            Service: sns.amazonaws.com
+          Action: sqs:SendMessage
+          Resource: !GetAtt PortfolioAddOrUpdatedInvestmentSubscriber.Arn
+          Condition:
+            ArnEquals:
+              'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
