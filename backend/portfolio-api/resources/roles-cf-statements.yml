@@ -8,8 +8,8 @@
     - !GetAtt PortfolioTable.Arn
     - Fn::Join:
         - ''
-        - !GetAtt PortfolioTable.Arn
-        - '/index/*'
+        - - !GetAtt PortfolioTable.Arn
+          - '/index/*'
 - Effect: Allow
   Action:
     - sqs:SendMessage
