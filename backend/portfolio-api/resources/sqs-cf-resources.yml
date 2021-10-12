@@ -33,12 +33,13 @@ Resources:
       Queues:
         - !Ref PortfolioAddOrUpdatedInvestmentSubscriber
       PolicyDocument:
-        -
-          Effect: "Allow"
-          Principal:
-            Service: sns.amazonaws.com
-          Action: sqs:SendMessage
-          Resource: !GetAtt PortfolioAddOrUpdatedInvestmentSubscriber.Arn
-          Condition:
-            ArnEquals:
-              'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service: sns.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt PortfolioAddOrUpdatedInvestmentSubscriber.Arn
+            Condition:
+              ArnEquals:
+                'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
