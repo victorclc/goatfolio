@@ -7,8 +7,7 @@ import core
 from constants import ImportStatus
 from exceptions import UnprocessableException, BatchSavingException
 
-from investments.models import StockInvestment, OperationType
-from models import CEIInboundRequest, Import, CEIImportResult
+from models import CEIInboundRequest, Import, CEIImportResult, StockInvestment, OperationType
 
 
 class TestCEICore(unittest.TestCase):
