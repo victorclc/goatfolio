@@ -9,7 +9,7 @@
     - Fn::Join:
         - ''
         - !GetAtt PortfolioTable.Arn
-          - '/index/*'
+        - '/index/*'
 - Effect: Allow
   Action:
     - sqs:SendMessage
