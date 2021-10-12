@@ -12,5 +12,5 @@ Resources:
       KeySchema:
         - AttributeName: "subject"
           KeyType: "HASH"
-        - AttributeName: "ticker"
+        - AttributeName: "sk"
           KeyType: "RANGE"
