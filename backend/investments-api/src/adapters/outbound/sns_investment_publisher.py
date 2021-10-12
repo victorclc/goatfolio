@@ -1,4 +1,5 @@
 import os
+from hashlib import sha256
 from typing import Optional
 
 import boto3
@@ -18,18 +19,21 @@ class SNSInvestmentPublisher:
     def publish(
         self,
         subject: str,
+        updated_timestamp: int,
         new_investment: Optional[Investment],
         old_investment: Optional[Investment],
     ):
-        message = {}
+        message = {"updated_timestamp": updated_timestamp}
         if new_investment:
             message["new_investment"] = new_investment.to_json()
         if old_investment:
             message["old_investment"] = old_investment.to_json()
 
+        message_json = jsonutils.dump(message)
         response = self.sns.publish(
             TopicArn=self.TOPIC_ARN,
-            Message=jsonutils.dump(message),
+            Message=message_json,
             MessageGroupId=subject,
+            MessageDeduplicationId=sha256(message_json.encode('utf8')).hexdigest()
         )
         logger.debug(f"SNS Publish response = {response}")
