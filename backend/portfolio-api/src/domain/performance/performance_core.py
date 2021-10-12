@@ -1,13 +1,13 @@
 from typing import Optional, List, Dict
 
-from domain.core.performance.calculators import (
+from domain.performance.calculators import (
     InvestmentPerformanceCalculator,
     GroupSummaryCalculator,
 )
-from domain.core.performance.historical_consolidators import (
+from domain.performance.historical_consolidators import (
     InvestmentHistoryConsolidator,
 )
-from domain.enums.investment_type import InvestmentType
+from domain.common.investments import InvestmentType
 from domain.performance.group_position_summary import GroupPositionSummary
 from domain.common.investment_consolidated import StockConsolidated, InvestmentConsolidated
 from domain.performance.performance import (
@@ -15,7 +15,7 @@ from domain.performance.performance import (
     TickerConsolidatedHistory,
 )
 from domain.common.portfolio import Portfolio
-from ports import PortfolioRepository
+from ports.outbound.portfolio_repository import PortfolioRepository
 
 
 class PerformanceCore:
