@@ -1,7 +1,7 @@
 import logging
 
 from core import EventNotifierCore
-from goatcommons.utils import JsonUtils
+import goatcommons.utils.json as jsonutils
 from models import NotifyRequest
 
 logger = logging.getLogger()
@@ -12,5 +12,5 @@ def shit_notify_handler(event, context):
     core = EventNotifierCore()
 
     for message in event['Records']:
-        request = NotifyRequest(**JsonUtils.load(message['body']))
+        request = NotifyRequest(**jsonutils.load(message['body']))
         core.notify(request)
