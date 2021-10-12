@@ -14,7 +14,7 @@ logger.setLevel(logging.INFO)
 def consolidate_investment_handler(event, context):
     for message in event["Records"]:
         logger.info(f"Processing message: {message}")
-        subject = message["MessageGroupId"]
+        subject = message["attributes"]["MessageGroupId"]
         body = jsonutils.load(message["body"])
 
         new_json = body.get("new_investment")
