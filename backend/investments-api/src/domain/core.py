@@ -75,9 +75,9 @@ class InvestmentCore:
     def publish_investment_update(
         self,
         subject: str,
+        updated_timestamp: int,
         new_investment: Investment,
-        old_investment: Investment,
-        updated_timestamp: int
+        old_investment: Investment
     ):
         logger.info(
             f"Publishing: subject={subject}, new_investment={new_investment}, old_investment{old_investment}"
