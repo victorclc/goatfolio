@@ -26,3 +26,10 @@ Resources:
       KeySchema:
         - AttributeName: "message_key"
           KeyType: "HASH"
+
+Outputs:
+  NotificationMessagesConfigTableArnOutput:
+    Value:
+      Fn::GetAtt: [ NotificationMessagesConfigTable, Arn ]
+    Export:
+      Name: ${self:provider.stage}-NotificationMessagesConfigTableArnOutput
