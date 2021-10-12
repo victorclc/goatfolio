@@ -16,6 +16,7 @@ provider:
     CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
     REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  endpointType: regional
 
   apiGateway:
     apiKeys:
@@ -143,5 +144,5 @@ functions:
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/elasticache-cf-resources.yml)}
-#  - ${file(resources/dynamo-cf-resources.yml)}
+  - ${file(resources/dynamo-cf-resources.yml)}
   - ${file(resources/sqs-cf-resources.yml)}
