@@ -7,10 +7,9 @@ import requests
 from boto3.dynamodb.conditions import Key
 
 from exceptions import BatchSavingException
-from investments.models import InvestmentType
 from goatcommons.configuration.system_manager import ConfigurationClient
 import goatcommons.utils.json as jsonutils
-from models import Import, CEIOutboundRequest, InvestmentRequest, CEIInfo
+from models import Import, CEIOutboundRequest, InvestmentRequest, CEIInfo, InvestmentType
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')

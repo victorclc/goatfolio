@@ -5,8 +5,7 @@ from datetime import datetime
 from brutils.validations import NationalTaxIdUtils
 from constants import ImportStatus
 from exceptions import UnprocessableException, BatchSavingException
-from investments.models import StockInvestment
-from models import CEIInboundRequest, Import, CEIOutboundRequest, CEIImportResult, CEIInfo
+from models import CEIInboundRequest, Import, CEIOutboundRequest, CEIImportResult, CEIInfo, StockInvestment
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
 logger = logging.getLogger()
