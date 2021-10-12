@@ -29,3 +29,11 @@
     - ssm:GetParameters
     - ssm:DescribeParameters
   Resource: arn:aws:ssm:${self:provider.region}:*:parameter/corporate-events-api-key
+- Effect: Allow
+  Principal: sns.amazonaws.com
+  Action:
+    - sqs:SendMessage
+  Resource: !GetAtt PortfolioAddOrUpdatedInvestmentSubscriber.Arn
+  Condition:
+    ArnEquals:
+      'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
