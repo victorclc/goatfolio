@@ -1,15 +1,15 @@
-- Effect: Allow
-  Action:
-    - dynamodb:Query
-    - dynamodb:GetItem
-    - dynamodb:PutItem
-    - dynamodb:BatchWriteItem
-  Resource:
-    - !GetAtt PortfolioTable.Arn
-    - Fn::Join:
-        - ''
-        - - !GetAtt PortfolioTable.Arn
-          - '/index/*'
+#- Effect: Allow
+#  Action:
+#    - dynamodb:Query
+#    - dynamodb:GetItem
+#    - dynamodb:PutItem
+#    - dynamodb:BatchWriteItem
+#  Resource:
+#    - !GetAtt PortfolioTable.Arn
+#    - Fn::Join:
+#        - ''
+#        - - !GetAtt PortfolioTable.Arn
+#          - '/index/*'
 - Effect: Allow
   Action:
     - sqs:SendMessage
