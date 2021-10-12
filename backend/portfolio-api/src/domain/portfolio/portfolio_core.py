@@ -48,7 +48,7 @@ class PortfolioCore:
 
     def get_portfolio(self, subject) -> Portfolio:
         portfolio = self.repo.find(subject) or Portfolio(
-            subject=subject, ticker=subject
+            subject=subject
         )
         return portfolio
 

@@ -31,7 +31,7 @@ class Portfolio(PortfolioItem):
 
     def to_json(self) -> dict:
         return {
-            **self.__dict__,
+            **super().to_json(),
             "initial_date": self.initial_date.strftime(DATE_FORMAT),
             "stocks": {k: v.to_dict() for k, v in self.stocks.items()},
         }
