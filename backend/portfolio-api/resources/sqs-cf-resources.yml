@@ -15,7 +15,8 @@ Resources:
   PortfolioAddOrUpdatedInvestmentSubscriberDLQ:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: PortfolioAddOrUpdatedInvestmentSubscriberDLQ
+      QueueName: PortfolioAddOrUpdatedInvestmentSubscriberDLQ.fifo
+      FifoQueue: true
 
 #  Subscription:
 #    Type: 'AWS::SNS::Subscription'
