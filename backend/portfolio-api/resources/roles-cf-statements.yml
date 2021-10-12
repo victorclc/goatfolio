@@ -5,7 +5,7 @@
     - dynamodb:PutItem
     - dynamodb:BatchWriteItem
   Resource:
-    - 'Fn::ImportValue': !GetAtt PortfolioTable.Arn
+    - !GetAtt PortfolioTable.Arn
     - Fn::Join:
         - ''
         - !GetAtt PortfolioTable.Arn
