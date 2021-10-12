@@ -2,7 +2,7 @@ Resources:
   AddedOrUpdatedInvestmentTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: AddedOrUpdatedInvestment
+      TopicName: AddedOrUpdatedInvestment.fifo
       FifoTopic: true
 
 Outputs:
