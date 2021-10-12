@@ -13,4 +13,5 @@
 - Effect: Allow
   Action:
     - sns:Publish
+    - sqs:GetQueueUrl
   Resource: !Ref AddedOrUpdatedInvestmentTopic
