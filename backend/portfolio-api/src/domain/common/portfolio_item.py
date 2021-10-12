@@ -5,8 +5,11 @@ from dataclasses import dataclass
 @dataclass
 class PortfolioItem(ABC):
     subject: str
-    ticker: str
 
+    @property
     @abstractmethod
-    def to_dict(self):
-        """Transform data to a dict"""
+    def sk(self) -> str:
+        """The sort key of the object"""
+
+    def to_json(self):
+        return {"subject": self.subject, "sk": self.sk}

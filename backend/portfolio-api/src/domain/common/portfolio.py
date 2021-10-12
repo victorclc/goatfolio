@@ -29,12 +29,16 @@ class Portfolio(PortfolioItem):
                 new_stocks[k] = StockSummary(**v)
         self.stocks = new_stocks
 
-    def to_dict(self) -> dict:
+    def to_json(self) -> dict:
         return {
             **self.__dict__,
             "initial_date": self.initial_date.strftime(DATE_FORMAT),
             "stocks": {k: v.to_dict() for k, v in self.stocks.items()},
         }
+
+    @property
+    def sk(self) -> str:
+        return "PORTFOLIO#"
 
     def update_summary(self, consolidated: InvestmentConsolidated):
         self.initial_date = min(self.initial_date, consolidated.initial_date)
