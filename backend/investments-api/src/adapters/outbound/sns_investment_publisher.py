@@ -3,7 +3,7 @@ from typing import Optional
 
 import boto3
 from aws_lambda_powertools import Logger
-import goatcommons.utils.json as json
+import goatcommons.utils.json as jsonutils
 from domain.investment import Investment
 
 logger = Logger()
@@ -21,11 +21,15 @@ class SNSInvestmentPublisher:
         new_investment: Optional[Investment],
         old_investment: Optional[Investment],
     ):
+        message = {}
+        if new_investment:
+            message["new_investment"] = new_investment.to_json()
+        if old_investment:
+            message["old_investment"] = old_investment.to_json()
+
         response = self.sns.publish(
             TopicArn=self.TOPIC_ARN,
-            Message=json.dump(
-                {"new_investment": new_investment, "old_investment": old_investment}
-            ),
+            Message=jsonutils.dump(message),
             MessageGroupId=subject,
         )
         logger.debug(f"SNS Publish response = {response}")
