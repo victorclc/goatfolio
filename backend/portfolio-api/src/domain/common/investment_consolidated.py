@@ -249,7 +249,7 @@ class StockConsolidated(InvestmentConsolidated):
 
     def to_json(self) -> dict:
         _dict = super().to_json()
-        _dict["alias_ticker"] = (self.alias_ticker or self.ticker,)
+        _dict["alias_ticker"] = self.alias_ticker
         _dict["ticker"] = self.ticker
 
         return _dict

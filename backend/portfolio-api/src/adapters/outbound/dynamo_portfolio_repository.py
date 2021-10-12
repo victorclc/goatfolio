@@ -28,7 +28,7 @@ class DynamoPortfolioRepository:
             & Key("sk").eq("PORTFOLIO#")
         )
         if result["Items"]:
-            return Portfolio(**result["Items"][0])
+            return Portfolio(**{k: v for k, v in result["Items"][0].items() if k != "sk"})
         logger.info(f"No Portfolio yet for subject: {subject}")
 
     def find_all(self, subject) -> (Portfolio, [InvestmentConsolidated]):
@@ -54,10 +54,14 @@ class DynamoPortfolioRepository:
         consolidated_type: ClassVar[Type[InvestmentConsolidated]],
     ) -> Optional[List[Type[InvestmentConsolidated]]]:
         result = self._portfolio_table.query(
-            KeyConditionExpression=Key("subject").eq(subject) & Key("sk").begins_with(f"TICKER#{ticker}")
+            KeyConditionExpression=Key("subject").eq(subject)
+            & Key("sk").begins_with(f"TICKER#{ticker}")
         )
         if result["Items"]:
-            return [consolidated_type(**i) for i in result["Items"]]
+            return [
+                consolidated_type(**{k: v for k, v in i.items() if k != "sk"})
+                for i in result["Items"]
+            ]
         logger.info(f"No {ticker} yet for subject: {subject}")
 
     def find_alias_ticker(
@@ -69,7 +73,7 @@ class DynamoPortfolioRepository:
         result = self._portfolio_table.query(
             KeyConditionExpression=Key("subject").eq(subject)
             & Key("sk").begins_with(f"TICKER#"),
-            FilterExpression=Attr("alias_ticker").eq(ticker)
+            FilterExpression=Attr("alias_ticker").eq(ticker),
         )
         if result["Items"]:
             return [consolidated_type(**i) for i in result["Items"]]
