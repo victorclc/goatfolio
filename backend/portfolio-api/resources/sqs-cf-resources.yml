@@ -18,11 +18,11 @@ Resources:
     Properties:
       QueueName: PortfolioAddOrUpdatedInvestmentSubscriberDLQ
 
-  Subscription:
-    Type: 'AWS::SNS::Subscription'
-    Properties:
-      TopicArn:
-        'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
-      Endpoint: !GetAtt PortfolioAddOrUpdatedInvestmentSubscriber.Arn
-      Protocol: sqs
-      RawMessageDelivery: 'true'
+#  Subscription:
+#    Type: 'AWS::SNS::Subscription'
+#    Properties:
+#      TopicArn:
+#        'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
+#      Endpoint: !GetAtt PortfolioAddOrUpdatedInvestmentSubscriber.Arn
+#      Protocol: sqs
+#      RawMessageDelivery: 'true'
