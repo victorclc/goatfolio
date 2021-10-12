@@ -42,4 +42,5 @@ Resources:
             Resource: !GetAtt PortfolioAddOrUpdatedInvestmentSubscriber.Arn
             Condition:
               ArnEquals:
-                'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
+                "aws:SourceArn":
+                  'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
