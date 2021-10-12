@@ -77,10 +77,11 @@ class InvestmentCore:
         subject: str,
         new_investment: Investment,
         old_investment: Investment,
+        updated_timestamp: int
     ):
         logger.info(
             f"Publishing: subject={subject}, new_investment={new_investment}, old_investment{old_investment}"
         )
         self.publisher.publish(
-            subject, new_investment=new_investment, old_investment=old_investment
+            subject, updated_timestamp, new_investment=new_investment, old_investment=old_investment
         )

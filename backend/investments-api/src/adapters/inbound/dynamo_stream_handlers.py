@@ -28,4 +28,4 @@ def publish_investment_update_handler(event, context):
             i = deserializer.deserialize({"M": dynamo_record["OldImage"]})
             old = load_model_by_type(InvestmentType(i["type"]), i, generate_id=False)
 
-        investment_core.publish_investment_update(new.subject, new, old)
+        investment_core.publish_investment_update(new.subject, dynamo_record['ApproximateCreationDateTime'], new, old)

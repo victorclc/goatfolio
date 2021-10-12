@@ -9,7 +9,8 @@ class InvestmentPublisher(Protocol):
     def publish(
         self,
         subject: str,
+        updated_timestamp: int,
         new_investment: Optional[Investment],
         old_investment: Optional[Investment],
     ):
-        """Publish the investment """
+        """Publish the investment"""
