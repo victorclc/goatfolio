@@ -10,7 +10,7 @@ Resources:
         maxReceiveCount: 5
       FifoQueue: true
       FifoThroughputLimit: perMessageGroupId
-      QueueName: PortfolioAddOrUpdatedInvestmentSubscriber
+      QueueName: PortfolioAddOrUpdatedInvestmentSubscriber.fifo
       VisibilityTimeout: 300
 
   PortfolioAddOrUpdatedInvestmentSubscriberDLQ:
