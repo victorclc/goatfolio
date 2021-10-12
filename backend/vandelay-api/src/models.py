@@ -63,7 +63,6 @@ class StockInvestment:
         }
 
     def __post_init__(self):
-        super().__post_init__()
         if not isinstance(self.amount, Decimal):
             self.amount = Decimal(self.amount).quantize(Decimal("0.01"))
         if not isinstance(self.price, Decimal):
