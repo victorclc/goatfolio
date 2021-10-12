@@ -13,5 +13,10 @@
 - Effect: Allow
   Action:
     - sns:Publish
-    - sqs:GetQueueUrl
   Resource: !Ref AddedOrUpdatedInvestmentTopic
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
