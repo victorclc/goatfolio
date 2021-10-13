@@ -17,6 +17,5 @@ def process_corporate_events_file_handler(event, context):
 
     for record in event["Records"]:
         logger.info(f"Processing record: {record}")
-        bucket = record["s3"]["bucket"]["name"]
         file_path = record["s3"]["object"]["key"]
-        corporate_events_file_processor.process_corporate_events_file(bucket, file_path)
+        corporate_events_file_processor.process_corporate_events_file(file_path)
