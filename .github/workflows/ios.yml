@@ -13,8 +13,8 @@ jobs:
   deploy:
     runs-on: macos-latest
     defaults:
-    run:
-      working-directory: mobile
+      run:
+        working-directory: mobile
     steps:
       - name: Checkout
         uses: actions/checkout@v2
