@@ -46,5 +46,5 @@ class EarningsInAssetCorporateEvent:
             **self.__dict__,
             "with_date": self.with_date.strftime("%Y%m%d"),
             "deliberate_on": self.deliberate_on.strftime("%Y%m%d"),
-            "type": EventType.value,
+            "type": self.type.value,
         }
