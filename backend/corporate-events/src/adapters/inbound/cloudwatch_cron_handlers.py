@@ -55,4 +55,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    corporate_events_crawler.craw_corporate_events_from_date(datetime.datetime.now()-relativedelta(days=2))
