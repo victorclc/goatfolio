@@ -27,7 +27,7 @@ jobs:
         with:
           ruby-version: '2.6'
           bundler-cache: true
-          working-directory: ios
+          working-directory: mobile/ios
       - name: Set environment variables
         run: |
           echo $GITHUB_REF
