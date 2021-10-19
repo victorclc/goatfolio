@@ -124,4 +124,8 @@ class CorporateEventsCore:
         isin_code = self.ticker.get_isin_code_from_ticker(ticker)
         events = self.events.find_by_isin_from_date(isin_code, date)
 
+        for event in events:
+            if event.emitted_asset:
+                event.emitted_ticker = self.ticker.get_ticker_from_isin_code(event.emitted_asset)
+
         return events
