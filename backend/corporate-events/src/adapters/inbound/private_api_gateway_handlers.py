@@ -26,3 +26,17 @@ def get_ticker_transformations_handler(event, context):
         "statusCode": HTTPStatus.OK,
         "body": jsonutils.dump(asdict(response)),
     }
+
+
+def get_corporate_events_handler(event, context):
+    ticker = awsutils.get_query_param(event, "ticker")
+    date_from = datetime.datetime.strptime(
+        awsutils.get_query_param(event, "dateFrom"), "%Y%m%d"
+    ).date()
+
+    events = corporate_events_core.get_corporate_events(ticker, date_from)
+
+    return {
+        "statusCode": HTTPStatus.OK,
+        "body": jsonutils.dump([e.to_dict() for e in events]),
+    }

@@ -94,5 +94,18 @@ functions:
           method: get
           private: true
 
+  getCoporateEvents:
+    handler: src/adapters/inbound/private_api_gateway_handlers.get_corporate_events_handler
+    events:
+      - http:
+          path: events
+          request:
+            parameters:
+              querystrings:
+                ticker: true
+                dateFrom: true
+          method: get
+          private: true
+
 resources:
   - ${file(resources/dynamo-cf-resources.yml)}
