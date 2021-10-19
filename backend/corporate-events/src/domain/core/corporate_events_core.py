@@ -119,3 +119,9 @@ class CorporateEventsCore:
             factor *= event.factor
 
         return TickerTransformation(ticker, factor)
+
+    def get_corporate_events(self, ticker: str, date: datetime.date) -> List[EarningsInAssetCorporateEvent]:
+        isin_code = self.ticker.get_isin_code_from_ticker(ticker)
+        events = self.events.find_by_isin_from_date(isin_code, date)
+
+        return events
