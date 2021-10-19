@@ -8,7 +8,6 @@ from domain.enums.event_type import EventType
 
 @dataclass
 class EarningsInAssetCorporateEvent:
-    id: str = field(init=False)
     type: EventType
     isin_code: str
     deliberate_on: dt.date
@@ -16,6 +15,7 @@ class EarningsInAssetCorporateEvent:
     grouping_factor: Decimal
     emitted_asset: str
     observations: str
+    id: Optional[str] = None
     emitted_ticker: Optional[str] = None
 
     @property
