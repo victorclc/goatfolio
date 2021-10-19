@@ -6,7 +6,7 @@ from domain.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
 
 
 class CorporateEventsRepository(Protocol):
-    def find_by_isin_from_date(self, isin_code: str, date: datetime.date):
+    def find_by_isin_from_date(self, isin_code: str, date: datetime.date) -> List[EarningsInAssetCorporateEvent]:
         """Get all events of isin_code since date"""
 
     def find_by_type_and_date(

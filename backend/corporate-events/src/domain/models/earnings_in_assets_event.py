@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import datetime as dt
 from decimal import Decimal
 from typing import Optional
@@ -8,6 +8,7 @@ from domain.enums.event_type import EventType
 
 @dataclass
 class EarningsInAssetCorporateEvent:
+    id: str = field(init=False)
     type: EventType
     isin_code: str
     deliberate_on: dt.date
@@ -15,7 +16,7 @@ class EarningsInAssetCorporateEvent:
     grouping_factor: Decimal
     emitted_asset: str
     observations: str
-    id: Optional[str] = None
+    emitted_ticker: Optional[str] = None
 
     @property
     def factor(self):
