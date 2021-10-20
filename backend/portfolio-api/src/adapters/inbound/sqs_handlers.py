@@ -15,8 +15,6 @@ logger = Logger()
 tracer = Tracer()
 
 
-@logger.inject_lambda_context(log_event=True)
-@tracer.capture_lambda_handler
 def parse_subject_new_and_old_investments_from_message(
     message: dict,
 ) -> (str, Investment, Investment):
