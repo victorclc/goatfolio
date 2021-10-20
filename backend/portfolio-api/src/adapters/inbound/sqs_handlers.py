@@ -1,7 +1,14 @@
+from typing import List, Optional
+
 from adapters.inbound import portfolio_core
 import goatcommons.utils.json as jsonutils
 from domain.common.investment_loader import load_model_by_type
-from domain.common.investments import InvestmentType, Investment, OperationType
+from domain.common.investments import (
+    InvestmentType,
+    Investment,
+    OperationType,
+    StockInvestment,
+)
 from aws_lambda_powertools import Logger, Tracer
 
 logger = Logger()
@@ -52,6 +59,34 @@ def check_for_applicable_corporate_events_handler(event, context):
             logger.info(f"Corporate event type, skiping message.")
             continue
 
-        # validar se unica mudança eh o alias_ticker
+        diffs = get_investments_differences(new, old)
+        if len(diffs) == 1 and "alias_ticker" in diffs:
+            continue
 
         portfolio_core.check_for_applicable_corporate_events(subject, [new, old])
+
+
+def get_investments_differences(
+    inv_1: Optional[StockInvestment], inv_2: Optional[StockInvestment]
+) -> List[str]:
+    diffs = []
+    if not inv_1 or not inv_2:
+        return diffs
+
+    if inv_1.type != inv_2.type:
+        diffs.append("type")
+    if inv_1.date != inv_2.date:
+        diffs.append("date")
+    if inv_1.ticker != inv_2.ticker:
+        diffs.append("ticker")
+    if inv_1.alias_ticker != inv_2.alias_ticker:
+        diffs.append("alias_ticker")
+    if inv_1.amount != inv_2.amount:
+        diffs.append("amount")
+    if inv_1.price != inv_2.price:
+        diffs.append("price")
+    if inv_1.operation != inv_2.operation:
+        diffs.append("operation")
+    if inv_1.price != inv_2.price:
+        diffs.append("price")
+    return diffs

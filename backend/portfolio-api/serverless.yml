@@ -68,7 +68,12 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
-
+  checkCorporateEvents:
+    handler: src/adapters/inbound/sqs_handlers.check_for_applicable_corporate_events_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ CheckCorporateEventsAddOrUpdatedInvestmentSubscriber, Arn ]
 
   # Portfolio End
 
