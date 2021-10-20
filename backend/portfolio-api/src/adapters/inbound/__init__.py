@@ -11,8 +11,8 @@ from domain.performance.calculators import (
 )
 from domain.performance.historical_consolidators import StockHistoryConsolidator
 from domain.performance.performance_core import PerformanceCore
-from domain.portfolio.consolidation_strategies import StockConsolidationStrategy
-from domain.portfolio.portfolio_core import PortfolioCore
+from domain.portfolio.investment_consolidation_strategies import StockConsolidationStrategy
+from domain.portfolio.investment_consolidation_core import InvestmentConsolidationCore
 from domain.stock.stock_core import StockCore
 from domain.common.investments import InvestmentType
 
@@ -23,7 +23,7 @@ stock_history = DynamoStockHistoryRepository()
 transformation_client = RESTCorporateEventsClient()
 
 
-portfolio_core = PortfolioCore(
+portfolio_core = InvestmentConsolidationCore(
     repo=portfolio_repo,
     strategies={InvestmentType.STOCK: StockConsolidationStrategy(portfolio_repo)},
 )

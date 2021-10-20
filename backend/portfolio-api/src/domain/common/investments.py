@@ -2,7 +2,7 @@ import datetime as dt
 from dataclasses import dataclass, field
 from decimal import Decimal
 from enum import Enum
-
+from typing import List
 
 DATE_FORMAT = "%Y%m%d"
 
@@ -30,6 +30,15 @@ class OperationType(Enum):
     INCORP_SUB = "INCORP_SUB"
 
     @classmethod
+    def corporate_events_types(cls) -> List:
+        return [
+            cls.SPLIT,
+            cls.GROUP,
+            cls.INCORP_SUB,
+            cls.INCORP_ADD,
+        ]
+
+    @classmethod
     def from_string(cls, _type: str):
         return cls(_type)
 
@@ -39,7 +48,7 @@ class Investment:
     subject: str
     id: str
     date: dt.date
-    type: InvestmentType
+    type: InvestmentType = field(init=False)
     operation: OperationType
     broker: str
 
@@ -51,7 +60,7 @@ class Investment:
         if isinstance(self.type, str):
             self.type = InvestmentType.from_string(self.type)
 
-    def to_dict(self):
+    def to_json(self):
         return {
             **self.__dict__,
             "date": int(self.date.strftime(DATE_FORMAT)),
@@ -77,6 +86,7 @@ class StockInvestment(Investment):
             self.price = Decimal(self.price).quantize(Decimal("0.01"))
         if not isinstance(self.costs, Decimal):
             self.costs = Decimal(self.costs).quantize(Decimal("0.01"))
+        self.type = InvestmentType.STOCK
 
     @property
     def current_ticker_name(self):

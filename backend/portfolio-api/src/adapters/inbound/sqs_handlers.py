@@ -1,38 +1,92 @@
-import logging
+from typing import List, Optional
+
 from adapters.inbound import portfolio_core
 import goatcommons.utils.json as jsonutils
 from domain.common.investment_loader import load_model_by_type
-from domain.common.investments import InvestmentType
-
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
+from domain.common.investments import (
+    InvestmentType,
+    Investment,
+    OperationType,
+    StockInvestment,
 )
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+from aws_lambda_powertools import Logger, Tracer
+
+logger = Logger()
+tracer = Tracer()
 
 
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
+def parse_subject_new_and_old_investments_from_message(
+    message: dict,
+) -> (str, Investment, Investment):
+    subject = message["attributes"]["MessageGroupId"]
+    body = jsonutils.load(message["body"])
+
+    new_json = body.get("new_investment")
+    old_json = body.get("old_investment")
+
+    new = (
+        load_model_by_type(InvestmentType(new_json["type"]), new_json, False)
+        if new_json
+        else None
+    )
+    old = (
+        load_model_by_type(InvestmentType(old_json["type"]), old_json, False)
+        if old_json
+        else None
+    )
+    return subject, new, old
+
+
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
 def consolidate_investment_handler(event, context):
     for message in event["Records"]:
         logger.info(f"Processing message: {message}")
-        subject = message["attributes"]["MessageGroupId"]
-        body = jsonutils.load(message["body"])
-
-        new_json = body.get("new_investment")
-        old_json = body.get("old_investment")
-
-        new = (
-            load_model_by_type(InvestmentType(new_json["type"]), new_json, False)
-            if new_json
-            else None
-        )
-        old = (
-            load_model_by_type(InvestmentType(old_json["type"]), old_json, False)
-            if old_json
-            else None
-        )
+        subject, new, old = parse_subject_new_and_old_investments_from_message(message)
         portfolio_core.consolidate_investments(subject, new, old)
 
 
-if __name__ == '__main__':
-    event = {"Records": [{'messageId': 'aa04fc4a-3155-4d02-97cf-61956bf25486', 'receiptHandle': 'AQEBrVJJlEiATYXvQUoIZ5seioZXA96x7uOUi8JnNchDGVZfwjXwuv5Md/5DYak4GkuFpRShTqCh+wxsgWWoR2HNIobq/8fDpIOYs9+zLzgA8rxt7X19WKGMCgZJVRK/SytQ1uYlEJG/jGkIxd8EMoyitpSvcANynWVVyShiQqnQOqtStoYbD0Sz13ge8zThU0DsCi17aprC50iR95ITXFKX4hdP5o2UvALlasUPE9IBr8kzi8GMkWErSO1s8M5tZXNA2YBR/LgEGv0VoDI1ApaiYiQ9ZsiXWaB3mm0srTY+xius36mG7beJEansOklYGyR4', 'body': '{"updated_timestamp": 1634035651, "new_investment": {"subject": "41e4a793-3ef5-4413-82e2-80919bce7c1a", "id": "STOCK#BIDI11#56514ecd-9674-4ce7-93c7-9f9981565a26", "date": 20211010, "type": "STOCK", "operation": "BUY", "ticker": "BIDI11", "amount": 10.0, "price": 55.5, "broker": "Inter", "costs": 0.0, "alias_ticker": "", "external_system": ""}}', 'attributes': {'ApproximateReceiveCount': '3', 'SentTimestamp': '1634042139432', 'SequenceNumber': '18865058861404143872', 'MessageGroupId': '41e4a793-3ef5-4413-82e2-80919bce7c1a', 'SenderId': 'AIDAW6YMLC5EDPE7Q5MJL', 'MessageDeduplicationId': '357f1d29a4ec46d5f08fea1995f8a857420bafcef1a0e2a64dec2e2ab846ae98', 'ApproximateFirstReceiveTimestamp': '1634042139432'}, 'messageAttributes': {}, 'md5OfBody': '58d95c7d7932a55eb71f8dfd4fdc7beb', 'eventSource': 'aws:sqs', 'eventSourceARN': 'arn:aws:sqs:sa-east-1:138414734174:PortfolioAddOrUpdatedInvestmentSubscriber.fifo', 'awsRegion': 'sa-east-1'}]}
-    consolidate_investment_handler(event, None)
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
+def check_for_applicable_corporate_events_handler(event, context):
+    for message in event["Records"]:
+        logger.info(f"Processing message: {message}")
+        subject, new, old = parse_subject_new_and_old_investments_from_message(message)
+
+        if new and new.type in OperationType.corporate_events_types():
+            logger.info(f"Corporate event type, skiping message.")
+            continue
+
+        diffs = get_investments_differences(new, old)
+        if len(diffs) == 1 and "alias_ticker" in diffs:
+            continue
+
+        portfolio_core.check_for_applicable_corporate_events(subject, [new, old])
+
+
+def get_investments_differences(
+    inv_1: Optional[StockInvestment], inv_2: Optional[StockInvestment]
+) -> List[str]:
+    diffs = []
+    if not inv_1 or not inv_2:
+        return diffs
+
+    if inv_1.type != inv_2.type:
+        diffs.append("type")
+    if inv_1.date != inv_2.date:
+        diffs.append("date")
+    if inv_1.ticker != inv_2.ticker:
+        diffs.append("ticker")
+    if inv_1.alias_ticker != inv_2.alias_ticker:
+        diffs.append("alias_ticker")
+    if inv_1.amount != inv_2.amount:
+        diffs.append("amount")
+    if inv_1.price != inv_2.price:
+        diffs.append("price")
+    if inv_1.operation != inv_2.operation:
+        diffs.append("operation")
+    if inv_1.price != inv_2.price:
+        diffs.append("price")
+    return diffs

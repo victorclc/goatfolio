@@ -1,30 +1,28 @@
 import datetime
-import logging
 from decimal import Decimal
 from http import HTTPStatus
 
-import utils as utils
+from aws_lambda_powertools import Logger, Tracer
+
 import goatcommons.utils.aws as awsutils
 import goatcommons.utils.json as jsonutils
 from adapters.inbound import performance_core, stock_core
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
-)
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = Logger()
+tracer = Tracer()
 
 
-@utils.logexceptions
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
 def performance_summary_handler(event, context):
-    logger.info(f"EVENT: {event}")
     subject = awsutils.get_event_subject(event)
     result = performance_core.calculate_portfolio_summary(subject)
     return {"statusCode": HTTPStatus.OK, "body": jsonutils.dump(result.to_json())}
 
 
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
 def performance_history_handler(event, context):
-    logger.info(f"EVENT: {event}")
     subject = awsutils.get_event_subject(event)
     result = performance_core.portfolio_history_chart(subject)
     if not result:
@@ -35,8 +33,9 @@ def performance_history_handler(event, context):
     }
 
 
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
 def ticker_performance_handler(event, context):
-    logger.info(f"EVENT: {event}")
     subject = awsutils.get_event_subject(event)
     ticker = awsutils.get_path_param(event, "ticker").upper()
 
@@ -44,8 +43,9 @@ def ticker_performance_handler(event, context):
     return {"statusCode": HTTPStatus.OK, "body": jsonutils.dump(result.to_json())}
 
 
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
 def calculate_group_position_summary_handler(event, context):
-    logger.info(f"EVENT: {event}")
     subject = awsutils.get_event_subject(event)
     results = performance_core.calculate_portfolio_detailed_summary(subject)
 
@@ -59,9 +59,9 @@ def calculate_group_position_summary_handler(event, context):
     return {"statusCode": HTTPStatus.OK, "body": jsonutils.dump(dict_response)}
 
 
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
 def fix_average_price_handler(event, context):
-    logger.info(f"EVENT: {event}")
-
     subject = awsutils.get_event_subject(event)
     body = jsonutils.load(event["body"])
 

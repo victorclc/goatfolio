@@ -11,11 +11,28 @@ Resources:
       FifoQueue: true
       QueueName: PortfolioAddOrUpdatedInvestmentSubscriber.fifo
       VisibilityTimeout: 300
-
   PortfolioAddOrUpdatedInvestmentSubscriberDLQ:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: PortfolioAddOrUpdatedInvestmentSubscriberDLQ.fifo
+      FifoQueue: true
+  CheckCorporateEventsAddOrUpdatedInvestmentSubscriber:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "CheckCorporateEventsAddOrUpdatedInvestmentSubscriberDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+      FifoQueue: true
+      QueueName: CheckCorporateEventsAddOrUpdatedInvestmentSubscriber.fifo
+      VisibilityTimeout: 300
+
+  CheckCorporateEventsAddOrUpdatedInvestmentSubscriberDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: CheckCorporateEventsAddOrUpdatedInvestmentSubscriberDLQ.fifo
       FifoQueue: true
 
   Subscription:
@@ -27,11 +44,21 @@ Resources:
       Protocol: sqs
       RawMessageDelivery: 'true'
 
+  CheckEventsSubscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      TopicArn:
+        'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
+      Endpoint: !GetAtt CheckCorporateEventsAddOrUpdatedInvestmentSubscriber.Arn
+      Protocol: sqs
+      RawMessageDelivery: 'true'
+
   SNS2QueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
       Queues:
         - !Ref PortfolioAddOrUpdatedInvestmentSubscriber
+        - !Ref CheckCorporateEventsAddOrUpdatedInvestmentSubscriber
       PolicyDocument:
         Statement:
           -
