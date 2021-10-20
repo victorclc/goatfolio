@@ -2,12 +2,12 @@ import datetime as dt
 from decimal import Decimal
 from uuid import uuid4
 
-from domain.common.investments import InvestmentType, OperationType, StockInvestment
 from domain.common.investment_consolidated import StockConsolidated
+from domain.common.investments import OperationType, StockInvestment
 from ports.outbound.investment_repository import InvestmentRepository
 from ports.outbound.portfolio_repository import PortfolioRepository
-from ports.outbound.ticker_transformation_client import (
-    TickerTransformationClient,
+from ports.outbound.corporate_events_client import (
+    CorporateEventsClient,
 )
 
 
@@ -18,7 +18,7 @@ class StockCore:
         self,
         portfolio: PortfolioRepository,
         investments: InvestmentRepository,
-        transformation_client: TickerTransformationClient,
+        transformation_client: CorporateEventsClient,
     ):
         self.portfolio = portfolio
         self.investments = investments
@@ -67,7 +67,6 @@ class StockCore:
             subject,
             str(uuid4()),
             date,
-            InvestmentType.STOCK,
             OperationType.BUY,
             broker,
             ticker,

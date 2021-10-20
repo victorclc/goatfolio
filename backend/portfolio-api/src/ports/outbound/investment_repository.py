@@ -7,6 +7,9 @@ class InvestmentRepository(Protocol):
     def find_by_subject(self, subject: str) -> List[Investment]:
         """Finds all Investments of given subject."""
 
+    def find_by_subject_and_ticker(self, subject, ticker) -> List[Investment]:
+        """Finds all ticker investments of given subject"""
+
     def save(self, investment: Investment):
         """Save an investment to the repository."""
 

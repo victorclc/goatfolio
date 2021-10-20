@@ -3,13 +3,11 @@ from itertools import groupby
 from typing import List, Dict, Set, Optional
 
 from domain.common.investments import InvestmentType, Investment
-from domain.portfolio.consolidation_strategies import (
-    InvestmentsConsolidationStrategy,
-)
-
 from domain.common.portfolio import (
     Portfolio,
-    InvestmentConsolidated,
+)
+from domain.portfolio.investment_consolidation_strategies import (
+    InvestmentsConsolidationStrategy,
 )
 from ports.outbound.portfolio_repository import PortfolioRepository
 
@@ -20,7 +18,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-class PortfolioCore:
+class InvestmentConsolidationCore:
     def __init__(
         self,
         repo: PortfolioRepository,

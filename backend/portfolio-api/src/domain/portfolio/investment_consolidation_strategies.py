@@ -16,7 +16,7 @@ class InvestmentsConsolidationStrategy(ABC):
         subject: str,
         new: Optional[Investment],
         old: Optional[Investment],
-    ) -> List[InvestmentConsolidated]:
+    ) -> InvestmentConsolidated:
         """Consolidate new and old investments using as base current portfolio object and returns a new portfolio"""
 
 
