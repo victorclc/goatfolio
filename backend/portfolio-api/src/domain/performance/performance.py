@@ -47,7 +47,7 @@ class PerformanceSummary:
             ticker_variation,
         )
 
-    def to_dict(self):
+    def to_json(self):
         return {
             **self.__dict__,
             "ticker_variation": [h.to_dict() for h in self.ticker_variation],
