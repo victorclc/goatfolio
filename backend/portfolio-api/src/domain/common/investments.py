@@ -48,7 +48,7 @@ class Investment:
     subject: str
     id: str
     date: dt.date
-    type: InvestmentType = field(init=False)
+    type: InvestmentType
     operation: OperationType
     broker: str
 
@@ -86,7 +86,8 @@ class StockInvestment(Investment):
             self.price = Decimal(self.price).quantize(Decimal("0.01"))
         if not isinstance(self.costs, Decimal):
             self.costs = Decimal(self.costs).quantize(Decimal("0.01"))
-        self.type = InvestmentType.STOCK
+        if not self.type:
+            self.type = InvestmentType.STOCK
 
     @property
     def current_ticker_name(self):
