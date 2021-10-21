@@ -58,7 +58,7 @@ class PerformanceSummary:
 class TickerConsolidatedHistory:
     history: list
 
-    def to_dict(self):
+    def to_json(self):
         return {"history": [h.to_json() for h in self.history]}
 
 
