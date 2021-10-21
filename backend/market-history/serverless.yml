@@ -22,6 +22,7 @@ package:
   include:
     - ../shared/libs/auroradata/**
     - ../shared/libs/goatcommons/**
+    - ../shared/libs/event_notifier/**
 
 plugins:
   - serverless-python-requirements
