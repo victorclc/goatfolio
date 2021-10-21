@@ -78,18 +78,18 @@ def fix_average_price_handler(event, context):
 
 def main():
     subject = "41e4a793-3ef5-4413-82e2-80919bce7c1a"
-    result = stock_core.average_price_fix(
-        subject,
-        **{
-            "ticker": "AESB3",
-            "date_from": datetime.datetime.strptime("20210101", "%Y%m%d").date(),
-            "broker": "Inter",
-            "amount": 10,
-            "average_price": 15,
-        },
-    )
-    print(result)
-    # print({"statusCode": HTTPStatus.OK, "body": JsonUtils.dump(result.to_dict())})
+    # result = stock_core.average_price_fix(
+    #     subject,
+    #     **{
+    #         "ticker": "AESB3",
+    #         "date_from": datetime.datetime.strptime("20210101", "%Y%m%d").date(),
+    #         "broker": "Inter",
+    #         "amount": 10,
+    #         "average_price": 15,
+    #     },
+    # )
+    # print(result)
+    print(performance_core.portfolio_history_chart(subject))
 
 
 if __name__ == "__main__":

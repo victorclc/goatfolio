@@ -10,7 +10,7 @@ class PortfolioPosition:
     invested_value: Decimal = field(default_factory=lambda: Decimal(0))
     gross_value: Decimal = field(default_factory=lambda: Decimal(0))
 
-    def to_dict(self):
+    def to_json(self):
         return {**self.__dict__, "date": self.date.strftime("%Y%m%d")}
 
 
@@ -20,7 +20,7 @@ class TickerVariation:
     variation: Decimal
     last_price: Decimal
 
-    def to_dict(self):
+    def to_json(self):
         return self.__dict__
 
 
@@ -50,7 +50,7 @@ class PerformanceSummary:
     def to_json(self):
         return {
             **self.__dict__,
-            "ticker_variation": [h.to_dict() for h in self.ticker_variation],
+            "ticker_variation": [h.to_json() for h in self.ticker_variation],
         }
 
 

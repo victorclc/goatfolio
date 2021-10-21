@@ -32,7 +32,7 @@ class PerformanceCore:
         self.history_consolidators = history_consolidators
 
     def get_portfolio(self, subject: str) -> Portfolio:
-        return self.repo.find(subject) or Portfolio(subject=subject, ticker=subject)
+        return self.repo.find(subject) or Portfolio(subject=subject)
 
     def calculate_portfolio_summary(self, subject: str) -> PerformanceSummary:
         portfolio = self.get_portfolio(subject)
