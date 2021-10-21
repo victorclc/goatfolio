@@ -55,9 +55,10 @@ class PerformanceCore:
     def ticker_history_chart(
         self, subject: str, ticker: str
     ) -> Optional[TickerConsolidatedHistory]:
+
         consolidations = self.repo.find_alias_ticker(subject, ticker, StockConsolidated)
         if not consolidations:
-            return
+            consolidations = self.repo.find_ticker(subject, ticker, StockConsolidated)
 
         positions = self.history_consolidators[
             InvestmentType.STOCK
