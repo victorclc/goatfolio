@@ -56,7 +56,7 @@ class DynamoPortfolioRepository:
     ) -> Optional[List[Type[InvestmentConsolidated]]]:
         result = self._portfolio_table.query(
             KeyConditionExpression=Key("subject").eq(subject)
-            & Key("sk").begins_with(f"TICKER#{ticker}")
+            & Key("sk").begins_with(f"TICKER#{ticker.upper()}")
         )
         if result["Items"]:
             return [
