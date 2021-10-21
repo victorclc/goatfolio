@@ -71,7 +71,6 @@ Resources:
                 "aws:SourceArn":
                   'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
 
-
   SNS2EventQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
@@ -83,7 +82,7 @@ Resources:
             Principal:
               Service: sns.amazonaws.com
             Action: sqs:SendMessage
-            Resource: !GetAtt PortfolioAddOrUpdatedInvestmentSubscriber.Arn
+            Resource: !GetAtt CheckCorporateEventsAddOrUpdatedInvestmentSubscriber.Arn
             Condition:
               ArnEquals:
                 "aws:SourceArn":
