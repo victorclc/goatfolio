@@ -58,11 +58,28 @@ Resources:
     Properties:
       Queues:
         - !Ref PortfolioAddOrUpdatedInvestmentSubscriber
-        - !Ref CheckCorporateEventsAddOrUpdatedInvestmentSubscriber
       PolicyDocument:
         Statement:
           -
             Effect: "Allow"
+            Principal:
+              Service: sns.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt PortfolioAddOrUpdatedInvestmentSubscriber.Arn
+            Condition:
+              ArnEquals:
+                "aws:SourceArn":
+                  'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
+
+
+  SNS2EventQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref CheckCorporateEventsAddOrUpdatedInvestmentSubscriber
+      PolicyDocument:
+        Statement:
+          - Effect: "Allow"
             Principal:
               Service: sns.amazonaws.com
             Action: sqs:SendMessage
