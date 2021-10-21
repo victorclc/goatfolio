@@ -41,7 +41,8 @@ class DynamoPortfolioRepository:
             logger.info(f"No Portfolio yet for subject: {subject}")
             return
         for item in result["Items"]:
-            if item["sk"] == "PORTFOLIO#":
+            sk = item.pop("sk")
+            if sk == "PORTFOLIO#":
                 portfolio = Portfolio(**item)
             else:
                 stock_consolidated.append(StockConsolidated(**item))
