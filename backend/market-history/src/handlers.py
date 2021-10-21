@@ -1,55 +1,49 @@
-import logging
-import traceback
-
 from core import CotaHistTransformerCore, CotaHistDownloaderCore
-from goatcommons.shit.client import ShitNotifierClient
-from goatcommons.shit.models import NotifyLevel
-from goatcommons.utils import JsonUtils
+import goatcommons.utils.json as jsonutils
+from event_notifier.decorators import notify_exception
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+from aws_lambda_powertools import Logger, Tracer
+
+from event_notifier.models import NotifyLevel
+
+logger = Logger()
+tracer = Tracer()
 
 
+@notify_exception(Exception, notify_level=NotifyLevel.ERROR)
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
 def transform_cota_hist_handler(event, context):
-    try:
-        logger.info(f'EVENT: {event}')
-        core = CotaHistTransformerCore()
-        for record in event['Records']:
-            logger.info(f'Processing record: {record}')
-            bucket = record['s3']['bucket']['name']
-            file_path = record['s3']['object']['key']
-            core.transform_cota_hist(bucket, file_path)
-    except Exception:
-        traceback.print_exc()
-        ShitNotifierClient().send(NotifyLevel.ERROR, 'MARKET-HISTORY',
-                                  f'TRANSFORM COTA HIST FAILED {traceback.format_exc()}')
+    logger.info(f"EVENT: {event}")
+    core = CotaHistTransformerCore()
+    for record in event["Records"]:
+        logger.info(f"Processing record: {record}")
+        bucket = record["s3"]["bucket"]["name"]
+        file_path = record["s3"]["object"]["key"]
+        core.transform_cota_hist(bucket, file_path)
 
 
+@notify_exception(Exception, notify_level=NotifyLevel.ERROR)
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
 def ibov_history_handler(event, context):
-    try:
-        logger.info(f'EVENT: {event}')
-        core = CotaHistTransformerCore()
-        core.update_ibov_history()
-    except Exception:
-        traceback.print_exc()
-        ShitNotifierClient().send(NotifyLevel.ERROR, 'MARKET-HISTORY',
-                                  f'IBOV HISTORY FAILED {traceback.format_exc()}')
+    logger.info(f"EVENT: {event}")
+    core = CotaHistTransformerCore()
+    core.update_ibov_history()
 
 
+@notify_exception(Exception, notify_level=NotifyLevel.ERROR)
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
 def download_current_monthly_cotahist_file(event, context):
-    logger.info(f'EVENT: {event}')
-    try:
-        core = CotaHistDownloaderCore()
-        core.download_current_monthly_file()
-    except Exception as e:
-        logger.exception('Exception on dowload urrent monthly cotahist file', e)
-        ShitNotifierClient().send(NotifyLevel.CRITICAL, 'MARKET-HISTORY',
-                                  f'MONTHLY COTAHIST FAILED {traceback.format_exc()}')
-
-
-def download_monthly_cotahist_file(event, context):
-    logger.info(f'EVENT: {event}')
-    body = JsonUtils.load(event['body'])
     core = CotaHistDownloaderCore()
-    core.download_monthly_file(body['year'], body['month'])
+    core.download_current_monthly_file()
+
+
+@notify_exception(Exception, notify_level=NotifyLevel.ERROR)
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
+def download_monthly_cotahist_file(event, context):
+    body = jsonutils.load(event["body"])
+    core = CotaHistDownloaderCore()
+    core.download_monthly_file(body["year"], body["month"])

@@ -1,11 +1,9 @@
 import logging
-import zipfile
 from datetime import datetime
 from decimal import Decimal
-from io import BytesIO, StringIO
+from io import BytesIO
 from itertools import groupby
 
-import requests
 from dateutil.relativedelta import relativedelta
 
 from adapters import B3CotaHistBucket, CotaHistRepository, TickerInfoRepository, IBOVFetcher, CotaHistDownloader
