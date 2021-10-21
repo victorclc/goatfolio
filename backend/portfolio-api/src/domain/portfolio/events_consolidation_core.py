@@ -18,7 +18,7 @@ class CorporateEventsConsolidationCore:
         self.investments = investments
         self.events_client = events
 
-    def check_for_applicable_corporate_events_handler(
+    def check_for_applicable_corporate_events(
         self,
         subject: str,
         investments: List[Investment],

@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from adapters.inbound import portfolio_core
+from adapters.inbound import portfolio_core, events_consolidated
 import goatcommons.utils.json as jsonutils
 from domain.common.investment_loader import load_model_by_type
 from domain.common.investments import (
@@ -61,7 +61,7 @@ def check_for_applicable_corporate_events_handler(event, context):
         if len(diffs) == 1 and "alias_ticker" in diffs:
             continue
 
-        portfolio_core.check_for_applicable_corporate_events(subject, [new, old])
+        events_consolidated.check_for_applicable_corporate_events(subject, [new, old])
 
 
 def get_investments_differences(
