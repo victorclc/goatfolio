@@ -77,7 +77,7 @@ class DynamoPortfolioRepository:
             FilterExpression=Attr("alias_ticker").eq(ticker),
         )
         if result["Items"]:
-            return [consolidated_type(**i) for i in result["Items"]]
+            return [consolidated_type(**{k: v for k, v in i.items() if k != "sk"}) for i in result["Items"]]
         logger.info(f"No alias {ticker} yet for subject: {subject}")
         return []
 

@@ -27,10 +27,10 @@ class CorporateEventsConsolidationCore:
         investments_map = groupby(
             sorted(investments, key=lambda i: i.ticker), key=lambda i: i.ticker
         )
-        logger.info(f"investments_map = {investments_map}")
         for ticker, investments in investments_map:
             investments = list(investments)
             oldest = min([i.date for i in investments])
+            logger.info(f"Processing {ticker}: {investments}")
 
             events = self.events_client.corporate_events_from_date(ticker, oldest)
             if not events:
