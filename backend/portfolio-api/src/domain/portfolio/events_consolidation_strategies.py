@@ -5,7 +5,12 @@ from typing import List, Type, Callable
 from dateutil.relativedelta import relativedelta
 
 
-from domain.common.investments import StockInvestment, OperationType, Investment
+from domain.common.investments import (
+    StockInvestment,
+    OperationType,
+    Investment,
+    InvestmentType,
+)
 from domain.portfolio.earnings_in_assets_event import EarningsInAssetCorporateEvent
 from domain.portfolio.event_type import EventType
 
@@ -35,6 +40,7 @@ def handle_split_event_strategy(
         broker="",
         subject=subject,
         id=_id,
+        type=InvestmentType.STOCK,
     )
     return [split_investment]
 
@@ -58,6 +64,7 @@ def handle_group_event_strategy(
         broker="",
         subject=subject,
         id=_id,
+        type=InvestmentType.STOCK,
     )
     return [group_investment]
 
@@ -84,6 +91,7 @@ def handle_incorporation_event_strategy(
             broker="",
             subject=subject,
             id=_id,
+            type=InvestmentType.STOCK,
         )
     elif factor < 1:
         incorp_investment = StockInvestment(
@@ -97,6 +105,7 @@ def handle_incorporation_event_strategy(
             broker="",
             subject=subject,
             id=_id,
+            type=InvestmentType.STOCK,
         )
     else:
         incorp_investment = StockInvestment(
@@ -109,11 +118,13 @@ def handle_incorporation_event_strategy(
             broker="",
             subject=subject,
             id=_id,
+            type=InvestmentType.STOCK,
         )
 
     for investment in investments:
         investment.alias_ticker = new_ticker
-    affected_investments = investments.copy().append(incorp_investment)
+    affected_investments = investments.copy()
+    affected_investments.append(incorp_investment)
 
     return affected_investments
 
