@@ -26,7 +26,7 @@ class PortfolioClient {
 
 
   Future<List<StockInvestment>> getInvestments() async {
-    String url = F.baseUrl + "portfolio/investments";
+    String url = F.baseUrl + "investments/investments";
     final Response response =
         await _client.get(Uri.parse(url), headers: {'Authorization': await accessToken});
 
@@ -42,7 +42,7 @@ class PortfolioClient {
   Future<StockInvestment> addStockInvestment(StockInvestment investment) async {
     final request = InvestmentRequest(type: 'STOCK', investment: investment);
     final response = await _client.post(Uri.parse(
-      F.baseUrl + "portfolio/investments/"),
+      F.baseUrl + "investments/investments/"),
       headers: {
         'Content-type': 'application/json',
         'Authorization': await accessToken
@@ -60,7 +60,7 @@ class PortfolioClient {
   Future<void> editStockInvestment(StockInvestment investment) async {
     final request = InvestmentRequest(type: 'STOCK', investment: investment);
     final response = await _client.put(
-      Uri.parse(F.baseUrl + "portfolio/investments/"),
+      Uri.parse(F.baseUrl + "investments/investments/"),
       headers: {
         'Content-type': 'application/json',
         'Authorization': await accessToken,
@@ -74,7 +74,7 @@ class PortfolioClient {
 
   Future<void> delete(StockInvestment investment) async {
     final response = await _client.delete(
-      Uri.parse(F.baseUrl + "portfolio/investments/" + investment.id!),
+      Uri.parse(F.baseUrl + "investments/investments/" + investment.id!),
       headers: {
         'Content-type': 'application/json',
         'Authorization': await accessToken
