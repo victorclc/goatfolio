@@ -39,6 +39,6 @@
     - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
     - Fn::Join:
         - ''
-        - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+        - - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
           - '/index/*'
 
