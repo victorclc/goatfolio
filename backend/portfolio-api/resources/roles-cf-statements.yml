@@ -29,4 +29,16 @@
     - ssm:GetParameters
     - ssm:DescribeParameters
   Resource: arn:aws:ssm:${self:provider.region}:*:parameter/corporate-events-api-key
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:PutItem
+    - dynamodb:DeleteItem
+    - dynamodb:BatchWriteItem
+  Resource:
+    - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+    - Fn::Join:
+        - ''
+        - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+          - '/index/*'
 

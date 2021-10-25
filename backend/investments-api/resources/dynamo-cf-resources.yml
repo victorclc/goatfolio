@@ -37,3 +37,9 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
+Outputs:
+  InvestmentsTableArnOutput:
+    Value:
+      Fn::GetAtt: [ InvestmentsTable, Arn ]
+    Export:
+      Name: ${self:provider.stage}-InvestmentsTableArnOutput
