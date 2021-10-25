@@ -27,11 +27,17 @@ class CorporateEventsConsolidationCore:
         investments_map = groupby(
             sorted(investments, key=lambda i: i.ticker), key=lambda i: i.ticker
         )
+        logger.info(f"investments_map = {investments_map}")
         for ticker, investments in investments_map:
             investments = list(investments)
             oldest = min([i.date for i in investments])
 
             events = self.events_client.corporate_events_from_date(ticker, oldest)
+            if not events:
+                logger.info(
+                    f"No applicable event for {ticker} on {oldest.strftime('%Y-%m-%d')}"
+                )
+                continue
 
             all_ticker_investments = self.investments.find_by_subject_and_ticker(
                 subject, ticker
@@ -44,9 +50,11 @@ class CorporateEventsConsolidationCore:
                         all_ticker_investments,
                     )
                 )
+                logger.info(f"len(affected_investment) is {len(affected_investments)}")
 
                 new_investments = handle_event_strategy(
                     subject, ticker, event, list(affected_investments)
                 )
+                logger.info(f"new_investments: {new_investments}")
                 if new_investments:
                     self.investments.batch_save(new_investments)
