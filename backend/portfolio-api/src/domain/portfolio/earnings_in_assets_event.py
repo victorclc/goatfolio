@@ -10,14 +10,12 @@ from domain.portfolio.event_type import EventType
 class EarningsInAssetCorporateEvent:
     type: EventType
     isin_code: str
-    ticker: str
     deliberate_on: dt.date
     with_date: dt.date
     grouping_factor: Decimal
     emitted_asset: str
     emitted_ticker: str
     observations: str
-    factor: Decimal
     id: Optional[str] = None
 
     @property
