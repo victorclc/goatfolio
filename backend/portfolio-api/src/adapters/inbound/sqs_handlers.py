@@ -11,6 +11,8 @@ from domain.common.investments import (
 )
 from aws_lambda_powertools import Logger, Tracer
 
+import domain.portfolio.events_consolidation_strategies as strategy
+
 logger = Logger()
 tracer = Tracer()
 
@@ -61,7 +63,9 @@ def check_for_applicable_corporate_events_handler(event, context):
         if len(diffs) == 1 and "alias_ticker" in diffs:
             continue
 
-        events_consolidated.check_for_applicable_corporate_events(subject, [new, old])
+        events_consolidated.check_for_applicable_corporate_events(
+            subject, [new, old], strategy.handle_earning_in_assets_event
+        )
 
 
 def get_investments_differences(
