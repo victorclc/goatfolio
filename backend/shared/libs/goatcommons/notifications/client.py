@@ -4,7 +4,7 @@ import boto3
 from boto3.dynamodb.conditions import Key
 
 from goatcommons.notifications.models import NotificationRequest, NotificationMessageRequest
-from goatcommons.utils import JsonUtils
+import goatcommons.utils.json as jsonutils
 
 
 class PushNotificationsClient:
@@ -18,7 +18,7 @@ class PushNotificationsClient:
             self.send(NotificationRequest(subject, message.title, message.message))
 
     def send(self, request: NotificationRequest):
-        self._queue.send_message(MessageBody=JsonUtils.dump(asdict(request)))
+        self._queue.send_message(MessageBody=jsonutils.dump(asdict(request)))
 
     def fetch_notification_message_config(self, message_key):
         result = self.__table.query(KeyConditionExpression=Key('message_key').eq(message_key))
