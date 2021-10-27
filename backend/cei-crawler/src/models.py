@@ -60,7 +60,6 @@ class OperationType(Enum):
 @dataclass
 class StockInvestment:
     subject: str
-    id: str
     date: dt.date
     type: InvestmentType
     operation: OperationType
@@ -69,6 +68,7 @@ class StockInvestment:
     amount: Decimal
     price: Decimal
     costs: Decimal = field(default_factory=lambda: Decimal(0))
+    id: str = ""
     alias_ticker: str = ""
     external_system: str = ""
 

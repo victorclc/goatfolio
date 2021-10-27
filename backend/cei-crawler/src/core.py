@@ -12,17 +12,25 @@ from event_notifier.client import ShitNotifierClient
 from event_notifier.models import NotifyLevel
 from exceptions import LoginError
 from lessmium.webdriver import LessmiumDriver
-from models import CEICrawRequest, CEICrawResult, StockInvestment
+from models import (
+    CEICrawRequest,
+    CEICrawResult,
+    StockInvestment,
+    InvestmentType,
+    OperationType,
+)
 from pages import LoginPage
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
+)
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
 class CEICrawlerCore:
     LOGIN_URL = os.getenv("LOGIN_URL")
-    EXTRACT_DATE_FORMAT = '%d/%m/%Y'
+    EXTRACT_DATE_FORMAT = "%d/%m/%Y"
 
     def __init__(self, queue=None):
         self._driver = None
@@ -39,25 +47,35 @@ class CEICrawlerCore:
     def craw_all_extract(self, request: CEICrawRequest):
         response = CEICrawResult(subject=request.subject, datetime=request.datetime)
         try:
-            login_page = LoginPage(self.driver, request.credentials.tax_id, request.credentials.password)
+            login_page = LoginPage(
+                self.driver, request.credentials.tax_id, request.credentials.password
+            )
             home_page = login_page.login()
             extract_page = home_page.go_to_extract_page()
 
-            investments = self._extract_to_investments(request.subject, extract_page.get_all_brokers_extract())
+            investments = self._extract_to_investments(
+                request.subject, extract_page.get_all_brokers_extract()
+            )
             inquiry_page = home_page.go_to_asset_inquiry_page()
             assets_quantity = inquiry_page.get_assets_quantity()
 
             response.status = ImportStatus.SUCCESS
-            response.payload = {'investments': investments, 'assets_quantities': assets_quantity}
+            response.payload = {
+                "investments": [i.to_dict() for i in investments],
+                "assets_quantities": assets_quantity,
+            }
         except LoginError as e:
-            logger.exception('Invalid login credentials')
+            logger.exception("Invalid login credentials")
             response.status = ImportStatus.ERROR
             response.login_error = True
             response.payload = jsonutils.dump({"error_message": str(e)})
         except Exception as e:
             traceback.print_exc()
-            ShitNotifierClient().send(NotifyLevel.ERROR, 'CEI-CRAWLER',
-                                      f'CRAW ALL EXTRACT FAILED {traceback.format_exc()}')
+            ShitNotifierClient().send(
+                NotifyLevel.ERROR,
+                "CEI-CRAWLER",
+                f"CRAW ALL EXTRACT FAILED {traceback.format_exc()}",
+            )
             response.status = ImportStatus.ERROR
             response.payload = jsonutils.dump({"error_message": str(e)})
         self.queue.send(response)
@@ -70,15 +88,23 @@ class CEICrawlerCore:
     def _extract_to_investments(self, subject, extract):
         investments = []
         for investment in extract:
-            if not investment['quantidade']:
+            if not investment["quantidade"]:
                 continue
-            s = StockInvestment(type='STOCK',
-                                operation='BUY' if investment['compra_venda'] == 'C' else 'SELL',
-                                ticker=re.sub('F$', '', investment['codigo_negociacao']),
-                                amount=Decimal(investment['quantidade']),
-                                price=Decimal(investment['preco']),
-                                date=datetime.strptime(investment['data_do_negocio'], self.EXTRACT_DATE_FORMAT),
-                                broker=investment['corretora'], external_system='CEI', subject=subject)
+            s = StockInvestment(
+                type=InvestmentType.STOCK,
+                operation=OperationType.BUY
+                if investment["compra_venda"] == "C"
+                else OperationType.SELL,
+                ticker=re.sub("F$", "", investment["codigo_negociacao"]),
+                amount=Decimal(investment["quantidade"]),
+                price=Decimal(investment["preco"]),
+                date=datetime.strptime(
+                    investment["data_do_negocio"], self.EXTRACT_DATE_FORMAT
+                ),
+                broker=investment["corretora"],
+                external_system="CEI",
+                subject=subject,
+            )
             s.id = self._generate_id(s)
             investments.append(s)
         return investments
