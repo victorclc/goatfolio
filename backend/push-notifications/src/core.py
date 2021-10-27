@@ -1,22 +1,33 @@
 import logging
 
 import firebase_admin
-from firebase_admin.messaging import APNSConfig, APNSPayload, Aps, Notification, MulticastMessage, send_multicast
+from firebase_admin.messaging import (
+    APNSConfig,
+    APNSPayload,
+    Aps,
+    Notification,
+    MulticastMessage,
+    send_multicast,
+)
 
 from adapters import NotificationTokensRepository
 from goatcommons.configuration.system_manager import ConfigurationClient
 from goatcommons.notifications.models import NotificationRequest
-from goatcommons.utils import JsonUtils
+import goatcommons.utils.json as jsonutils
 from models import UserTokens
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
+)
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
 class PushNotificationCore:
     def __init__(self):
-        certificate = JsonUtils.load(ConfigurationClient().get_secret('firebase-credentials'))
+        certificate = jsonutils.load(
+            ConfigurationClient().get_secret("firebase-credentials")
+        )
         cred = firebase_admin.credentials.Certificate(certificate)
         firebase_admin.initialize_app(cred)
         self.token_repo = NotificationTokensRepository()
@@ -26,17 +37,21 @@ class PushNotificationCore:
         assert request.message
         user_tokens = self.token_repo.find_user_tokens(request.subject)
         if not user_tokens:
-            logger.info(f'No token available for subject {request.subject}')
+            logger.info(f"No token available for subject {request.subject}")
             return
 
         notification = Notification(request.title, request.message)
         apns_config = APNSConfig(payload=APNSPayload(Aps(content_available=True)))
-        message = MulticastMessage(tokens=user_tokens.tokens, notification=notification, apns=apns_config)
+        message = MulticastMessage(
+            tokens=user_tokens.tokens, notification=notification, apns=apns_config
+        )
 
         send_multicast(message)
 
-    def register_token(self, subject, token):
+    def register_token(self, subject, token: str, old_token: str):
         user_tokens = self.token_repo.find_user_tokens(subject) or UserTokens(subject)
+        if old_token:
+            user_tokens.tokens.remove(old_token)
         user_tokens.tokens.append(token)
         user_tokens.tokens = list(set(user_tokens.tokens))
         self.token_repo.save(user_tokens)
