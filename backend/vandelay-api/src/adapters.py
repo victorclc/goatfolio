@@ -61,11 +61,11 @@ class PortfolioClient:
         self.lambda_client = boto3.client('lambda')
 
     def batch_save(self, investments):
-        url = f'https://{self.BASE_API_URL}/portfolio/investments/batch'
+        url = f'https://{self.BASE_API_URL}/investments/investments/batch'
         body = list(
-            map(lambda i: asdict(InvestmentRequest(type=InvestmentType.STOCK, investment=asdict(i))), investments))
+            map(lambda i: InvestmentRequest(type=InvestmentType.STOCK, investment=i.to_dict()).to_dict(), investments))
         response = requests.post(url, data=jsonutils.dump(body),
-                                 headers={'x-api-key': ConfigurationClient().get_secret('portfolio-api-key')})
+                                 headers={'x-api-key': ConfigurationClient().get_secret('investments-api-key')})
 
         if response.status_code != HTTPStatus.OK:
             logger.error(f'Batch save failed: {response}')
