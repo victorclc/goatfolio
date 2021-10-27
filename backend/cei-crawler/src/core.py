@@ -2,21 +2,17 @@ import logging
 import os
 import re
 import traceback
-import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from selenium import webdriver
-
+import goatcommons.utils.json as jsonutils
 from adapters import CEIResultQueue
 from constants import ImportStatus
+from event_notifier.client import ShitNotifierClient
+from event_notifier.models import NotifyLevel
 from exceptions import LoginError
-from goatcommons.models import StockInvestment
-from goatcommons.shit.client import ShitNotifierClient
-from goatcommons.shit.models import NotifyLevel
-from goatcommons.utils import JsonUtils
 from lessmium.webdriver import LessmiumDriver
-from models import CEICrawRequest, CEICrawResult
+from models import CEICrawRequest, CEICrawResult, StockInvestment
 from pages import LoginPage
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(funcName)s %(levelname)-s: %(message)s')
@@ -57,13 +53,13 @@ class CEICrawlerCore:
             logger.exception('Invalid login credentials')
             response.status = ImportStatus.ERROR
             response.login_error = True
-            response.payload = JsonUtils.dump({"error_message": str(e)})
+            response.payload = jsonutils.dump({"error_message": str(e)})
         except Exception as e:
             traceback.print_exc()
             ShitNotifierClient().send(NotifyLevel.ERROR, 'CEI-CRAWLER',
                                       f'CRAW ALL EXTRACT FAILED {traceback.format_exc()}')
             response.status = ImportStatus.ERROR
-            response.payload = JsonUtils.dump({"error_message": str(e)})
+            response.payload = jsonutils.dump({"error_message": str(e)})
         self.queue.send(response)
         self._cleanup()
 
