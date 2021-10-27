@@ -21,6 +21,7 @@ package:
   include:
     - ../shared/libs/goatcommons/**
     - ../shared/libs/lessmium/**
+    - ../shared/libs/event_notifier/**
 
 plugins:
   - serverless-python-requirements
