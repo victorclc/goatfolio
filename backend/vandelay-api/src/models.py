@@ -53,6 +53,12 @@ class StockInvestment:
             self.operation = OperationType.from_string(self.operation)
         if isinstance(self.type, str):
             self.type = InvestmentType.from_string(self.type)
+        if not isinstance(self.amount, Decimal):
+            self.amount = Decimal(self.amount).quantize(Decimal("0.01"))
+        if not isinstance(self.price, Decimal):
+            self.price = Decimal(self.price).quantize(Decimal("0.01"))
+        if not isinstance(self.costs, Decimal):
+            self.costs = Decimal(self.costs).quantize(Decimal("0.01"))
 
     def to_dict(self):
         return {
@@ -61,14 +67,6 @@ class StockInvestment:
             "operation": self.operation.value,
             "type": self.type.value,
         }
-
-    def __post_init__(self):
-        if not isinstance(self.amount, Decimal):
-            self.amount = Decimal(self.amount).quantize(Decimal("0.01"))
-        if not isinstance(self.price, Decimal):
-            self.price = Decimal(self.price).quantize(Decimal("0.01"))
-        if not isinstance(self.costs, Decimal):
-            self.costs = Decimal(self.costs).quantize(Decimal("0.01"))
 
     @property
     def current_ticker_name(self):
@@ -111,6 +109,9 @@ class Import:
 class InvestmentRequest:
     type: InvestmentType
     investment: dict
+
+    def to_dict(self):
+        return {**self.__dict__, "type": self.type.value}
 
 
 @dataclass
