@@ -67,9 +67,9 @@ packages:
   charts_flutter:
     dependency: "direct main"
     description:
-      name: charts_flutter
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "packages/charts/charts_flutter"
+      relative: true
+    source: path
     version: "0.11.0"
   clock:
     dependency: transitive
