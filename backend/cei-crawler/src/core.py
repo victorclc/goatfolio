@@ -64,7 +64,7 @@ class CEICrawlerCore:
         self._cleanup()
 
     def _cleanup(self):
-        # fixed a weird bug where lambda used the exact same instance  of this class on the next processing
+        # fixed a weird bug where lambda used the exact same instance of this class on the next processing
         self.identifiers = set()
 
     def _extract_to_investments(self, subject, extract):
