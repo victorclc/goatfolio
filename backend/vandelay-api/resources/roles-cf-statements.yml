@@ -33,7 +33,7 @@
     - ssm:GetParameter
     - ssm:GetParameters
     - ssm:DescribeParameters
-  Resource: arn:aws:ssm:${self:provider.region}:*:parameter/portfolio-api-key
+  Resource: arn:aws:ssm:${self:provider.region}:*:parameter/investments-api-key
 - Effect: Allow
   Action:
     - dynamodb:Query
