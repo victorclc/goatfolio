@@ -21,7 +21,7 @@ package:
   include:
     - ../shared/libs/goatcommons/**
     - ../shared/libs/brutils/**
-    - ../shared/libs/investments/**
+    - ../shared/libs/event_notifier/**
 
 plugins:
   - serverless-domain-manager
