@@ -10,6 +10,7 @@ POST vandelay/cei
   ```json
   {
     "tax_id":"cei_tax_id",
-    "password":"cei_password",
+    "password":"cei_password"
   }
   ```
+
