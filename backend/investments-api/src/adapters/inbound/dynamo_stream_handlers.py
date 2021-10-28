@@ -29,7 +29,7 @@ def publish_investment_update_handler(event, context):
             old = load_model_by_type(InvestmentType(i["type"]), i, generate_id=False)
 
         investment_core.publish_investment_update(
-            dynamo_record["Keys"]["subject"],
+            dynamo_record["Keys"]["subject"]["S"],
             int(dynamo_record["ApproximateCreationDateTime"]),
             new,
             old,
