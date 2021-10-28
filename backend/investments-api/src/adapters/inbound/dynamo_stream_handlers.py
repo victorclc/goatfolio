@@ -12,8 +12,8 @@ tracer = Tracer()
 
 
 @notify_exception(Exception, NotifyLevel.CRITICAL)
-# @logger.inject_lambda_context(log_event=True)
-# @tracer.capture_lambda_handler
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
 def publish_investment_update_handler(event, context):
     deserializer = TypeDeserializer()
     for record in event["Records"]:
