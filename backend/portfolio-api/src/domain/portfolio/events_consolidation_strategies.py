@@ -130,7 +130,7 @@ def handle_incorporation_event_strategy(
 
 
 def create_id_from_corp_event(ticker, event):
-    return f"{ticker}{event.type}{event.deliberate_on.strftime('%Y%m%d')}{event.with_date.strftime('%Y%m%d')}{event.emitted_asset}"
+    return f"STOCK#{ticker}#{event.type.value}{event.deliberate_on.strftime('%Y%m%d')}{event.with_date.strftime('%Y%m%d')}{event.emitted_asset}"
 
 
 def affected_investments_amount(affected_investments):
