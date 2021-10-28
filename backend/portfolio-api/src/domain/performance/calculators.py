@@ -106,7 +106,9 @@ class StockGroupPositionCalculator(GroupSummaryCalculator):
         self._bdrs_summary: Optional[BDRsPositionSummary] = None
 
     def initialize(self, summaries_dict: Dict[str, StockSummary]):
-        active_tickers = [stock for stock, summary in summaries_dict.items()]
+        active_tickers = [
+            stock for stock, summary in summaries_dict.items() if summary.is_active()
+        ]
         self._intraday_dict: Dict[
             str, IntradayInfo
         ] = self.intraday.batch_get_intraday_info(active_tickers)
@@ -154,7 +156,10 @@ class StockGroupPositionCalculator(GroupSummaryCalculator):
         self.initialize(summaries_dict)
 
         for ticker, summary in summaries_dict.items():
-            info = self.create_stock_info(ticker, summary)
+            if summary.is_active():
+                info = self.create_stock_info(ticker, summary)
+            else:
+                info = self.create_inactive_stock_info(ticker, summary)
 
             subtype = self.get_subtype_of_ticker(ticker)
 
