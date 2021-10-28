@@ -115,7 +115,7 @@ class CEICrawlerCore:
 
         while not _id or _id in self.identifiers:
             counter = counter + 1
-            _id = f'CEI{s.ticker}{int(s.date.timestamp())}{s.amount}{str(s.price).replace(".", "")}{counter}'
+            _id = f'STOCK#{s.ticker}#CEI{int(s.date.timestamp())}{s.amount}{str(s.price).replace(".", "")}{counter}'
         self.identifiers.add(_id)
         return _id
 
