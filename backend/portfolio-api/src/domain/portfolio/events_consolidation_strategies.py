@@ -153,10 +153,14 @@ def handle_earning_in_assets_event(
     event: EarningsInAssetCorporateEvent,
     investments: List[StockInvestment],
 ) -> List[StockInvestment]:
-    if event.type == EventType.SPLIT:
-        return handle_split_event_strategy(subject, ticker, event, investments)
-    if event.type == EventType.GROUP:
-        return handle_group_event_strategy(subject, ticker, event, investments)
-    if EventType.INCORPORATION:
-        return handle_incorporation_event_strategy(subject, ticker, event, investments)
+    amount = affected_investments_amount(investments)
+    if amount > 0:
+        if event.type == EventType.SPLIT:
+            return handle_split_event_strategy(subject, ticker, event, investments)
+        if event.type == EventType.GROUP:
+            return handle_group_event_strategy(subject, ticker, event, investments)
+        if EventType.INCORPORATION:
+            return handle_incorporation_event_strategy(
+                subject, ticker, event, investments
+            )
     return []
