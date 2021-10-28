@@ -81,11 +81,7 @@ functions:
     handler: src/adapters/inbound/api_gateway_handlers.delete_investment_handler
     events:
       - http:
-          path: investments/{investmentid}
-          request:
-            parameters:
-              paths:
-                investmentid: true
+          path: investments/
           method: delete
           authorizer:
             type: COGNITO_USER_POOLS

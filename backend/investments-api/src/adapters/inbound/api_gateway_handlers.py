@@ -6,6 +6,7 @@ from adapters.inbound import investment_core
 
 from aws_lambda_powertools import Logger, Tracer
 
+from domain.exceptions import FieldMissingError
 from domain.investment_loader import MissingRequiredFields
 from domain.investment_request import InvestmentRequest
 
@@ -64,11 +65,11 @@ def edit_investment_handler(event, context):
 def delete_investment_handler(event, context):
     try:
         subject = awsutils.get_event_subject(event)
-        investment_id = awsutils.get_path_param(event, "investmentid")
+        investment_id = jsonutils.load(event["body"])['investment_id']
 
         investment_core.delete(subject, investment_id)
         return {"statusCode": 200, "body": jsonutils.dump({"message": "Success"})}
-    except AssertionError as ex:
+    except FieldMissingError as ex:
         traceback.print_exc()
         return {
             "statusCode": HTTPStatus.BAD_REQUEST,
