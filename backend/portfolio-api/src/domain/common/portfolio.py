@@ -43,10 +43,11 @@ class Portfolio(PortfolioItem):
     def update_summary(self, consolidated: InvestmentConsolidated):
         self.initial_date = min(self.initial_date, consolidated.initial_date)
         summary = consolidated.export_investment_summary()
-        if not summary:
-            return
 
         if isinstance(consolidated, StockConsolidated):
+            if not summary:
+                self.stocks.pop(consolidated.current_ticker_name())
+                return
             if consolidated.alias_ticker and self.stocks.get(consolidated.ticker):
                 self.stocks.pop(consolidated.ticker)
             self.stocks[consolidated.current_ticker_name()] = summary
