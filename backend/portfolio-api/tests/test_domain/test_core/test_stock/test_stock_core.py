@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 from dateutil.relativedelta import relativedelta
 
-from domain.stock.stock_core import StockCore
+from domain.stock_average.stock_core import StockCore
 from domain.common.investments import InvestmentType, OperationType, StockInvestment
 from domain.common.investment_consolidated import StockConsolidated
 from domain.performance.ticker_transformation import TickerTransformation

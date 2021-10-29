@@ -2,6 +2,7 @@ from typing import Protocol, Optional, List, Type, ClassVar
 
 from domain.common.investment_consolidated import InvestmentConsolidated
 from domain.common.portfolio import Portfolio, StockConsolidated, PortfolioItem
+from domain.stock_average.assets_quantities import AssetQuantities
 
 
 class PortfolioRepository(Protocol):
@@ -32,3 +33,6 @@ class PortfolioRepository(Protocol):
 
     def save(self, items: PortfolioItem):
         """Persist a  PortfolioItems object"""
+
+    def find_asset_quantities(self, subject: str) -> Optional[AssetQuantities]:
+        """Finds the asset quantities object (if exists)"""

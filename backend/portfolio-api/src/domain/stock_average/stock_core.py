@@ -1,9 +1,16 @@
+import datetime
 import datetime as dt
 from decimal import Decimal
+from typing import List, Optional
 from uuid import uuid4
 
+from dateutil.relativedelta import relativedelta
+
 from domain.common.investment_consolidated import StockConsolidated
+from domain.common.investment_summary import StockSummary
 from domain.common.investments import OperationType, StockInvestment, InvestmentType
+from domain.common.portfolio import Portfolio
+from domain.stock_average.assets_quantities import AssetQuantities
 from ports.outbound.investment_repository import InvestmentRepository
 from ports.outbound.portfolio_repository import PortfolioRepository
 from ports.outbound.corporate_events_client import (
@@ -23,6 +30,56 @@ class StockCore:
         self.portfolio = portfolio
         self.investments = investments
         self.transformation_client = transformation_client
+
+    def save_asset_quantities(self, subject: str, asset_quantities: dict):
+        asset = AssetQuantities(subject=subject, asset_quantities=asset_quantities)
+        self.portfolio.save(asset)
+
+    def get_stock_divergences(self, subject: str) -> List[dict]:
+        asset = self.portfolio.find_asset_quantities(subject)
+        if not asset:
+            return []
+        portfolio = self.portfolio.find(subject)
+
+        pendencies = []
+        for ticker, expected_amount in asset.asset_quantities.items():
+            if ticker in portfolio.stocks:
+                summary = self.get_stock_summary_of_ticker(ticker, portfolio)
+                if not summary:
+                    pendencies.append(
+                        {
+                            "ticker": ticker,
+                            "expected_amount": expected_amount,
+                            "actual_amount": 0,
+                        }
+                    )
+                else:
+
+                    if expected_amount != summary.latest_position.amount:
+                        pendencies.append(
+                            {
+                                "ticker": ticker,
+                                "expected_amount": expected_amount,
+                                "actual_amount": summary.latest_position.amount,
+                            }
+                        )
+
+        return pendencies
+
+    def get_stock_summary_of_ticker(
+        self, ticker: str, portfolio: Portfolio
+    ) -> Optional[StockSummary]:
+        if ticker in portfolio.stocks:
+            return portfolio.get_stock_summary(ticker)
+        for _, summary in portfolio.stocks.items():
+            if ticker == summary.alias_ticker:
+                return summary
+
+        transformation = self.transformation_client.get_ticker_transformation(
+            ticker, (datetime.datetime.now() - relativedelta(months=18)).date()
+        )
+        if transformation.ticker in portfolio.stocks:
+            return portfolio.get_stock_summary(transformation.ticker)
 
     def average_price_fix(
         self,

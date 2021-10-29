@@ -14,7 +14,7 @@ from domain.performance.performance_core import PerformanceCore
 from domain.corporate_events import CorporateEventsConsolidationCore
 from domain.investments.investment_consolidation_strategies import StockConsolidationStrategy
 from domain.investments.investment_consolidation_core import InvestmentConsolidationCore
-from domain.stock.stock_core import StockCore
+from domain.stock_average.stock_core import StockCore
 from domain.common.investments import InvestmentType
 
 investment_repo = DynamoInvestmentRepository()

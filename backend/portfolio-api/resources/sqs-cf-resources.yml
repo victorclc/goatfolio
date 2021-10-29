@@ -87,3 +87,28 @@ Resources:
               ArnEquals:
                 "aws:SourceArn":
                   'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
+
+  CEIInfoIntegrationQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "CEIInfoIntegrationQueueDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+      QueueName: CEIInfoIntegration
+      VisibilityTimeout: 60
+
+  CEIInfoIntegrationQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: CEIInfoIntegrationDLQ
+
+Outputs:
+  CEIInfoIntegrationQueueArnOutput:
+    Value:
+      Fn::GetAtt: [ CEIInfoIntegrationQueue, Arn ]
+    Export:
+      Name: ${self:provider.stage}-CEIInfoIntegrationQueueArnOutput
+
