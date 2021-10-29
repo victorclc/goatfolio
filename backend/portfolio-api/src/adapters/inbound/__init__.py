@@ -11,7 +11,7 @@ from domain.performance.calculators import (
 )
 from domain.performance.historical_consolidators import StockHistoryConsolidator
 from domain.performance.performance_core import PerformanceCore
-from domain.corporate_events import CorporateEventsConsolidationCore
+from domain.corporate_events.events_consolidation_core import CorporateEventsConsolidationCore
 from domain.investments.investment_consolidation_strategies import StockConsolidationStrategy
 from domain.investments.investment_consolidation_core import InvestmentConsolidationCore
 from domain.stock_average.stock_core import StockCore

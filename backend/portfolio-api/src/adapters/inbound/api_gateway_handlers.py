@@ -76,6 +76,15 @@ def fix_average_price_handler(event, context):
     return {"statusCode": 200, "body": jsonutils.dump(investment.to_json())}
 
 
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
+def get_stock_divergences_handler(event, context):
+    subject = awsutils.get_event_subject(event)
+
+    divergences = stock_core.get_stock_divergences(subject)
+    return {"statusCode": 200, "body": jsonutils.dump(divergences)}
+
+
 def main():
     subject = "41e4a793-3ef5-4413-82e2-80919bce7c1a"
     # result = stock_core.average_price_fix(
@@ -89,7 +98,7 @@ def main():
     #     },
     # )
     # print(result)
-    print(performance_core.portfolio_history_chart(subject))
+    print(jsonutils.dump(stock_core.get_stock_divergences(subject)))
 
 
 if __name__ == "__main__":

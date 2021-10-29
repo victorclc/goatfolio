@@ -68,6 +68,18 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+
+  stockDivergences:
+    handler: src/adapters/inbound/api_gateway_handlers.get_stock_divergences_handler
+    events:
+      - http:
+          path: stock/divergences
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
   saveCeiAssetQuantities:
     handler: src/adapters/inbound/sqs_handlers.persist_cei_asset_quantities_handler
     events:

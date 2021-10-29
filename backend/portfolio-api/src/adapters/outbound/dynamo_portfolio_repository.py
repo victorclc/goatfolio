@@ -74,7 +74,9 @@ class DynamoPortfolioRepository:
             & Key("sk").begins_with(f"STOCKQUANTITIES#")
         )
         if result["Items"]:
-            return AssetQuantities(**result["Items"][0])
+            return AssetQuantities(
+                **{k: v for k, v in result["Items"][0].items() if k != "sk"}
+            )
         logger.info(f"No Asset quantities for subject: {subject}")
 
     def find_alias_ticker(

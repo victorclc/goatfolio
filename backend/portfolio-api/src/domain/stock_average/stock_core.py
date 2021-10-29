@@ -43,26 +43,25 @@ class StockCore:
 
         pendencies = []
         for ticker, expected_amount in asset.asset_quantities.items():
-            if ticker in portfolio.stocks:
-                summary = self.get_stock_summary_of_ticker(ticker, portfolio)
-                if not summary:
+            summary = self.get_stock_summary_of_ticker(ticker, portfolio)
+            if not summary:
+                pendencies.append(
+                    {
+                        "ticker": ticker,
+                        "expected_amount": expected_amount,
+                        "actual_amount": 0,
+                    }
+                )
+            else:
+
+                if expected_amount != summary.latest_position.amount:
                     pendencies.append(
                         {
                             "ticker": ticker,
                             "expected_amount": expected_amount,
-                            "actual_amount": 0,
+                            "actual_amount": summary.latest_position.amount,
                         }
                     )
-                else:
-
-                    if expected_amount != summary.latest_position.amount:
-                        pendencies.append(
-                            {
-                                "ticker": ticker,
-                                "expected_amount": expected_amount,
-                                "actual_amount": summary.latest_position.amount,
-                            }
-                        )
 
         return pendencies
 
