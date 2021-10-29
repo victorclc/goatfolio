@@ -57,17 +57,6 @@ functions:
           arn:
             'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
 
-  getCEIInfo:
-    handler: src/handlers.cei_info_request_handler
-    events:
-      - http:
-          path: cei/info
-          method: get
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
-
   getImportStatus:
     handler: src/handlers.import_status_handler
     events:
