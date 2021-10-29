@@ -11,10 +11,10 @@ from domain.performance.calculators import (
 )
 from domain.performance.historical_consolidators import StockHistoryConsolidator
 from domain.performance.performance_core import PerformanceCore
-from domain.portfolio.events_consolidation_core import CorporateEventsConsolidationCore
-from domain.portfolio.investment_consolidation_strategies import StockConsolidationStrategy
-from domain.portfolio.investment_consolidation_core import InvestmentConsolidationCore
-from domain.stock.stock_core import StockCore
+from domain.corporate_events.events_consolidation_core import CorporateEventsConsolidationCore
+from domain.investments.investment_consolidation_strategies import StockConsolidationStrategy
+from domain.investments.investment_consolidation_core import InvestmentConsolidationCore
+from domain.stock_average.stock_core import StockCore
 from domain.common.investments import InvestmentType
 
 investment_repo = DynamoInvestmentRepository()

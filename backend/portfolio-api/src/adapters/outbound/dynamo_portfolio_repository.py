@@ -10,6 +10,7 @@ from domain.common.portfolio import (
     PortfolioItem,
     InvestmentConsolidated,
 )
+from domain.stock_average.assets_quantities import AssetQuantities
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
@@ -28,7 +29,9 @@ class DynamoPortfolioRepository:
             & Key("sk").eq("PORTFOLIO#")
         )
         if result["Items"]:
-            return Portfolio(**{k: v for k, v in result["Items"][0].items() if k != "sk"})
+            return Portfolio(
+                **{k: v for k, v in result["Items"][0].items() if k != "sk"}
+            )
         logger.info(f"No Portfolio yet for subject: {subject}")
 
     def find_all(self, subject) -> (Portfolio, [InvestmentConsolidated]):
@@ -44,7 +47,7 @@ class DynamoPortfolioRepository:
             sk = item.pop("sk")
             if sk == "PORTFOLIO#":
                 portfolio = Portfolio(**item)
-            else:
+            if sk == "TICKER#":
                 stock_consolidated.append(StockConsolidated(**item))
         return portfolio, stock_consolidated
 
@@ -65,6 +68,17 @@ class DynamoPortfolioRepository:
             ]
         logger.info(f"No {ticker} yet for subject: {subject}")
 
+    def find_asset_quantities(self, subject: str) -> Optional[AssetQuantities]:
+        result = self._portfolio_table.query(
+            KeyConditionExpression=Key("subject").eq(subject)
+            & Key("sk").begins_with(f"STOCKQUANTITIES#")
+        )
+        if result["Items"]:
+            return AssetQuantities(
+                **{k: v for k, v in result["Items"][0].items() if k != "sk"}
+            )
+        logger.info(f"No Asset quantities for subject: {subject}")
+
     def find_alias_ticker(
         self,
         subject: str,
@@ -77,7 +91,10 @@ class DynamoPortfolioRepository:
             FilterExpression=Attr("alias_ticker").eq(ticker),
         )
         if result["Items"]:
-            return [consolidated_type(**{k: v for k, v in i.items() if k != "sk"}) for i in result["Items"]]
+            return [
+                consolidated_type(**{k: v for k, v in i.items() if k != "sk"})
+                for i in result["Items"]
+            ]
         logger.info(f"No alias {ticker} yet for subject: {subject}")
         return []
 

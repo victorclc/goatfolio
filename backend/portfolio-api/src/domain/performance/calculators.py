@@ -106,7 +106,9 @@ class StockGroupPositionCalculator(GroupSummaryCalculator):
         self._bdrs_summary: Optional[BDRsPositionSummary] = None
 
     def initialize(self, summaries_dict: Dict[str, StockSummary]):
-        active_tickers = [stock for stock, summary in summaries_dict.items()]
+        active_tickers = [
+            stock for stock, summary in summaries_dict.items() if summary.is_active()
+        ]
         self._intraday_dict: Dict[
             str, IntradayInfo
         ] = self.intraday.batch_get_intraday_info(active_tickers)
@@ -120,17 +122,7 @@ class StockGroupPositionCalculator(GroupSummaryCalculator):
             quantity=summary.latest_position.amount,
             average_price=summary.latest_position.average_price,
             last_price=self._intraday_dict[ticker].current_price,
-            invested_value=summary.latest_position.invested_value,
-        )
-
-    @staticmethod
-    def create_inactive_stock_info(ticker: str, summary: StockSummary) -> StockItemInfo:
-        return StockItemInfo(
-            ticker=ticker,
-            quantity=summary.latest_position.amount,
-            average_price=summary.latest_position.average_price,
-            last_price=Decimal(0),
-            invested_value=summary.latest_position.invested_value,
+            invested_value=summary.latest_position.invested_value
         )
 
     def get_subtype_of_ticker(self, ticker) -> StockSubtype:
@@ -154,8 +146,9 @@ class StockGroupPositionCalculator(GroupSummaryCalculator):
         self.initialize(summaries_dict)
 
         for ticker, summary in summaries_dict.items():
+            if not summary.is_active():
+                continue
             info = self.create_stock_info(ticker, summary)
-
             subtype = self.get_subtype_of_ticker(ticker)
 
             if subtype == StockSubtype.REIT:

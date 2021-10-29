@@ -5,7 +5,7 @@ from decimal import Decimal
 from unittest.mock import MagicMock
 
 from domain.common.investments import StockInvestment, InvestmentType, OperationType
-from domain.portfolio.investment_consolidation_strategies import (
+from domain.investments.investment_consolidation_strategies import (
     StockConsolidationStrategy,
 )
 

@@ -3,7 +3,7 @@ import datetime as dt
 from decimal import Decimal
 from typing import Optional
 
-from domain.portfolio.event_type import EventType
+from domain.corporate_events.event_type import EventType
 
 
 @dataclass

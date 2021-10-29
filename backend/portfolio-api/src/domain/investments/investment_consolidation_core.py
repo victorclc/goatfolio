@@ -6,7 +6,7 @@ from domain.common.investments import InvestmentType, Investment
 from domain.common.portfolio import (
     Portfolio,
 )
-from domain.portfolio.investment_consolidation_strategies import (
+from domain.investments.investment_consolidation_strategies import (
     InvestmentsConsolidationStrategy,
 )
 from ports.outbound.portfolio_repository import PortfolioRepository

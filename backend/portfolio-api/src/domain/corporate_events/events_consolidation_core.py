@@ -2,7 +2,7 @@ from itertools import groupby
 from typing import List
 
 from domain.common.investments import Investment
-from domain.portfolio.events_consolidation_strategies import HandleEventStrategy
+from domain.corporate_events.events_consolidation_strategies import HandleEventStrategy
 from ports.outbound.corporate_events_client import CorporateEventsClient
 from ports.outbound.investment_repository import InvestmentRepository
 
