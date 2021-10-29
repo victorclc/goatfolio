@@ -73,19 +73,12 @@ class PortfolioClient:
         return response
 
 
-class CEIInfoRepository:
+class CEIInfoQueue:
     def __init__(self):
-        self._table = boto3.resource('dynamodb').Table('CEIInfo')
+        self._queue = boto3.resource('sqs').get_queue_by_name(QueueName='CEIInfoIntegration')
 
-    def save(self, info: CEIInfo):
+    def send(self, info: CEIInfo):
         data = asdict(info)
-        logger.info(f'Saving info: {data}')
-        self._table.put_item(Item=data)
+        logger.info(f'Sending info: {data}')
+        self._queue.send_message(MessageBody=jsonutils.dump(data))
 
-    def find(self, subject):
-        result = self._table.query(KeyConditionExpression=Key('subject').eq(subject))
-        if 'Items' in result and result['Items']:
-            item = result['Items'][0]
-            logger.info(f'Found CEIInfo request: {item}')
-            return CEIInfo(**item)
-        return None

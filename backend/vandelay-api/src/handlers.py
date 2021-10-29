@@ -8,7 +8,7 @@ from adapters import (
     ImportsRepository,
     CEIImportsQueue,
     PortfolioClient,
-    CEIInfoRepository,
+    CEIInfoQueue,
 )
 from core import CEICore
 from event_notifier.decorators import notify_exception
@@ -28,7 +28,7 @@ core = CEICore(
     queue=CEIImportsQueue(),
     portfolio=PortfolioClient(),
     push=PushNotificationsClient(),
-    cei_repo=CEIInfoRepository(),
+    cei_repo=CEIInfoQueue(),
 )
 
 
@@ -66,29 +66,6 @@ def cei_import_result_handler(event, context):
         "statusCode": HTTPStatus.OK.value,
         "body": jsonutils.dump({"message": HTTPStatus.OK.phrase}),
     }
-
-
-def cei_info_request_handler(event, context):
-    logger.info(f"EVENT: {event}")
-    try:
-        subject = awsutils.get_event_subject(event)
-        response = core.cei_info_request(subject)
-        return {
-            "statusCode": HTTPStatus.OK.value,
-            "body": jsonutils.dump(response) if response else [],
-        }
-    except TypeError as e:
-        logger.exception(e)
-        return {
-            "statusCode": HTTPStatus.BAD_REQUEST.value,
-            "body": jsonutils.dump({"message": str(e)}),
-        }
-    except UnprocessableException as e:
-        logger.exception(e)
-        return {
-            "statusCode": HTTPStatus.UNPROCESSABLE_ENTITY.value,
-            "body": jsonutils.dump({"message": str(e)}),
-        }
 
 
 def import_status_handler(event, context):

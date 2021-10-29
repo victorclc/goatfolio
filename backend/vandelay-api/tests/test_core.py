@@ -19,7 +19,7 @@ class TestCEICore(unittest.TestCase):
             push=MagicMock(),
             cei_repo=MagicMock(),
         )
-        self.core.repo.save = MagicMock(return_value=None)
+        self.core.repo.send = MagicMock(return_value=None)
         self.core.repo.find_latest = MagicMock(return_value=None)
         self.core.repo.find = MagicMock(return_value=None)
         self.core.queue.send = MagicMock(return_value=None)
@@ -45,7 +45,7 @@ class TestCEICore(unittest.TestCase):
             subject="1111-2222-333-4444", request=self.valid_request
         )
 
-        self.core.repo.save.assert_called_once()
+        self.core.repo.send.assert_called_once()
         self.core.queue.send.assert_called_once()
 
     def test_request_with_valid_tax_id_and_password_with_successful_prev_import_should_save_on_database_and_send_to_queue(
@@ -63,7 +63,7 @@ class TestCEICore(unittest.TestCase):
             subject="1111-2222-333-4444", request=self.valid_request
         )
 
-        self.core.repo.save.assert_called_once()
+        self.core.repo.send.assert_called_once()
         self.core.queue.send.assert_called_once()
 
     def test_request_with_valid_tax_id_and_password_with_error_prev_import_should_save_on_database_and_send_to_queue(
@@ -81,7 +81,7 @@ class TestCEICore(unittest.TestCase):
             subject="1111-2222-333-4444", request=self.valid_request
         )
 
-        self.core.repo.save.assert_called_once()
+        self.core.repo.send.assert_called_once()
         self.core.queue.send.assert_called_once()
 
     def test_request_with_valid_tax_id_and_password_with_processing_prev_import_should_raise_exception_and_not_save_on_database_or_send_to_queue(
@@ -99,7 +99,7 @@ class TestCEICore(unittest.TestCase):
             self.core.import_request(
                 subject="1111-2222-333-4444", request=self.valid_request
             )
-        self.core.repo.save.assert_not_called()
+        self.core.repo.send.assert_not_called()
         self.core.queue.send.assert_not_called()
 
     def test_request_with_invalid_tax_id_and_valid_password_should_raise_exception_and_not_save_on_database_or_send_to_queue(
@@ -109,7 +109,7 @@ class TestCEICore(unittest.TestCase):
             self.core.import_request(
                 subject="1111-2222-333-4444", request=self.invalid_tax_id_request
             )
-        self.core.repo.save.assert_not_called()
+        self.core.repo.send.assert_not_called()
         self.core.queue.send.assert_not_called()
 
     def test_request_with_valid_tax_id_and_invalid_password_should_raise_exception_and_not_save_on_database_or_send_to_queue(
@@ -119,7 +119,7 @@ class TestCEICore(unittest.TestCase):
             self.core.import_request(
                 subject="1111-2222-333-4444", request=self.invalid_password_request
             )
-        self.core.repo.save.assert_not_called()
+        self.core.repo.send.assert_not_called()
         self.core.queue.send.assert_not_called()
 
     def test_request_with_invalid_tax_id_and_password_should_raise_exception_and_not_save_on_database_or_send_to_queue(
@@ -130,7 +130,7 @@ class TestCEICore(unittest.TestCase):
                 subject="1111-2222-333-4444",
                 request=self.invalid_tax_id_and_password_request,
             )
-        self.core.repo.save.assert_not_called()
+        self.core.repo.send.assert_not_called()
         self.core.queue.send.assert_not_called()
 
     def test_successful_import_result_should_update_the_status_and_payload_on_database_and_call_batch_save(
@@ -158,8 +158,8 @@ class TestCEICore(unittest.TestCase):
         result = self.core.import_result(result=import_result)
 
         self.core.portfolio.batch_save.assert_called_once()
-        self.core.repo.save.assert_called_once()
-        self.core.cei_repo.save.assert_called_once()
+        self.core.repo.send.assert_called_once()
+        self.core.info_queue.send.assert_called_once()
         self.assertEqual(result.status, import_result.status)
         self.assertEqual(result.payload, import_result.payload)
         self.assertIsNone(result.error_message)
@@ -183,7 +183,7 @@ class TestCEICore(unittest.TestCase):
         result = self.core.import_result(result=import_result)
 
         self.core.portfolio.batch_save.assert_not_called()
-        self.core.repo.save.assert_called_once()
+        self.core.repo.send.assert_called_once()
         self.assertEqual(result.status, import_result.status)
         self.assertEqual(result.payload, import_result.payload)
         self.assertEqual(result.error_message, import_result.payload)
@@ -213,7 +213,7 @@ class TestCEICore(unittest.TestCase):
         result = self.core.import_result(result=import_result)
 
         self.core.portfolio.batch_save.assert_called_once()
-        self.core.repo.save.assert_called_once()
+        self.core.repo.send.assert_called_once()
         self.assertEqual(result.status, ImportStatus.ERROR)
         self.assertEqual(result.payload, import_result.payload)
         self.assertIsNotNone(result.error_message)

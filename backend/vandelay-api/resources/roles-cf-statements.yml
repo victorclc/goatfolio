@@ -36,8 +36,11 @@
   Resource: arn:aws:ssm:${self:provider.region}:*:parameter/investments-api-key
 - Effect: Allow
   Action:
-    - dynamodb:Query
-    - dynamodb:GetItem
-    - dynamodb:PutItem
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
   Resource:
-    Fn::GetAtt: [ CEIInfoTable, Arn ]
+    'Fn::ImportValue': ${self:provider:stage}-CEIInfoIntegrationQueueArnOutput
+
+
+
+
