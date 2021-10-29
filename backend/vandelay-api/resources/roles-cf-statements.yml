@@ -39,8 +39,4 @@
     - sqs:SendMessage
     - sqs:GetQueueUrl
   Resource:
-    'Fn::ImportValue': ${self:provider:stage}-CEIInfoIntegrationQueueArnOutput
-
-
-
-
+    'Fn::ImportValue': ${self:provider.stage}-CEIInfoIntegrationQueueArnOutput
