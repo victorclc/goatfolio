@@ -68,6 +68,13 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  saveCeiAssetQuantities:
+    handler: src/adapters/inbound/sqs_handlers.persist_cei_asset_quantities_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ CEIInfoIntegrationQueue, Arn ]
+
   checkCorporateEvents:
     handler: src/adapters/inbound/sqs_handlers.check_for_applicable_corporate_events_handler
     events:

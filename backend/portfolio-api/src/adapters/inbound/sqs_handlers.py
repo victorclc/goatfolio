@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from adapters.inbound import portfolio_core, events_consolidated
+from adapters.inbound import portfolio_core, events_consolidated, stock_core
 import goatcommons.utils.json as jsonutils
 from domain.common.investment_loader import load_model_by_type
 from domain.common.investments import (
@@ -67,6 +67,14 @@ def check_for_applicable_corporate_events_handler(event, context):
             [i for i in [new, old] if i is not None],
             strategy.handle_earning_in_assets_event,
         )
+
+
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
+def persist_cei_asset_quantities_handler(event, context):
+    for message in event["Records"]:
+        logger.info(f"Processing message: {message}")
+        stock_core.save_asset_quantities(**jsonutils.load(message["body"]))
 
 
 def get_investments_differences(
