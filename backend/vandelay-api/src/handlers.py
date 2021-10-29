@@ -8,7 +8,7 @@ from adapters import (
     ImportsRepository,
     CEIImportsQueue,
     PortfolioClient,
-    CEIInfoRepository,
+    CEIInfoQueue,
 )
 from core import CEICore
 from event_notifier.decorators import notify_exception
@@ -28,7 +28,7 @@ core = CEICore(
     queue=CEIImportsQueue(),
     portfolio=PortfolioClient(),
     push=PushNotificationsClient(),
-    cei_repo=CEIInfoRepository(),
+    cei_repo=CEIInfoQueue(),
 )
 
 

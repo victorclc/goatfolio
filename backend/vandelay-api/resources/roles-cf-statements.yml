@@ -41,3 +41,13 @@
     - dynamodb:PutItem
   Resource:
     Fn::GetAtt: [ CEIInfoTable, Arn ]
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    'Fn::ImportValue': ${self:provider:stage}-CEIInfoIntegrationQueueArnOutput
+
+
+
+

@@ -91,7 +91,7 @@ class CEIImportResult:
     subject: str
     datetime: int
     status: str
-    payload: str
+    payload: dict
     login_error: bool = False
 
 
