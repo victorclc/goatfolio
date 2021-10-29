@@ -5,7 +5,7 @@ from typing import List
 import requests
 
 from domain.performance.ticker_transformation import TickerTransformation
-from domain.portfolio.earnings_in_assets_event import EarningsInAssetCorporateEvent
+from domain.corporate_events.earnings_in_assets_event import EarningsInAssetCorporateEvent
 from goatcommons.configuration.system_manager import ConfigurationClient
 
 

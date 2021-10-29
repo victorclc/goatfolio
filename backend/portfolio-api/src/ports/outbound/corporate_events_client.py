@@ -2,7 +2,7 @@ import datetime
 from typing import Protocol, List
 
 from domain.performance.ticker_transformation import TickerTransformation
-from domain.portfolio.earnings_in_assets_event import EarningsInAssetCorporateEvent
+from domain.corporate_events.earnings_in_assets_event import EarningsInAssetCorporateEvent
 
 
 class CorporateEventsClient(Protocol):

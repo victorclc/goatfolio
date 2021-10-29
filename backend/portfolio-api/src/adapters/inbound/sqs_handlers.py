@@ -11,7 +11,7 @@ from domain.common.investments import (
 )
 from aws_lambda_powertools import Logger, Tracer
 
-import domain.portfolio.events_consolidation_strategies as strategy
+import domain.corporate_events.events_consolidation_strategies as strategy
 
 logger = Logger()
 tracer = Tracer()

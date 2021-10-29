@@ -11,8 +11,8 @@ from domain.common.investments import (
     Investment,
     InvestmentType,
 )
-from domain.portfolio.earnings_in_assets_event import EarningsInAssetCorporateEvent
-from domain.portfolio.event_type import EventType
+from domain.corporate_events.earnings_in_assets_event import EarningsInAssetCorporateEvent
+from domain.corporate_events.event_type import EventType
 
 
 HandleEventStrategy = Type[
