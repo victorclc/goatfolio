@@ -74,7 +74,7 @@ class CEICore:
                     self.info_queue.send(
                         CEIInfo(
                             subject=result.subject,
-                            assets_quantities={
+                            asset_quantities={
                                 k: v
                                 for k, v in result.payload["assets_quantities"].items()
                                 if self.is_valid_ticker_name(k)

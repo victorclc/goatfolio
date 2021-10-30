@@ -117,4 +117,4 @@ class InvestmentRequest:
 @dataclass
 class CEIInfo:
     subject: str
-    assets_quantities: dict
+    asset_quantities: dict
