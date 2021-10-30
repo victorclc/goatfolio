@@ -49,7 +49,7 @@ class CEICore:
         )
 
         self.queue.send(outbound_request)
-        self.repo.send(_import)
+        self.repo.save(_import)
 
         return {"datetime": _import.datetime, "status": _import.status}
 
@@ -89,7 +89,7 @@ class CEICore:
                 logger.exception(f"Error on parsing payload", e)
                 _import.status = ImportStatus.ERROR
                 _import.error_message = str(e)
-        self.repo.send(_import)
+        self.repo.save(_import)
         return _import
 
     def _validate_request(self, subject, request):
