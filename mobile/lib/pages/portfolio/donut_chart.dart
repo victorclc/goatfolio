@@ -2,7 +2,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/pages/portfolio/ticker_totals.dart';
-import 'package:goatfolio/performance/model/portfolio_performance.dart';
+import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 import 'package:goatfolio/theme/theme_changer.dart';
 
 import 'package:provider/provider.dart';

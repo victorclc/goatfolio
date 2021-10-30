@@ -2,13 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:goatfolio/authentication/cognito.dart';
 import 'package:goatfolio/chart/money_date_series.dart';
 import 'package:goatfolio/chart/rentability_chart.dart';
 import 'package:goatfolio/chart/valorization_chart.dart';
-import 'package:goatfolio/performance/client/performance_client.dart';
-import 'package:goatfolio/performance/model/stock_summary.dart';
-import 'package:goatfolio/performance/model/ticker_consolidated_history.dart';
+import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/performance/client/performance_client.dart';
+import 'package:goatfolio/services/performance/model/stock_summary.dart';
+import 'package:goatfolio/services/performance/model/ticker_consolidated_history.dart';
+
 import 'package:goatfolio/utils/formatters.dart';
 
 import 'package:intl/intl.dart';

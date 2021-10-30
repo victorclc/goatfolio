@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/performance/model/stock_variation.dart';
+import 'package:goatfolio/services/performance/model/stock_variation.dart';
 import 'package:goatfolio/utils/formatters.dart';
 
 void goToHighestPage(BuildContext context, List<StockVariation> stocksVariation,

@@ -1,21 +1,22 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:goatfolio/services/stock/divergence_model.dart';
+import 'package:goatfolio/services/stock/stock_divergence_cubit.dart';
 import 'package:goatfolio/utils/formatters.dart';
-import 'package:goatfolio/vandelay/cubit/vandelay_cubit.dart';
 
 
 class CeiPendency extends StatelessWidget {
-  final Map<String, TextEditingController> tickerController = Map();
+  final Map<Divergence, TextEditingController> tickerController = Map();
 
   CeiPendency({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      child: BlocBuilder<VandelayPendencyCubit, PendencyState>(
+      child: BlocBuilder<StockDivergenceCubit, DivergenceState>(
           builder: (context, state) {
-        final cubit = BlocProvider.of<VandelayPendencyCubit>(context);
+        final cubit = BlocProvider.of<StockDivergenceCubit>(context);
         final textTheme = CupertinoTheme.of(context).textTheme;
 
         return SingleChildScrollView(
@@ -54,17 +55,17 @@ class CeiPendency extends StatelessWidget {
                           numeric: true,
                         ),
                       ],
-                      rows: cubit.divergences.entries.map<DataRow>(
+                      rows: cubit.divergences.map<DataRow>(
                         (map) {
                           var controller = TextEditingController();
-                          tickerController[map.key] = controller;
+                          tickerController[map] = controller;
                           return DataRow(
                             cells: [
                               DataCell(
-                                Text(map.key),
+                                Text(map.ticker),
                               ),
                               DataCell(
-                                Text('${map.value}'),
+                                Text('${map.missingAmount}'),
                               ),
                               DataCell(
                                 CupertinoTextField(
@@ -93,12 +94,12 @@ class CeiPendency extends StatelessWidget {
     );
   }
 
-  void onSubmit(BuildContext context, VandelayPendencyCubit cubit) {
+  void onSubmit(BuildContext context, StockDivergenceCubit cubit) {
     tickerController.forEach(
-      (ticker, controller) {
+      (divergence, controller) {
         if (controller.text.isNotEmpty) {
           final averagePrice = getDoubleFromMoneyFormat(controller.text);
-          cubit.resolvePendency(ticker, averagePrice);
+          cubit.resolveDivergence(divergence, averagePrice);
         }
       },
     );

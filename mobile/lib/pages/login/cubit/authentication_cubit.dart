@@ -1,9 +1,9 @@
 import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:goatfolio/authentication/cognito.dart';
-import 'package:goatfolio/authentication/user.dart';
 import 'package:goatfolio/bloc/loading/loading_state.dart';
 import 'package:goatfolio/pages/login/cubit/exceptions.dart';
+import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/authentication/user.dart';
 
 class AuthenticationCubit extends Cubit<LoadingState> {
   late final UserService userService;

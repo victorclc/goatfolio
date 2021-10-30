@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/authentication/cognito.dart';
-import 'package:goatfolio/investment/model/operation_type.dart';
-import 'package:goatfolio/investment/model/stock.dart';
-import 'package:goatfolio/investment/service/stock_investment_service.dart';
 import 'package:goatfolio/pages/add/stock_add.dart';
 import 'package:goatfolio/pages/extract/delegate.dart';
 import 'package:goatfolio/search/cupertino_search_delegate.dart';
+import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/investment/model/operation_type.dart';
+import 'package:goatfolio/services/investment/model/stock.dart';
+import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
 import 'package:goatfolio/utils/extensions.dart';
 import 'package:goatfolio/utils/formatters.dart';
 

@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/investment/model/stock.dart';
 import 'package:goatfolio/search/cupertino_search_delegate.dart';
+import 'package:goatfolio/services/investment/model/stock.dart';
 
 
 class ExtractSearchDelegate extends SearchCupertinoDelegate {

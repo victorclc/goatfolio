@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/authentication/cognito.dart';
 import 'package:goatfolio/pages/portfolio/investment_details.dart';
-import 'package:goatfolio/performance/model/stock_summary.dart';
+import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/performance/model/stock_summary.dart';
 import 'package:goatfolio/utils/formatters.dart';
 
 import 'package:provider/provider.dart';

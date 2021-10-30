@@ -1,12 +1,12 @@
 import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:goatfolio/authentication/cognito.dart';
-import 'package:goatfolio/authentication/user.dart';
 import 'package:goatfolio/flavors.dart';
 
 import 'package:goatfolio/pages/login/signin_prompts.dart';
 import 'package:goatfolio/pages/login/terms_acceptance.dart';
+import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/authentication/user.dart';
 import 'package:goatfolio/theme/helper.dart' as theme;
 import 'package:goatfolio/utils/dialog.dart' as dialog;
 import 'package:goatfolio/utils/modal.dart' as modal;

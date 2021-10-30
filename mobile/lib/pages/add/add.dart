@@ -4,10 +4,10 @@ import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:goatfolio/authentication/cognito.dart';
 import 'package:goatfolio/pages/add/stock_list.dart';
+import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/stock/stock_divergence_cubit.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
-import 'package:goatfolio/vandelay/cubit/vandelay_cubit.dart';
 
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -57,14 +57,14 @@ class AddPage extends StatelessWidget {
   Widget buildContent(BuildContext context) {
     final userService = Provider.of<UserService>(context, listen: false);
 
-    return BlocBuilder<VandelayPendencyCubit, PendencyState>(
+    return BlocBuilder<StockDivergenceCubit, DivergenceState>(
         builder: (context, state) {
       return SettingsList(
         sections: [
           SettingsSection(
             title: "RENDA VARIÁVEL",
             tiles: [
-              if (state == PendencyState.HAS_PENDENCY)
+              if (state == DivergenceState.HAS_DIVERGENCE)
                 SettingsTile(
                   title: 'Pendências importação (CEI)',
                   iosLikeTile: true,
@@ -82,7 +82,7 @@ class AddPage extends StatelessWidget {
                           shape: BadgeShape.circle,
                           padding: EdgeInsets.all(7),
                           badgeContent: Text(
-                            '${BlocProvider.of<VandelayPendencyCubit>(context).divergences.length}',
+                            '${BlocProvider.of<StockDivergenceCubit>(context).divergences.length}',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
