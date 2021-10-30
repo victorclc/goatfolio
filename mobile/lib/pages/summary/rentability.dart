@@ -4,12 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:goatfolio/authentication/cognito.dart';
 import 'package:goatfolio/chart/money_date_series.dart';
 import 'package:goatfolio/chart/valorization_chart.dart';
-import 'package:goatfolio/performance/client/performance_client.dart';
-import 'package:goatfolio/performance/model/portfolio_history.dart';
-import 'package:goatfolio/performance/model/portfolio_summary.dart';
+import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/performance/client/performance_client.dart';
+import 'package:goatfolio/services/performance/model/portfolio_history.dart';
+import 'package:goatfolio/services/performance/model/portfolio_summary.dart';
 import 'package:goatfolio/utils/formatters.dart';
 
 import 'package:intl/intl.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/authentication/cognito.dart';
+import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/widgets/multi_prompt.dart';
 
 const String VALID_EMAIL =

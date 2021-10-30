@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/authentication/cognito.dart';
+import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/vandelay/service/vandelay_service.dart';
 import 'package:goatfolio/utils/dialog.dart' as dialog;
 import 'package:goatfolio/utils/formatters.dart';
-import 'package:goatfolio/vandelay/service/vandelay_service.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
 import 'package:goatfolio/widgets/progress_indicator_scaffold.dart';
 import 'package:url_launcher/url_launcher.dart';

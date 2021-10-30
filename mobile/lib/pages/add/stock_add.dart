@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:goatfolio/authentication/cognito.dart';
-import 'package:goatfolio/investment/model/stock.dart';
-import 'package:goatfolio/investment/service/stock_investment_service.dart';
+import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/investment/model/stock.dart';
+import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
 import 'package:goatfolio/utils/dialog.dart' as dialog;
 import 'package:goatfolio/utils/formatters.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;

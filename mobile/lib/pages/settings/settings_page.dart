@@ -4,13 +4,12 @@ import 'package:app_settings/app_settings.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/authentication/cognito.dart';
-import 'package:goatfolio/investment/storage/stock_investment.dart';
 import 'package:goatfolio/navigation.dart';
-import 'package:goatfolio/notification/notification.dart';
 import 'package:goatfolio/pages/login/login.dart';
 import 'package:goatfolio/pages/settings/theme_page.dart';
-import 'package:goatfolio/vandelay/storage/divergences_storage.dart';
+import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/investment/storage/stock_investment.dart';
+import 'package:goatfolio/services/notification/notification.dart';
 
 import 'package:launch_review/launch_review.dart';
 import 'package:provider/provider.dart';
@@ -98,7 +97,6 @@ class SettingsPage extends StatelessWidget {
                 final userService =
                     Provider.of<UserService>(context, listen: false);
                 await deleteInvestmentsDatabase();
-                await deleteImportHistoryDatabase();
                 await NotificationClient(userService).unregisterToken(
                     (await FirebaseMessaging.instance.getToken())!);
                 await userService.signOut();

@@ -8,7 +8,7 @@ import 'package:goatfolio/global.dart' as global;
 import 'package:goatfolio/pages/summary/highest_highs_card.dart';
 import 'package:goatfolio/pages/summary/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/rentability_card.dart';
-import 'package:goatfolio/performance/cubit/summary_cubit.dart';
+import 'package:goatfolio/services/performance/cubit/summary_cubit.dart';
 import 'package:goatfolio/theme/theme_changer.dart';
 import 'package:goatfolio/widgets/loading_error.dart';
 

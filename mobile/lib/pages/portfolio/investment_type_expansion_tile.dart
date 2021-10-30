@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/pages/portfolio/rgb.dart';
 import 'package:goatfolio/pages/portfolio/stock_summary_item.dart';
-import 'package:goatfolio/performance/model/stock_summary.dart';
+import 'package:goatfolio/services/performance/model/stock_summary.dart';
 import 'package:goatfolio/utils/formatters.dart';
 import 'package:goatfolio/widgets/expansion_tile_custom.dart';
 

@@ -4,15 +4,14 @@ import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:goatfolio/authentication/cognito.dart';
-import 'package:goatfolio/notification/firebase.dart';
 import 'package:goatfolio/pages/add/add.dart';
 import 'package:goatfolio/pages/extract/extract.dart';
 import 'package:goatfolio/pages/portfolio/portfolio.dart';
 import 'package:goatfolio/pages/settings/settings_page.dart';
 import 'package:goatfolio/pages/summary/summary.dart';
-import 'package:goatfolio/vandelay/cubit/vandelay_cubit.dart';
-
+import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/notification/firebase.dart';
+import 'package:goatfolio/services/stock/stock_divergence_cubit.dart';
 
 Widget buildNavigationPage(UserService userService) {
   //TODO VER ONDE POR ISSO
@@ -139,10 +138,10 @@ class _NavigationWidgetState extends State<NavigationWidget>
           BottomNavigationBarItem(
             backgroundColor: theme.barBackgroundColor,
             label: AddPage.title,
-            icon: BlocBuilder<VandelayPendencyCubit, PendencyState>(
+            icon: BlocBuilder<StockDivergenceCubit, DivergenceState>(
                 builder: (context, state) {
               return Badge(
-                padding: state == PendencyState.HAS_PENDENCY
+                padding: state == DivergenceState.HAS_DIVERGENCE
                     ? EdgeInsets.all(5)
                     : EdgeInsets.zero,
                 position: BadgePosition.topEnd(top: -2, end: -4),
@@ -184,10 +183,10 @@ class _NavigationWidgetState extends State<NavigationWidget>
               label: PortfolioPage.title, icon: PortfolioPage.icon),
           BottomNavigationBarItem(
             label: AddPage.title,
-            icon: BlocBuilder<VandelayPendencyCubit, PendencyState>(
+            icon: BlocBuilder<StockDivergenceCubit, DivergenceState>(
                 builder: (context, state) {
               return Badge(
-                padding: state == PendencyState.HAS_PENDENCY
+                padding: state == DivergenceState.HAS_DIVERGENCE
                     ? EdgeInsets.all(5)
                     : EdgeInsets.zero,
                 position: BadgePosition.topEnd(top: -2, end: -4),
