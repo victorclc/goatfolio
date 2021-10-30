@@ -57,8 +57,13 @@ class CeiPendency extends StatelessWidget {
                       ],
                       rows: cubit.divergences.map<DataRow>(
                         (map) {
-                          var controller = TextEditingController();
-                          tickerController[map] = controller;
+                          TextEditingController controller;
+                          if (tickerController.containsKey(map)) {
+                            controller = tickerController[map]!;
+                          } else {
+                            controller = TextEditingController();
+                            tickerController[map] = controller;
+                          }
                           return DataRow(
                             cells: [
                               DataCell(
