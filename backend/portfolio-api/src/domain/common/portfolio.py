@@ -46,7 +46,8 @@ class Portfolio(PortfolioItem):
 
         if isinstance(consolidated, StockConsolidated):
             if not summary:
-                self.stocks.pop(consolidated.current_ticker_name())
+                if consolidated.current_ticker_name() in self.stocks: # TODO ENTENDER MELHOR
+                    self.stocks.pop(consolidated.current_ticker_name())
                 return
             if consolidated.alias_ticker and self.stocks.get(consolidated.ticker):
                 self.stocks.pop(consolidated.ticker)
