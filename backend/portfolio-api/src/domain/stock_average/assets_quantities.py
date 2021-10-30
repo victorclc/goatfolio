@@ -12,4 +12,4 @@ class AssetQuantities(PortfolioItem):
         return "STOCKQUANTITIES#"
 
     def to_json(self):
-        return {**self.to_json(), "asset_quantities": self.asset_quantities}
+        return {**super().to_json(), "asset_quantities": self.asset_quantities}
