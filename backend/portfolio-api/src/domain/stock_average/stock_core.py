@@ -115,6 +115,7 @@ class StockCore:
         consolidations = self.portfolio.find_alias_ticker(
             subject, ticker, StockConsolidated
         )
+        consolidations += self.portfolio.find_ticker(subject, ticker, StockConsolidated)
         return sum(consolidations[1:], consolidations[0])
 
     @staticmethod
