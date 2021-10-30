@@ -22,10 +22,11 @@ class _CeiLoginPageState extends State<CeiLoginPage> {
   TextEditingController _passwordController = new TextEditingController();
   late VandelayService service;
   late Future _future;
+  late bool lgpdBox;
 
   bool canSubmit() {
     return _cpfController.text.isNotEmpty &&
-        _passwordController.text.isNotEmpty;
+        _passwordController.text.isNotEmpty && lgpdBox;
   }
 
   Future submitRequest() async {
@@ -38,6 +39,7 @@ class _CeiLoginPageState extends State<CeiLoginPage> {
   void initState() {
     super.initState();
     service = VandelayService(widget.userService);
+    lgpdBox = false;
   }
 
   @override
@@ -153,6 +155,25 @@ class _CeiLoginPageState extends State<CeiLoginPage> {
                   ),
                 ),
                 placeholder: "Obrigatório",
+              ),
+              SizedBox(
+                height: 32,
+              ),
+              CheckboxListTile(
+                controlAffinity: ListTileControlAffinity.leading,
+                value: lgpdBox,
+                onChanged: (value) {
+                  setState(() {
+                    lgpdBox = value!;
+                  });
+                },
+                title: Text(
+                  "Autorizo o Goatfolio a ter acesso aos meus dados transacionais do CEI.",
+                  style: CupertinoTheme.of(context)
+                      .textTheme
+                      .textStyle
+                      .copyWith(fontSize: 14),
+                ),
               ),
               CupertinoButton(
                 child: Text("Esqueceu sua senha?"),
