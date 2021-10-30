@@ -10,6 +10,7 @@ from domain.common.investment_consolidated import StockConsolidated
 from domain.common.investment_summary import StockSummary
 from domain.common.investments import OperationType, StockInvestment, InvestmentType
 from domain.common.portfolio import Portfolio
+from domain.performance.ticker_transformation import TickerTransformation
 from domain.stock_average.assets_quantities import AssetQuantities
 from ports.outbound.investment_repository import InvestmentRepository
 from ports.outbound.portfolio_repository import PortfolioRepository
@@ -43,7 +44,12 @@ class StockCore:
 
         pendencies = []
         for ticker, expected_amount in asset.asset_quantities.items():
-            summary = self.get_stock_summary_of_ticker(ticker, portfolio)
+            transformation = self.transformation_client.get_ticker_transformation(
+                ticker, (datetime.datetime.now() - relativedelta(months=18)).date()
+            )
+            summary = self.get_stock_summary_of_ticker(
+                ticker, portfolio, transformation
+            )
             if not summary:
                 pendencies.append(
                     {
@@ -60,13 +66,17 @@ class StockCore:
                             "ticker": ticker,
                             "expected_amount": expected_amount,
                             "actual_amount": summary.latest_position.amount,
+                            "missing_amount": (
+                                expected_amount - summary.latest_position.amount
+                            )
+                            / transformation.grouping_factor,
                         }
                     )
 
         return pendencies
 
     def get_stock_summary_of_ticker(
-        self, ticker: str, portfolio: Portfolio
+        self, ticker: str, portfolio: Portfolio, transformation: TickerTransformation
     ) -> Optional[StockSummary]:
         if ticker in portfolio.stocks:
             return portfolio.get_stock_summary(ticker)
@@ -74,9 +84,6 @@ class StockCore:
             if ticker == summary.alias_ticker:
                 return summary
 
-        transformation = self.transformation_client.get_ticker_transformation(
-            ticker, (datetime.datetime.now() - relativedelta(months=18)).date()
-        )
         if transformation.ticker in portfolio.stocks:
             return portfolio.get_stock_summary(transformation.ticker)
 
