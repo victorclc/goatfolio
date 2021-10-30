@@ -56,10 +56,10 @@ class StockCore:
                         "ticker": ticker,
                         "expected_amount": expected_amount,
                         "actual_amount": 0,
+                        "missing_amount": expected_amount / transformation.grouping_factor,
                     }
                 )
             else:
-
                 if expected_amount != summary.latest_position.amount:
                     pendencies.append(
                         {
