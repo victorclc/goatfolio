@@ -23,7 +23,7 @@ class StockClient {
       (await this.userService.getSessionToken())!;
 
   Future<void> fixAveragePrice(String ticker, DateTime date, String broker,
-      double amount, double averagePrice) async {
+      int amount, double averagePrice) async {
     final request = {
       'ticker': ticker,
       'date_from': DateFormat("yyyyMMdd").format(date),
