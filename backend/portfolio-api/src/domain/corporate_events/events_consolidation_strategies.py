@@ -11,8 +11,13 @@ from domain.common.investments import (
     Investment,
     InvestmentType,
 )
-from domain.corporate_events.earnings_in_assets_event import EarningsInAssetCorporateEvent
+from domain.corporate_events.earnings_in_assets_event import (
+    EarningsInAssetCorporateEvent,
+)
 from domain.corporate_events.event_type import EventType
+from aws_lambda_powertools import Logger
+
+logger = Logger()
 
 
 HandleEventStrategy = Type[
@@ -144,6 +149,7 @@ def affected_investments_amount(affected_investments):
             amount = amount + inv.amount
         else:
             amount = amount - inv.amount
+    logger.info(f"Affected amount = {amount}")
     return amount
 
 
@@ -153,14 +159,12 @@ def handle_earning_in_assets_event(
     event: EarningsInAssetCorporateEvent,
     investments: List[StockInvestment],
 ) -> List[StockInvestment]:
-    amount = affected_investments_amount(investments)
-    if amount > 0:
-        if event.type == EventType.SPLIT:
-            return handle_split_event_strategy(subject, ticker, event, investments)
-        if event.type == EventType.GROUP:
-            return handle_group_event_strategy(subject, ticker, event, investments)
-        if EventType.INCORPORATION:
-            return handle_incorporation_event_strategy(
-                subject, ticker, event, investments
-            )
+    if event.type == EventType.SPLIT:
+        return handle_split_event_strategy(subject, ticker, event, investments)
+    if event.type == EventType.GROUP:
+        return handle_group_event_strategy(subject, ticker, event, investments)
+    if EventType.INCORPORATION:
+        return handle_incorporation_event_strategy(
+            subject, ticker, event, investments
+        )
     return []
