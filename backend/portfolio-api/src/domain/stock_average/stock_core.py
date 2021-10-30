@@ -121,15 +121,15 @@ class StockCore:
     @staticmethod
     def create_stock_investment(subject, date, broker, ticker, amount, price):
         return StockInvestment(
-            subject,
-            str(uuid4()),
-            date,
-            InvestmentType.STOCK,
-            OperationType.BUY,
-            broker,
-            ticker,
-            amount,
-            price,
+            subject=subject,
+            id=str(uuid4()),
+            date=date,
+            type=InvestmentType.STOCK,
+            operation=OperationType.BUY,
+            broker=broker,
+            ticker=ticker,
+            amount=amount,
+            price=price,
         )
 
     @staticmethod

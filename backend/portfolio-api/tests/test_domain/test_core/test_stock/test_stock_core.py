@@ -34,7 +34,8 @@ class TestStockCore(unittest.TestCase):
         )
         consolidated.add_investment(buy_investment)
 
-        self.core.portfolio.find_alias_ticker = MagicMock(return_value=[consolidated])
+        self.core.portfolio.find_alias_ticker = MagicMock(return_value=[])
+        self.core.portfolio.find_ticker = MagicMock(return_value=[consolidated])
         self.core.transformation_client.get_ticker_transformation = MagicMock(
             return_value=TickerTransformation("TESTE4", Decimal(2))
         )
