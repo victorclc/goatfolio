@@ -34,7 +34,7 @@ def handle_split_event_strategy(
     investments: List[StockInvestment],
 ) -> List[StockInvestment]:
     amount = affected_investments_amount(investments)
-    factor = Decimal(event.grouping_factor / 100)
+    factor = Decimal(event.grouping_factor / 100) - 1
     _id = create_id_from_corp_event(ticker, event)
     split_investment = StockInvestment(
         amount=amount * factor,
@@ -87,7 +87,7 @@ def handle_incorporation_event_strategy(
 
     if factor > 1:
         incorp_investment = StockInvestment(
-            amount=amount * factor,
+            amount=amount * (factor - 1),
             price=Decimal(0),
             ticker=ticker,
             operation=OperationType.INCORP_ADD,
