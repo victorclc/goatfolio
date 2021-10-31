@@ -143,7 +143,7 @@ class StockCore:
     def create_stock_investment(subject, date, broker, ticker, amount, price):
         return StockInvestment(
             subject=subject,
-            id=str(uuid4()),
+            id=f"STOCK#{ticker}#FIX#{str(uuid4())}",
             date=date,
             type=InvestmentType.STOCK,
             operation=OperationType.BUY,
