@@ -119,7 +119,7 @@ class StockCore:
 
         return investment
 
-    def get_stock_consolidated(self, subject, ticker):
+    def get_stock_consolidated(self, subject, ticker) -> StockConsolidated:
         consolidations = self.portfolio.find_alias_ticker(
             subject, ticker, StockConsolidated
         )
