@@ -45,8 +45,8 @@ class TestStockCore(unittest.TestCase):
         )
 
         self.assertEqual(investment.ticker, "TESTE4")
-        self.assertEqual(investment.price, Decimal(25))
-        self.assertEqual(investment.amount, Decimal(50))
+        self.assertEqual(investment.price, Decimal(50))
+        self.assertEqual(investment.amount, Decimal(100))
 
     def create_buy_investment(
         self, date: dt.date, amount: Decimal, price: Decimal, alias_ticker: str = ""

@@ -114,9 +114,8 @@ class StockCore:
         transformation = self.transformation_client.get_ticker_transformation(
             ticker, date
         )
-        i_amount = amount / transformation.grouping_factor
         price = self.calculate_new_investment_price(
-            consolidated, i_amount, average_price
+            consolidated, amount, average_price
         )
 
         investment = self.create_stock_investment(
@@ -124,7 +123,7 @@ class StockCore:
             date,
             broker,
             transformation.ticker,
-            i_amount,
+            amount,
             price,
         )
         self.investments.save(investment)
