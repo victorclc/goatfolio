@@ -56,11 +56,7 @@ class StockCore:
                         "ticker": ticker,
                         "expected_amount": expected_amount,
                         "actual_amount": 0,
-                        "missing_amount": self.calculate_missing_amount(
-                            expected_amount,
-                            0,
-                            transformation.grouping_factor,
-                        ),
+                        "missing_amount": expected_amount,
                     }
                 )
             else:
@@ -70,26 +66,16 @@ class StockCore:
                             "ticker": ticker,
                             "expected_amount": expected_amount,
                             "actual_amount": summary.latest_position.amount,
-                            "missing_amount": self.calculate_missing_amount(
-                                expected_amount,
-                                summary.latest_position.amount,
-                                transformation.grouping_factor,
-                            ),
+                            "missing_amount": expected_amount
+                            - summary.latest_position.amount,
                         }
                     )
 
         return pendencies
 
     @staticmethod
-    def calculate_missing_amount(
-        expected_amount, actual_amount, grouping_factor
-    ) -> Decimal:
-        if actual_amount < 0:
-            return abs(actual_amount) + expected_amount / grouping_factor
-        return (expected_amount - actual_amount) / grouping_factor
-
     def get_stock_summary_of_ticker(
-        self, ticker: str, portfolio: Portfolio, transformation: TickerTransformation
+        ticker: str, portfolio: Portfolio, transformation: TickerTransformation
     ) -> Optional[StockSummary]:
         if ticker in portfolio.stocks:
             return portfolio.get_stock_summary(ticker)
