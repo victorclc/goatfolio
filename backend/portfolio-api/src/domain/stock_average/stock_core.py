@@ -84,8 +84,6 @@ class StockCore:
     def calculate_missing_amount(
         expected_amount, actual_amount, grouping_factor
     ) -> Decimal:
-        if actual_amount < 0:
-            return abs(actual_amount) + expected_amount / grouping_factor
         return (expected_amount - actual_amount) / grouping_factor
 
     def get_stock_summary_of_ticker(
