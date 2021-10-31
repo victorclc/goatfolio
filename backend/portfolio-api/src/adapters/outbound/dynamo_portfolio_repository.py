@@ -67,6 +67,7 @@ class DynamoPortfolioRepository:
                 for i in result["Items"]
             ]
         logger.info(f"No {ticker} yet for subject: {subject}")
+        return []
 
     def find_asset_quantities(self, subject: str) -> Optional[AssetQuantities]:
         result = self._portfolio_table.query(

@@ -123,6 +123,8 @@ class StockCore:
             subject, ticker, StockConsolidated
         )
         consolidations += self.portfolio.find_ticker(subject, ticker, StockConsolidated)
+        if not consolidations:
+            consolidations.append(StockConsolidated(subject=subject, ticker=ticker))
         return sum(consolidations[1:], consolidations[0])
 
     @staticmethod
