@@ -56,7 +56,8 @@ class StockCore:
                         "ticker": ticker,
                         "expected_amount": expected_amount,
                         "actual_amount": 0,
-                        "missing_amount": expected_amount / transformation.grouping_factor,
+                        "missing_amount": expected_amount
+                        / transformation.grouping_factor,
                     }
                 )
             else:
@@ -118,7 +119,7 @@ class StockCore:
 
         return investment
 
-    def get_stock_consolidated(self, subject, ticker):
+    def get_stock_consolidated(self, subject, ticker) -> StockConsolidated:
         consolidations = self.portfolio.find_alias_ticker(
             subject, ticker, StockConsolidated
         )
@@ -146,6 +147,8 @@ class StockCore:
         consolidated: StockConsolidated, amount: Decimal, average_price: Decimal
     ) -> Decimal:
         wrappers = consolidated.monthly_stock_position_wrapper_linked_list()
+        if not wrappers.tail:
+            return Decimal(average_price).quantize(Decimal("0.01"))
 
         current_invested = wrappers.tail.current_invested_value
         new_invested = (wrappers.tail.amount + amount) * average_price
