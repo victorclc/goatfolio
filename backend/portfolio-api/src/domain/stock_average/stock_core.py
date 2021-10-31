@@ -88,8 +88,9 @@ class StockCore:
             return abs(actual_amount) + expected_amount / grouping_factor
         return (expected_amount - actual_amount) / grouping_factor
 
+    @staticmethod
     def get_stock_summary_of_ticker(
-        self, ticker: str, portfolio: Portfolio, transformation: TickerTransformation
+        ticker: str, portfolio: Portfolio, transformation: TickerTransformation
     ) -> Optional[StockSummary]:
         if ticker in portfolio.stocks:
             return portfolio.get_stock_summary(ticker)
@@ -114,9 +115,7 @@ class StockCore:
         transformation = self.transformation_client.get_ticker_transformation(
             ticker, date
         )
-        price = self.calculate_new_investment_price(
-            consolidated, amount, average_price
-        )
+        price = self.calculate_new_investment_price(consolidated, amount, average_price)
 
         investment = self.create_stock_investment(
             subject,
