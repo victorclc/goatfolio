@@ -93,7 +93,7 @@ class CotaHistDownloaderCore:
         self.bucket = B3CotaHistBucket()
 
     def download_current_monthly_file(self):
-        now = datetime.now() - relativedelta(months=1)
+        now = datetime.now()
         file_buffer = self.downloader.download_monthly_file(now.year, now.month)
         self.bucket.put(BytesIO(file_buffer), f'M{now.strftime("%Y%m")}.TXT')
 
