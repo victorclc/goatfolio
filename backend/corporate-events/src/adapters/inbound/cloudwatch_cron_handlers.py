@@ -55,4 +55,5 @@ def main():
 
 
 if __name__ == "__main__":
-    corporate_events_crawler.craw_corporate_events_from_date(datetime.datetime.now()-relativedelta(days=2))
+    # corporate_events_crawler.craw_corporate_events_from_date(datetime.datetime.now()-relativedelta(days=2))
+    print(corporate_events_core.transformations_in_ticker('WEGE3', datetime.date(2020, 4, 1)))
