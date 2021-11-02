@@ -104,7 +104,9 @@ class CorporateEventsCore:
     def transformations_in_ticker(self, current_ticker: str, date_from: datetime.date):
         ticker = current_ticker
         isin = self.ticker.get_isin_code_from_ticker(ticker)
-        events_list = self.events.find_by_isin_from_date(isin, date_from)
+        events_list: List[
+            EarningsInAssetCorporateEvent
+        ] = self.events.find_by_isin_from_date(isin, date_from)
 
         tmp = self.events.find_by_type_and_emitted_asset(
             EventType.INCORPORATION, isin, date_from
@@ -113,6 +115,13 @@ class CorporateEventsCore:
             previous_isin = tmp[0].isin_code
             ticker = self.ticker.get_ticker_from_isin_code(previous_isin)
             events_list += self.events.find_by_isin_from_date(previous_isin, date_from)
+
+        events_list = list(
+            filter(
+                lambda e: not (e.type == EventType.INCORPORATION and e.factor == 1),
+                events_list,
+            )
+        )
 
         if events_list:
             factor = Decimal(1)
