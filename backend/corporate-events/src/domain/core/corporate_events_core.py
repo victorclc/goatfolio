@@ -114,18 +114,25 @@ class CorporateEventsCore:
             ticker = self.ticker.get_ticker_from_isin_code(previous_isin)
             events_list += self.events.find_by_isin_from_date(previous_isin, date_from)
 
-        factor = Decimal(1)
-        for event in events_list:
-            factor *= event.factor
+        if event_list:
+            factor = Decimal(1)
+            for event in events_list:
+                factor *= event.factor
+        else:
+            factor = Decimal(0)
 
         return TickerTransformation(ticker, factor)
 
-    def get_corporate_events(self, ticker: str, date: datetime.date) -> List[EarningsInAssetCorporateEvent]:
+    def get_corporate_events(
+        self, ticker: str, date: datetime.date
+    ) -> List[EarningsInAssetCorporateEvent]:
         isin_code = self.ticker.get_isin_code_from_ticker(ticker)
         events = self.events.find_by_isin_from_date(isin_code, date)
 
         for event in events:
             if event.emitted_asset:
-                event.emitted_ticker = self.ticker.get_ticker_from_isin_code(event.emitted_asset)
+                event.emitted_ticker = self.ticker.get_ticker_from_isin_code(
+                    event.emitted_asset
+                )
 
         return events
