@@ -121,6 +121,7 @@ class StockCore:
             ticker, date
         )
         price = self.calculate_new_investment_price(consolidated, amount, average_price)
+        logger.info(f"Calculated price: {price}")
 
         investment = self.create_stock_investment(
             subject,
@@ -130,6 +131,7 @@ class StockCore:
             amount,
             price,
         )
+        logger.info(f"Investment created: {investment}")
         self.investments.save(investment)
 
         return investment
@@ -140,6 +142,7 @@ class StockCore:
         )
         consolidations += self.portfolio.find_ticker(subject, ticker, StockConsolidated)
         if not consolidations:
+            logger.info(f"No stock consolidations, creating one.")
             consolidations.append(StockConsolidated(subject=subject, ticker=ticker))
         return sum(consolidations[1:], consolidations[0])
 
