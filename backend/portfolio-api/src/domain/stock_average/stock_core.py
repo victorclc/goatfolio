@@ -18,6 +18,10 @@ from ports.outbound.corporate_events_client import (
     CorporateEventsClient,
 )
 
+from aws_lambda_powertools import Logger
+
+logger = Logger()
+
 
 class StockCore:
     """Stock only specific endpoints"""
@@ -163,5 +167,6 @@ class StockCore:
 
         current_invested = wrappers.tail.current_invested_value
         new_invested = (wrappers.tail.amount + amount) * average_price
+        logger.info(f"{current_invested=}; {new_invested=}; {amount=}")
 
         return ((new_invested - current_invested) / amount).quantize(Decimal("0.01"))
