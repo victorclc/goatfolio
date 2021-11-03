@@ -87,7 +87,7 @@ class StockCore:
         if grouping_factor == 0:
             return expected_amount - actual_amount
 
-        return (expected_amount - actual_amount) / (grouping_factor + 1)
+        return (expected_amount / (grouping_factor + 1)) - actual_amount
 
     @staticmethod
     def get_stock_summary_of_ticker(
