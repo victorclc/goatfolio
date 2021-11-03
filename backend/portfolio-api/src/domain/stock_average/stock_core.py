@@ -120,7 +120,10 @@ class StockCore:
         transformation = self.transformation_client.get_ticker_transformation(
             ticker, date
         )
-        price = self.calculate_new_investment_price(consolidated, amount, average_price)
+
+        price = self.calculate_new_investment_price(
+            consolidated, amount, average_price, date, transformation
+        )
         logger.info(f"Calculated price: {price}")
 
         investment = self.create_stock_investment(
@@ -161,15 +164,39 @@ class StockCore:
         )
 
     @staticmethod
+    def create_dummy_buy_investment(amount: Decimal, date: datetime.date):
+        return StockInvestment(
+            subject="",
+            id="",
+            date=date,
+            type=InvestmentType.STOCK,
+            operation=OperationType.BUY,
+            broker="",
+            ticker="",
+            amount=amount,
+            price=Decimal(0),
+        )
+
     def calculate_new_investment_price(
-        consolidated: StockConsolidated, amount: Decimal, average_price: Decimal
+        self,
+        consolidated: StockConsolidated,
+        amount: Decimal,
+        average_price: Decimal,
+        date: datetime.date,
+        transformation: TickerTransformation,
     ) -> Decimal:
         wrappers = consolidated.monthly_stock_position_wrapper_linked_list()
         if not wrappers.tail:
             return Decimal(average_price).quantize(Decimal("0.01"))
 
-        current_invested = wrappers.tail.current_invested_value
-        new_invested = (wrappers.tail.amount + amount) * average_price
-        logger.info(f"{current_invested=}; {new_invested=}; {amount=}")
+        consolidated.add_investment(
+            self.create_dummy_buy_investment(
+                amount + (amount + wrappers.tail.amount) * transformation.grouping_factor, date
+            )
+        )
+        wrappers = consolidated.monthly_stock_position_wrapper_linked_list()
 
-        return ((new_invested - current_invested) / amount).quantize(Decimal("0.01"))
+        new_bought = wrappers.tail.bought_amount * average_price
+        logger.info(f"{new_bought=}")
+
+        return ((new_bought - wrappers.tail.bought_value) / amount).quantize(Decimal("0.01"))
