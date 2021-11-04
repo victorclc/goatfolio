@@ -87,19 +87,20 @@ def get_stock_divergences_handler(event, context):
 
 def main():
     subject = "41e4a793-3ef5-4413-82e2-80919bce7c1a"
-    result = stock_core.average_price_fix(
-        subject,
-        **{
-            "ticker": "NINJ3",
-
-            "date": datetime.datetime.strptime("20200503", "%Y%m%d").date(),
-            "broker": "Inter",
-            "amount": Decimal(500),
-            "average_price": Decimal(20),
-        },
-    )
-    print(result)
+    # result = stock_core.average_price_fix(
+    #     subject,
+    #     **{
+    #         "ticker": "NINJ3",
+    #
+    #         "date": datetime.datetime.strptime("20200503", "%Y%m%d").date(),
+    #         "broker": "Inter",
+    #         "amount": Decimal(500),
+    #         "average_price": Decimal(20),
+    #     },
+    # )
+    # print(result)
     # print(jsonutils.dump(stock_core.get_stock_divergences(subject)))
+    print(jsonutils.dump(performance_core.portfolio_history_chart(subject)))
 
 
 if __name__ == "__main__":
