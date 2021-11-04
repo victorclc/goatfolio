@@ -255,26 +255,26 @@ class _StockAddState extends State<StockAdd> {
                 ),
                 placeholder: "dd/mm/aaaa",
               ),
-              CupertinoTextField(
-                controller: _costsController,
-                decoration: _kDefaultRoundedBorderDecoration,
-                onChanged: (something) {
-                  setState(() {});
-                },
-                textInputAction: TextInputAction.next,
-                inputFormatters: [moneyInputFormatter],
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                prefix: Container(
-                  width: 120,
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    'Custos',
-                    style: textTheme.textStyle
-                        .copyWith(fontWeight: FontWeight.w400),
-                  ),
-                ),
-                placeholder: "Custos (opcional)",
-              ),
+              // CupertinoTextField(
+              //   controller: _costsController,
+              //   decoration: _kDefaultRoundedBorderDecoration,
+              //   onChanged: (something) {
+              //     setState(() {});
+              //   },
+              //   textInputAction: TextInputAction.next,
+              //   inputFormatters: [moneyInputFormatter],
+              //   keyboardType: TextInputType.numberWithOptions(decimal: true),
+              //   prefix: Container(
+              //     width: 120,
+              //     padding: EdgeInsets.all(16),
+              //     child: Text(
+              //       'Custos',
+              //       style: textTheme.textStyle
+              //           .copyWith(fontWeight: FontWeight.w400),
+              //     ),
+              //   ),
+              //   placeholder: "Custos (opcional)",
+              // ),
             ],
           ),
         ));

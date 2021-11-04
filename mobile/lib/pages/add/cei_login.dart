@@ -168,7 +168,7 @@ class _CeiLoginPageState extends State<CeiLoginPage> {
                   });
                 },
                 title: Text(
-                  "Autorizo o Goatfolio a ter acesso aos meus dados transacionais do CEI.",
+                  "Autorizo o Goatfolio a acessar e importar o hisórico de investimentos no CEI.",
                   style: CupertinoTheme.of(context)
                       .textTheme
                       .textStyle

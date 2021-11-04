@@ -3,7 +3,7 @@ import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/stock/divergence_model.dart';
 import 'package:goatfolio/services/stock/stock_client.dart';
 
-enum DivergenceState { NO_DIVERGENCE, HAS_DIVERGENCE }
+enum DivergenceState { NO_DIVERGENCE, HAS_DIVERGENCE, REFRESHING }
 
 class StockDivergenceCubit extends Cubit<DivergenceState> {
   final UserService userService;
@@ -26,6 +26,7 @@ class StockDivergenceCubit extends Cubit<DivergenceState> {
   }
 
   Future<void> updateState() async {
+    emit(DivergenceState.REFRESHING);
     if (divergences.isNotEmpty) {
       emit(DivergenceState.HAS_DIVERGENCE);
     } else {

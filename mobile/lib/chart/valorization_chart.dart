@@ -105,6 +105,14 @@ class _ValorizationChartState extends State<ValorizationChart> {
             if (snapshot.hasData) {
               final data =
                   snapshot.data as List<charts.Series<dynamic, DateTime>>;
+              if (data.first.data.isEmpty || data.last.data.isEmpty) {
+                return SizedBox(
+                  height: 240,
+                  child: Center(
+                    child: Text("Nenhum gráfico disponivel."),
+                  ),
+                );
+              }
               if (selectedGrossSeries == null) {
                 selectedGrossSeries = data.first.data.last;
               }
