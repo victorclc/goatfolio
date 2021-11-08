@@ -7,7 +7,8 @@ from typing import Optional, List
 @dataclass
 class Benchmark:
     name: str
-    value: Decimal
+    open: Decimal
+    close: Decimal
 
 
 @dataclass
