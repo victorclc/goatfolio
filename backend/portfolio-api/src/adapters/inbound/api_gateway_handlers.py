@@ -100,7 +100,7 @@ def main():
     # )
     # print(result)
     # print(jsonutils.dump(stock_core.get_stock_divergences(subject)))
-    print(jsonutils.dump(performance_core.portfolio_history_chart(subject)))
+    print(jsonutils.dump(performance_core.ticker_history_chart(subject, "BIDI11").to_json()))
 
 
 if __name__ == "__main__":
