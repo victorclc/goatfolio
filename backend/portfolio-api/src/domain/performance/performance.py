@@ -1,7 +1,13 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 import datetime as dt
 from decimal import Decimal
 from typing import Optional, List
+
+
+@dataclass
+class Benchmark:
+    name: str
+    value: Decimal
 
 
 @dataclass
@@ -9,9 +15,13 @@ class PortfolioPosition:
     date: dt.date
     invested_value: Decimal = field(default_factory=lambda: Decimal(0))
     gross_value: Decimal = field(default_factory=lambda: Decimal(0))
+    benchmark: Optional[Benchmark] = None
 
     def to_json(self):
-        return {**self.__dict__, "date": self.date.strftime("%Y%m%d")}
+        _dict = {**self.__dict__, "date": self.date.strftime("%Y%m%d")}
+        if self.benchmark:
+            _dict["benchmark"] = asdict(self.benchmark)
+        return _dict
 
 
 @dataclass

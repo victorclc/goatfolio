@@ -14,7 +14,8 @@ import 'money_date_series.dart';
 class RentabilityChart extends StatefulWidget {
   final Future<List<charts.Series>> rentabilitySeries;
 
-  const RentabilityChart({Key? key, required this.rentabilitySeries}) : super(key: key);
+  const RentabilityChart({Key? key, required this.rentabilitySeries})
+      : super(key: key);
 
   @override
   _RentabilityChartState createState() => _RentabilityChartState();
@@ -104,7 +105,13 @@ class _RentabilityChartState extends State<RentabilityChart> {
             );
           case ConnectionState.done:
             if (snapshot.hasData) {
-              final data = snapshot.data! as  List<charts.Series<dynamic, DateTime>>;
+              final data =
+                  snapshot.data! as List<charts.Series<dynamic, DateTime>>;
+              if (data.first.data.isEmpty || data.last.data.isEmpty) {
+                return SizedBox(
+                    height: 240,
+                    child: Center(child: Text("Grafico indisponivel.")));
+              }
               if (selectedGrossSeries == null) {
                 selectedGrossSeries = data.first.data.last;
               }

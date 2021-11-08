@@ -1,14 +1,14 @@
 from abc import ABC, abstractmethod
 import datetime
 from decimal import Decimal
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 from domain.performance.intraday_info import IntradayInfo
 from domain.common.investment_consolidated import (
     InvestmentConsolidated,
     StockConsolidated,
 )
-from domain.performance.performance import PortfolioPosition, CandleData
+from domain.performance.performance import PortfolioPosition, CandleData, Benchmark
 from ports.outbound.stock_history_repository import StockHistoryRepository
 from ports.outbound.stock_instraday_client import StockIntradayClient
 import utils as utils
@@ -28,10 +28,12 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
         self.intraday = intraday
         self._intraday_dict: Optional[Dict[str, IntradayInfo]] = None
         self._history: Dict[datetime.date, PortfolioPosition] = {}
+        self._benchmark: Dict[datetime.date, CandleData] = {}
 
     def initialize(self, tickers):
-        self._intraday_dict = self.intraday.batch_get_intraday_info(tickers)
+        self._intraday_dict = self.intraday.batch_get_intraday_info(tickers + ["IBOV"])
         self._history = {}
+        self._benchmark = {}
 
     def consolidate_historical_data_monthly(
         self, consolidations: [StockConsolidated]
@@ -53,11 +55,20 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
                 gross_value = p.amount * self.close_price_of(
                     consolidated, p.date, historical_data
                 )
+                benchmark = self.get_benchmark_data(p.date)
                 self.add_to_portfolio_position(
-                    p.date, p.current_invested_value, gross_value
+                    p.date, p.current_invested_value, gross_value, benchmark
                 )
 
         return list(sorted(self._history.values(), key=lambda s: s.date, reverse=False))
+
+    def get_benchmark_data(self, date: datetime.date) -> Optional[Benchmark]:
+        if date in self._benchmark:
+            return Benchmark("IBOVESPA", self._benchmark[date].close_price)
+        data = self.ticker_history.find_by_ticker_from_date("IBOVESPA", date)
+        if data:
+            self._benchmark = data
+            return Benchmark("IBOVESPA", self._benchmark[date].close_price)
 
     def get_historical_data(
         self, consolidated: StockConsolidated
@@ -102,11 +113,16 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
         return position
 
     def add_to_portfolio_position(
-        self, date: datetime.date, invested_value: Decimal, gross_value: Decimal
+        self,
+        date: datetime.date,
+        invested_value: Decimal,
+        gross_value: Decimal,
+        benchmark: Benchmark,
     ):
         position = self.get_portfolio_position(date)
         position.invested_value += invested_value
         position.gross_value += gross_value
+        position.benchmark = benchmark
 
     @staticmethod
     def has_price_from_date(

@@ -68,9 +68,8 @@ class AddPage extends StatelessWidget {
                 SettingsTile(
                   title: 'Pendências importação (CEI)',
                   iosLikeTile: true,
-                  onPressed: (_) => modal.showDraggableModalBottomSheet(
-                    context,
-                    CeiPendency(),
+                  onPressed: (_) => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => CeiPendency()),
                   ),
                   trailing: SizedBox(
                     width: 100,

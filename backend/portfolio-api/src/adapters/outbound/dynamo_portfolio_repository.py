@@ -47,7 +47,7 @@ class DynamoPortfolioRepository:
             sk = item.pop("sk")
             if sk == "PORTFOLIO#":
                 portfolio = Portfolio(**item)
-            if sk == "TICKER#":
+            if sk.startswith("TICKER#"):
                 stock_consolidated.append(StockConsolidated(**item))
         return portfolio, stock_consolidated
 
