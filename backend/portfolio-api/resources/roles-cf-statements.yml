@@ -1,0 +1,44 @@
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:GetItem
+    - dynamodb:PutItem
+    - dynamodb:BatchWriteItem
+  Resource:
+    - !GetAtt PortfolioTable.Arn
+    - Fn::Join:
+        - ''
+        - - !GetAtt PortfolioTable.Arn
+          - '/index/*'
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:GetItem
+    - dynamodb:BatchGetItem
+  Resource:
+    'Fn::ImportValue': ${self:provider.stage}-MarketDataTableArnOutput
+- Effect: Allow
+  Action:
+    - ssm:GetParameter
+    - ssm:GetParameters
+    - ssm:DescribeParameters
+  Resource: arn:aws:ssm:${self:provider.region}:*:parameter/corporate-events-api-key
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:PutItem
+    - dynamodb:DeleteItem
+    - dynamodb:BatchWriteItem
+  Resource:
+    - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+    - Fn::Join:
+        - ''
+        - - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
+          - '/index/*'
+

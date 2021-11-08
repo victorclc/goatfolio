@@ -1,0 +1,59 @@
+service: market-history
+
+provider:
+  name: aws
+  memorySize: 2048
+  region: sa-east-1
+  stage: ${env:STAGE, 'dev'}
+  runtime: python3.8
+  timeout: 60
+  environment:
+    PYTHONPATH: "src:shared/libs"
+    STAGE: ${self:provider.stage}
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+    - test-env/**
+    - node_modules/**
+    - resources/**
+  include:
+    - ../shared/libs/auroradata/**
+    - ../shared/libs/goatcommons/**
+    - ../shared/libs/event_notifier/**
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3.8
+    cacheLocation: '.cache/'
+
+functions:
+  transformCotaHist:
+    handler: handlers.transform_cota_hist_handler
+    events:
+      - s3:
+          bucket: ${self:provider.stage}-b3cotahist
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: monthly/
+            - suffix: .TXT
+  ibovHistory:
+    handler: handlers.ibov_history_handler
+    events:
+      - schedule: cron(0 22 L * ? *)
+
+  monthlyCotaHistDownloader:
+    handler: handlers.download_current_monthly_cotahist_file
+    events:
+      - schedule: cron(0 22 L * ? *)
+
+  manualCotaHistDownloader:
+    handler: handlers.download_monthly_cotahist_file
+
+resources:
+  - ${file(resources/dynamo-cf-resources.yml)}

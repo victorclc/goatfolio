@@ -1,0 +1,117 @@
+service: investments-api
+
+provider:
+  name: aws
+  region: sa-east-1
+  stage: ${env:STAGE, 'dev'}
+  runtime: python3.8
+  environment:
+    PYTHONPATH: "src:shared/libs"
+    CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
+    ADDED_INVESTMENT_TOPIC: !Ref AddedOrUpdatedInvestmentTopic
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  endpointType: regional
+  apiGateway:
+    apiKeys:
+      - investments-api-key
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+    - node_modules/**
+    - resources/**
+  include:
+    - ../shared/libs/goatcommons/**
+    - ../shared/libs/event_notifier/**
+
+plugins:
+  - serverless-domain-manager
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3.8
+    cacheLocation: '.cache/'
+  customDomain:
+    basePath: investments
+    domainName: ${env:DOMAIN_NAME}
+    stage: ${self:provider.stage}
+    createRoute53Record: false
+    endpointType: 'regional'
+
+functions:
+  # Investments Start
+  getInvestments:
+    handler: src/adapters/inbound/api_gateway_handlers.get_investments_handler
+    events:
+      - http:
+          endpointType: private
+          path: investments/
+          method: get
+          request:
+            parameters:
+              querystrings:
+                date: false
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+  addInvestment:
+    handler: src/adapters/inbound/api_gateway_handlers.add_investment_handler
+    events:
+      - http:
+          path: investments/
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+  editInvestment:
+    handler: src/adapters/inbound/api_gateway_handlers.edit_investment_handler
+    events:
+      - http:
+          path: investments/
+          method: put
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+  deleteInvestments:
+    handler: src/adapters/inbound/api_gateway_handlers.delete_investment_handler
+    events:
+      - http:
+          path: investments/
+          method: delete
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+  batchAddInvestments:
+    handler: src/adapters/inbound/private_api_gateway_handlers.batch_add_investments_handler
+    events:
+      - http:
+          path: investments/batch
+          method: post
+          private: true
+  asyncAddInvestment:
+    handler: src/adapters/inbound/sqs_handlers.async_add_investment_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ AddInvestmentQueue, Arn ]
+
+  investmentsChangesPublisher:
+    handler: src/adapters/inbound/dynamo_stream_handlers.publish_investment_update_handler
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt: [ InvestmentsTable, StreamArn ]
+
+
+resources:
+  - ${file(resources/authorizer-cf-resources.yml)}
+  - ${file(resources/queue-cf-resources.yml)}
+  - ${file(resources/dynamo-cf-resources.yml)}
+  - ${file(resources/sns-cf-resources.yml)}

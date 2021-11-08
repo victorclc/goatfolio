@@ -1,0 +1,22 @@
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:PutItem
+    - dynamodb:DeleteItem
+    - dynamodb:BatchWriteItem
+  Resource:
+    - Fn::GetAtt: [ InvestmentsTable, Arn ]
+    - Fn::Join:
+        - ''
+        - - Fn::GetAtt: [ InvestmentsTable, Arn ]
+          - '/index/*'
+- Effect: Allow
+  Action:
+    - sns:Publish
+  Resource: !Ref AddedOrUpdatedInvestmentTopic
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn

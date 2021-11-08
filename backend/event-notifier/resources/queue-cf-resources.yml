@@ -1,0 +1,13 @@
+Resources:
+  EventsToNotifyQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: EventsToNotify
+      VisibilityTimeout: 300
+
+Outputs:
+  EventsToNotifyQueueArn:
+    Value:
+      Fn::GetAtt: [ EventsToNotifyQueue, Arn ]
+    Export:
+      Name: ${self:provider.stage}-EventsToNotifyQueueArn

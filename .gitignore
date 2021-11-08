@@ -8,6 +8,7 @@
 .buildlog/
 .history
 .svn/
+.cache/
 
 # IntelliJ related
 *.iml
@@ -29,7 +30,7 @@
 .packages
 .pub-cache/
 .pub/
-/build/
+build/
 
 # Web related
 lib/generated_plugin_registrant.dart
@@ -39,3 +40,14 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+
+# backend stuff
+.idea/
+venv/
+.serverless/
+node_modules/
+__pycache__/
+test-env/
+*.log
+*.csv
+.aws-sam/

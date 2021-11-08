@@ -1,0 +1,76 @@
+service: vandelay-api
+
+provider:
+  name: aws
+  region: sa-east-1
+  stage: ${env:STAGE, 'dev'}
+  runtime: python3.8
+  environment:
+    PYTHONPATH: "src:shared/libs"
+    BASE_API_URL: ${env:DOMAIN_NAME}
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  endpointType: regional
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+    - test-env/**
+    - node_modules/**
+    - resources/**
+  include:
+    - ../shared/libs/goatcommons/**
+    - ../shared/libs/brutils/**
+    - ../shared/libs/event_notifier/**
+
+plugins:
+  - serverless-domain-manager
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3.8
+    cacheLocation: '.cache/'
+  customDomain:
+    basePath: vandelay
+    domainName: ${env:DOMAIN_NAME}
+    stage: ${self:provider.stage}
+    createRoute53Record: false
+    endpointType: 'regional'
+
+functions:
+  ceiImportRequest:
+    handler: src/handlers.cei_import_request_handler
+    events:
+      - http:
+          path: cei
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  ceiImportResult:
+    handler: src/handlers.cei_import_result_handler
+    events:
+      - sqs:
+          arn:
+            'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
+
+  getImportStatus:
+    handler: src/handlers.import_status_handler
+    events:
+      - http:
+          path: cei
+          parameters:
+            querystrings:
+              datetime: true
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+resources:
+  - ${file(resources/authorizer-cf-resources.yml)}
+  - ${file(resources/dynamo-cf-resources.yml)}

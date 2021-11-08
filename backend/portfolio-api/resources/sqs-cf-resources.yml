@@ -1,0 +1,114 @@
+Resources:
+  PortfolioAddOrUpdatedInvestmentSubscriber:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "PortfolioAddOrUpdatedInvestmentSubscriberDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+      FifoQueue: true
+      QueueName: PortfolioAddOrUpdatedInvestmentSubscriber.fifo
+      VisibilityTimeout: 300
+  PortfolioAddOrUpdatedInvestmentSubscriberDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: PortfolioAddOrUpdatedInvestmentSubscriberDLQ.fifo
+      FifoQueue: true
+  CheckCorporateEventsAddOrUpdatedInvestmentSubscriber:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "CheckCorporateEventsAddOrUpdatedInvestmentSubscriberDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+      FifoQueue: true
+      QueueName: CheckCorporateEventsAddOrUpdatedInvestmentSubscriber.fifo
+      VisibilityTimeout: 300
+
+  CheckCorporateEventsAddOrUpdatedInvestmentSubscriberDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: CheckCorporateEventsAddOrUpdatedInvestmentSubscriberDLQ.fifo
+      FifoQueue: true
+
+  Subscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      TopicArn:
+        'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
+      Endpoint: !GetAtt PortfolioAddOrUpdatedInvestmentSubscriber.Arn
+      Protocol: sqs
+      RawMessageDelivery: 'true'
+
+  CheckEventsSubscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      TopicArn:
+        'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
+      Endpoint: !GetAtt CheckCorporateEventsAddOrUpdatedInvestmentSubscriber.Arn
+      Protocol: sqs
+      RawMessageDelivery: 'true'
+
+  SNS2QueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref PortfolioAddOrUpdatedInvestmentSubscriber
+      PolicyDocument:
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service: sns.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt PortfolioAddOrUpdatedInvestmentSubscriber.Arn
+            Condition:
+              ArnEquals:
+                "aws:SourceArn":
+                  'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
+
+  SNS2EventQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref CheckCorporateEventsAddOrUpdatedInvestmentSubscriber
+      PolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: sns.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt CheckCorporateEventsAddOrUpdatedInvestmentSubscriber.Arn
+            Condition:
+              ArnEquals:
+                "aws:SourceArn":
+                  'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
+
+  CEIInfoIntegrationQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "CEIInfoIntegrationQueueDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+      QueueName: CEIInfoIntegration
+      VisibilityTimeout: 60
+
+  CEIInfoIntegrationQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: CEIInfoIntegrationDLQ
+
+Outputs:
+  CEIInfoIntegrationQueueArnOutput:
+    Value:
+      Fn::GetAtt: [ CEIInfoIntegrationQueue, Arn ]
+    Export:
+      Name: ${self:provider.stage}-CEIInfoIntegrationQueueArnOutput
+

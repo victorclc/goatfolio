@@ -1,0 +1,12 @@
+Resources:
+  AddedOrUpdatedInvestmentTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: AddedOrUpdatedInvestment.fifo
+      FifoTopic: true
+
+Outputs:
+  AddedOrUpdatedInvestmentTopicOutput:
+    Value: !Ref AddedOrUpdatedInvestmentTopic
+    Export:
+      Name: ${self:provider.stage}-AddedOrUpdatedInvestmentTopic

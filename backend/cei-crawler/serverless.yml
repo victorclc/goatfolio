@@ -1,0 +1,44 @@
+service: cei-crawler
+
+provider:
+  name: aws
+  region: sa-east-1
+  stage: ${env:STAGE, 'dev'}
+  timeout: 300
+  runtime: python3.8
+  environment:
+    PYTHONPATH: "src:shared/libs"
+    BUCKET_NAME: ${self:provider.stage}-headlesschromium
+    LOGIN_URL: 'https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx'
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+    - node_modules/**
+    - resources/**
+  include:
+    - ../shared/libs/goatcommons/**
+    - ../shared/libs/lessmium/**
+    - ../shared/libs/event_notifier/**
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3.8
+    cacheLocation: '.cache/'
+
+functions:
+  ceiExtractHandler:
+    handler: src/handlers.cei_extract_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ CeiImportRequestQueue, Arn ]
+
+
+resources:
+  - ${file(resources/queue-cf-resources.yml)}

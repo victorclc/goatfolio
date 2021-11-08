@@ -1,0 +1,73 @@
+service: push-notifications
+
+provider:
+  name: aws
+  region: sa-east-1
+  stage: ${env:STAGE, 'dev'}
+  runtime: python3.8
+  memorySize: 512
+  environment:
+    PYTHONPATH: "src:shared/libs"
+    STAGE: ${env:STAGE, 'dev'}
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  endpointType: regional
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+    - test-env/**
+    - node_modules/**
+    - resources/**
+  include:
+    - ../shared/libs/goatcommons/**
+
+plugins:
+  - serverless-domain-manager
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3.8
+    cacheLocation: '.cache/'
+  customDomain:
+    basePath: 'notification'
+    domainName: ${env:DOMAIN_NAME}
+    stage: ${self:provider.stage}
+    createRoute53Record: false
+    endpointType: 'regional'
+
+functions:
+  registerToken:
+    handler: src/handlers.register_token_handler
+    events:
+      - http:
+          path: register
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  unregisterToken:
+    handler: src/handlers.unregister_token_handler
+    events:
+      - http:
+          path: unregister
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  sendNotification:
+    handler: src/handlers.send_notification_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ PushNotificationRequestQueue, Arn ]
+
+resources:
+  - ${file(resources/authorizer-cf-resources.yml)}
+  - ${file(resources/dynamo-cf-resources.yml)}
+  - ${file(resources/queue-cf-resources.yml)}

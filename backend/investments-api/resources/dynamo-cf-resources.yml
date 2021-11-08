@@ -1,0 +1,45 @@
+Resources:
+  InvestmentsTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: Investments
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+        - AttributeName: "subject"
+          AttributeType: "S"
+        - AttributeName: "date"
+          AttributeType: "N"
+        - AttributeName: "ticker"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "subject"
+          KeyType: "HASH"
+        - AttributeName: "id"
+          KeyType: "RANGE"
+      GlobalSecondaryIndexes:
+        - IndexName: subjectDateGlobalIndex
+          KeySchema:
+            - AttributeName: "subject"
+              KeyType: "HASH"
+            - AttributeName: "date"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+        - IndexName: tickerSubjectGlobalIndex
+          KeySchema:
+            - AttributeName: "ticker"
+              KeyType: "HASH"
+            - AttributeName: "subject"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+Outputs:
+  InvestmentsTableArnOutput:
+    Value:
+      Fn::GetAtt: [ InvestmentsTable, Arn ]
+    Export:
+      Name: ${self:provider.stage}-InvestmentsTableArnOutput

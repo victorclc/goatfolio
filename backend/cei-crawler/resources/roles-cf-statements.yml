@@ -1,0 +1,17 @@
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    Fn::GetAtt: [ CeiImportResultQueue, Arn ]
+- Effect: Allow
+  Action:
+    - s3:ListBucket
+    - s3:GetObject
+  Resource: arn:aws:s3:::${self:provider.stage}-headlesschromium/*
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn

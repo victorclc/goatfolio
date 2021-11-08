@@ -1,0 +1,111 @@
+service: corporate-events
+
+provider:
+  name: aws
+  memorySize: 512
+  region: sa-east-1
+  stage: ${env:STAGE, 'dev'}
+  runtime: python3.8
+  timeout: 900
+  apiGateway:
+    apiKeys:
+      - corporate-events-api-key
+  environment:
+    PYTHONPATH: "src:shared/libs"
+    CORPORATE_BUCKET: ${self:provider.stage}-b3-corporate-events
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  endpointType: regional
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+    - test-env/**
+    - node_modules/**
+    - resources/**
+  include:
+    - ../shared/libs/goatcommons/**
+    - ../shared/libs/event_notifier/**
+
+plugins:
+  - serverless-domain-manager
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3.8
+    cacheLocation: '.cache/'
+  customDomain:
+    basePath: corporate-events
+    domainName: ${env:DOMAIN_NAME}
+    stage: ${self:provider.stage}
+    createRoute53Record: false
+    endpointType: 'regional'
+
+functions:
+  processCorporateEventsFile:
+    handler: src/adapters/inbound/s3_event_handlers.process_corporate_events_file_handler
+    events:
+      - s3:
+          bucket: ${self:provider.stage}-b3-corporate-events
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: new/
+            - suffix: .csv
+
+  downloadTodayCorporateEvents:
+    handler: src/adapters/inbound/cloudwatch_cron_handlers.craw_today_corporate_events_handler
+    events:
+      - schedule: cron(0 23 ? * MON-FRI *)
+
+  yesterdaySplitEvents:
+    handler: src/adapters/inbound/cloudwatch_cron_handlers.handle_yesterday_split_events_handler
+    events:
+      - schedule: cron(0 13 ? * * *)
+
+  yesterdayGroupEvents:
+    handler: src/adapters/inbound/cloudwatch_cron_handlers.handle_yesterday_group_events_handler
+    events:
+      - schedule: cron(0 13 ? * * *)
+
+  yesterdayIncorporationEvents:
+    handler: src/adapters/inbound/cloudwatch_cron_handlers.handle_yesterday_incorporation_events_handler
+    events:
+      - schedule: cron(0 13 ? * * *)
+
+  checkForApplicableCorpoEvents:
+    handler: src/adapters/inbound/dynamo_stream_handlers.check_for_applicable_corporate_events_handler
+#    events:
+#      - stream:
+#          type: dynamodb
+#          arn:
+#            'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
+
+  getTickerTransformation:
+    handler: src/adapters/inbound/private_api_gateway_handlers.get_ticker_transformations_handler
+    events:
+      - http:
+          path: transformations
+          request:
+            parameters:
+              querystrings:
+                ticker: true
+                dateFrom: true
+          method: get
+          private: true
+
+  getCoporateEvents:
+    handler: src/adapters/inbound/private_api_gateway_handlers.get_corporate_events_handler
+    events:
+      - http:
+          path: events
+          request:
+            parameters:
+              querystrings:
+                ticker: true
+                dateFrom: true
+          method: get
+          private: true
+
+resources:
+  - ${file(resources/dynamo-cf-resources.yml)}
