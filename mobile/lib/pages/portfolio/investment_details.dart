@@ -34,7 +34,11 @@ class InvestmentDetails extends StatefulWidget {
   final UserService userService;
 
   const InvestmentDetails(
-      {Key? key, required this.item, required this.title, required this.color, required this.userService})
+      {Key? key,
+      required this.item,
+      required this.title,
+      required this.color,
+      required this.userService})
       : super(key: key);
 
   @override
@@ -247,16 +251,29 @@ class _InvestmentDetailsState extends State<InvestmentDetails> {
 
     final DateTime initialDate = tickerHistory.history.first.date;
     List<MoneyDateSeries> series = [];
+    List<MoneyDateSeries> ibovSeries = [];
 
     double acumulatedRentability = 0.0;
+    double prevMonthTotal = 0.0;
+    double benchmarkAcumulated = 0.0;
+    double prevBenchmarkTotal = 0.0;
     tickerHistory.history.forEach((element) {
-      acumulatedRentability += element.variationPerc ?? 0.0;
+      if (prevMonthTotal == 0) {
+        prevMonthTotal = element.investedValue;
+      }
+      acumulatedRentability += (element.grossValue / prevMonthTotal - 1) * 100;
+      prevMonthTotal = element.grossValue;
       series.add(MoneyDateSeries(element.date, acumulatedRentability));
+
+      if (prevBenchmarkTotal == 0) {
+        prevBenchmarkTotal = element.benchmark.open;
+      }
+      benchmarkAcumulated +=
+          (element.benchmark.close / prevBenchmarkTotal - 1) * 100;
+      prevBenchmarkTotal = element.benchmark.close;
+      ibovSeries.add(MoneyDateSeries(element.date, benchmarkAcumulated));
     });
 
-    List<MoneyDateSeries> ibovSeries = [];
-    double prevMonthTotal = 0.0;
-    acumulatedRentability = 0.0;
 
     // widget.ibovHistory
     //     .where((element) => element.date.compareTo(initialDate) >= 0)
