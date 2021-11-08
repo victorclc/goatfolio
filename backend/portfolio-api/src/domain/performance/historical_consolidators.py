@@ -63,6 +63,10 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
         return list(sorted(self._history.values(), key=lambda s: s.date, reverse=False))
 
     def get_benchmark_data(self, date: datetime.date) -> Optional[Benchmark]:
+        if utils.is_on_same_year_and_month(date, utils.current_month_start()):
+            intraday = self.intraday.get_intraday_info("IBOV")
+            return Benchmark("IBOVESPA", intraday.current_price)
+
         if date in self._benchmark:
             return Benchmark("IBOVESPA", self._benchmark[date].close_price)
         data = self.ticker_history.find_by_ticker_from_date("IBOVESPA", date)
