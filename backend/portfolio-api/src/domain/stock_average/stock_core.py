@@ -192,7 +192,7 @@ class StockCore:
 
         consolidated.add_investment(
             self.create_dummy_buy_investment(
-                amount + (amount + wrappers.tail.amount) * transformation.grouping_factor, date
+                amount + (amount + wrappers.tail.amount if wrappers.tail.amount < 0 else Decimal(0)) * transformation.grouping_factor, date
             )
         )
         wrappers = consolidated.monthly_stock_position_wrapper_linked_list()
