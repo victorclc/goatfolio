@@ -32,7 +32,9 @@ class TestStockCore(unittest.TestCase):
         buy_investment = self.create_buy_investment(
             date=dt.date(2021, 9, 25), amount=Decimal(100), price=Decimal(100)
         )
+        split_investment = self.create_split_investment(dt.date(2021, 9, 25), amount=Decimal(200))
         consolidated.add_investment(buy_investment)
+        consolidated.add_investment(split_investment)
 
         self.core.portfolio.find_alias_ticker = MagicMock(return_value=[])
         self.core.portfolio.find_ticker = MagicMock(return_value=[consolidated])
@@ -45,7 +47,7 @@ class TestStockCore(unittest.TestCase):
         )
 
         self.assertEqual(investment.ticker, "TESTE4")
-        self.assertEqual(investment.price, Decimal(350))
+        self.assertEqual(investment.price, Decimal(200))
         self.assertEqual(investment.amount, Decimal(100))
 
     def create_buy_investment(
@@ -53,6 +55,13 @@ class TestStockCore(unittest.TestCase):
     ) -> StockInvestment:
         return self.create_investment(
             date, OperationType.BUY, amount, price, alias_ticker=alias_ticker
+        )
+
+    def create_split_investment(
+        self, date: dt.date, amount: Decimal
+    ) -> StockInvestment:
+        return self.create_investment(
+            date, OperationType.SPLIT, amount, Decimal(0), alias_ticker=""
         )
 
     @staticmethod
