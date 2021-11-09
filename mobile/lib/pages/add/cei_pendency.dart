@@ -14,10 +14,9 @@ class CeiPendency extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isIOS) {
-      return buildIos(context);
-    }
-    return buildAndroid(context);
+    return buildIos(context);
+
+    // return buildAndroid(context);
   }
 
   Widget buildAndroid(BuildContext context) {
@@ -40,11 +39,42 @@ class CeiPendency extends StatelessWidget {
   }
 
   Widget buildIos(BuildContext context) {
+    final textTheme = CupertinoTheme.of(context).textTheme;
+    final cubit = BlocProvider.of<StockDivergenceCubit>(context);
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        border: null,
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
-        previousPageTitle: "",
-        middle: Text("Pêndencias"),
+        leading: CupertinoButton(
+          padding: EdgeInsets.all(0),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            widthFactor: 1.0,
+            child: Text(
+              'Cancelar',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        middle: Text(
+          "Pêndencias",
+          style: textTheme.navTitleTextStyle,
+        ),
+        // trailing: CupertinoButton(
+        //   padding: EdgeInsets.all(0),
+        //   child: Align(
+        //     alignment: AlignmentDirectional.centerStart,
+        //     widthFactor: 1.0,
+        //     child: Text(
+        //       'Seguinte',
+        //       maxLines: 1,
+        //       overflow: TextOverflow.ellipsis,
+        //     ),
+        //   ),
+        //   onPressed: () => onSubmit(context, cubit),
+        // ),
       ),
       child: buildContent(context),
     );
