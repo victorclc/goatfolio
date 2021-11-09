@@ -90,8 +90,9 @@ class StockCore:
     ) -> Decimal:
         if grouping_factor == 0:
             return expected_amount - actual_amount
-
-        return (expected_amount / (grouping_factor + 1)) - actual_amount
+        if actual_amount < 0:
+            return (expected_amount / (grouping_factor + 1)) - actual_amount
+        return (expected_amount - actual_amount) / (grouping_factor + 1)
 
     @staticmethod
     def get_stock_summary_of_ticker(
@@ -156,7 +157,7 @@ class StockCore:
             id=f"STOCK#{ticker}#FIX#{str(uuid4())}",
             date=date,
             type=InvestmentType.STOCK,
-            operation=OperationType.BUY,
+            operation=OperationType.BUY if amount > 0 else OperationType.SELL,
             broker=broker,
             ticker=ticker,
             amount=amount,

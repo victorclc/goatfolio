@@ -1,17 +1,17 @@
-from abc import ABC, abstractmethod
 import datetime
+from abc import ABC, abstractmethod
 from decimal import Decimal
-from typing import Optional, Dict, List
+from typing import Optional, Dict
 
-from domain.performance.intraday_info import IntradayInfo
+import utils as utils
 from domain.common.investment_consolidated import (
     InvestmentConsolidated,
     StockConsolidated,
 )
+from domain.performance.intraday_info import IntradayInfo
 from domain.performance.performance import PortfolioPosition, CandleData, Benchmark
 from ports.outbound.stock_history_repository import StockHistoryRepository
 from ports.outbound.stock_instraday_client import StockIntradayClient
-import utils as utils
 
 
 class InvestmentHistoryConsolidator(ABC):
@@ -66,12 +66,12 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
         if utils.is_on_same_year_and_month(date, utils.current_month_start()):
             intraday = self.intraday.get_intraday_info("IBOV")
             return Benchmark(
-                "IBOVESPA", close=intraday.current_price, open=intraday.current_price
+                "Ibovespa", close=intraday.current_price, open=intraday.current_price
             )  # TODO FIX THIS
 
         if date in self._benchmark:
             return Benchmark(
-                "IBOVESPA",
+                "Ibovespa",
                 close=self._benchmark[date].close_price,
                 open=self._benchmark[date].open_price,
             )
@@ -79,7 +79,7 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
         if data:
             self._benchmark = data
             return Benchmark(
-                "IBOVESPA",
+                "Ibovespa",
                 close=self._benchmark[date].close_price,
                 open=self._benchmark[date].open_price,
             )
