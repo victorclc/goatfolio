@@ -30,7 +30,6 @@ class NotificationClient {
       },
       body: jsonEncode(request.toJson()),
     );
-    debugPrint('registerToken response statusCode: ${response.statusCode}');
   }
 
   Future<void> unregisterToken(String token) async {
@@ -46,6 +45,5 @@ class NotificationClient {
       },
       body: jsonEncode(request.toJson()),
     );
-    debugPrint('registerToken response statusCode: ${response.statusCode}');
   }
 }

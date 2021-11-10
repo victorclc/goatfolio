@@ -34,7 +34,6 @@ class StockInvestmentService {
     final data = await storage.getAll(limit, offset);
 
     if ((data == null || data.isEmpty) && offset == 0) {
-      debugPrint("Buscando na API");
       List<StockInvestment> investments =
           await portfolioClient.getInvestments();
       investments.forEach((i) async => await storage.insert(i));
@@ -44,7 +43,6 @@ class StockInvestmentService {
   }
 
   Future<void> refreshInvestments() async {
-    debugPrint("Refreshing investments");
     List<StockInvestment> investments = await portfolioClient.getInvestments();
     await storage.deleteAll();
     investments.forEach((i) async => await storage.insert(i));

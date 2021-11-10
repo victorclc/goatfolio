@@ -332,7 +332,6 @@ class _StockAddState extends State<StockAdd> {
         return;
       }
     } on Exception catch (e) {
-      print(e);
       await dialog.showErrorDialog(context, "Dados invalidos.");
       return;
     }

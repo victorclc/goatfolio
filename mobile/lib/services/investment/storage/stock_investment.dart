@@ -19,7 +19,7 @@ Future<Database> initDatabase() async {
         "alias_ticker text"
         ")");
   }, onUpgrade: (db, oldVersion, newVersion) {
-    debugPrint("UPGRADING DB TO VERSION $newVersion");
+    ("UPGRADING DB TO VERSION $newVersion");
     if (newVersion == 2) {
       db.execute("ALTER TABLE stock_investments ADD COLUMN alias_ticker text");
     }
@@ -123,7 +123,6 @@ class StockInvestmentStorage {
     final List<Map<String, dynamic>> maps =
         await db.query(TABLE_NAME, distinct: true, columns: [tickerColumn]);
 
-    print("Maps: $maps");
     return List.generate(maps.length, (i) {
       return maps[i][tickerColumn] as String;
     });

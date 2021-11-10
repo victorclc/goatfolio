@@ -1,4 +1,5 @@
 import 'package:amazon_cognito_identity_dart_2/cognito.dart';
+import 'package:f_logs/f_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/flavors.dart';
@@ -115,7 +116,6 @@ class LoginPage extends StatelessWidget {
 
     try {
       await userService.login(username, password);
-      print(await userService.getSessionToken());
       onLoggedOn(context, userService);
       return;
     } on CognitoClientException catch (e) {
@@ -124,14 +124,13 @@ class LoginPage extends StatelessWidget {
           e.code == 'UserNotFoundException' ||
           e.code == 'ResourceNotFoundException') {
         message = "Usuário ou senha incorretos";
-        debugPrint(e.toString());
       } else if (e.code == 'NetworkError') {
         message = "Sem conexão com a internet";
       } else if (e.code == 'UserNotConfirmedException') {
         return await _confirmAccount(context, userService, username, password);
       }
     } catch (e) {
-      debugPrint(e.toString());
+      FLog.error(text: 'CAUGHT EXCEPTION', exception: e);
       message = 'Ops. Aconteceu um erro';
     }
     await dialog.showErrorDialog(context, message);
@@ -165,18 +164,14 @@ class LoginPage extends StatelessWidget {
     try {
       User user = await userService.signUp(values['email'], values['password'],
           attributes: {"given_name": values['name']});
-      print(user);
       if (user != null) {
         Navigator.of(context).pop();
-        print("CONFIRM ACCOUNT");
         await _confirmAccount(
             context, userService, values['email'], values['password']);
       }
     } on CognitoClientException catch (e) {
       if (e.name == "UsernameExistsException") {
         await dialog.showErrorDialog(context, "E-mail ja cadastrado.");
-      } else {
-        debugPrint(e.toString());
       }
     }
   }
@@ -233,7 +228,6 @@ class LoginPage extends StatelessWidget {
           SignInPasswordConfirmationPrompt()
         ],
         onSubmit: (values) async {
-          print("_confirmPassword onSubmit");
           await userService.confirmPassword(
               email, values['confirmationCode'], values['password']);
           await dialog.showSuccessDialog(
