@@ -1,3 +1,4 @@
+import 'package:f_logs/f_logs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/app.dart';
@@ -7,6 +8,8 @@ import 'package:goatfolio/services/notification/firebase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
+  FLog.applyConfigurations(
+      FLog.getDefaultConfigurations()..activeLogLevel = LogLevel.DEBUG);
   F.appFlavor = Flavor.DEV;
   WidgetsFlutterBinding.ensureInitialized();
   await initializeFirebaseNotifications();
