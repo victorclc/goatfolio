@@ -165,9 +165,9 @@ class LoginPage extends StatelessWidget {
       User user = await userService.signUp(values['email'], values['password'],
           attributes: {"given_name": values['name']});
       if (user != null) {
-        Navigator.of(context).pop();
         await _confirmAccount(
             context, userService, values['email'], values['password']);
+        Navigator.of(context).pop();
       }
     } on CognitoClientException catch (e) {
       if (e.name == "UsernameExistsException") {

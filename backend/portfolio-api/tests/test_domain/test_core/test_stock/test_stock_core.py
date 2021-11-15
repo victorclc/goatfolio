@@ -20,6 +20,26 @@ class TestStockCore(unittest.TestCase):
         investment_repo = MagicMock()
         self.core = StockCore(repo, investment_repo, transform_client)
 
+    def test_average_price_rounding_bug(self):
+        consolidated = self.rounding_error_stock_consolidated()
+        self.core.portfolio.find_alias_ticker = MagicMock(return_value=[])
+        self.core.portfolio.find_ticker = MagicMock(return_value=[consolidated])
+        self.core.transformation_client.get_ticker_transformation = MagicMock(
+            return_value=TickerTransformation("BIDI11", Decimal(2))
+        )
+        print(consolidated.monthly_stock_position_wrapper_linked_list().tail.amount)
+
+        investment = self.core.average_price_fix(
+            subject="1111",
+            ticker="BIDI11",
+            date=dt.date(2020, 5, 9),
+            broker="",
+            amount=Decimal(226),
+            average_price=Decimal(11.35),
+        )
+
+        self.assertEqual(investment.price, Decimal("16.95"))
+
     def test_average_price_fix(self):
         subject = "1111-2222-3333-4444-5555"
         ticker = "BIDI11"
@@ -32,7 +52,9 @@ class TestStockCore(unittest.TestCase):
         buy_investment = self.create_buy_investment(
             date=dt.date(2021, 9, 25), amount=Decimal(100), price=Decimal(100)
         )
-        split_investment = self.create_split_investment(dt.date(2021, 9, 25), amount=Decimal(200))
+        split_investment = self.create_split_investment(
+            dt.date(2021, 9, 25), amount=Decimal(200)
+        )
         consolidated.add_investment(buy_investment)
         consolidated.add_investment(split_investment)
 
@@ -83,4 +105,45 @@ class TestStockCore(unittest.TestCase):
             amount=amount,
             price=price,
             alias_ticker=alias_ticker,
+        )
+
+    @staticmethod
+    def rounding_error_stock_consolidated() -> StockConsolidated:
+        return StockConsolidated(
+            **{
+                "subject": "41e4a793-3ef5-4413-82e2-80919bce7c1a",
+                "alias_ticker": "",
+                "history": [
+                    {
+                        "date": "20200921",
+                        "sold_amount": 0,
+                        "bought_amount": 25,
+                        "sold_value": 0,
+                        "bought_value": 1287.5,
+                    },
+                    {
+                        "date": "20201109",
+                        "sold_amount": 40,
+                        "bought_amount": 0,
+                        "sold_value": 2402.4,
+                        "bought_value": 0,
+                    },
+                    {
+                        "date": "20210305",
+                        "sold_amount": 29,
+                        "bought_amount": 0,
+                        "sold_value": 4654.5,
+                        "bought_value": 0,
+                    },
+                    {
+                        "date": "20210412",
+                        "sold_amount": 82,
+                        "bought_amount": 0,
+                        "sold_value": 15417.13,
+                        "bought_value": 0,
+                    },
+                ],
+                "ticker": "BIDI11",
+                "initial_date": "20200509",
+            }
         )
