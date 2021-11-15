@@ -90,8 +90,9 @@ class StockCore:
     ) -> Decimal:
         if grouping_factor == 0:
             return expected_amount - actual_amount
-
-        return (expected_amount / (grouping_factor + 1)) - actual_amount
+        if actual_amount < 0:
+            return (expected_amount / (grouping_factor + 1)) - actual_amount
+        return (expected_amount - actual_amount) / (grouping_factor + 1)
 
     @staticmethod
     def get_stock_summary_of_ticker(
@@ -156,7 +157,7 @@ class StockCore:
             id=f"STOCK#{ticker}#FIX#{str(uuid4())}",
             date=date,
             type=InvestmentType.STOCK,
-            operation=OperationType.BUY,
+            operation=OperationType.BUY if amount > 0 else OperationType.SELL,
             broker=broker,
             ticker=ticker,
             amount=amount,
@@ -191,7 +192,13 @@ class StockCore:
 
         consolidated.add_investment(
             self.create_dummy_buy_investment(
-                amount + (amount + wrappers.tail.amount) * transformation.grouping_factor, date
+                amount
+                + (
+                    amount
+                    + (wrappers.tail.amount if wrappers.tail.amount < 0 else Decimal(0))
+                )
+                * transformation.grouping_factor,
+                date,
             )
         )
         wrappers = consolidated.monthly_stock_position_wrapper_linked_list()
@@ -199,4 +206,6 @@ class StockCore:
         new_bought = wrappers.tail.bought_amount * average_price
         logger.info(f"{new_bought=}")
 
-        return ((new_bought - wrappers.tail.bought_value) / amount).quantize(Decimal("0.01"))
+        return ((new_bought - wrappers.tail.bought_value) / amount).quantize(
+            Decimal("0.01")
+        )

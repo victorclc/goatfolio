@@ -72,7 +72,6 @@ class _ExtractPageState extends State<ExtractPage> {
   }
 
   void loadMoreInvestments() async {
-    print("loading more investments");
     setState(() {
       scrollLoading = true;
     });

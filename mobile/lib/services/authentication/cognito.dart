@@ -1,4 +1,5 @@
 import 'package:amazon_cognito_identity_dart_2/cognito.dart';
+import 'package:f_logs/f_logs.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/services/authentication/session.dart';
 import 'package:goatfolio/services/authentication/user.dart';
@@ -23,7 +24,7 @@ class UserService {
   /// Initiate user session from local storage if present
   Future<bool> init() async {
     final prefs = await SharedPreferences.getInstance().catchError((onError) {
-      debugPrint(onError);
+      FLog.error(text: onError);
     });
     final storage = SessionStorage(prefs);
 
@@ -145,7 +146,6 @@ class UserService {
       password,
       userAttributes: userAttributes
     );
-    debugPrint("data returned by signUp $data");
 
     final user = User();
     user.username = email;

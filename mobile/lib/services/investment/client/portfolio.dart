@@ -45,7 +45,6 @@ class PortfolioClient {
       },
       body: jsonEncode(request.toJson()),
     );
-    print("addStockInvestmentResponse: $response");
 
     if (response.statusCode != HttpStatus.ok) {
       throw Exception("Add Stock Investment failed");
