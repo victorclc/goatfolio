@@ -13,8 +13,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     defaults:
-    run:
-      working-directory: backend
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
