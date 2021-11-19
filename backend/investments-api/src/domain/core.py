@@ -34,7 +34,7 @@ class InvestmentCore:
             raise FieldNotPermittedError("id field not permitted")
 
         request.investment["subject"] = subject
-        investment = load_model_by_type(request.type, request.investment)
+        investment = load_model_by_type(request.type, request.investment, generate_id=True)
         self.validate_investment(investment)
 
         self.repo.save(investment)

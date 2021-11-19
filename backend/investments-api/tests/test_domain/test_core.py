@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from domain.core import InvestmentCore
 from domain.exceptions import FieldMissingError
+from domain.investment_loader import MissingRequiredFields
 from domain.investment_request import InvestmentRequest
 from domain.investment_type import InvestmentType
 from domain.operation_type import OperationType
@@ -127,7 +128,7 @@ class TestInvestmentCore(unittest.TestCase):
             self._create_valid_investment_request_with_subject_and_id(None, None),
             self._create_valid_investment_request_with_subject_and_id(None, None),
         ]
-        with self.assertRaises(FieldMissingError):
+        with self.assertRaises(MissingRequiredFields):
             self.core.batch_add(requests=requests)
 
         self.core.repo.batch_save.assert_not_called()
@@ -141,7 +142,7 @@ class TestInvestmentCore(unittest.TestCase):
             self._create_valid_investment_request_with_subject_and_id(None, None),
             self._create_valid_investment_request_with_subject_and_id(subject, uuid4()),
         ]
-        with self.assertRaises(FieldMissingError):
+        with self.assertRaises(MissingRequiredFields):
             self.core.batch_add(requests=requests)
 
         self.core.repo.batch_save.assert_not_called()
