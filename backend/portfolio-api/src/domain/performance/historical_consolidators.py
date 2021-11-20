@@ -147,6 +147,8 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
         if date == utils.current_month_start():
             return True
 
-        if consolidated.alias_ticker in historical_data:
-            return date in historical_data[consolidated.alias_ticker]
-        return date in historical_data[consolidated.ticker]
+        return (
+            date in historical_data[consolidated.ticker]
+            or consolidated.alias_ticker
+            and date in historical_data[consolidated.alias_ticker]
+        )
