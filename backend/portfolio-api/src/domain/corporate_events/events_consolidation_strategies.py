@@ -165,7 +165,7 @@ def handle_earning_in_assets_event(
             return handle_split_event_strategy(subject, ticker, event, investments)
         if event.type == EventType.GROUP:
             return handle_group_event_strategy(subject, ticker, event, investments)
-        if EventType.INCORPORATION:
+        if event.type == EventType.INCORPORATION:
             return handle_incorporation_event_strategy(
                 subject, ticker, event, investments
             )
