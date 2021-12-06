@@ -48,6 +48,8 @@ class StockCore:
 
         pendencies = []
         for ticker, expected_amount in asset.asset_quantities.items():
+            if ticker.endswith("12"):
+                continue
             transformation = self.transformation_client.get_ticker_transformation(
                 ticker, (datetime.datetime.now() - relativedelta(months=18)).date()
             )
