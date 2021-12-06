@@ -118,8 +118,11 @@ class CorporateEventsCore:
 
         events_list = list(
             filter(
-                lambda e: not (e.type == EventType.INCORPORATION and e.factor == 1),
-                events_list,
+                lambda e: e.type != EventType.BONIFICACAO,  # TODO: adicionar compatibilidade com eventtype bonificacao no resto do sistema
+                filter(
+                    lambda e: not (e.type == EventType.INCORPORATION and e.factor == 1),
+                    events_list,
+                )
             )
         )
 
