@@ -10,3 +10,4 @@ Resources:
       Type: COGNITO_USER_POOLS
       ProviderARNs:
         - 'Fn::ImportValue': ${self:provider.stage}-GoatfolioAppUserPoolArnOutput
+        - 'Fn::ImportValue': ${self:provider.stage}-NewGoatfolioAppUserPoolArnOutput
