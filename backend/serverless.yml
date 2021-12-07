@@ -361,3 +361,8 @@ resources:
         Fn::GetAtt: [ GoatfolioAppUserPool, Arn ]
       Export:
         Name: ${self:provider.stage}-GoatfolioAppUserPoolArnOutput
+    NewGoatfolioAppUserPoolArnOutput:
+      Value:
+        Fn::GetAtt: [ NewGoatfolioAppUserPool, Arn ]
+      Export:
+        Name: ${self:provider.stage}-NewGoatfolioAppUserPoolArnOutput
