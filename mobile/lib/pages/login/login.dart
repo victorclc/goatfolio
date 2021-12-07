@@ -33,73 +33,72 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return RemoveFocusDetector(
       child: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Image(
-                    color: theme.isDarkMode(context)
-                        ? Colors.grey
-                        : null,
-                    image: AssetImage(F.appLogo),
-                    height: 152,
-                    width: 152,
-                  ),
-                ),
-                PrettyTextField(
-                  label: 'E-mail',
-                  focusNode: emailNode,
-                  controller: userController,
-                  autoFillHints: [AutofillHints.email],
-                  textInputType: TextInputType.emailAddress,
-                ),
-                PrettyTextField(
-                  label: 'Senha',
-                  hideText: true,
-                  focusNode: passwordNode,
-                  controller: passwordController,
-                  autoFillHints: [AutofillHints.password],
-                  textInputType: TextInputType.visiblePassword,
-                ),
-                Container(
-                  alignment: Alignment.centerRight,
-                  child: CupertinoButton(
-                    padding: EdgeInsets.all(0),
-                    child: Text("Esqueceu sua senha?"),
-                    onPressed: () => _forgotPassword(context, userService),
-                  ),
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-                Container(
-                  width: double.infinity,
-                  child: AnimatedButton(
-                    onPressed: () => _onLoginSubmit(context),
-                    animatedText: "...",
-                    normalText: "ENTRAR",
-                    filled: true,
-                  ),
-                ),
-                SizedBox(
-                  height: 32,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Não tem uma conta?  "),
-                    CupertinoButton(
-                      padding: EdgeInsets.all(0),
-                      child: Text("Criar conta"),
-                      onPressed: () => _onSigUpTap(context),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+        child: Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Expanded(child: this.userService.getWebView())
+              // Padding(
+              //   padding: const EdgeInsets.all(16.0),
+              //   child: Image(
+              //     color: theme.isDarkMode(context)
+              //         ? Colors.grey
+              //         : null,
+              //     image: AssetImage(F.appLogo),
+              //     height: 152,
+              //     width: 152,
+              //   ),
+              // ),
+              // PrettyTextField(
+              //   label: 'E-mail',
+              //   focusNode: emailNode,
+              //   controller: userController,
+              //   autoFillHints: [AutofillHints.email],
+              //   textInputType: TextInputType.emailAddress,
+              // ),
+              // PrettyTextField(
+              //   label: 'Senha',
+              //   hideText: true,
+              //   focusNode: passwordNode,
+              //   controller: passwordController,
+              //   autoFillHints: [AutofillHints.password],
+              //   textInputType: TextInputType.visiblePassword,
+              // ),
+              // Container(
+              //   alignment: Alignment.centerRight,
+              //   child: CupertinoButton(
+              //     padding: EdgeInsets.all(0),
+              //     child: Text("Esqueceu sua senha?"),
+              //     onPressed: () => _forgotPassword(context, userService),
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: 16,
+              // ),
+              // Container(
+              //   width: double.infinity,
+              //   child: AnimatedButton(
+              //     onPressed: () => _onLoginSubmit(context),
+              //     animatedText: "...",
+              //     normalText: "ENTRAR",
+              //     filled: true,
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: 32,
+              // ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     Text("Não tem uma conta?  "),
+              //     CupertinoButton(
+              //       padding: EdgeInsets.all(0),
+              //       child: Text("Criar conta"),
+              //       onPressed: () => _onSigUpTap(context),
+              //     ),
+              //   ],
+              // ),
+            ],
           ),
         ),
       ),
