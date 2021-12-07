@@ -1,10 +1,16 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:f_logs/f_logs.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/flavors.dart';
 import 'package:goatfolio/services/authentication/session.dart';
 import 'package:goatfolio/services/authentication/user.dart';
+import 'package:http/http.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class UserService {
   final String cognitoUserPoolId;
@@ -172,4 +178,64 @@ class UserService {
 
     return _session!.getIdToken().getJwtToken();
   }
+
+  final Completer<WebViewController> _webViewController = Completer<WebViewController>();
+  Widget getWebView() {
+    var url = "https://goatfolio-dev.auth.sa-east-1" +
+        ".amazoncognito.com/oauth2/authorize?identity_provider=SignInWithApple&redirect_uri=" +
+        "https://myapp/&response_type=CODE&client_id=${F.cognitoFederatedClientId}" +
+        "&scope=email%20openid%20aws.cognito.signin.user.admin";
+    return
+      WebView(
+        initialUrl: url,
+        userAgent: 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) ' +
+            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Mobile Safari/537.36',
+        javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (WebViewController webViewController) {
+          _webViewController.complete(webViewController);
+        },
+        navigationDelegate: (NavigationRequest request) {
+          if (request.url.startsWith("myapp://?code=")) {
+            String code = request.url.substring("https://myapp/?code=".length);
+            signUserInWithAuthCode(code);
+            return NavigationDecision.prevent;
+          }
+
+          return NavigationDecision.navigate;
+        },
+        gestureNavigationEnabled: true,
+      );
+  }
+
+  Future signUserInWithAuthCode(String authCode) async {
+    String url = "https://goatfolio-dev.auth.sa-east-1" +
+        ".amazoncognito.com/oauth2/token?grant_type=authorization_code&client_id=" +
+        "${F.cognitoFederatedClientId}&code=" + authCode + "&redirect_uri=myapp://";
+    final response = await new Client().post(Uri.parse(url), body: {}, headers: {'Content-Type': 'application/x-www-form-urlencoded'});
+    if (response.statusCode != 200) {
+      throw Exception("Received bad status code from Cognito for auth code:" +
+          response.statusCode.toString() + "; body: " + response.body);
+    }
+
+    final tokenData = json.decode(response.body);
+
+    final idToken = CognitoIdToken(tokenData['id_token']);
+    final accessToken = CognitoAccessToken(tokenData['access_token']);
+    final refreshToken = CognitoRefreshToken(tokenData['refresh_token']);
+    final session = CognitoUserSession(idToken, accessToken, refreshToken: refreshToken);
+    final user = CognitoUser(null, _userPool, signInUserSession: session);
+
+    // NOTE: in order to get the email from the list of user attributes, make sure you select email in the list of
+    // attributes in Cognito and map it to the email field in the identity provider.
+    final attributes = await user.getUserAttributes();
+    for (CognitoUserAttribute attribute in attributes!) {
+      if (attribute.getName() == "email") {
+        user.username = attribute.getValue();
+        break;
+      }
+    }
+
+    return user;
+  }
+
 }
