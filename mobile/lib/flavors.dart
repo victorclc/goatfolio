@@ -76,6 +76,16 @@ class F {
     }
   }
 
+  static String get cognitoDomainName {
+    switch (appFlavor) {
+      case Flavor.PROD:
+        return 'https://goatfolio-dev.auth.sa-east-1.amazoncognito.com';
+      case Flavor.DEV:
+      default:
+        return 'https://goatfolio-dev.auth.sa-east-1.amazoncognito.com';
+    }
+  }
+
   static String get baseUrl {
     switch (appFlavor) {
       case Flavor.PROD:
