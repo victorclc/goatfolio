@@ -26,6 +26,16 @@ class F {
     }
   }
 
+  static String get cognitoFederatedClientId {
+    switch (appFlavor) {
+      case Flavor.PROD:
+        return '2svfk9vab5pp78t8lvc5nit5nn';
+      case Flavor.DEV:
+      default:
+        return '3osrp00oi50q2va95o3m43kjmi';
+    }
+  }
+
   static String get cognitoUserPoolId {
     switch (appFlavor) {
       case Flavor.PROD:
@@ -36,6 +46,16 @@ class F {
     }
   }
 
+  static String get cognitoFederatedUserPoolId {
+    switch (appFlavor) {
+      case Flavor.PROD:
+        return 'sa-east-1_qf0cC9q0N';
+      case Flavor.DEV:
+      default:
+        return 'sa-east-1_8hFn2wdZ4';
+    }
+  }
+
   static String get cognitoIdentityPoolId {
     switch (appFlavor) {
       case Flavor.PROD:
@@ -43,6 +63,16 @@ class F {
       case Flavor.DEV:
       default:
         return 'arn:aws:cognito-idp:sa-east-1:138414734174:userpool/sa-east-1_PhDIztXK0';
+    }
+  }
+
+  static String get cognitoFederatedIdentityPoolId {
+    switch (appFlavor) {
+      case Flavor.PROD:
+        return 'arn:aws:cognito-idp:sa-east-1:810300526230:userpool/sa-east-1_qf0cC9q0N';
+      case Flavor.DEV:
+      default:
+        return 'arn:aws:cognito-idp:sa-east-1:138414734174:userpool/sa-east-1_8hFn2wdZ4';
     }
   }
 
