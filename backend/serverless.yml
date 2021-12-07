@@ -295,7 +295,7 @@ resources:
           Mutable: true
       UsernameConfiguration:
         CaseSensitive: false
-      UserPoolName: GoatfolioPool
+      UserPoolName: NewGoatfolioPool
 
   NewMobilePoolClient:
     Type: AWS::Cognito::UserPoolClient
@@ -318,7 +318,7 @@ resources:
       PreventUserExistenceErrors: ENABLED
       EnableTokenRevocation: false
       UserPoolId:
-        Ref: GoatfolioAppUserPool
+        Ref: NewGoatfolioAppUserPool
 
   Outputs:
     Name:
