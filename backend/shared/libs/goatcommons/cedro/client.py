@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 import requests
 
-from aws_lambda_powertools import Logger, Metric
+from aws_lambda_powertools import Logger, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
 
 logger = Logger()
