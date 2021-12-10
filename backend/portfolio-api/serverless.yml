@@ -17,7 +17,8 @@ provider:
     REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
-
+  tracing:
+    lambda: true
   apiGateway:
     apiKeys:
       - portfolio-api-key
