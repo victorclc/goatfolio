@@ -14,4 +14,4 @@ redis~=3.5.3
 pytz~=2021.1
 requests~=2.26.0
 
-aws-lambda-powertools==1.21.1
+aws-lambda-powertools==1.22.0
