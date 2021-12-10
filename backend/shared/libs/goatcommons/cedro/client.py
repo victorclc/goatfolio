@@ -3,7 +3,9 @@ from http import HTTPStatus
 
 import requests
 
-logger = logging.getLogger()
+from aws_lambda_powertools import Logger
+
+logger = Logger()
 
 
 class CedroMarketDataClient:
@@ -23,6 +25,7 @@ class CedroMarketDataClient:
                                      headers={"content-type": "application/x-www-form-urlencoded",
                                               'Connection': 'keep-alive'})
         if response.status_code == HTTPStatus.OK:
+            logger.info("Cedro Authenticated sucessfully")
             self.is_authenticated = response.content
         else:
             logger.error(f'Authentication error: {response.status_code} - {response.content}')
@@ -31,6 +34,9 @@ class CedroMarketDataClient:
         if not self.is_authenticated:
             self.__authenticate()
         response = self.session.get(self.__QUOTE_URL + ticker)
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
+            logger.info("Unauthorized on cedro call, marking as not authenticated.")
+            self.is_authenticated = False
         if response.status_code == HTTPStatus.OK:
             return response.json()
         logger.error(f'QUOTES ERROR: {response.status_code} - {response.content}')
@@ -43,8 +49,11 @@ class CedroMarketDataClient:
         for ticker in tickers:
             quotes += f'{ticker}/'
         response = self.session.get(self.__QUOTE_URL + quotes)
-        print(response)
-        print(response.content)
+
+        if response.status_code == HTTPStatus.UNAUTHORIZED:
+            logger.info("Unauthorized on cedro call, marking as not authenticated.")
+            self.is_authenticated = False
+
         try:
             json = response.json()
             if type(json) is not list:
