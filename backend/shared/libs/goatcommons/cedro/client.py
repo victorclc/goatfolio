@@ -64,8 +64,8 @@ class CedroMarketDataClient:
         try:
             json = response.json()
             if type(json) is not list:
-                metrics.add_metric(name="SuccessfulAPIHits", unit=MetricUnit.Count, value=len(tickers))
                 json = [json]
+            metrics.add_metric(name="SuccessfulAPIHits", unit=MetricUnit.Count, value=len(tickers))
             return json
         except Exception as e:
             metrics.add_metric(name="FailedAPIHits", unit=MetricUnit.Count, value=1)
