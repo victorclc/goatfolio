@@ -52,6 +52,8 @@ class StockHistoryConsolidator(InvestmentHistoryConsolidator):
             for p in positions:
                 if not self.has_price_from_date(consolidated, historical_data, p.date):
                     continue
+                if p.amount <= 0:
+                    continue
                 gross_value = p.amount * self.close_price_of(
                     consolidated, p.date, historical_data
                 )
