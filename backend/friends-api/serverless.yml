@@ -7,13 +7,8 @@ provider:
   runtime: python3.8
   environment:
     PYTHONPATH: "src:shared/libs"
-    CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
-    ADDED_INVESTMENT_TOPIC: !Ref AddedOrUpdatedInvestmentTopic
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
-  apiGateway:
-    apiKeys:
-      - investments-api-key
 
 package:
   exclude:
@@ -114,4 +109,3 @@ resources:
   - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/queue-cf-resources.yml)}
   - ${file(resources/dynamo-cf-resources.yml)}
-  - ${file(resources/sns-cf-resources.yml)}
