@@ -155,7 +155,7 @@ class TestCEICore(unittest.TestCase):
             username="12345678909",
             status=ImportStatus.PROCESSING,
         )
-        result = self.core.import_result(result=import_result)
+        result = self.core.import_result(import_result)
 
         self.core.portfolio.batch_save.assert_called_once()
         self.core.repo.save.assert_called_once()
@@ -180,7 +180,7 @@ class TestCEICore(unittest.TestCase):
             username="12345678909",
             status=ImportStatus.PROCESSING,
         )
-        result = self.core.import_result(result=import_result)
+        result = self.core.import_result(import_result)
 
         self.core.portfolio.batch_save.assert_not_called()
         self.core.repo.save.assert_called_once()
@@ -210,7 +210,7 @@ class TestCEICore(unittest.TestCase):
             status=ImportStatus.PROCESSING,
         )
         self.core.portfolio.batch_save.side_effect = BatchSavingException()
-        result = self.core.import_result(result=import_result)
+        result = self.core.import_result(import_result)
 
         self.core.portfolio.batch_save.assert_called_once()
         self.core.repo.save.assert_called_once()
