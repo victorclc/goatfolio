@@ -124,6 +124,7 @@ class ExtractPage(object):
 
     def _parse_broker_extract(self, broker_name):
         logger.info(f"Parsing extract of broker {broker_name}")
+        logger.debug("BROKER EXTRACT HTML: " + self.driver.page_source)
         tables = self.driver.find_elements_by_xpath("//table")
         if not tables:
             logger.info("No data")
