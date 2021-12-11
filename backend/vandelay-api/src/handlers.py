@@ -17,11 +17,9 @@ from exceptions import UnprocessableException
 from goatcommons.notifications.client import PushNotificationsClient
 from models import CEIInboundRequest, CEIImportResult
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
-)
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+from aws_lambda_powertools import Logger
+
+logger = Logger()
 
 core = CEICore(
     repo=ImportsRepository(),
