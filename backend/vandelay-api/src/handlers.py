@@ -1,7 +1,7 @@
-import datetime
-import logging
 from dataclasses import asdict
 from http import HTTPStatus
+
+from aws_lambda_powertools import Logger
 
 import goatcommons.utils.aws as awsutils
 import goatcommons.utils.json as jsonutils
@@ -17,9 +17,7 @@ from event_notifier.decorators import notify_exception
 from event_notifier.models import NotifyLevel
 from exceptions import UnprocessableException
 from goatcommons.notifications.client import PushNotificationsClient
-from models import CEIInboundRequest, CEIImportResult, CEIOutboundRequest
-
-from aws_lambda_powertools import Logger
+from models import CEIInboundRequest, CEIImportResult
 
 logger = Logger()
 
