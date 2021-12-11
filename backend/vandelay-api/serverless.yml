@@ -10,6 +10,7 @@ provider:
     BASE_API_URL: ${env:DOMAIN_NAME}
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
+  memorySize: 512
 
 package:
   exclude:

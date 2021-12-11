@@ -12,6 +12,8 @@ provider:
     LOGIN_URL: 'https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx'
     LOG_LEVEL: DEBUG
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  tracing:
+    lambda: true
 
 package:
   exclude:

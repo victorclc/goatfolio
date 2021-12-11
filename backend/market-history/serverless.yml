@@ -11,6 +11,8 @@ provider:
     PYTHONPATH: "src:shared/libs"
     STAGE: ${self:provider.stage}
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  tracing:
+    lambda: true
 
 package:
   exclude:
