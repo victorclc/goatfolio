@@ -2,8 +2,11 @@ import logging
 import os
 import re
 import traceback
+import uuid
 from datetime import datetime
 from decimal import Decimal
+
+from selenium import webdriver
 
 import goatcommons.utils.json as jsonutils
 from adapters import CEIResultQueue
@@ -21,11 +24,9 @@ from models import (
 )
 from pages import LoginPage
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
-)
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+from aws_lambda_powertools import Logger
+
+logger = Logger()
 
 
 class CEICrawlerCore:
@@ -122,20 +123,26 @@ class CEICrawlerCore:
 
 # if __name__ == '__main__':
 #     driver = webdriver.Chrome()
-#     login_page = LoginPage(driver, '23011337888', '%wMepyO97Jlac')
+#     login_page = LoginPage(driver, "23011337888", "kH7iVRe8qj!@ZxHA")
 #     home_page = login_page.login()
 #     extract_page = home_page.go_to_asset_inquiry_page()
 #     investments = []
 #     for investment in extract_page.get_assets_quantity():
-#         if not investment['quantidade']:
+#         if not investment["quantidade"]:
 #             continue
-#         s = StockInvestment(type='STOCK',
-#                             operation='BUY' if investment['compra_venda'] == 'C' else 'SELL',
-#                             ticker=re.sub('F$', '', investment['codigo_negociacao']),
-#                             amount=Decimal(investment['quantidade']),
-#                             price=Decimal(investment['preco']),
-#                             date=datetime.strptime(investment['data_do_negocio'], '%d/%m/%Y'),
-#                             broker=investment['corretora'], external_system='CEI', subject='12345')
+#         s = StockInvestment(
+#             type=InvestmentType.STOCK,
+#             operation=OperationType.BUY
+#             if investment["compra_venda"] == "C"
+#             else OperationType.SELL,
+#             ticker=re.sub("F$", "", investment["codigo_negociacao"]),
+#             amount=Decimal(investment["quantidade"]),
+#             price=Decimal(investment["preco"]),
+#             date=datetime.strptime(investment["data_do_negocio"], "%d/%m/%Y"),
+#             broker=investment["corretora"],
+#             external_system="CEI",
+#             subject="12345",
+#         )
 #         s.id = uuid.uuid4()
 #         investments.append(s)
 #     print(investments)

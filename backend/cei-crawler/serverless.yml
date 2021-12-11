@@ -10,6 +10,7 @@ provider:
     PYTHONPATH: "src:shared/libs"
     BUCKET_NAME: ${self:provider.stage}-headlesschromium
     LOGIN_URL: 'https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx'
+    LOG_LEVEL: DEBUG
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
 
 package:
