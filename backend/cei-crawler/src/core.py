@@ -1,12 +1,10 @@
-import logging
 import os
 import re
 import traceback
-import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from selenium import webdriver
+from aws_lambda_powertools import Logger
 
 import goatcommons.utils.json as jsonutils
 from adapters import CEIResultQueue
@@ -23,8 +21,6 @@ from models import (
     OperationType,
 )
 from pages import LoginPage
-
-from aws_lambda_powertools import Logger
 
 logger = Logger()
 
