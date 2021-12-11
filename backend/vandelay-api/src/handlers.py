@@ -73,7 +73,7 @@ def cei_import_request_error_handler(event, context):
     logger.info(f"EVENT: {event}")
 
     for message in event["Records"]:
-        subject = jsonutils.load(message["body"]["subject"]
+        subject = jsonutils.load(message["body"])["subject"]
 
         core.import_result(
             CEIImportResult(
