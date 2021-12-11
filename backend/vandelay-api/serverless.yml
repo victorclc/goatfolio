@@ -10,6 +10,7 @@ provider:
     BASE_API_URL: ${env:DOMAIN_NAME}
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
+  memorySize: 512
 
 package:
   exclude:
@@ -56,6 +57,13 @@ functions:
       - sqs:
           arn:
             'Fn::ImportValue': ${self:provider.stage}-CeiImportResultQueueArn
+
+  ceiImportErrorResult:
+    handler: src/handlers.cei_import_request_error_handler
+    events:
+      - sqs:
+          arn:
+            'Fn::ImportValue': ${self:provider.stage}-CeiImportRequestDLQQueueArn
 
   getImportStatus:
     handler: src/handlers.import_status_handler

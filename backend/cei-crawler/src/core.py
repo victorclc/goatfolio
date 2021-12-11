@@ -1,15 +1,13 @@
-import logging
 import os
 import re
-import traceback
 from datetime import datetime
 from decimal import Decimal
+
+from aws_lambda_powertools import Logger
 
 import goatcommons.utils.json as jsonutils
 from adapters import CEIResultQueue
 from constants import ImportStatus
-from event_notifier.client import ShitNotifierClient
-from event_notifier.models import NotifyLevel
 from exceptions import LoginError
 from lessmium.webdriver import LessmiumDriver
 from models import (
@@ -21,11 +19,7 @@ from models import (
 )
 from pages import LoginPage
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
-)
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = Logger()
 
 
 class CEICrawlerCore:
@@ -69,15 +63,7 @@ class CEICrawlerCore:
             response.status = ImportStatus.ERROR
             response.login_error = True
             response.payload = jsonutils.dump({"error_message": str(e)})
-        except Exception as e:
-            traceback.print_exc()
-            ShitNotifierClient().send(
-                NotifyLevel.ERROR,
-                "CEI-CRAWLER",
-                f"CRAW ALL EXTRACT FAILED {traceback.format_exc()}",
-            )
-            response.status = ImportStatus.ERROR
-            response.payload = jsonutils.dump({"error_message": str(e)})
+
         self.queue.send(response)
         self._cleanup()
 
@@ -122,20 +108,26 @@ class CEICrawlerCore:
 
 # if __name__ == '__main__':
 #     driver = webdriver.Chrome()
-#     login_page = LoginPage(driver, '23011337888', '%wMepyO97Jlac')
+#     login_page = LoginPage(driver, "23011337888", "kH7iVRe8qj!@ZxHA")
 #     home_page = login_page.login()
 #     extract_page = home_page.go_to_asset_inquiry_page()
 #     investments = []
 #     for investment in extract_page.get_assets_quantity():
-#         if not investment['quantidade']:
+#         if not investment["quantidade"]:
 #             continue
-#         s = StockInvestment(type='STOCK',
-#                             operation='BUY' if investment['compra_venda'] == 'C' else 'SELL',
-#                             ticker=re.sub('F$', '', investment['codigo_negociacao']),
-#                             amount=Decimal(investment['quantidade']),
-#                             price=Decimal(investment['preco']),
-#                             date=datetime.strptime(investment['data_do_negocio'], '%d/%m/%Y'),
-#                             broker=investment['corretora'], external_system='CEI', subject='12345')
+#         s = StockInvestment(
+#             type=InvestmentType.STOCK,
+#             operation=OperationType.BUY
+#             if investment["compra_venda"] == "C"
+#             else OperationType.SELL,
+#             ticker=re.sub("F$", "", investment["codigo_negociacao"]),
+#             amount=Decimal(investment["quantidade"]),
+#             price=Decimal(investment["preco"]),
+#             date=datetime.strptime(investment["data_do_negocio"], "%d/%m/%Y"),
+#             broker=investment["corretora"],
+#             external_system="CEI",
+#             subject="12345",
+#         )
 #         s.id = uuid.uuid4()
 #         investments.append(s)
 #     print(investments)

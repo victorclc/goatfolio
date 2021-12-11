@@ -1,6 +1,8 @@
-import logging
 import re
 from datetime import datetime
+
+from aws_lambda_powertools import Logger, Metrics
+from aws_lambda_powertools.metrics import MetricUnit
 
 from brutils.validations import NationalTaxIdUtils
 from constants import ImportStatus
@@ -14,11 +16,8 @@ from models import (
     StockInvestment,
 )
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
-)
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = Logger()
+metrics = Metrics(namespace="VandelayAPI", service="CEI")
 
 
 def _is_status_final(status):
@@ -53,6 +52,7 @@ class CEICore:
 
         return {"datetime": _import.datetime, "status": _import.status}
 
+    @metrics.log_metrics
     def import_result(self, result: CEIImportResult):
         _import = self.repo.find(result.subject, result.datetime)
         _import.status = result.status
@@ -61,8 +61,10 @@ class CEICore:
         if result.status == ImportStatus.ERROR:
             _import.error_message = result.payload
             if result.login_error:
+                metrics.add_metric(name="CEI_IMPORT_LOGIN_ERROR", unit=MetricUnit.Count, value=1)
                 self.push.send_message(result.subject, "CEI_IMPORT_LOGIN_ERROR")
             else:
+                metrics.add_metric(name="CEI_IMPORT_ERROR", unit=MetricUnit.Count, value=1)
                 self.push.send_message(result.subject, "CEI_IMPORT_ERROR")
         else:
             try:
@@ -81,6 +83,7 @@ class CEICore:
                             },
                         )
                     )
+                metrics.add_metric(name="CEI_IMPORT_SUCCESS", unit=MetricUnit.Count, value=1)
                 self.push.send_message(result.subject, "CEI_IMPORT_SUCCESS")
             except BatchSavingException:
                 _import.status = ImportStatus.ERROR
