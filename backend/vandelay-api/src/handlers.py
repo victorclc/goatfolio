@@ -74,11 +74,12 @@ def cei_import_request_error_handler(event, context):
 
     for message in event["Records"]:
         subject = jsonutils.load(message["body"])["subject"]
+        datetime = int(jsonutils.load(message["body"])["datetime"])
 
         core.import_result(
             CEIImportResult(
                 subject,
-                int(datetime.datetime.now().timestamp()),
+                datetime,
                 ImportStatus.ERROR,
                 {"error_message": "Message sent do DLQ"},
             )
