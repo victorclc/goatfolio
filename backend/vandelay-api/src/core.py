@@ -1,7 +1,7 @@
-import logging
 import re
 from datetime import datetime
 
+from aws_lambda_powertools import Logger, Metrics
 from aws_lambda_powertools.metrics import MetricUnit
 
 from brutils.validations import NationalTaxIdUtils
@@ -15,8 +15,6 @@ from models import (
     CEIInfo,
     StockInvestment,
 )
-
-from aws_lambda_powertools import Logger, Metrics
 
 logger = Logger()
 metrics = Metrics(namespace="VandelayAPI", service="CEI")

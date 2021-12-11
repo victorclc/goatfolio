@@ -1,3 +1,4 @@
+import datetime
 import logging
 from dataclasses import asdict
 from http import HTTPStatus
@@ -10,12 +11,13 @@ from adapters import (
     PortfolioClient,
     CEIInfoQueue,
 )
+from constants import ImportStatus
 from core import CEICore
 from event_notifier.decorators import notify_exception
 from event_notifier.models import NotifyLevel
 from exceptions import UnprocessableException
 from goatcommons.notifications.client import PushNotificationsClient
-from models import CEIInboundRequest, CEIImportResult
+from models import CEIInboundRequest, CEIImportResult, CEIOutboundRequest
 
 from aws_lambda_powertools import Logger
 
@@ -64,6 +66,23 @@ def cei_import_result_handler(event, context):
         "statusCode": HTTPStatus.OK.value,
         "body": jsonutils.dump({"message": HTTPStatus.OK.phrase}),
     }
+
+
+@notify_exception(Exception, NotifyLevel.ERROR)
+def cei_import_request_error_handler(event, context):
+    logger.info(f"EVENT: {event}")
+
+    for message in event["Records"]:
+        subject = jsonutils.load(message["body"]["subject"]
+
+        core.import_result(
+            CEIImportResult(
+                subject,
+                int(datetime.datetime.now().timestamp()),
+                ImportStatus.ERROR,
+                {"error_message": "Message sent do DLQ"},
+            )
+        )
 
 
 def import_status_handler(event, context):
