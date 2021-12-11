@@ -1,0 +1,388 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition: all 0.5s ease;
+}
+
+::-moz-selection {
+  color: #fff;
+  background: #007AFF;
+}
+
+::selection {
+  color: #fff;
+  background: #007AFF;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 16px;
+  margin: auto;
+}
+
+h1 {
+  font-size: 2.18rem;
+  margin-bottom: 0.2em;
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 3.8rem;
+  }
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 40px 0 20px 0;
+}
+
+h3 {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  color: #6F6F6F;
+  text-align: center;
+  padding: 0 0 20px 0;
+}
+
+p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+  p {
+    font-size: 1.125rem;
+  }
+}
+
+#moon-toggle {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+}
+
+#moon-toggle:hover {
+  cursor: pointer;
+}
+
+header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  margin-top: 40px;
+}
+
+header.sub-page {
+  padding: 40px 20px;
+  padding-top: 40px;
+  margin-top: 0;
+  background: #f9f9f9;
+}
+
+header .header-icon {
+  display: block;
+}
+
+@media (max-width: 549px) {
+  header .header-icon {
+    width: 100px;
+    height: 100px;
+  }
+  header .header-icon img {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  header .header-icon {
+    width: 200px;
+    height: 200px;
+  }
+  header .header-icon img {
+    width: 100%;
+  }
+}
+
+header .header-info {
+  padding-left: 20px;
+}
+
+@media (min-width: 768px) {
+  header .header-info {
+    padding-left: 50px;
+  }
+}
+
+header .header-info p {
+  color: #7F7F82;
+  font-size: 1.125rem;
+}
+
+@media (max-width: 549px) {
+  header .header-info p {
+    font-size: 0.9rem;
+  }
+}
+
+.intro-text {
+  margin: 40px auto;
+}
+
+.intro-text.purple { color: #6C5EFF; }
+
+.center { 
+  text-align: center;
+}
+
+@media (max-width: 767px) {
+  .intro-text {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@media (min-width: 768px) {
+  .intro-text {
+    max-width: 660px;
+  }
+}
+
+.download-button {
+  text-align: center;
+}
+
+.download-button img {
+  width: 200px;
+}
+
+@media (min-width: 768px) {
+  .download-button img {
+    width: 250px;
+  }
+}
+
+.main .etc {
+  text-align: center;
+  font-style: italic;
+}
+
+.main #video-preview {
+  max-width: 900px;
+  margin: 40px auto;
+}
+
+.main #video-preview:hover {
+  cursor: pointer;
+}
+
+.main #features .feature:not(.ipad) {
+  padding: 0 20px 40px;
+}
+
+@media (min-width: 768px) {
+  .main #features .feature:not(.ipad) {
+    margin: 200px 0;
+  }
+}
+
+.main #features .feature:not(.ipad) .feature-inner {
+  max-width: 900px;
+  position: relative;
+  margin: auto;
+  display: flex;
+  min-height: 400px;
+}
+
+@media (max-width: 549px) {
+  .main #features .feature:not(.ipad) .feature-inner {
+    flex-direction: column;
+  }
+}
+
+.main #features .feature:not(.ipad) .feature-inner .feature-img {
+  max-width: 300px;
+  margin: 20px auto;
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+.main #features .feature:not(.ipad) .feature-inner .feature-img img {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .main #features .feature:not(.ipad) .feature-inner .feature-img img {
+    max-width: 300px;
+    position: absolute;
+    top: -23%;
+  }
+}
+
+.main #features .feature:not(.ipad) .feature-inner .feature-text {
+  flex-grow: 1;
+  flex-basis: 0;
+  align-self: center;
+}
+
+.main #features .feature:not(.ipad):nth-child(even) {
+  background: #f9f9f9;
+}
+
+@media (min-width: 549px) {
+  .main #features .feature:not(.ipad):nth-child(even) .feature-text {
+    order: 2;
+    padding-left: 40px;
+  }
+}
+
+@media (min-width: 549px) {
+  .main #features .feature:not(.ipad):nth-child(odd) .feature-text {
+    padding-right: 40px;
+  }
+}
+
+.main #features .ipad {
+  padding: 0 20px 40px;
+}
+
+@media (min-width: 768px) {
+  .main #features .ipad {
+    margin: 230px 0 270px;
+  }
+}
+
+.main #features .ipad .feature-inner {
+  display: flex;
+  position: relative;
+  max-width: 900px;
+  position: relative;
+  margin: auto;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .main #features .ipad .feature-inner {
+    flex-direction: row;
+  }
+}
+
+.main #features .ipad .feature-inner .feature-text {
+  flex-grow: 1;
+  flex-basis: 0;
+  padding-right: 40px;
+}
+
+.main #features .ipad .feature-inner .feature-img {
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+@media (min-width: 768px) {
+  .main #features .ipad .feature-inner .feature-img {
+    flex-grow: 2;
+    flex-basis: 0;
+  }
+}
+
+.main #features .ipad .feature-inner .feature-img img {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .main #features .ipad .feature-inner .feature-img img {
+    max-width: 400px;
+    position: absolute;
+    top: -23%;
+  }
+}
+
+.support {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.support p {
+  max-width: 400px;
+  background: #F4F3F9;
+  padding: 40px;
+  border-radius: 8px;
+}
+
+.support p a {
+  color: #007AFF;
+}
+
+.support p a:hover {
+  color: #6C5EFF;
+}
+
+footer {
+  margin: 50px 0;
+  text-align: center;
+  clear: both;
+}
+
+footer a {
+  color: #A9A9A9;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+#app-img {
+  border-radius: 16%;
+}
+
+@media (max-width: 549px) {
+  footer a {
+    display: block;
+    text-align: center;
+    line-height: 2;
+  }
+}
+
+@media (min-width: 549px) {
+  footer a:not(:last-child) {
+    margin-right: 6%;
+  }
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+.night-mode {
+  background: #21252E;
+}
+
+.night-mode h1, .night-mode p {
+  color: white;
+}
+
+.night-mode h2 {
+  color: #5379FF;
+}
+
+.night-mode .header-info p {
+  opacity: 0.7;
+}
+
+.night-mode h3 {
+  color: #7F7F82;
+}
+
+.night-mode #moon-toggle {
+  opacity: 0.4;
+}
+
+.night-mode .main #features .feature:nth-child(even) {
+  background: #30333E;
+}
+
