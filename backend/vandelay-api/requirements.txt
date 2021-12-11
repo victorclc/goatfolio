@@ -10,3 +10,5 @@ requests~=2.26.0
 pip~=20.3.3
 certifi~=2021.5.30
 setuptools~=51.1.0
+
+aws-lambda-powertools==1.22.0
