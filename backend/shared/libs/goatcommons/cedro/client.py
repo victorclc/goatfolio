@@ -3,9 +3,12 @@ from http import HTTPStatus
 
 import requests
 
-from aws_lambda_powertools import Logger
+from aws_lambda_powertools import Logger, Metrics
+from aws_lambda_powertools.metrics import MetricUnit
 
 logger = Logger()
+
+metrics = Metrics(namespace="PerformanceAPI", service="CedroTechClient")
 
 
 class CedroMarketDataClient:
@@ -30,6 +33,7 @@ class CedroMarketDataClient:
         else:
             logger.error(f'Authentication error: {response.status_code} - {response.content}')
 
+    @metrics.log_metrics
     def quote(self, ticker):
         if not self.is_authenticated:
             self.__authenticate()
@@ -38,10 +42,13 @@ class CedroMarketDataClient:
             logger.info("Unauthorized on cedro call, marking as not authenticated.")
             self.is_authenticated = False
         if response.status_code == HTTPStatus.OK:
+            metrics.add_metric(name="SuccessfulAPIHits", unit=MetricUnit.Count, value=1)
             return response.json()
         logger.error(f'QUOTES ERROR: {response.status_code} - {response.content}')
+        metrics.add_metric(name="FailedAPIHits", unit=MetricUnit.Count, value=1)
         # TODO PUT A THROW HERE
 
+    @metrics.log_metrics
     def quotes(self, tickers):
         if not self.is_authenticated:
             self.__authenticate()
@@ -58,7 +65,9 @@ class CedroMarketDataClient:
             json = response.json()
             if type(json) is not list:
                 json = [json]
+            metrics.add_metric(name="SuccessfulAPIHits", unit=MetricUnit.Count, value=len(tickers))
             return json
         except Exception as e:
+            metrics.add_metric(name="FailedAPIHits", unit=MetricUnit.Count, value=1)
             logger.exception(f'QUOTES ERROR: {response}', e)
             raise e

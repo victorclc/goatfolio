@@ -1,12 +1,14 @@
-boto3==1.16.43
-botocore==1.19.43
+boto3==1.18.58
+botocore==1.21.58
 jmespath==0.10.0
 python-dateutil==2.8.1
-s3transfer==0.3.3
+s3transfer==0.5.0
 six==1.15.0
 urllib3==1.26.2
 
 requests~=2.26.0
-pip~=20.3.3
+pip~=21.0
 certifi~=2021.5.30
-setuptools~=51.1.0
+setuptools~=52.0.0
+
+aws-lambda-powertools==1.22.0

@@ -1,6 +1,7 @@
-import logging
 from dataclasses import asdict
 from http import HTTPStatus
+
+from aws_lambda_powertools import Logger
 
 import goatcommons.utils.aws as awsutils
 import goatcommons.utils.json as jsonutils
@@ -10,6 +11,7 @@ from adapters import (
     PortfolioClient,
     CEIInfoQueue,
 )
+from constants import ImportStatus
 from core import CEICore
 from event_notifier.decorators import notify_exception
 from event_notifier.models import NotifyLevel
@@ -17,11 +19,7 @@ from exceptions import UnprocessableException
 from goatcommons.notifications.client import PushNotificationsClient
 from models import CEIInboundRequest, CEIImportResult
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"
-)
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = Logger()
 
 core = CEICore(
     repo=ImportsRepository(),
@@ -66,6 +64,24 @@ def cei_import_result_handler(event, context):
         "statusCode": HTTPStatus.OK.value,
         "body": jsonutils.dump({"message": HTTPStatus.OK.phrase}),
     }
+
+
+@notify_exception(Exception, NotifyLevel.ERROR)
+def cei_import_request_error_handler(event, context):
+    logger.info(f"EVENT: {event}")
+
+    for message in event["Records"]:
+        subject = jsonutils.load(message["body"])["subject"]
+        datetime = int(jsonutils.load(message["body"])["datetime"])
+
+        core.import_result(
+            CEIImportResult(
+                subject,
+                datetime,
+                ImportStatus.ERROR,
+                {"error_message": "Message sent do DLQ"},
+            )
+        )
 
 
 def import_status_handler(event, context):
