@@ -1,4 +1,5 @@
 import math
+import os
 import re
 from time import sleep
 
@@ -23,7 +24,7 @@ class LoginPage(object):
     USERNAME_ELEM_ID = "ctl00_ContentPlaceHolder1_txtLogin"
     PASSWORD_ELEM_ID = "ctl00_ContentPlaceHolder1_txtSenha"
     SUBMIT_ELEM_ID = "ctl00$ContentPlaceHolder1$btnLogar"
-    LOGIN_URL = "https://ceiapp.b3.com.br/CEI_Responsivo/login.aspx"
+    LOGIN_URL = os.getenv("LOGIN_URL")
 
     def __init__(self, driver, username, password, logger=None):
         self.driver = driver
