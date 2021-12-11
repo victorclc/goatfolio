@@ -1,6 +1,5 @@
 import os
 import re
-import traceback
 from datetime import datetime
 from decimal import Decimal
 
@@ -9,8 +8,6 @@ from aws_lambda_powertools import Logger
 import goatcommons.utils.json as jsonutils
 from adapters import CEIResultQueue
 from constants import ImportStatus
-from event_notifier.client import ShitNotifierClient
-from event_notifier.models import NotifyLevel
 from exceptions import LoginError
 from lessmium.webdriver import LessmiumDriver
 from models import (
@@ -66,15 +63,7 @@ class CEICrawlerCore:
             response.status = ImportStatus.ERROR
             response.login_error = True
             response.payload = jsonutils.dump({"error_message": str(e)})
-        except Exception as e:
-            traceback.print_exc()
-            ShitNotifierClient().send(
-                NotifyLevel.ERROR,
-                "CEI-CRAWLER",
-                f"CRAW ALL EXTRACT FAILED {traceback.format_exc()}",
-            )
-            response.status = ImportStatus.ERROR
-            response.payload = jsonutils.dump({"error_message": str(e)})
+
         self.queue.send(response)
         self._cleanup()
 

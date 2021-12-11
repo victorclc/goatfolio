@@ -26,7 +26,7 @@ Resources:
             - "Arn"
         maxReceiveCount: 5
       QueueName: CeiImportRequest
-      VisibilityTimeout: 900
+      VisibilityTimeout: 300
 
   CeiImportRequestDLQ:
     Type: AWS::SQS::Queue
@@ -45,3 +45,9 @@ Outputs:
       Fn::GetAtt: [ CeiImportRequestQueue, Arn ]
     Export:
       Name: ${self:provider.stage}-CeiImportRequestQueueArn
+
+  CeiImportRequestDLQQueueArn:
+    Value:
+      Fn::GetAtt: [ CeiImportRequestDLQ, Arn ]
+    Export:
+      Name: ${self:provider.stage}-CeiImportRequestDLQQueueArn
