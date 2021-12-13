@@ -48,6 +48,7 @@ functions:
     events:
       - http:
           path: ticker/{ticker}
+          method: get
           request:
             parameters:
               paths:
