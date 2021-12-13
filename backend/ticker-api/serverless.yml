@@ -1,0 +1,54 @@
+service: ticker-api
+
+provider:
+  name: aws
+  region: sa-east-1
+  stage: ${env:STAGE, 'dev'}
+  runtime: python3.8
+  memorySize: 128
+  environment:
+    PYTHONPATH: "src:shared/libs"
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  endpointType: regional
+  tracing:
+    lambda: true
+  apiGateway:
+    apiKeys:
+      - ticker-api-key
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+    - node_modules/**
+    - resources/**
+  include:
+    - ../shared/libs/goatcommons/**
+    - ../shared/libs/event_notifier/**
+
+plugins:
+  - serverless-domain-manager
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3.8
+    cacheLocation: '.cache/'
+  customDomain:
+    basePath: ticker
+    domainName: ${env:DOMAIN_NAME}
+    stage: ${self:provider.stage}
+    createRoute53Record: false
+    endpointType: 'regional'
+
+functions:
+  # Portfolio Start
+  tickerExists:
+    handler: src/adapters/inbound/api_gateway_handlers.ticker_exists_handler
+    events:
+      - http:
+          path: ticker/{ticker}
+          request:
+            parameters:
+              paths:
+                ticker: true
