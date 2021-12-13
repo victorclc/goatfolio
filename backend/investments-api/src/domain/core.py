@@ -5,26 +5,30 @@ from aws_lambda_powertools import Logger
 from domain.exceptions import (
     InvalidInvestmentDateError,
     FieldNotPermittedError,
-    FieldMissingError,
+    FieldMissingError, InvalidTicker,
 )
-from domain.investment import Investment
+from domain.investment import Investment, StockInvestment
 from domain.investment_loader import load_model_by_type
 from domain.investment_request import InvestmentRequest
 from ports.outbound.investment_publisher import InvestmentPublisher
 from ports.outbound.investment_repository import InvestmentRepository
+from ports.outbound.ticker_info_client import TickerInfoClient
 
 logger = Logger()
 
 
 class InvestmentCore:
-    def __init__(self, repo: InvestmentRepository, publisher: InvestmentPublisher):
+    def __init__(self, repo: InvestmentRepository, publisher: InvestmentPublisher, ticker: TickerInfoClient):
         self.repo = repo
         self.publisher = publisher
+        self.ticker_client = ticker
 
-    @staticmethod
-    def validate_investment(investment):
+    def validate_investment(self, investment):
         if investment.date > datetime.now().date():
             raise InvalidInvestmentDateError()
+        if type(investment) == StockInvestment:
+            if not self.ticker_client.is_ticker_valid(investment.ticker):
+                raise InvalidTicker(f"Ativo {investment.ticker} invalido.")
 
     def get(self, subject: str):
         return self.repo.find_by_subject(subject)

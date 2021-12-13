@@ -8,3 +8,11 @@ class FieldMissingError(Exception):
 
 class InvalidInvestmentDateError(Exception):
     pass
+
+
+class TickerValidationError(Exception):
+    pass
+
+
+class InvalidTicker(Exception):
+    pass
