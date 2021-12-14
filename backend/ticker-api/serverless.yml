@@ -53,3 +53,15 @@ functions:
             parameters:
               paths:
                 ticker: true
+
+
+  tickerCodeExists:
+    handler: src/adapters/inbound/api_gateway_handlers.ticker_code_type_handler
+    events:
+      - http:
+          path: ticker-code/{ticker_code}/type
+          method: get
+          request:
+            parameters:
+              paths:
+                ticker_code: true
