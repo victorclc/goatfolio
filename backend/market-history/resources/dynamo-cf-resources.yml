@@ -9,6 +9,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "isin"
           AttributeType: "S"
+        - AttributeName: "code"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "ticker"
           KeyType: "HASH"
@@ -17,6 +19,14 @@ Resources:
           KeySchema:
             - AttributeName: "isin"
               KeyType: "HASH"
+          Projection:
+            ProjectionType: ALL
+        - IndexName: codeIsinGlobalIndex
+          KeySchema:
+            - AttributeName: "code"
+              KeyType: "HASH"
+            - AttributeName: "isin"
+              KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
   MarketDataTable:
