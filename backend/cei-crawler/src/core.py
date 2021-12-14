@@ -74,6 +74,7 @@ class CEICrawlerCore:
     def _extract_to_investments(self, subject, extract):
         investments = []
         for investment in extract:
+            logger.debug(f"pasing investment: {investment}")
             if not investment["quantidade"]:
                 continue
             s = StockInvestment(
@@ -82,7 +83,7 @@ class CEICrawlerCore:
                 if investment["compra_venda"] == "C"
                 else OperationType.SELL,
                 ticker=re.sub("F$", "", investment["codigo_negociacao"]),
-                amount=Decimal(investment["quantidade"]),
+                amount=Decimal(investment["quantidade"].replace(".", "")),
                 price=Decimal(investment["preco"]),
                 date=datetime.strptime(
                     investment["data_do_negocio"], self.EXTRACT_DATE_FORMAT
