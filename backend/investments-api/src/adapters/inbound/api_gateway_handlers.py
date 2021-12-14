@@ -6,7 +6,7 @@ from adapters.inbound import investment_core
 
 from aws_lambda_powertools import Logger, Tracer
 
-from domain.exceptions import FieldMissingError
+from domain.exceptions import FieldMissingError, InvalidTicker
 from domain.investment_loader import MissingRequiredFields
 from domain.investment_request import InvestmentRequest
 
@@ -41,6 +41,12 @@ def add_investment_handler(event, context):
             "statusCode": HTTPStatus.BAD_REQUEST,
             "body": jsonutils.dump({"message": str(ex)}),
         }
+    except InvalidTicker as ex:
+        logger.exception("BAD REQUEST", ex)
+        return {
+            "statusCode": HTTPStatus.BAD_REQUEST,
+            "body": jsonutils.dump({"message": str(ex)}),
+        }
 
 
 @logger.inject_lambda_context(log_event=True)
@@ -53,6 +59,12 @@ def edit_investment_handler(event, context):
         result = investment_core.edit(subject, investment)
         return {"statusCode": 200, "body": jsonutils.dump(result.to_json())}
     except MissingRequiredFields as ex:
+        logger.exception("BAD REQUEST", ex)
+        return {
+            "statusCode": HTTPStatus.BAD_REQUEST,
+            "body": jsonutils.dump({"message": str(ex)}),
+        }
+    except InvalidTicker as ex:
         logger.exception("BAD REQUEST", ex)
         return {
             "statusCode": HTTPStatus.BAD_REQUEST,
