@@ -13,10 +13,11 @@ from domain.operation_type import OperationType
 
 class TestInvestmentCore(unittest.TestCase):
     def setUp(self):
-        self.core = InvestmentCore(repo=MagicMock(), publisher=MagicMock())
+        self.core = InvestmentCore(repo=MagicMock(), publisher=MagicMock(), ticker=MagicMock())
         self.core.repo.save = MagicMock(return_value=None)
         self.core.repo.batch_save = MagicMock(return_value=None)
         self.core.repo.delete = MagicMock(return_value=None)
+        self.core.ticker_client.is_ticker_valid = MagicMock(return_value=True)
 
     def test_add_stock_investment_with_required_fields_should_save_in_database_and_return_the_updated_investment(
         self,
