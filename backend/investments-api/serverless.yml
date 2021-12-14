@@ -7,7 +7,7 @@ provider:
   runtime: python3.8
   environment:
     PYTHONPATH: "src:shared/libs"
-    CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
+    TICKER_BASE_API_URL: https://${env:DOMAIN_NAME}/ticker
     ADDED_INVESTMENT_TOPIC: !Ref AddedOrUpdatedInvestmentTopic
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
