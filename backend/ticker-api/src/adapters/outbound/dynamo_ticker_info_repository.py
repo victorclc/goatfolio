@@ -31,3 +31,4 @@ class DynamoTickerInfoRepository(TickerInfoRepository):
         )
         if result["Items"]:
             return [TickerInfo(**i) for i in result["Items"]]
+        return []
