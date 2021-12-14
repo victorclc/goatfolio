@@ -1,0 +1,7 @@
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:GetItem
+    - dynamodb:BatchGetItem
+  Resource:
+    'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
