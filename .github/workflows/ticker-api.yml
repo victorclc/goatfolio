@@ -1,4 +1,4 @@
-name: vandelay-api
+name: ticker-api
 
 on:
   push:
