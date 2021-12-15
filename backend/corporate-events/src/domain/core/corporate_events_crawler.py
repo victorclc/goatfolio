@@ -49,6 +49,7 @@ class B3CorporateEventsCrawler:
 
     @retry(Exception, tries=3, delay=0.1, logger=logger)
     def handle_normal_page(self, cvm_code: str, url: str, date: datetime.date):
+        print(url)
         tables = pd.read_html(url)
         count = 0
         for table in tables:
