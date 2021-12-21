@@ -1,4 +1,5 @@
 import os
+from http import HTTPStatus
 
 import requests
 
@@ -20,4 +21,5 @@ class RESTTickerInfoClient(TickerInfoClient):
             headers={"x-api-key": self.api_key},
         )
 
-        return TickerType(response.json()["asset_type"])
+        if response.status_code == HTTPStatus.OK:
+            return TickerType(response.json()["asset_type"])

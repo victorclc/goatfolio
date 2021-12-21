@@ -15,7 +15,7 @@ from domain.ports.outbound.corporate_events_file_storage import (
 )
 from domain.ports.outbound.corporate_events_repository import CorporateEventsRepository
 import event_notifier.decorators as notifier
-from domain.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
+from application.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"

@@ -5,7 +5,7 @@ from typing import List
 from dateutil.relativedelta import relativedelta
 
 from domain.enums.operation_type import OperationType
-from domain.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
+from application.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
 from domain.models.stock_investment import StockInvestment
 from domain.ports.outbound.ticker_info_client import TickerInfoClient
 

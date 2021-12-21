@@ -2,7 +2,7 @@ import abc
 from typing import List
 import datetime as dt
 
-from application.models.companies_updates import CompaniesUpdates, CompanyDetails
+from application.models.companies_updates import CompaniesUpdates, CompanyDetails, CompanySupplement
 
 
 class FetchEventsClient(abc.ABC):
@@ -15,5 +15,13 @@ class FetchEventsClient(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def get_stock_supplement(self, ticker_code: str):
+    def get_stock_supplement(self, ticker_code: str) -> CompanySupplement:
+        ...
+
+    @abc.abstractmethod
+    def get_bdr_supplement(self, ticker_code: str) -> CompanySupplement:
+        ...
+
+    @abc.abstractmethod
+    def get_fii_supplement(self, ticker_code: str) -> CompanySupplement:
         ...

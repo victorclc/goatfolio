@@ -1,8 +1,9 @@
-from dataclasses import dataclass, field
 import datetime as dt
+from dataclasses import dataclass
 from decimal import Decimal
 from typing import Optional
 
+from application.models.companies_updates import StockDividends
 from domain.enums.event_type import EventType
 
 
@@ -24,6 +25,16 @@ class EarningsInAssetCorporateEvent:
             return Decimal(self.grouping_factor)
         return Decimal(self.grouping_factor / 100)
 
+    @classmethod
+    def from_stock_dividends(cls, sd: StockDividends):
+        return cls(type=EventType(sd.label),
+                   isin_code=sd.isin_code,
+                   deliberate_on=sd.approved_on,
+                   with_date=sd.last_date_prior,
+                   grouping_factor=sd.factor,
+                   emitted_asset=sd.asset_issued,
+                   observations=sd.remarks)
+
     def __post_init__(self):
         if type(self.type) is str:
             self.type = EventType(self.type)
@@ -37,6 +48,8 @@ class EarningsInAssetCorporateEvent:
             self.grouping_factor = Decimal(self.grouping_factor).quantize(
                 Decimal("0.00000000001")
             )
+        elif type(self.grouping_factor) is Decimal:
+            self.grouping_factor = self.grouping_factor.quantize(Decimal("0.00000000001"))
         if type(self.observations) is not str:
             self.observations = ""
         if type(self.emitted_asset) is not str:

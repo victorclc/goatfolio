@@ -6,7 +6,7 @@ from typing import Callable, List, Dict
 
 from domain.enums.event_type import EventType
 from domain.enums.operation_type import OperationType
-from domain.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
+from application.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
 from domain.models.stock_investment import StockInvestment
 from domain.models.ticker_transformation import TickerTransformation
 from domain.ports.outbound.corporate_events_repository import CorporateEventsRepository

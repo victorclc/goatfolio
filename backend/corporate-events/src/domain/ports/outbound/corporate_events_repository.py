@@ -2,7 +2,7 @@ from typing import Protocol, List
 import datetime
 
 from domain.enums.event_type import EventType
-from domain.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
+from application.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
 
 
 class CorporateEventsRepository(Protocol):
