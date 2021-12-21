@@ -7,12 +7,9 @@ from adapters.outbound.rest_ticker_info_client import RESTTickerInfoClient
 from adapters.outbound.s3_coporate_events_file_storage import (
     S3CorporateEventsFileStorage,
 )
-from domain.core.corporate_events_core import CorporateEventsCore
 
 events_repo = DynamoCorporateEventsRepository()
 investment_repo = DynamoInvestmentRepository()
 ticker_client = RESTTickerInfoClient()
 file_storage = S3CorporateEventsFileStorage()
 events_client = RESTB3EventsClient()
-
-corporate_events_core = CorporateEventsCore(events_repo, ticker_client, investment_repo)
