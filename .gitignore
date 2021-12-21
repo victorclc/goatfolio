@@ -51,3 +51,5 @@ test-env/
 *.log
 *.csv
 .aws-sam/
+localconfig/
+
