@@ -5,7 +5,7 @@ from http import HTTPStatus
 
 import goatcommons.utils.aws as awsutils
 import goatcommons.utils.json as jsonutils
-from adapters.inbound import corporate_events_core, ticker_client, events_repo
+from adapters.inbound import ticker_client, events_repo
 from core.get_corporate_events import get_corporate_events
 from core.ticker_transformations import transformations_in_ticker
 

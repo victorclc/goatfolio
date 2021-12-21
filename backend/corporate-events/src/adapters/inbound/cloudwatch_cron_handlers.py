@@ -4,7 +4,7 @@ import logging
 from dateutil.relativedelta import relativedelta
 
 import core.strategy as strategies
-from adapters.inbound import corporate_events_core, ticker_client, events_repo, investment_repo, events_client
+from adapters.inbound import ticker_client, events_repo, investment_repo, events_client
 from application.enums.event_type import EventType
 from core.fetch_today_corporate_events import fetch_today_corporate_events
 from core.handle_corporate_events import handle_corporate_events

@@ -1,6 +1,5 @@
 import logging
 
-from adapters.inbound import corporate_events_file_processor
 from event_notifier.decorators import notify_exception
 from event_notifier.models import NotifyLevel
 

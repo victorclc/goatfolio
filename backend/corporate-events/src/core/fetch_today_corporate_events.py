@@ -43,6 +43,7 @@ def fetch_today_corporate_events(events_client: FetchEventsClient,
                 logger.warning("Unidentified company type", extra=asdict(company))
 
             if supplement:
+                # TODO process other types of dividends
                 metrics.add_metric(name="GetCompanySupplementSuccess", unit=MetricUnit.Count, value=1)
                 repository.batch_save(
                     [EarningsInAssetCorporateEvent.from_stock_dividends(e) for e in supplement.stock_dividends])
