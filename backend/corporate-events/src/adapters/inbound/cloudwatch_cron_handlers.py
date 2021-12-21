@@ -47,13 +47,3 @@ def handle_yesterday_incorporation_events_handler(event, context):
         yesterday,
         strategies.handle_incorporation_event_strategy, ticker_client, events_repo, investment_repo
     )
-
-
-def main():
-    date_from = datetime.datetime.now().date() - relativedelta(months=18)
-    print(corporate_events_core.transformations_in_ticker("AESB3", date_from))
-
-
-# if __name__ == "__main__":
-#     # corporate_events_crawler.craw_corporate_events_from_date(datetime.datetime.now())
-#     # print(corporate_events_core.transformations_in_ticker('WEGE3', datetime.date(2020, 4, 1)))
