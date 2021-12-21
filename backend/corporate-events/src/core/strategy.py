@@ -4,18 +4,18 @@ from typing import List
 
 from dateutil.relativedelta import relativedelta
 
-from domain.enums.operation_type import OperationType
-from domain.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
-from domain.models.stock_investment import StockInvestment
-from domain.ports.outbound.ticker_info_client import TickerInfoClient
+from application.enums.operation_type import OperationType
+from application.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
+from application.models.stock_investment import StockInvestment
+from application.ports.ticker_info_client import TickerInfoClient
 
 
 def handle_split_event_strategy(
-    subject: str,
-    ticker: str,
-    event: EarningsInAssetCorporateEvent,
-    investments: List[StockInvestment],
-    ticker_info: TickerInfoClient,
+        subject: str,
+        ticker: str,
+        event: EarningsInAssetCorporateEvent,
+        investments: List[StockInvestment],
+        ticker_info: TickerInfoClient,
 ) -> List[StockInvestment]:
     amount = affected_investments_amount(investments)
     factor = Decimal(event.grouping_factor / 100)
@@ -34,18 +34,18 @@ def handle_split_event_strategy(
 
 
 def handle_group_event_strategy(
-    subject: str,
-    ticker: str,
-    event: EarningsInAssetCorporateEvent,
-    investments: List[StockInvestment],
-    ticker_info: TickerInfoClient,
+        subject: str,
+        ticker: str,
+        event: EarningsInAssetCorporateEvent,
+        investments: List[StockInvestment],
+        ticker_info: TickerInfoClient,
 ) -> List[StockInvestment]:
     amount = affected_investments_amount(investments)
     _id = create_id_from_corp_event(ticker, event)
     factor = event.grouping_factor
     group_investment = StockInvestment(
         amount=amount
-        - Decimal(math.ceil((amount * Decimal(factor)).quantize(Decimal("0.01")))),
+               - Decimal(math.ceil((amount * Decimal(factor)).quantize(Decimal("0.01")))),
         price=Decimal(0),
         ticker=ticker,
         operation=OperationType.GROUP,
@@ -58,11 +58,11 @@ def handle_group_event_strategy(
 
 
 def handle_incorporation_event_strategy(
-    subject: str,
-    ticker: str,
-    event: EarningsInAssetCorporateEvent,
-    investments: List[StockInvestment],
-    ticker_info: TickerInfoClient,
+        subject: str,
+        ticker: str,
+        event: EarningsInAssetCorporateEvent,
+        investments: List[StockInvestment],
+        ticker_info: TickerInfoClient,
 ):
     new_ticker = ticker_info.get_ticker_from_isin_code(event.emitted_asset)
     amount = affected_investments_amount(investments)
@@ -84,7 +84,7 @@ def handle_incorporation_event_strategy(
     elif factor < 1:
         incorp_investment = StockInvestment(
             amount=amount
-            - Decimal(math.ceil((amount * Decimal(factor)).quantize(Decimal("0.01")))),
+                   - Decimal(math.ceil((amount * Decimal(factor)).quantize(Decimal("0.01")))),
             price=Decimal(0),
             ticker=ticker,
             operation=OperationType.INCORP_SUB,

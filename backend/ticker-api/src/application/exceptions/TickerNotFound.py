@@ -1,0 +1,2 @@
+class TickerNotFound(Exception):
+    pass

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 import datetime as dt
 
-from domain.enums.operation_type import OperationType
+from application.enums.operation_type import OperationType
 
 
 @dataclass

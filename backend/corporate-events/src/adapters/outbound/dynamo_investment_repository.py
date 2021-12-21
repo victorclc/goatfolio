@@ -4,7 +4,7 @@ from typing import List
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 
-from domain.models.stock_investment import StockInvestment
+from application.models.stock_investment import StockInvestment
 
 
 class DynamoInvestmentRepository:

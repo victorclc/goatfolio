@@ -1,0 +1,3 @@
+from adapters.outbound.dynamo_ticker_info_repository import DynamoTickerInfoRepository
+
+ticker_repo = DynamoTickerInfoRepository()

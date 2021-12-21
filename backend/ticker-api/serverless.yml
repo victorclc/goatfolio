@@ -42,18 +42,41 @@ custom:
     endpointType: 'regional'
 
 functions:
-  # Portfolio Start
   tickerExists:
     handler: src/adapters/inbound/api_gateway_handlers.ticker_exists_handler
     events:
       - http:
           path: ticker/{ticker}
           method: get
+          private: true
           request:
             parameters:
               paths:
                 ticker: true
 
+  isinCodeFromTicker:
+    handler: src/adapters/inbound/api_gateway_handlers.isin_code_from_ticker_handler
+    events:
+      - http:
+          path: ticker/{ticker}/isin
+          method: get
+          private: true
+          request:
+            parameters:
+              paths:
+                ticker: true
+
+  tickerFromIsinCode:
+    handler: src/adapters/inbound/api_gateway_handlers.ticker_from_isin_code_handler
+    events:
+      - http:
+          path: isin/{isin_code}/ticker
+          method: get
+          private: true
+          request:
+            parameters:
+              paths:
+                isin_code: true
 
   tickerCodeExists:
     handler: src/adapters/inbound/api_gateway_handlers.ticker_code_type_handler
@@ -61,6 +84,7 @@ functions:
       - http:
           path: ticker-code/{ticker_code}/type
           method: get
+          private: true
           request:
             parameters:
               paths:

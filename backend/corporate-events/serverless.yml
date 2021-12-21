@@ -45,16 +45,6 @@ custom:
     endpointType: 'regional'
 
 functions:
-  processCorporateEventsFile:
-    handler: src/adapters/inbound/s3_event_handlers.process_corporate_events_file_handler
-    events:
-      - s3:
-          bucket: ${self:provider.stage}-b3-corporate-events
-          event: s3:ObjectCreated:*
-          rules:
-            - prefix: new/
-            - suffix: .csv
-
   downloadTodayCorporateEvents:
     handler: src/adapters/inbound/cloudwatch_cron_handlers.craw_today_corporate_events_handler
     events:
@@ -74,14 +64,6 @@ functions:
     handler: src/adapters/inbound/cloudwatch_cron_handlers.handle_yesterday_incorporation_events_handler
     events:
       - schedule: cron(0 13 ? * * *)
-
-  checkForApplicableCorpoEvents:
-    handler: src/adapters/inbound/dynamo_stream_handlers.check_for_applicable_corporate_events_handler
-#    events:
-#      - stream:
-#          type: dynamodb
-#          arn:
-#            'Fn::ImportValue': ${self:provider.stage}-InvestmentTableStreamArn
 
   getTickerTransformation:
     handler: src/adapters/inbound/private_api_gateway_handlers.get_ticker_transformations_handler
