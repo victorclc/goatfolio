@@ -2,6 +2,9 @@ import datetime as dt
 from dataclasses import dataclass, asdict
 from typing import List
 
+import certifi
+
+from application.config.certificates import certificates
 from application.models.companies_updates import CompaniesUpdates, CompanyDetails, CompanySupplement
 from application.ports.fetch_events_client import FetchEventsClient
 import requests
@@ -40,6 +43,10 @@ class RESTB3EventsClient(FetchEventsClient):
     STOCK_SUP_URL = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/GetListedSupplementCompany"
     BDR_SUP_URL = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/GetListedSupplementCompanyBDR"
     FII_SUP_URL = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/GetListedSupplementCompanyFunds"
+
+    def __init__(self):
+        with open(certifi.where(), "a") as fp:
+            fp.write(certificates)
 
     def fetch_latest_events_updates(self) -> List[CompaniesUpdates]:
         response = requests.get(self.LATEST_EVENTS_URL)
