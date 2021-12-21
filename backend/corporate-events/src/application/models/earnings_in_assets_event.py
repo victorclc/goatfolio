@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import Optional
 
 from application.models.companies_updates import StockDividends
-from domain.enums.event_type import EventType
+from application.enums.event_type import EventType
 
 
 @dataclass

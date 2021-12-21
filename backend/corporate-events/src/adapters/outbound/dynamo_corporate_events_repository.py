@@ -4,7 +4,7 @@ from typing import List
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 
-from domain.enums.event_type import EventType
+from application.enums.event_type import EventType
 from application.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
 
 

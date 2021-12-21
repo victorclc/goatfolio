@@ -13,7 +13,7 @@ from application.ports.ticker_info_client import TickerInfoClient
 
 from aws_lambda_powertools import Logger, Metrics
 
-from domain.ports.outbound.corporate_events_repository import CorporateEventsRepository
+from application.ports.corporate_events_repository import CorporateEventsRepository
 
 logger = Logger()
 metrics = Metrics(namespace="CorporateEvents", service="TodayCorporateEvents")

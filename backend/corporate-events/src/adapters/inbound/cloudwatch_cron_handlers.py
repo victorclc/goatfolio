@@ -3,9 +3,11 @@ import logging
 
 from dateutil.relativedelta import relativedelta
 
-import domain.core.strategy as strategies
-from adapters.inbound import corporate_events_crawler, corporate_events_core
-from domain.enums.event_type import EventType
+import core.strategy as strategies
+from adapters.inbound import corporate_events_core, ticker_client, events_repo, investment_repo, events_client
+from application.enums.event_type import EventType
+from core.fetch_today_corporate_events import fetch_today_corporate_events
+from core.handle_corporate_events import handle_corporate_events
 from event_notifier.decorators import notify_exception
 from event_notifier.models import NotifyLevel
 
@@ -18,34 +20,32 @@ logger.setLevel(logging.INFO)
 
 @notify_exception(Exception, NotifyLevel.CRITICAL)
 def craw_today_corporate_events_handler(event, context):
-    today = datetime.datetime.now().date()
-
-    corporate_events_crawler.craw_corporate_events_from_date(today)
+    fetch_today_corporate_events(events_client, ticker_client, events_repo)
 
 
 @notify_exception(Exception, NotifyLevel.CRITICAL)
 def handle_yesterday_split_events_handler(event, context):
     yesterday = datetime.datetime.now().date() - relativedelta(days=1)
-    corporate_events_core.handle_corporate_events(
-        EventType.SPLIT, yesterday, strategies.handle_split_event_strategy
+    handle_corporate_events(
+        EventType.SPLIT, yesterday, strategies.handle_split_event_strategy, ticker_client, events_repo, investment_repo
     )
 
 
 @notify_exception(Exception, NotifyLevel.CRITICAL)
 def handle_yesterday_group_events_handler(event, context):
     yesterday = datetime.datetime.now().date() - relativedelta(days=1)
-    corporate_events_core.handle_corporate_events(
-        EventType.GROUP, yesterday, strategies.handle_group_event_strategy
+    handle_corporate_events(
+        EventType.GROUP, yesterday, strategies.handle_group_event_strategy, ticker_client, events_repo, investment_repo
     )
 
 
 @notify_exception(Exception, NotifyLevel.CRITICAL)
 def handle_yesterday_incorporation_events_handler(event, context):
     yesterday = datetime.datetime.now().date() - relativedelta(days=1)
-    corporate_events_core.handle_corporate_events(
+    handle_corporate_events(
         EventType.INCORPORATION,
         yesterday,
-        strategies.handle_incorporation_event_strategy,
+        strategies.handle_incorporation_event_strategy, ticker_client, events_repo, investment_repo
     )
 
 
@@ -54,6 +54,6 @@ def main():
     print(corporate_events_core.transformations_in_ticker("AESB3", date_from))
 
 
-if __name__ == "__main__":
-    corporate_events_crawler.craw_corporate_events_from_date(datetime.datetime.now())
-    # print(corporate_events_core.transformations_in_ticker('WEGE3', datetime.date(2020, 4, 1)))
+# if __name__ == "__main__":
+#     # corporate_events_crawler.craw_corporate_events_from_date(datetime.datetime.now())
+#     # print(corporate_events_core.transformations_in_ticker('WEGE3', datetime.date(2020, 4, 1)))
