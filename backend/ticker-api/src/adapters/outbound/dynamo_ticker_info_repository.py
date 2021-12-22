@@ -1,5 +1,10 @@
+
+from typing import List
+
 import boto3
 from boto3.dynamodb.conditions import Key
+
+from application.models.ticker_info import TickerInfo
 
 from application.ports.ticker_info_repository import TickerInfoRepository
 
@@ -20,3 +25,14 @@ class DynamoTickerInfoRepository(TickerInfoRepository):
         )
         if result["Items"]:
             return result["Items"][0]["ticker"]
+
+
+    def find_by_code(self, code: str) -> List[TickerInfo]:
+        result = self.__table.query(
+            IndexName="codeIsinGlobalIndex",
+            KeyConditionExpression=Key("code").eq(code.upper()),
+        )
+        if result["Items"]:
+            return [TickerInfo(**i) for i in result["Items"]]
+        return []
+

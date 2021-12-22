@@ -6,6 +6,6 @@
   Resource:
     - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
     - Fn::Join:
-      - ''
-      - - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
-        - '/index/*'
+        - ''
+        - - 'Fn::ImportValue': ${self:provider.stage}-TickerInfoTableArnOutput
+          - '/index/*'

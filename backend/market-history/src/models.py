@@ -25,7 +25,7 @@ class B3CotaHistData:
         self.tipo_registro = None
         self.codigo_bdi = None
         self.tipo_mercado = None
-        self.especificacao_papel = None
+        self.especificacao_papel: str = None
         self.prazo_dias_mercado_a_termo = None
         self.moeda_referencia = None
         self.quantidade_total_titulos_negociados = None
