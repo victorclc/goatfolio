@@ -1,0 +1,2 @@
+class TickerValidationError(Exception):
+    pass

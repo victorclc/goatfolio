@@ -5,6 +5,7 @@ from adapters.outbound.dynamo_stock_history_repository import (
     DynamoStockHistoryRepository,
 )
 from adapters.outbound.rest_corporate_events_client import RESTCorporateEventsClient
+from adapters.outbound.rest_ticker_info_client import RestTickerInfoClient
 from domain.performance.calculators import (
     StockPerformanceCalculator,
     StockGroupPositionCalculator,
@@ -22,11 +23,13 @@ portfolio_repo = DynamoPortfolioRepository()
 intraday_client = CedroStockIntradayClient()
 stock_history = DynamoStockHistoryRepository()
 transformation_client = RESTCorporateEventsClient()
+ticker_client = RestTickerInfoClient()
 events_consolidated = CorporateEventsConsolidationCore(investment_repo, transformation_client)
 
 
 portfolio_core = InvestmentConsolidationCore(
     repo=portfolio_repo,
+    ticker_client=ticker_client,
     strategies={InvestmentType.STOCK: StockConsolidationStrategy(portfolio_repo)},
 )
 performance_core = PerformanceCore(
