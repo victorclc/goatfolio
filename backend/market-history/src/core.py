@@ -114,11 +114,7 @@ class CotaHistTransformerCore:
                         continue
                     data = B3CotaHistData()
                     data.load_line(line)
-                    if data.codigo_bdi not in [
-                        BDICodes.STOCK,
-                        BDICodes.FII,
-                        BDICodes.ETF,
-                    ]:
+                    if data.codigo_bdi not in [BDICodes.STOCK, BDICodes.FII, BDICodes.ETF, BDICodes.RECUPERACAO_JUDICIAL]:
                         continue
                     series.append(data)
             logger.info(f"Finish reading.")
@@ -148,10 +144,10 @@ class CotaHistDownloaderCore:
         self.bucket.put(BytesIO(file_buffer), f"M{year}{month:02}.TXT")
 
 
-if __name__ == "__main__":
-    # core = CotaHistTransformerCore()
-    # core.transform_cota_hist(None, None)
-    # core.update_ibov_history()
-    core = CotaHistDownloaderCore()
-    core.download_monthly_file(2021, 8)
-    # CRIAR UM BAGULHO PRA BAIXAR DIARIAMENTE, ASSIM TODOS OS NOVOS ATIVOS DE IPO E TUDO MAIS SERAO DISPONIBILIZADOS NO DIA SEGUINTE
+# if __name__ == "__main__":
+#     # core = CotaHistTransformerCore()
+#     # core.transform_cota_hist(None, None)
+#     # core.update_ibov_history()
+#     core = CotaHistDownloaderCore()
+#     core.download_monthly_file(2021, 8)
+#     # CRIAR UM BAGULHO PRA BAIXAR DIARIAMENTE, ASSIM TODOS OS NOVOS ATIVOS DE IPO E TUDO MAIS SERAO DISPONIBILIZADOS NO DIA SEGUINTE
