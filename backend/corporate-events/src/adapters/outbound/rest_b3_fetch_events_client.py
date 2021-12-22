@@ -44,9 +44,9 @@ class RESTB3EventsClient(FetchEventsClient):
     BDR_SUP_URL = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/GetListedSupplementCompanyBDR"
     FII_SUP_URL = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/GetListedSupplementCompanyFunds"
 
-    def __init__(self):
-        with open(certifi.where(), "a") as fp:
-            fp.write(certificates)
+    # def __init__(self):
+    #     with open(certifi.where(), "a") as fp:
+    #         fp.write(certificates)
 
     def fetch_latest_events_updates(self) -> List[CompaniesUpdates]:
         response = requests.get(self.LATEST_EVENTS_URL)
