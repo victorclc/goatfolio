@@ -72,6 +72,10 @@ class RESTB3EventsClient(FetchEventsClient):
         events = self.fetch_latest_events_updates()
         logger.debug(f"Latest events: {events}")
         logger.debug(f"Goal date: {_date}")
+
+        for event in events:
+            print(f"{event.date} == {_date} = {event.date != _date}")
+
         return list(
             filter(lambda c: c.date == _date, events)
         )[0].companies
