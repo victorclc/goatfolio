@@ -1,7 +1,7 @@
 import datetime
 from typing import Protocol, List
 
-from domain.models.stock_investment import StockInvestment
+from application.models.stock_investment import StockInvestment
 
 
 class InvestmentRepository(Protocol):
