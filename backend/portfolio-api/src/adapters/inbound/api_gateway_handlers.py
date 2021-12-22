@@ -6,7 +6,7 @@ from aws_lambda_powertools import Logger, Tracer
 
 import goatcommons.utils.aws as awsutils
 import goatcommons.utils.json as jsonutils
-from adapters.inbound import performance_core, stock_core, portfolio_core, investment_repo
+from adapters.inbound import performance_core, stock_core
 
 logger = Logger()
 tracer = Tracer()
