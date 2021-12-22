@@ -181,7 +181,7 @@ class AssetInquiryPage(object):
 
         sleep(3)
         assets_qty = {}
-        tables = pd.read_html(self.driver.page_source)
+        tables = pd.read_html(self.driver.page_source, decimal=",", thousands=".")
         logger.info(f"Found {len(tables)} tables.")
         logger.debug("ASSETS QUANTITY HTML: " + self.driver.page_source)
         for table in tables:

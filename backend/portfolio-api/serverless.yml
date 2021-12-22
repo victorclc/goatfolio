@@ -16,6 +16,7 @@ provider:
     PYTHONPATH: "src:shared/libs"
     CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
     REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
+    TICKER_BASE_API_URL: https://${env:DOMAIN_NAME}/ticker
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
   tracing:
