@@ -13,6 +13,7 @@ provider:
   environment:
     PYTHONPATH: "src:shared/libs"
     CORPORATE_BUCKET: ${self:provider.stage}-b3-corporate-events
+    CURL_CA_BUNDLE: '/var/task/cacert.pem'
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
   tracing:
