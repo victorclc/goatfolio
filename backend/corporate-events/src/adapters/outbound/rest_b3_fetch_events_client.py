@@ -69,8 +69,11 @@ class RESTB3EventsClient(FetchEventsClient):
         ]
 
     def fetch_companies_updates_from_date(self, _date: dt.date) -> List[CompanyDetails]:
+        events = self.fetch_latest_events_updates()
+        logger.debug(f"Latest events: {events}")
+        logger.debug(f"Goal date: {_date}")
         return list(
-            filter(lambda c: c.date == _date, self.fetch_latest_events_updates())
+            filter(lambda c: c.date == _date, events)
         )[0].companies
 
     def get_stock_supplement(self, ticker_code: str) -> CompanySupplement:
