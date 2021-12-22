@@ -2,6 +2,7 @@ from dataclasses import asdict
 from datetime import datetime
 
 from aws_lambda_powertools.metrics import MetricUnit
+from dateutil.relativedelta import relativedelta
 
 from adapters.outbound.dynamo_corporate_events_repository import DynamoCorporateEventsRepository
 from adapters.outbound.rest_b3_fetch_events_client import RESTB3EventsClient
@@ -22,7 +23,7 @@ metrics = Metrics(namespace="CorporateEvents", service="TodayCorporateEvents")
 def fetch_today_corporate_events(events_client: FetchEventsClient,
                                  ticker_client: TickerInfoClient,
                                  repository: CorporateEventsRepository):
-    companies = events_client.fetch_companies_updates_from_date(datetime.now().date())
+    companies = events_client.fetch_companies_updates_from_date(datetime.now().date() - relativedelta(days=1))
 
     metrics.add_metric(name="TotalUpdatedCompanies", unit=MetricUnit.Count, value=len(companies))
 
