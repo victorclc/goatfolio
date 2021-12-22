@@ -14,6 +14,7 @@ provider:
     PYTHONPATH: "src:shared/libs"
     CORPORATE_BUCKET: ${self:provider.stage}-b3-corporate-events
     CURL_CA_BUNDLE: '/var/task/cacert.pem'
+    TICKER_BASE_API_URL: https://${env:DOMAIN_NAME}/ticker
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
   tracing:
