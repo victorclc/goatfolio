@@ -2,10 +2,14 @@ import datetime
 from typing import List
 
 import boto3
+from aws_lambda_powertools import Logger
 from boto3.dynamodb.conditions import Key, Attr
 
 from application.enums.event_type import EventType
 from application.models.earnings_in_assets_event import EarningsInAssetCorporateEvent
+
+
+logger = Logger()
 
 
 class DynamoCorporateEventsRepository:
@@ -42,6 +46,7 @@ class DynamoCorporateEventsRepository:
         return list(map(lambda i: EarningsInAssetCorporateEvent(**i), result["Items"]))
 
     def batch_save(self, records: List[EarningsInAssetCorporateEvent]):
+        logger.debug(f"BatchSaving records: {records}")
         with self.__table.batch_writer() as batch:
             for record in records:
                 batch.put_item(Item=record.to_dict())
