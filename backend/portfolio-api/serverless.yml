@@ -102,7 +102,7 @@ functions:
   # Performance Start
   performanceSummary:
     handler: src/adapters/inbound/api_gateway_handlers.performance_summary_handler
-    provisionedConcurrency: 5
+    provisionedConcurrency: 1
     events:
       - http:
           path: summary
@@ -114,7 +114,6 @@ functions:
 
   performanceHistory:
     handler: src/adapters/inbound/api_gateway_handlers.performance_history_handler
-    provisionedConcurrency: 5
     events:
       - http:
           path: history
@@ -126,7 +125,7 @@ functions:
 
   portfolioPerformance:
     handler: src/adapters/inbound/api_gateway_handlers.calculate_group_position_summary_handler
-    provisionedConcurrency: 5
+    provisionedConcurrency: 1
     events:
       - http:
           path: summary/grouped
@@ -138,7 +137,6 @@ functions:
 
   tickerPerformance:
     handler: src/adapters/inbound/api_gateway_handlers.ticker_performance_handler
-    provisionedConcurrency: 5
     events:
       - http:
           path: history/{ticker}
