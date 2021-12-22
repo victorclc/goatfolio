@@ -1,17 +1,17 @@
+import base64
 import datetime as dt
+import re
 from dataclasses import dataclass, asdict
 from typing import List
 
-import certifi
-
-from application.config.certificates import certificates
-from application.models.companies_updates import CompaniesUpdates, CompanyDetails, CompanySupplement
-from application.ports.fetch_events_client import FetchEventsClient
 import requests
-import base64
-import re
+from aws_lambda_powertools import Logger
 
 import goatcommons.utils.json as jsonutils
+from application.models.companies_updates import CompaniesUpdates, CompanyDetails, CompanySupplement
+from application.ports.fetch_events_client import FetchEventsClient
+
+logger = Logger()
 
 
 def to_snake_case(name):
@@ -44,12 +44,11 @@ class RESTB3EventsClient(FetchEventsClient):
     BDR_SUP_URL = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/GetListedSupplementCompanyBDR"
     FII_SUP_URL = "https://sistemaswebb3-listados.b3.com.br/listedCompaniesProxy/CompanyCall/GetListedSupplementCompanyFunds"
 
-    # def __init__(self):
-    #     with open(certifi.where(), "a") as fp:
-    #         fp.write(certificates)
-
     def fetch_latest_events_updates(self) -> List[CompaniesUpdates]:
         response = requests.get(self.LATEST_EVENTS_URL)
+        json = response.json()
+
+        logger.debug(f"Response body: {json}")
 
         return [
             CompaniesUpdates(
@@ -66,7 +65,7 @@ class RESTB3EventsClient(FetchEventsClient):
                     for c in i["results"]
                 ],
             )
-            for i in response.json()
+            for i in json
         ]
 
     def fetch_companies_updates_from_date(self, _date: dt.date) -> List[CompanyDetails]:

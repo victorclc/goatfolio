@@ -11,6 +11,7 @@ provider:
     apiKeys:
       - corporate-events-api-key
   environment:
+    LOG_LEVEL: DEBUG
     PYTHONPATH: "src:shared/libs"
     CORPORATE_BUCKET: ${self:provider.stage}-b3-corporate-events
     CURL_CA_BUNDLE: '/var/task/cacert.pem'
