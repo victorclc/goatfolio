@@ -50,7 +50,7 @@ def fetch_today_corporate_events(events_client: FetchEventsClient,
                     [EarningsInAssetCorporateEvent.from_stock_dividends(e) for e in supplement.stock_dividends])
         except Exception as ex:
             metrics.add_metric(name="GetCompanySupplementError", unit=MetricUnit.Count, value=1)
-            logger.error("Error fetching company supplement", ex, extra=asdict(company))
+            logger.error(f"Error fetching company supplement: {company}", ex)
 
 
 if __name__ == '__main__':
