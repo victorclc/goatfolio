@@ -112,7 +112,7 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
-  performanceHistory:
+  performanceHistory2:
     handler: src/adapters/inbound/api_gateway_handlers.performance_history_handler
     provisionedConcurrency: 5
     events:
