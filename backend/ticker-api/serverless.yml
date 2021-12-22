@@ -54,6 +54,17 @@ functions:
               paths:
                 ticker: true
 
+  tickerCodeExists:
+    handler: src/adapters/inbound/api_gateway_handlers.ticker_code_type_handler
+    events:
+      - http:
+          path: ticker-code/{ticker_code}/type
+          method: get
+          request:
+            parameters:
+              paths:
+                ticker_code: true
+
   isinCodeFromTicker:
     handler: src/adapters/inbound/api_gateway_handlers.isin_code_from_ticker_handler
     events:
@@ -77,15 +88,3 @@ functions:
             parameters:
               paths:
                 isin_code: true
-
-  tickerCodeExists:
-    handler: src/adapters/inbound/api_gateway_handlers.ticker_code_type_handler
-    events:
-      - http:
-          path: ticker-code/{ticker_code}/type
-          method: get
-          private: true
-          request:
-            parameters:
-              paths:
-                ticker_code: true
