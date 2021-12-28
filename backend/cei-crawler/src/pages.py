@@ -149,7 +149,7 @@ class ExtractPage(object):
             row_dict = {}
             for index, elem in enumerate(row):
                 key = self._pythonfy_text(headers[index])
-                row_dict[key] = unidecode(elem).replace(",", ".")
+                row_dict[key] = unidecode(elem).replace(".", "").replace(",", ".")
             row_dict["corretora"] = broker_name
             result.append(row_dict)
 
