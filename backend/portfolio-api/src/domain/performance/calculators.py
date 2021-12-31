@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import Dict, Optional, List
 
+from aws_lambda_powertools import Logger
 from dateutil.relativedelta import relativedelta
 
 import utils as utils
@@ -22,11 +23,13 @@ from domain.performance.performance import (
 from ports.outbound.stock_history_repository import StockHistoryRepository
 from ports.outbound.stock_instraday_client import StockIntradayClient
 
+logger = Logger()
+
 
 class InvestmentPerformanceCalculator(ABC):
     @abstractmethod
     def calculate_performance_summary(
-        self, summaries_dict: Dict[str, InvestmentSummary]
+            self, summaries_dict: Dict[str, InvestmentSummary]
     ) -> PerformanceSummary:
         """Calculates the PerformanceSummary of all investments of a investment type"""
 
@@ -37,7 +40,7 @@ class StockPerformanceCalculator(InvestmentPerformanceCalculator):
         self.intraday = intraday
 
     def calculate_performance_summary(
-        self, summaries_dict: Dict[str, StockSummary]
+            self, summaries_dict: Dict[str, StockSummary]
     ) -> PerformanceSummary:
         intraday_dict = self.intraday.batch_get_intraday_info(
             list(summaries_dict.keys())
@@ -50,13 +53,13 @@ class StockPerformanceCalculator(InvestmentPerformanceCalculator):
             p.gross_amount += summary.latest_position.amount * intra.current_price
             p.invested_amount += summary.latest_position.invested_value
             p.day_variation += summary.latest_position.amount * (
-                intra.current_price - intra.yesterday_price
+                    intra.current_price - intra.yesterday_price
             )
             previous_month_gross_amount += self.previous_month_gross_amount(
                 ticker, summary
             )
             if utils.is_on_same_year_and_month(
-                summary.latest_position.date, utils.current_month_start()
+                    summary.latest_position.date, utils.current_month_start()
             ):
                 p.month_variation -= summary.latest_position.bought_value
 
@@ -72,25 +75,29 @@ class StockPerformanceCalculator(InvestmentPerformanceCalculator):
 
     def previous_month_gross_amount(self, ticker, summary: StockSummary) -> Decimal:
         if summary.latest_position.date < utils.current_month_start():
+            candle = self.history.find_by_ticker_and_date(
+                ticker, utils.current_month_start() - relativedelta(months=1)
+            )
+            if not candle:
+                logger.info(
+                    f"{ticker} NOT UPDATED, NO DATA FOR {utils.current_month_start() - relativedelta(months=1)}")
+                candle = self.history.find_latest_candle(ticker)
             return (
-                summary.latest_position.amount
-                * self.history.find_by_ticker_and_date(
-                    ticker, utils.current_month_start() - relativedelta(months=1)
-                ).close_price
+                    summary.latest_position.amount
+                    * candle.close_price
             )
         elif summary.has_active_previous_position():
             return (
-                summary.previous_position.amount
-                * self.history.find_by_ticker_and_date(
-                    ticker, utils.current_month_start() - relativedelta(months=1)
-                ).close_price
+                    summary.previous_position.amount
+                    * self.history.find_by_ticker_and_date(ticker, utils.current_month_start() - relativedelta(months=1)
+                                                           ).close_price
             )
         return Decimal(0)
 
 
 class GroupSummaryCalculator(ABC):
     def calculate_group_position_summary(
-        self, summaries_dict: Dict[str, InvestmentSummary]
+            self, summaries_dict: Dict[str, InvestmentSummary]
     ) -> List[GroupPositionSummary]:
         """Calculates the position of a group of investments and returns a list of GroupPositionSummary for each
         investment subgroup"""
@@ -141,7 +148,7 @@ class StockGroupPositionCalculator(GroupSummaryCalculator):
         ]
 
     def calculate_group_position_summary(
-        self, summaries_dict: Dict[str, StockSummary]
+            self, summaries_dict: Dict[str, StockSummary]
     ) -> List[StocksPositionSummary]:
         self.initialize(summaries_dict)
 

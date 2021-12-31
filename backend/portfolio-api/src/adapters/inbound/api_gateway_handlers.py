@@ -86,7 +86,8 @@ def get_stock_divergences_handler(event, context):
 
 
 def main():
-    subject = "206635f0-c196-470e-8201-4eec1d68fc3a"
+    subject = "327e7878-8666-43a2-b9fb-b425cb9d0d82"
+    # subject = "0ed5d1af-9ae8-402a-898f-6a90633081b8"
     # result = stock_core.average_price_fix(
     #     subject,
     #     **{
@@ -104,8 +105,8 @@ def main():
     # for investment in investments:
     #     portfolio_core.consolidate_investments(subject, investment, None)
 
-    print(performance_core.calculate_portfolio_summary(subject))
-    # print(jsonutils.dump(stock_core.get_stock_divergences(subject)))
+    # print(performance_core.calculate_portfolio_detailed_summary(subject))
+    print(jsonutils.dump(stock_core.get_stock_divergences(subject)))
     # print(jsonutils.dump(performance_core.ticker_history_chart(subject, "BIDI11").to_json()))
 
 

@@ -10,6 +10,9 @@ class StockHistoryRepository(Protocol):
     ) -> Optional[CandleData]:
         """Gets CandleData from given ticker and date or None if nothing is found."""
 
+    def find_latest_candle(self, ticker: str) -> Optional[CandleData]:
+        """Returns the latest candle data of a ticker"""
+
     def find_by_ticker_from_date(
         self, ticker: str, from_date: datetime.date
     ) -> Dict[datetime.date, CandleData]:
