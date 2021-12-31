@@ -20,21 +20,21 @@ class DynamoStockHistoryRepository:
         self.__client = boto3.client("dynamodb")
 
     def find_by_ticker_and_date(
-        self, ticker: str, _date: datetime.date
+            self, ticker: str, _date: datetime.date
     ) -> Optional[CandleData]:
         result = self.__table.query(
             KeyConditionExpression=Key("ticker").eq(ticker)
-            & Key("candle_date").eq(_date.strftime(self.DATE_FORMAT))
+                                   & Key("candle_date").eq(_date.strftime(self.DATE_FORMAT))
         )
         if result["Items"]:
             return CandleData(**result["Items"][0])
 
     def find_by_ticker_from_date(
-        self, ticker: str, _date: datetime.date
+            self, ticker: str, _date: datetime.date
     ) -> Dict[datetime.date, CandleData]:
         result = self.__table.query(
             KeyConditionExpression=Key("ticker").eq(ticker)
-            & Key("candle_date").gte(_date.strftime(self.DATE_FORMAT))
+                                   & Key("candle_date").gte(_date.strftime(self.DATE_FORMAT))
         )
 
         candles = {}
@@ -46,7 +46,7 @@ class DynamoStockHistoryRepository:
         return candles
 
     def find_by_tickers_and_date(
-        self, tickers: List[str], _date: datetime.date
+            self, tickers: List[str], _date: datetime.date
     ) -> Optional[List[CandleData]]:
         response = self.__client.batch_get_item(
             RequestItems={
@@ -68,3 +68,12 @@ class DynamoStockHistoryRepository:
         for data in response["Responses"]["MarketData"]:
             candles.append(CandleData(**deserializer.deserialize({"M": data})))
         return candles
+
+    def find_latest_candle(self, ticker: str) -> Optional[CandleData]:
+        result = self.__table.query(
+            KeyConditionExpression=Key("ticker").eq(ticker),
+            ScanIndexForward=False,
+            Limit=1
+        )
+        if result["Items"]:
+            return CandleData(**result["Items"][0])

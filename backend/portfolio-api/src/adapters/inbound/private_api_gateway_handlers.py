@@ -6,6 +6,7 @@ from adapters.outbound.cedro_stock_intraday_client import (
     invalidate_cache
 )
 
+
 def get_cache_snapshot_handler(event, context):
     return {
         "statusCode": HTTPStatus.OK,
