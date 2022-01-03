@@ -1,13 +1,16 @@
 name: Deploy to Play Store
 on:
   push:
-  # Sequence of patterns matched against refs/tags
-    branches:
-    - master
+    branches: [ master ]
+    paths:
+      - 'mobile/**'
 
 jobs:
   fastlane-deploy:
     runs-on: ubuntu-18.04
+    defaults:
+      run:
+        working-directory: mobile
     steps:
       # Set up Flutter.
       - name: Clone Flutter repository with master channel
