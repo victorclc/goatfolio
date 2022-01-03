@@ -178,7 +178,7 @@ class _CeiLoginPageState extends State<CeiLoginPage> {
               CupertinoButton(
                 child: Text("Esqueceu sua senha?"),
                 onPressed: () async => await launch(
-                    'https://cei.b3.com.br/CEI_Responsivo/recuperar-senha.aspx'),
+                    'https://ceiapp.b3.com.br/CEI_Responsivo/recuperar-senha.aspx'),
               ),
               SizedBox(
                 height: 48,
