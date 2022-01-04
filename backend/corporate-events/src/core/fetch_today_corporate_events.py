@@ -23,7 +23,7 @@ metrics = Metrics(namespace="CorporateEvents", service="TodayCorporateEvents")
 def fetch_today_corporate_events(events_client: FetchEventsClient,
                                  ticker_client: TickerInfoClient,
                                  repository: CorporateEventsRepository):
-    companies = events_client.fetch_companies_updates_from_date(datetime.now().date() - relativedelta(days=1))
+    companies = events_client.fetch_companies_updates_from_date(datetime.now().date())
 
     metrics.add_metric(name="TotalUpdatedCompanies", unit=MetricUnit.Count, value=len(companies))
 
