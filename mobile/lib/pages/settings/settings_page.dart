@@ -80,7 +80,8 @@ class SettingsPage extends StatelessWidget {
             ),
             SettingsTile(
               title: 'Avalie-nos',
-              onPressed: (_) async => await LaunchReview.launch(),
+              onPressed: (_) async =>
+                  await LaunchReview.launch(iOSAppId: "1582652897"),
             ),
           ],
         ),
