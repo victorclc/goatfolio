@@ -70,6 +70,7 @@ class RESTB3EventsClient(FetchEventsClient):
 
     def fetch_companies_updates_from_date(self, _date: dt.date) -> List[CompanyDetails]:
         events = self.fetch_latest_events_updates()
+        logger.info(f"Getting date: {_date}")
 
         return list(
             filter(lambda c: c.date == _date, events)
