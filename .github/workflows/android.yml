@@ -46,6 +46,9 @@ jobs:
           KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
           KEYSTORE_STORE_PASSWORD: ${{ secrets.KEYSTORE_STORE_PASSWORD }}
         working-directory: mobile/android
+        
+      - name: Install Flutter Dependencies
+        run: flutter pub get
 
       - name: build appbundle
         run: flutter build appbundle --flavor prod -t lib/main-prod.dart
