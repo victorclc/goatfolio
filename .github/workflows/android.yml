@@ -48,7 +48,7 @@ jobs:
         working-directory: mobile/android
 
       - name: build appbundle
-        run: flutter build appbundle
+        run: flutter build appbundle --flavor prod -t lib/main-prod.dart
       
       # deploy with Fastlane 🚀.
       - name: Deploy
