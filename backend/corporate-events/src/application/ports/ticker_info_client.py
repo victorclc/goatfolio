@@ -16,3 +16,6 @@ class TickerInfoClient(abc.ABC):
     def get_ticker_from_isin_code(self, isin_code: str) -> str:
         """Returns the Ticker corresponding a isin code"""
 
+    @abc.abstractmethod
+    def is_ticker_valid(self, ticker: str) -> bool:
+        """Returns if the ticker is valid or not"""

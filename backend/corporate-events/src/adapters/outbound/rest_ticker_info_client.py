@@ -41,3 +41,6 @@ class RESTTickerInfoClient(TickerInfoClient):
 
         if response.status_code == HTTPStatus.OK:
             return response.json()["ticker"]
+
+    def is_ticker_valid(self, ticker: str) -> bool:
+        return self.get_isin_code_from_ticker(ticker) is not None
