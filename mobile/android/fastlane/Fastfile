@@ -33,6 +33,6 @@ platform :android do
 
   desc "Deploy a new version to the Google Play"
   lane :deploy do
-    upload_to_play_store(aab: '../build/app/outputs/bundle/release/app-release.aab', json_key_data: ENV['PLAY_STORE_CONFIG_JSON'])
+    upload_to_play_store(aab: '../build/app/outputs/bundle/prodRelease/app-prod-release.aab', json_key_data: ENV['PLAY_STORE_CONFIG_JSON'])
   end
 end
