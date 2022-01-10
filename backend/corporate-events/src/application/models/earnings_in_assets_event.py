@@ -8,6 +8,22 @@ from application.enums.event_type import EventType
 
 
 @dataclass
+class ManualEarningsInAssetCorporateEvents:
+    subject: str
+    type: EventType
+    ticker: str
+    deliberate_on: dt.date
+    last_date_prior: dt.date
+    grouping_factor: Decimal
+    emitted_ticker: str
+    id: Optional[str] = None
+
+    def __post_init__(self):
+        if not self.id:
+            self.id = "MAKE ID"
+
+
+@dataclass
 class EarningsInAssetCorporateEvent:
     type: EventType
     isin_code: str
