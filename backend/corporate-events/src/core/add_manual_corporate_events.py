@@ -2,6 +2,7 @@ from typing import Protocol
 
 from application.enums.event_type import EventType
 from application.exceptions.invalid_emitted_ticker import InvalidEmittedTickerError
+from application.exceptions.invalid_grouping_factor import InvalidGroupingFactorError
 from application.models.earnings_in_assets_event import ManualEarningsInAssetCorporateEvents
 from application.models.manual_event import BonificacaoEvent, IncorporationEvent, GroupEvent, SplitEvent
 from application.ports.ticker_info_client import TickerInfoClient
@@ -39,6 +40,9 @@ def add_incorporation_corporate_event(subject: str, incorporation: Incorporation
 
 
 def add_group_corporate_event(subject: str, group: GroupEvent, repo: ManualEarningInAssetsRepository):
+    if group.grouping_factor >= 1:
+        raise InvalidGroupingFactorError("O fator de grupamento não pode ser maior ou igual a 1.")
+
     event = ManualEarningsInAssetCorporateEvents(subject=subject,
                                                  type=EventType.GROUP,
                                                  ticker=group.ticker,
