@@ -3,6 +3,7 @@ from http import HTTPStatus
 from aws_lambda_powertools import Logger, Tracer
 import goatcommons.utils.aws as awsutils
 import goatcommons.utils.json as jsonutils
+from adapters.outbound.dynamo_manual_corporate_events_repository import DynamoManualCorporateEventsRepository
 from application.exceptions.invalid_grouping_factor import InvalidGroupingFactorError
 from application.models.manual_event import GroupEvent
 from core import add_manual_corporate_events
