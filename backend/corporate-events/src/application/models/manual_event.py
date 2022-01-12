@@ -11,7 +11,7 @@ class BonificacaoEvent:
 
     def __post_init__(self):
         if isinstance(self.last_date_prior, str):
-            self.last_date_prior = datetime.datetime.strptime("%Y%m%d", self.last_date_prior).date()
+            self.last_date_prior = datetime.datetime.strptime(self.last_date_prior, "%Y%m%d").date()
 
 
 @dataclass
@@ -23,7 +23,7 @@ class IncorporationEvent:
 
     def __post_init__(self):
         if isinstance(self.last_date_prior, str):
-            self.last_date_prior = datetime.datetime.strptime("%Y%m%d", self.last_date_prior).date()
+            self.last_date_prior = datetime.datetime.strptime(self.last_date_prior, "%Y%m%d").date()
 
 
 @dataclass
@@ -34,7 +34,7 @@ class GroupEvent:
 
     def __post_init__(self):
         if isinstance(self.last_date_prior, str):
-            self.last_date_prior = datetime.datetime.strptime("%Y%m%d", self.last_date_prior).date()
+            self.last_date_prior = datetime.datetime.strptime(self.last_date_prior, "%Y%m%d").date()
 
 
 @dataclass
@@ -45,4 +45,4 @@ class SplitEvent:
 
     def __post_init__(self):
         if isinstance(self.last_date_prior, str):
-            self.last_date_prior = datetime.datetime.strptime("%Y%m%d", self.last_date_prior).date()
+            self.last_date_prior = datetime.datetime.strptime(self.last_date_prior, "%Y%m%d").date()
