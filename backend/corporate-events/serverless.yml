@@ -94,5 +94,17 @@ functions:
           method: get
           private: true
 
+  addGroupEvent:
+    handler: src/adapters/inbound/api_gateway_handlers.add_grouping_corporate_event_handler
+    events:
+      - http:
+          path: events/group
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
 resources:
+  - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/dynamo-cf-resources.yml)}
