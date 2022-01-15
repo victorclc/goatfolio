@@ -19,11 +19,13 @@ logger.setLevel(logging.INFO)
 
 def get_ticker_transformations_handler(event, context):
     logger.info(f"EVENT: {event}")
+    subject = awsutils.get_query_param(event, "subject")
     ticker = awsutils.get_query_param(event, "ticker")
     date_from = datetime.datetime.strptime(
         awsutils.get_query_param(event, "dateFrom"), "%Y%m%d"
     ).date()
-    response = transformations_in_ticker(ticker, date_from, ticker_client, events_repo)
+    manual_repo = DynamoManualCorporateEventsRepository()
+    response = transformations_in_ticker(ticker, date_from, ticker_client, events_repo, manual_repo, subject)
 
     return {
         "statusCode": HTTPStatus.OK,
