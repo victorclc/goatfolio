@@ -95,10 +95,32 @@ functions:
           private: true
 
   addGroupEvent:
-    handler: src/adapters/inbound/api_gateway_handlers.add_grouping_corporate_event_handler
+    handler: src/adapters/inbound/api_gateway_handlers.add_group_corporate_event_handler
     events:
       - http:
           path: events/group
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  addSplitEvent:
+    handler: src/adapters/inbound/api_gateway_handlers.add_split_corporate_event_handler
+    events:
+      - http:
+          path: events/split
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  addIncorporationEvent:
+    handler: src/adapters/inbound/api_gateway_handlers.add_incorporation_corporate_event_handler
+    events:
+      - http:
+          path: events/incorporation
           method: post
           authorizer:
             type: COGNITO_USER_POOLS
