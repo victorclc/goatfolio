@@ -47,7 +47,7 @@ def add_incorporation_corporate_event(subject: str, incorporation: Incorporation
                                                  ticker=incorporation.ticker,
                                                  deliberate_on=incorporation.last_date_prior,
                                                  last_date_prior=incorporation.last_date_prior,
-                                                 grouping_factor=incorporation.grouping_factor,
+                                                 grouping_factor=incorporation.grouping_factor * 100,
                                                  emitted_ticker=incorporation.emitted_ticker)
 
     logger.info(f"Saving event: {event}")
@@ -82,7 +82,7 @@ def add_split_corporate_event(subject: str, split: SplitEvent, repo: ManualEarni
                                                  ticker=split.ticker,
                                                  deliberate_on=split.last_date_prior,
                                                  last_date_prior=split.last_date_prior,
-                                                 grouping_factor=split.grouping_factor,
+                                                 grouping_factor=split.grouping_factor * 100,
                                                  emitted_ticker=split.ticker)
     logger.info(f"Saving event: {event}")
     repo.save(event)
