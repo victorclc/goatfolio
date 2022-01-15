@@ -17,15 +17,15 @@ class DynamoManualCorporateEventsRepository:
         assert ticker
         result = self.__table.query(
             KeyConditionExpression=Key("subject").eq(subject) & Key("id").begins_with(f"TICKER#{ticker}"),
-            FilterExpression=Attr("last_date_prior").lte(int(date.strftime("%Y%m%d"))),
+            FilterExpression=Attr("last_date_prior").lte(date.strftime("%Y%m%d")),
         )
         return list(map(lambda i: ManualEarningsInAssetCorporateEvents(**i), result["Items"]))
 
     def find_by_ticker_from_date(self, subject: str, ticker: str, date: datetime.date):
         assert ticker
         result = self.__table.query(
-            KeyConditionExpression=Key("subject").eq(subject) & Key("id").begins_with(f"TICKER#{ticker}"),
-            FilterExpression=Attr("last_date_prior").gte(int(date.strftime("%Y%m%d"))),
+            KeyConditionExpression=Key("subject").eq(subject) & Key("id").begins_with(f"TICKER#{ticker.upper()}#"),
+            FilterExpression=Attr("last_date_prior").gte(date.strftime("%Y%m%d")),
         )
         return list(map(lambda i: ManualEarningsInAssetCorporateEvents(**i), result["Items"]))
 
