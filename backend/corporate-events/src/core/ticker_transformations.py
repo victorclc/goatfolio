@@ -1,6 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import List, Protocol
+from typing import List, Protocol, Optional
 
 from aws_lambda_powertools import Logger
 
@@ -70,7 +70,7 @@ def transformations_in_ticker(current_ticker: str,
                               ticker_info: TickerInfoClient,
                               repository: CorporateEventsRepository,
                               manual_events_repo: ManualCorporateEventsRepository,
-                              subject: str):
+                              subject: Optional[str]):
     ticker = current_ticker
     isin = ticker_info.get_isin_code_from_ticker(current_ticker)
     events_list = get_events_list(subject, ticker, isin, date_from, repository, manual_events_repo, ticker_info)
