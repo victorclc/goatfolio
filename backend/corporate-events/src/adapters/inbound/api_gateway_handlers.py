@@ -17,7 +17,7 @@ tracer = Tracer()
 
 @logger.inject_lambda_context(log_event=True)
 @tracer.capture_lambda_handler
-def add_grouping_corporate_event_handler(event, context):
+def add_group_corporate_event_handler(event, context):
     repo = DynamoManualCorporateEventsRepository()
     subject = awsutils.get_event_subject(event)
     body = jsonutils.load(event["body"])
@@ -26,9 +26,10 @@ def add_grouping_corporate_event_handler(event, context):
     try:
         add_manual_corporate_events.add_group_corporate_event(subject, group_event, repo)
         return {"statusCode": HTTPStatus.OK,
-                "body": {"message": "Evento cadastrado com sucesso. Em instantes sua carteira será consolidada."}}
+                "body": jsonutils.dump(
+                    {"message": "Evento cadastrado com sucesso. Em instantes sua carteira será consolidada."})}
     except (InvalidGroupingFactorError, InvalidLastDatePriorError) as e:
-        return {"statusCode": HTTPStatus.BAD_REQUEST, "body": {"message": str(e)}}
+        return {"statusCode": HTTPStatus.BAD_REQUEST, "body": jsonutils.dump({"message": str(e)})}
 
 
 @logger.inject_lambda_context(log_event=True)
@@ -42,9 +43,10 @@ def add_split_corporate_event_handler(event, context):
     try:
         add_manual_corporate_events.add_split_corporate_event(subject, split_event, repo)
         return {"statusCode": HTTPStatus.OK,
-                "body": {"message": "Evento cadastrado com sucesso. Em instantes sua carteira será consolidada."}}
+                "body": jsonutils.dump(
+                    {"message": "Evento cadastrado com sucesso. Em instantes sua carteira será consolidada."})}
     except (InvalidGroupingFactorError, InvalidLastDatePriorError) as e:
-        return {"statusCode": HTTPStatus.BAD_REQUEST, "body": {"message": str(e)}}
+        return {"statusCode": HTTPStatus.BAD_REQUEST, "body": jsonutils.dump({"message": str(e)})}
 
 
 @logger.inject_lambda_context(log_event=True)
@@ -59,6 +61,7 @@ def add_incorporation_corporate_event_handler(event, context):
     try:
         add_manual_corporate_events.add_incorporation_corporate_event(subject, incorporation_event, repo, ticker_client)
         return {"statusCode": HTTPStatus.OK,
-                "body": {"message": "Evento cadastrado com sucesso. Em instantes sua carteira será consolidada."}}
+                "body": jsonutils.dump(
+                    {"message": "Evento cadastrado com sucesso. Em instantes sua carteira será consolidada."})}
     except (InvalidEmittedTickerError, InvalidLastDatePriorError) as e:
-        return {"statusCode": HTTPStatus.BAD_REQUEST, "body": {"message": str(e)}}
+        return {"statusCode": HTTPStatus.BAD_REQUEST, "body": jsonutils.dump({"message": str(e)})}
