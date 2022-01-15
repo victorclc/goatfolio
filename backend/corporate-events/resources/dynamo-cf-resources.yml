@@ -46,8 +46,19 @@ Resources:
           AttributeType: "S"
         - AttributeName: "id"
           AttributeType: "S"
+        - AttributeName: "emitted_ticker"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "subject"
           KeyType: "HASH"
         - AttributeName: "id"
           KeyType: "RANGE"
+      GlobalSecondaryIndexes:
+        - IndexName: subjectEmittedTickerGlobalIndex
+          KeySchema:
+            - AttributeName: "subject"
+              KeyType: "HASH"
+            - AttributeName: "emitted_ticker"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
