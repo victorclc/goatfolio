@@ -7,6 +7,7 @@ from application.models.earnings_in_assets_event import EarningsInAssetCorporate
     ManualEarningsInAssetCorporateEvents
 from application.ports.corporate_events_repository import CorporateEventsRepository
 from application.ports.ticker_info_client import TickerInfoClient
+from application.converters import earnings_converter
 
 logger = Logger()
 
@@ -16,20 +17,6 @@ class ManualCorporateEventsRepository(Protocol):
         ManualEarningsInAssetCorporateEvents
     ]:
         ...
-
-
-def manual_earning_in_assets_converter(earning: ManualEarningsInAssetCorporateEvents,
-                                       client: TickerInfoClient) -> EarningsInAssetCorporateEvent:
-    return EarningsInAssetCorporateEvent(
-        type=earning.type,
-        isin_code=client.get_isin_code_from_ticker(earning.ticker),
-        deliberate_on=earning.last_date_prior,
-        with_date=earning.last_date_prior,
-        grouping_factor=earning.grouping_factor,
-        emitted_asset=client.get_isin_code_from_ticker(earning.emitted_ticker),
-        observations="",
-        id=earning.id,
-        emitted_ticker=earning.emitted_ticker)
 
 
 def get_corporate_events(
@@ -52,6 +39,7 @@ def get_corporate_events(
     if subject:
         manual_events = manual_events_repo.find_by_ticker_from_date(subject, ticker, date)
         logger.info(f"Found {len(manual_events)} manual events for subject {subject}")
-        events += list(map(lambda e: manual_earning_in_assets_converter(e, ticker_info), manual_events))
+        events += list(map(lambda e: earnings_converter.manual_earning_to_earnings_in_assets_converter(e, ticker_info),
+                           manual_events))
 
     return events
