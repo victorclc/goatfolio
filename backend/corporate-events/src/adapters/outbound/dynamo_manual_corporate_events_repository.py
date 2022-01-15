@@ -21,5 +21,13 @@ class DynamoManualCorporateEventsRepository:
         )
         return list(map(lambda i: ManualEarningsInAssetCorporateEvents(**i), result["Items"]))
 
+    def find_by_ticker_from_date(self, subject: str, ticker: str, date: datetime.date):
+        assert ticker
+        result = self.__table.query(
+            KeyConditionExpression=Key("subject").eq(subject) & Key("id").begins_with(f"TICKER#{ticker}"),
+            FilterExpression=Attr("last_date_prior").gte(int(date.strftime("%Y%m%d"))),
+        )
+        return list(map(lambda i: ManualEarningsInAssetCorporateEvents(**i), result["Items"]))
+
     def save(self, event: ManualEarningsInAssetCorporateEvents):
         self.__table.put_item(Item=event.to_dict())
