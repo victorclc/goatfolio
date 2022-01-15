@@ -91,6 +91,7 @@ functions:
               querystrings:
                 ticker: true
                 dateFrom: true
+                subject: false
           method: get
           private: true
 
