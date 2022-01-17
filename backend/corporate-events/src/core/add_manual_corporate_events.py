@@ -44,7 +44,6 @@ def add_bonificacao_corporate_event(subject: str, bonificacao: BonificacaoEvent,
 def add_incorporation_corporate_event(subject: str, incorporation: IncorporationEvent,
                                       repo: ManualEarningInAssetsRepository,
                                       ticker_client: TickerInfoClient,
-                                      client: TickerInfoClient,
                                       notifier: NewEventNotifier):
     _validate_last_date_prior(incorporation.last_date_prior)
 
