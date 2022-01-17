@@ -99,7 +99,7 @@ def new_applicable_corporate_event_handler(event, context):
 
         notifier = SQSConsolidateApplicableCorporateEventNotifier()
         for subject, sub_investments in groupby(sorted(investments, key=lambda i: i.subject), key=lambda i: i.subject):
-            notifier.notify(subject, list(sub_investments)[0])
+            notifier.notify(subject, min(list(sub_investments), key=lambda i: i.date))
 
 
 @logger.inject_lambda_context(log_event=True)
