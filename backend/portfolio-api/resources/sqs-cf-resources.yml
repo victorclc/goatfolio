@@ -87,7 +87,6 @@ Resources:
               ArnEquals:
                 "aws:SourceArn":
                   'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
-
   CEIInfoIntegrationQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -99,11 +98,50 @@ Resources:
         maxReceiveCount: 5
       QueueName: CEIInfoIntegration
       VisibilityTimeout: 60
-
   CEIInfoIntegrationQueueDLQ:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: CEIInfoIntegrationDLQ
+
+  NewApplicableCorporateEventsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "NewApplicableCorporateEventsQueueDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+      FifoQueue: true
+      QueueName: NewApplicableCorporateEvents.fifo
+      ContentBasedDeduplication: true
+      VisibilityTimeout: 300
+  NewApplicableCorporateEventsQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: NewApplicableCorporateEventsDLQ.fifo
+      ContentBasedDeduplication: true
+      FifoQueue: true
+
+  ConsolidateApplicableCorporateEventQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "ConsolidateApplicableCorporateEventQueueDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+      FifoQueue: true
+      QueueName: ConsolidateApplicableCorporateEvent.fifo
+      ContentBasedDeduplication: true
+      VisibilityTimeout: 300
+  ConsolidateApplicableCorporateEventQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ConsolidateApplicableCorporateEvent.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
 
 Outputs:
   CEIInfoIntegrationQueueArnOutput:
