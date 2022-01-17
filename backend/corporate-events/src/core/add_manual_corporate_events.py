@@ -20,8 +20,8 @@ class ManualEarningInAssetsRepository(Protocol):
         ...
 
 
-class NewEventPublisher(Protocol):
-    def publish(self, event: EarningsInAssetCorporateEvent):
+class NewEventNotifier(Protocol):
+    def notify(self, event: EarningsInAssetCorporateEvent):
         ...
 
 
@@ -45,7 +45,7 @@ def add_incorporation_corporate_event(subject: str, incorporation: Incorporation
                                       repo: ManualEarningInAssetsRepository,
                                       ticker_client: TickerInfoClient,
                                       client: TickerInfoClient,
-                                      publisher: NewEventPublisher):
+                                      notifier: NewEventNotifier):
     _validate_last_date_prior(incorporation.last_date_prior)
 
     if not ticker_client.is_ticker_valid(incorporation.emitted_ticker):
@@ -61,13 +61,13 @@ def add_incorporation_corporate_event(subject: str, incorporation: Incorporation
 
     logger.info(f"Saving event: {event}")
     repo.save(event)
-    publisher.publish(earnings_converter.manual_earning_to_earnings_in_assets_converter(event, client))
+    notifier.notify(earnings_converter.manual_earning_to_earnings_in_assets_converter(event, client))
 
 
 def add_group_corporate_event(subject: str, group: GroupEvent,
                               repo: ManualEarningInAssetsRepository,
                               client: TickerInfoClient,
-                              publisher: NewEventPublisher):
+                              notifier: NewEventNotifier):
     if group.grouping_factor >= 1:
         logger.info(f"Invalid grouping factor: {group.grouping_factor}")
         raise InvalidGroupingFactorError("O fator de grupamento não pode ser maior ou igual a 1.")
@@ -82,13 +82,13 @@ def add_group_corporate_event(subject: str, group: GroupEvent,
                                                  emitted_ticker=group.ticker)
     logger.info(f"Saving event: {event}")
     repo.save(event)
-    publisher.publish(earnings_converter.manual_earning_to_earnings_in_assets_converter(event, client))
+    notifier.notify(earnings_converter.manual_earning_to_earnings_in_assets_converter(event, client))
 
 
 def add_split_corporate_event(subject: str, split: SplitEvent,
                               repo: ManualEarningInAssetsRepository,
                               client: TickerInfoClient,
-                              publisher: NewEventPublisher):
+                              notifier: NewEventNotifier):
     if split.grouping_factor <= 1:
         logger.info(f"Invalid grouping factor: {split.grouping_factor}")
         raise InvalidGroupingFactorError("O fator de grupamento não pode ser maior ou igual a 1.")
@@ -103,4 +103,4 @@ def add_split_corporate_event(subject: str, split: SplitEvent,
                                                  emitted_ticker=split.ticker)
     logger.info(f"Saving event: {event}")
     repo.save(event)
-    publisher.publish(earnings_converter.manual_earning_to_earnings_in_assets_converter(event, client))
+    notifier.notify(earnings_converter.manual_earning_to_earnings_in_assets_converter(event, client))
