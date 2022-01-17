@@ -17,6 +17,7 @@ class EarningsInAssetCorporateEvent:
     emitted_ticker: str
     observations: str
     id: Optional[str] = None
+    subject: Optional[str] = None
 
     @property
     def factor(self):

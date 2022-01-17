@@ -25,3 +25,12 @@ class RestTickerInfoClient:
                 f"Error validating ticker, status_code: {status_code}, content: {response.content}"
             )
         return response.status_code == HTTPStatus.OK
+
+    def get_ticker_from_isin_code(self, isin_code: str) -> str:
+        response = requests.get(
+            f"{self.BASE_URL}/isin/{isin_code}/ticker",
+            headers={"x-api-key": self.api_key},
+        )
+
+        if response.status_code == HTTPStatus.OK:
+            return response.json()["ticker"]

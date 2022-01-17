@@ -1,4 +1,5 @@
-from typing import List
+from datetime import datetime
+from typing import List, Optional
 
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
@@ -22,11 +23,16 @@ class DynamoInvestmentRepository:
             )
         )
 
-    def find_by_subject_and_ticker(self, subject, ticker) -> List[StockInvestment]:
-        result = self.__investments_table.query(
-            KeyConditionExpression=Key("subject").eq(subject),
-            FilterExpression=Attr("ticker").eq(ticker),
-        )
+    def find_by_subject_and_ticker(self, subject: str, ticker: str, until_date: Optional[datetime.date] = None) -> List[
+        StockInvestment
+    ]:
+        query = {
+            "KeyConditionExpression": Key("subject").eq(subject),
+            "FilterExpression": Attr("ticker").eq(ticker)
+        }
+        if until_date:
+            query["FilterExpression"] = query["FilterExpression"] & Attr("date").lte(int(until_date.strftime("%Y%m%d")))
+        result = self.__investments_table.query(**query)
         return list(map(lambda i: StockInvestment(**i), result["Items"]))
 
     def save(self, investment: Investment):
@@ -42,3 +48,13 @@ class DynamoInvestmentRepository:
             for investment in investments:
                 print(investment.to_json())
                 batch.put_item(Item=investment.to_json())
+
+    def find_by_ticker_until_date(
+            self, ticker, until_date: datetime.date
+    ) -> List[StockInvestment]:
+        result = self.__investments_table.query(
+            IndexName="tickerSubjectGlobalIndex",
+            KeyConditionExpression=Key("ticker").eq(ticker),
+            FilterExpression=Attr("date").lte(int(until_date.strftime("%Y%m%d"))),
+        )
+        return list(map(lambda i: StockInvestment(**i), result["Items"]))
