@@ -90,7 +90,7 @@ def new_applicable_corporate_event_handler(event, context):
 
         logger.info(f"EarningsAssetCorporateEvent: {new_event}")
         ticker = ticker_client.get_ticker_from_isin_code(new_event.isin_code)
-        if event.subject:
+        if new_event.subject:
             investments = investment_repo.find_by_subject_and_ticker(new_event.subject, ticker, new_event.with_date)
             logger.info(f"Subject {new_event.subject} has {len(investments)} applicable investments")
         else:
