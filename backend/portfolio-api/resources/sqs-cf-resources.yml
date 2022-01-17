@@ -139,7 +139,7 @@ Resources:
   ConsolidateApplicableCorporateEventQueueDLQ:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: ConsolidateApplicableCorporateEvent.fifo
+      QueueName: ConsolidateApplicableCorporateEventDLQ.fifo
       FifoQueue: true
       ContentBasedDeduplication: true
 
@@ -149,4 +149,10 @@ Outputs:
       Fn::GetAtt: [ CEIInfoIntegrationQueue, Arn ]
     Export:
       Name: ${self:provider.stage}-CEIInfoIntegrationQueueArnOutput
+
+  NewApplicableCorporateEventsQueueArnOutput:
+    Value:
+      Fn::GetAtt: [ NewApplicableCorporateEventsQueue, Arn ]
+    Export:
+      Name: ${self:provider.stage}-NewApplicableCorporateEventsQueueArnOutput
 
