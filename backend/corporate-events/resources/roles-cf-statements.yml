@@ -32,7 +32,8 @@
     - sqs:SendMessage
     - sqs:GetQueueUrl
   Resource:
-    'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    - 'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    - 'Fn::ImportValue': ${self:provider.stage}-NewApplicableCorporateEventsQueueArnOutput
 - Effect: Allow
   Action:
     - ssm:GetParameter
