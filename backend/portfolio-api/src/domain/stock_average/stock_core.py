@@ -51,7 +51,7 @@ class StockCore:
             if ticker.endswith("12"):
                 continue
             transformation = self.transformation_client.get_ticker_transformation(
-                ticker, (datetime.datetime.now() - relativedelta(months=18)).date()
+                subject, ticker, (datetime.datetime.now() - relativedelta(months=18)).date()
             )
             summary = self.get_stock_summary_of_ticker(
                 ticker, portfolio, transformation
@@ -121,7 +121,7 @@ class StockCore:
         # TODO VALIDAR PRECO NEGATIVO
         consolidated = self.get_stock_consolidated(subject, ticker)
         transformation = self.transformation_client.get_ticker_transformation(
-            ticker, date
+            subject, ticker, date
         )
 
         price = self.calculate_new_investment_price(
