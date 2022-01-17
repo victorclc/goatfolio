@@ -169,6 +169,19 @@ functions:
           method: post
           private: true
 
+  newApplicableCorporateEventListener:
+    handler: src/adapters/inbound/sqs_handlers.new_applicable_corporate_event_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ NewApplicableCorporateEventsQueue, Arn ]
+
+  processApplicableCorporateEventListener:
+    handler: src/adapters/inbound/sqs_handlers.process_applicable_corporate_event_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ ConsolidateApplicableCorporateEventQueue, Arn ]
 
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
