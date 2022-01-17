@@ -14,4 +14,5 @@ def manual_earning_to_earnings_in_assets_converter(earning: ManualEarningsInAsse
         emitted_asset=client.get_isin_code_from_ticker(earning.emitted_ticker),
         observations="",
         id=earning.id,
-        emitted_ticker=earning.emitted_ticker)
+        emitted_ticker=earning.emitted_ticker,
+        subject=earning.subject)
