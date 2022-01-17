@@ -32,7 +32,7 @@ class CorporateEventsConsolidationCore:
             oldest = min([i.date for i in investments])
             logger.info(f"Processing {ticker}: {investments}")
 
-            events = self.events_client.corporate_events_from_date(ticker, oldest)
+            events = self.events_client.corporate_events_from_date(subject, ticker, oldest)
             if not events:
                 logger.info(
                     f"No applicable event for {ticker} on {oldest.strftime('%Y-%m-%d')}"
