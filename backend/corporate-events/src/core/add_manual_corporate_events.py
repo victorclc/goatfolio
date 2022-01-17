@@ -60,7 +60,7 @@ def add_incorporation_corporate_event(subject: str, incorporation: Incorporation
 
     logger.info(f"Saving event: {event}")
     repo.save(event)
-    notifier.notify(earnings_converter.manual_earning_to_earnings_in_assets_converter(event, client))
+    notifier.notify(earnings_converter.manual_earning_to_earnings_in_assets_converter(event, ticker_client))
 
 
 def add_group_corporate_event(subject: str, group: GroupEvent,
