@@ -58,7 +58,7 @@ def check_for_applicable_corporate_events_handler(event, context):
     for message in event["Records"]:
         logger.info(f"Processing message: {message}")
         subject, new, old = parse_subject_new_and_old_investments_from_message(message)
-        if new and new.type in OperationType.corporate_events_types():
+        if new is not None and new.operation in OperationType.corporate_events_types():
             logger.info(f"Corporate event type, skiping message.")
             continue
 
