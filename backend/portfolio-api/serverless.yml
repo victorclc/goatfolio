@@ -74,6 +74,7 @@ functions:
 
   stockDivergences:
     handler: src/adapters/inbound/api_gateway_handlers.get_stock_divergences_handler
+    timeout: 15
     events:
       - http:
           path: stock/divergences
