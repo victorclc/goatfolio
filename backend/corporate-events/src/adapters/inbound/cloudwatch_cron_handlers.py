@@ -3,8 +3,8 @@ import logging
 
 from dateutil.relativedelta import relativedelta
 
-import core.strategy as strategies
-from adapters.inbound import ticker_client, events_repo, investment_repo, events_client
+from adapters.inbound import ticker_client, events_repo, events_client
+from adapters.outbound.sqs_new_applicable_events_notifier import SQSNewApplicableEventsNotifier
 from application.enums.event_type import EventType
 from core.fetch_today_corporate_events import fetch_today_corporate_events
 from core.handle_corporate_events import handle_corporate_events
@@ -26,24 +26,19 @@ def craw_today_corporate_events_handler(event, context):
 @notify_exception(Exception, NotifyLevel.CRITICAL)
 def handle_yesterday_split_events_handler(event, context):
     yesterday = datetime.datetime.now().date() - relativedelta(days=1)
-    handle_corporate_events(
-        EventType.SPLIT, yesterday, strategies.handle_split_event_strategy, ticker_client, events_repo, investment_repo
-    )
+    notifier = SQSNewApplicableEventsNotifier()
+    handle_corporate_events(EventType.SPLIT, yesterday, events_repo, notifier)
 
 
 @notify_exception(Exception, NotifyLevel.CRITICAL)
 def handle_yesterday_group_events_handler(event, context):
     yesterday = datetime.datetime.now().date() - relativedelta(days=1)
-    handle_corporate_events(
-        EventType.GROUP, yesterday, strategies.handle_group_event_strategy, ticker_client, events_repo, investment_repo
-    )
+    notifier = SQSNewApplicableEventsNotifier()
+    handle_corporate_events(EventType.GROUP, yesterday, events_repo, notifier)
 
 
 @notify_exception(Exception, NotifyLevel.CRITICAL)
 def handle_yesterday_incorporation_events_handler(event, context):
     yesterday = datetime.datetime.now().date() - relativedelta(days=1)
-    handle_corporate_events(
-        EventType.INCORPORATION,
-        yesterday,
-        strategies.handle_incorporation_event_strategy, ticker_client, events_repo, investment_repo
-    )
+    notifier = SQSNewApplicableEventsNotifier()
+    handle_corporate_events(EventType.INCORPORATION, yesterday, events_repo, notifier)
