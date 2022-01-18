@@ -4,6 +4,8 @@ import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:goatfolio/pages/add/add_corporate_events_menu.dart';
+import 'package:goatfolio/pages/add/stock_add.dart';
 import 'package:goatfolio/pages/add/stock_list.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/stock/stock_divergence_cubit.dart';
@@ -114,6 +116,14 @@ class AddPage extends StatelessWidget {
                   context,
                   true,
                   userService,
+                  (ticker) => modal.showDraggableModalBottomSheet(
+                    context,
+                    StockAdd(
+                      ticker: ticker,
+                      buyOperation: true,
+                      userService: userService,
+                    ),
+                  ),
                 ),
               ),
               SettingsTile(
@@ -123,7 +133,20 @@ class AddPage extends StatelessWidget {
                   context,
                   false,
                   userService,
+                  (ticker) => modal.showDraggableModalBottomSheet(
+                    context,
+                    StockAdd(
+                      ticker: ticker,
+                      buyOperation: false,
+                      userService: userService,
+                    ),
+                  ),
                 ),
+              ),
+              SettingsTile(
+                title: 'Evento corporativo',
+                iosLikeTile: true,
+                onPressed: (_) => goToAddCorporateEventsMenu(context),
               ),
             ],
           ),
