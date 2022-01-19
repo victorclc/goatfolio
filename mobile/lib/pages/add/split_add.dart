@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
-import 'package:goatfolio/services/investment/model/stock.dart';
-import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
+import 'package:goatfolio/services/corporate_events/client/client.dart';
+import 'package:goatfolio/services/corporate_events/model/split_event.dart';
 import 'package:goatfolio/utils/dialog.dart' as dialog;
 import 'package:goatfolio/utils/formatters.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
@@ -41,12 +41,12 @@ class SplitAdd extends StatefulWidget {
 
   const SplitAdd(
       {Key? key,
-        required this.title,
-        required this.userService,
-        this.ticker,
-        this.date,
-        this.initialAmount,
-        this.finalAmount})
+      required this.title,
+      required this.userService,
+      this.ticker,
+      this.date,
+      this.initialAmount,
+      this.finalAmount})
       : super(key: key);
 
   @override
@@ -56,17 +56,17 @@ class SplitAdd extends StatefulWidget {
 class _SplitAddtate extends State<SplitAdd> {
   final TextEditingController _tickerController = TextEditingController();
   final TextEditingController _initialAmountController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _finalAmountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
-  late StockInvestmentService service;
+  late CorporateEventsClient service;
   late Future _future;
 
   @override
   void initState() {
     super.initState();
-    service = StockInvestmentService(widget.userService);
+    service = CorporateEventsClient(widget.userService);
     _tickerController.text = widget.ticker ?? '';
     if (widget.initialAmount != null) {
       _initialAmountController.text = '${widget.initialAmount}';
@@ -237,8 +237,8 @@ class _SplitAddtate extends State<SplitAdd> {
         problems.add("Data inválida.");
       }
       if (DateFormat('dd/MM/yyyy')
-          .parse(_dateController.text)
-          .compareTo(DateTime.now()) >
+              .parse(_dateController.text)
+              .compareTo(DateTime.now()) >
           0) {
         problems.add("Data inválida.");
       }
@@ -266,46 +266,31 @@ class _SplitAddtate extends State<SplitAdd> {
       return;
     }
 
-    // final investment = StockInvestment(
-    //     id: widget.id,
-    //     ticker: _tickerController.text,
-    //     amount: int.parse(_amountController.text),
-    //     price: getDoubleFromMoneyFormat(_priceController.text),
-    //     type: 'STOCK',
-    //     operation: widget.buyOperation ? 'BUY' : 'SELL',
-    //     date: DateFormat('dd/MM/yyyy').parse(_dateController.text, true),
-    //     broker: _brokerController.text,
-    //     costs: getDoubleFromMoneyFormat(
-    //         _costsController.text.isNotEmpty ? _costsController.text : '0.0'));
-    //
-    // if (widget.id != null) {
-    //   _future = service.editInvestment(investment);
-    // } else {
-    //   _future = service.addInvestment(investment);
-    // }
+    final event = SplitEvent(
+      ticker: _tickerController.text,
+      groupingFactor: int.parse(_finalAmountController.text) /
+          int.parse(_initialAmountController.text),
+      lastDatePrior: DateFormat('dd/MM/yyyy').parse(_dateController.text, true),
+    );
 
-    // modal.showUnDismissibleModalBottomSheet(
-    //   context,
-    //   ProgressIndicatorScaffold(
-    //       message: widget.id != null
-    //           ? 'Editando investimento...'
-    //           : 'Adicionando investimento...',
-    //       future: _future,
-    //       onFinish: () async {
-    //         try {
-    //           await _future;
-    //           if (widget.origInvestment != null) {
-    //             widget.origInvestment!.copy(investment);
-    //           }
-    //           await dialog.showSuccessDialog(
-    //               context, "Investimento adicionado com sucesso");
-    //         } catch (e) {
-    //           await dialog.showErrorDialog(
-    //               context, "Erro ao adicionar investimento.");
-    //         }
-    //         Navigator.of(context).pop();
-    //       }),
-    // );
+    _future = service.addSplitEvent(event);
+
+    modal.showUnDismissibleModalBottomSheet(
+      context,
+      ProgressIndicatorScaffold(
+          message: "Adicionando evento corporativo",
+          future: _future,
+          onFinish: () async {
+            try {
+              final String message = await _future;
+              await dialog.showSuccessDialog(context, message);
+              Navigator.of(context).pop();
+            } on Exception catch (e) {
+              await dialog.showErrorDialog(
+                  context, e.toString().replaceAll("Exception: ", ""));
+            }
+          }),
+    );
   }
 
   bool canSubmit() {
@@ -313,10 +298,5 @@ class _SplitAddtate extends State<SplitAdd> {
         _initialAmountController.text.isNotEmpty &&
         _finalAmountController.text.isNotEmpty &&
         _dateController.text.isNotEmpty;
-  }
-
-  Future<void> submitRequest(StockInvestment investment) async {
-    // _future = service.addInvestment(investment);
-    return _future;
   }
 }
