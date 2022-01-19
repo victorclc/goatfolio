@@ -31,7 +31,7 @@ class DynamoInvestmentRepository:
             "FilterExpression": Attr("ticker").eq(ticker)
         }
         if until_date:
-            query["FilterExpression"] = query["FilterExpression"] & Attr("date").lte(int(until_date.strftime("%Y%m%d")))
+            query["FilterExpression"] = query["FilterExpression"] & Attr("date").lte(until_date.strftime("%Y%m%d"))
         result = self.__investments_table.query(**query)
         return list(map(lambda i: StockInvestment(**i), result["Items"]))
 
@@ -55,6 +55,6 @@ class DynamoInvestmentRepository:
         result = self.__investments_table.query(
             IndexName="tickerSubjectGlobalIndex",
             KeyConditionExpression=Key("ticker").eq(ticker),
-            FilterExpression=Attr("date").lte(int(until_date.strftime("%Y%m%d"))),
+            FilterExpression=Attr("date").lte(until_date.strftime("%Y%m%d")),
         )
         return list(map(lambda i: StockInvestment(**i), result["Items"]))

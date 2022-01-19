@@ -1,9 +1,10 @@
 name: Deploy to Play Store
 on:
-  push:
-    branches: [ master ]
-    paths:
-      - 'mobile/**'
+  #push:
+  # Sequence of patterns matched against refs/tags
+  #  branches:
+  #  - master
+  workflow_dispatch:
 
 jobs:
   fastlane-deploy:
