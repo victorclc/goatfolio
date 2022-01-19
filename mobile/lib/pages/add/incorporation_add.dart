@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
-import 'package:goatfolio/services/investment/model/stock.dart';
-import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
+import 'package:goatfolio/services/corporate_events/client/client.dart';
+import 'package:goatfolio/services/corporate_events/model/incorporation_event.dart';
 import 'package:goatfolio/utils/dialog.dart' as dialog;
 import 'package:goatfolio/utils/formatters.dart';
+import 'package:goatfolio/widgets/progress_indicator_scaffold.dart';
 import 'package:intl/intl.dart';
+import 'package:goatfolio/utils/modal.dart' as modal;
 
 const BorderSide _kDefaultRoundedBorderSide = BorderSide(
   color: CupertinoDynamicColor.withBrightness(
@@ -60,13 +62,13 @@ class _IncorporationAddState extends State<IncorporationAdd> {
   final TextEditingController _finalAmountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
-  late StockInvestmentService service;
+  late CorporateEventsClient service;
   late Future _future;
 
   @override
   void initState() {
     super.initState();
-    service = StockInvestmentService(widget.userService);
+    service = CorporateEventsClient(widget.userService);
     _tickerController.text = widget.ticker ?? '';
     _newTickerController.text = widget.newTicker ?? '';
     if (widget.initialAmount != null) {
@@ -149,7 +151,7 @@ class _IncorporationAddState extends State<IncorporationAdd> {
               ),
               CupertinoTextField(
                 controller: _newTickerController,
-                autofocus: widget.ticker == null ? true : false,
+                autofocus: widget.newTicker == null ? true : false,
                 onChanged: (something) {
                   setState(() {});
                 },
@@ -294,46 +296,32 @@ class _IncorporationAddState extends State<IncorporationAdd> {
       return;
     }
 
-    // final investment = StockInvestment(
-    //     id: widget.id,
-    //     ticker: _tickerController.text,
-    //     amount: int.parse(_amountController.text),
-    //     price: getDoubleFromMoneyFormat(_priceController.text),
-    //     type: 'STOCK',
-    //     operation: widget.buyOperation ? 'BUY' : 'SELL',
-    //     date: DateFormat('dd/MM/yyyy').parse(_dateController.text, true),
-    //     broker: _brokerController.text,
-    //     costs: getDoubleFromMoneyFormat(
-    //         _costsController.text.isNotEmpty ? _costsController.text : '0.0'));
-    //
-    // if (widget.id != null) {
-    //   _future = service.editInvestment(investment);
-    // } else {
-    //   _future = service.addInvestment(investment);
-    // }
+    final event = IncorporationEvent(
+      ticker: _tickerController.text,
+      emittedTicker: _newTickerController.text,
+      groupingFactor: int.parse(_initialAmountController.text) /
+          int.parse(_finalAmountController.text),
+      lastDatePrior: DateFormat('dd/MM/yyyy').parse(_dateController.text, true),
+    );
 
-    // modal.showUnDismissibleModalBottomSheet(
-    //   context,
-    //   ProgressIndicatorScaffold(
-    //       message: widget.id != null
-    //           ? 'Editando investimento...'
-    //           : 'Adicionando investimento...',
-    //       future: _future,
-    //       onFinish: () async {
-    //         try {
-    //           await _future;
-    //           if (widget.origInvestment != null) {
-    //             widget.origInvestment!.copy(investment);
-    //           }
-    //           await dialog.showSuccessDialog(
-    //               context, "Investimento adicionado com sucesso");
-    //         } catch (e) {
-    //           await dialog.showErrorDialog(
-    //               context, "Erro ao adicionar investimento.");
-    //         }
-    //         Navigator.of(context).pop();
-    //       }),
-    // );
+    _future = service.addIncorporationEvent(event);
+
+    modal.showUnDismissibleModalBottomSheet(
+      context,
+      ProgressIndicatorScaffold(
+          message: "Adicionando evento corporativo",
+          future: _future,
+          onFinish: () async {
+            try {
+              final String message = await _future;
+              await dialog.showSuccessDialog(context, message);
+              Navigator.of(context).pop();
+            } on Exception catch (e) {
+              await dialog.showErrorDialog(
+                  context, e.toString().replaceAll("Exception: ", ""));
+            }
+          }),
+    );
   }
 
   bool canSubmit() {
@@ -342,10 +330,5 @@ class _IncorporationAddState extends State<IncorporationAdd> {
         _initialAmountController.text.isNotEmpty &&
         _finalAmountController.text.isNotEmpty &&
         _dateController.text.isNotEmpty;
-  }
-
-  Future<void> submitRequest(StockInvestment investment) async {
-    // _future = service.addInvestment(investment);
-    return _future;
   }
 }
