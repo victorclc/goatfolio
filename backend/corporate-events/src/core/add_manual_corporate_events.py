@@ -102,7 +102,7 @@ def add_split_corporate_event(subject: str, split: SplitEvent,
                               client: TickerInfoClient,
                               notifier: NewEventNotifier):
     _validate_grouping_factor(split.grouping_factor)
-    if split.grouping_factor - 1 < 0:
+    if split.grouping_factor - 1 <= 0:
         logger.info(f"Invalid grouping factor: {split.grouping_factor}")
         raise InvalidGroupingFactorError("O fator de grupamento não pode ser maior ou igual a 1.")
     _validate_last_date_prior(split.last_date_prior)
