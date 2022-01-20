@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import Protocol
 
 from aws_lambda_powertools import Logger
@@ -37,6 +38,11 @@ def _validate_last_date_prior(last_date_prior: datetime.date):
         raise InvalidLastDatePriorError("A data do evento não pode ser maior ou igual que a data atual.")
 
 
+def _validate_grouping_factor(grouping_factor: Decimal):
+    if grouping_factor < 0:
+        raise InvalidGroupingFactorError("O fator de grupamento não pode ser menor que 0.")
+
+
 def add_bonificacao_corporate_event(subject: str, bonificacao: BonificacaoEvent, repo: ManualEarningInAssetsRepository):
     pass
 
@@ -46,16 +52,22 @@ def add_incorporation_corporate_event(subject: str, incorporation: Incorporation
                                       ticker_client: TickerInfoClient,
                                       notifier: NewEventNotifier):
     _validate_last_date_prior(incorporation.last_date_prior)
-
+    _validate_grouping_factor(incorporation.grouping_factor)
     if not ticker_client.is_ticker_valid(incorporation.emitted_ticker):
         raise InvalidEmittedTickerError("Código do ativo emitido inválido.")
+
+    if incorporation.grouping_factor <= 1:
+        grouping_factor = incorporation.grouping_factor
+    else:
+        # FIXME possivel bug se existir incorporacao com grouping factor 1.5
+        grouping_factor = incorporation.grouping_factor - 1
 
     event = ManualEarningsInAssetCorporateEvents(subject=subject,
                                                  type=EventType.INCORPORATION,
                                                  ticker=incorporation.ticker,
                                                  deliberate_on=incorporation.last_date_prior,
                                                  last_date_prior=incorporation.last_date_prior,
-                                                 grouping_factor=incorporation.grouping_factor * 100,
+                                                 grouping_factor=grouping_factor * 100,
                                                  emitted_ticker=incorporation.emitted_ticker)
 
     logger.info(f"Saving event: {event}")
@@ -67,6 +79,7 @@ def add_group_corporate_event(subject: str, group: GroupEvent,
                               repo: ManualEarningInAssetsRepository,
                               client: TickerInfoClient,
                               notifier: NewEventNotifier):
+    _validate_grouping_factor(group.grouping_factor)
     if group.grouping_factor >= 1:
         logger.info(f"Invalid grouping factor: {group.grouping_factor}")
         raise InvalidGroupingFactorError("O fator de grupamento não pode ser maior ou igual a 1.")
@@ -88,7 +101,8 @@ def add_split_corporate_event(subject: str, split: SplitEvent,
                               repo: ManualEarningInAssetsRepository,
                               client: TickerInfoClient,
                               notifier: NewEventNotifier):
-    if split.grouping_factor <= 1:
+    _validate_grouping_factor(split.grouping_factor)
+    if split.grouping_factor - 1 < 0:
         logger.info(f"Invalid grouping factor: {split.grouping_factor}")
         raise InvalidGroupingFactorError("O fator de grupamento não pode ser maior ou igual a 1.")
     _validate_last_date_prior(split.last_date_prior)
@@ -98,8 +112,11 @@ def add_split_corporate_event(subject: str, split: SplitEvent,
                                                  ticker=split.ticker,
                                                  deliberate_on=split.last_date_prior,
                                                  last_date_prior=split.last_date_prior,
-                                                 grouping_factor=split.grouping_factor * 100,
+                                                 grouping_factor=(split.grouping_factor - 1) * 100,
                                                  emitted_ticker=split.ticker)
     logger.info(f"Saving event: {event}")
     repo.save(event)
     notifier.notify(earnings_converter.manual_earning_to_earnings_in_assets_converter(event, client))
+
+
+# TODO PENSAR MELHOR NESSE GROUPING FACTOR MALDIDO
