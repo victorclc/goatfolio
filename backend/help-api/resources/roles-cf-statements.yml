@@ -1,0 +1,11 @@
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:Scan
+    - dynamodb:GetItem
+  Resource:
+    - Fn::GetAtt: [ FaqTable, Arn ]
+    - Fn::Join:
+        - ''
+        - - Fn::GetAtt: [ FaqTable, Arn ]
+          - '/index/*'
