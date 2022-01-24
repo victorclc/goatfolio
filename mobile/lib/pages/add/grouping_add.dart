@@ -3,7 +3,6 @@ import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/corporate_events/client/client.dart';
 import 'package:goatfolio/services/corporate_events/model/group_event.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
-import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
 import 'package:goatfolio/utils/dialog.dart' as dialog;
 import 'package:goatfolio/utils/formatters.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
@@ -159,6 +158,7 @@ class _GroupingAddState extends State<GroupingAdd> {
                 },
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
+                inputFormatters: [numberInputFormatter],
                 prefix: Container(
                   width: 120,
                   padding: EdgeInsets.all(16),
@@ -180,6 +180,7 @@ class _GroupingAddState extends State<GroupingAdd> {
                 decoration: _kDefaultRoundedBorderDecoration,
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
+                inputFormatters: [numberInputFormatter],
                 prefix: Container(
                   width: 120,
                   padding: EdgeInsets.all(16),

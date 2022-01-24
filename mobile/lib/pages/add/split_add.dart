@@ -156,6 +156,7 @@ class _SplitAddtate extends State<SplitAdd> {
                   setState(() {});
                 },
                 textInputAction: TextInputAction.next,
+                inputFormatters: [numberInputFormatter],
                 keyboardType: TextInputType.number,
                 prefix: Container(
                   width: 120,
@@ -177,6 +178,7 @@ class _SplitAddtate extends State<SplitAdd> {
                 },
                 decoration: _kDefaultRoundedBorderDecoration,
                 textInputAction: TextInputAction.next,
+                inputFormatters: [numberInputFormatter],
                 keyboardType: TextInputType.number,
                 prefix: Container(
                   width: 120,

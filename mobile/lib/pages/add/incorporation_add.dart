@@ -183,6 +183,7 @@ class _IncorporationAddState extends State<IncorporationAdd> {
                 },
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
+                inputFormatters: [numberInputFormatter],
                 prefix: Container(
                   width: 120,
                   padding: EdgeInsets.all(16),
@@ -204,6 +205,7 @@ class _IncorporationAddState extends State<IncorporationAdd> {
                 decoration: _kDefaultRoundedBorderDecoration,
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
+                inputFormatters: [numberInputFormatter],
                 prefix: Container(
                   width: 120,
                   padding: EdgeInsets.all(16),
