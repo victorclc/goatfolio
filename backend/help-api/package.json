@@ -1,0 +1,16 @@
+{
+  "name": "help-api",
+  "version": "1.0.0",
+  "description": "faq and help stuff",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "serverless-python-requirements": "^5.0.1",
+    "serverless-domain-manager": "^4.1.1"
+  },
+  "scripts": {
+    "test": "echo \\\"Error: no tests specified\\\" && exit 1"
+  },
+  "author": "Victor Corte Lopes de Carvalho",
+  "license": "ISC"
+}
