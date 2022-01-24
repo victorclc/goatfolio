@@ -41,13 +41,13 @@ class IncorporationAdd extends StatefulWidget {
 
   const IncorporationAdd(
       {Key? key,
-      required this.title,
-      required this.userService,
-      this.ticker,
-      this.date,
-      this.initialAmount,
-      this.finalAmount,
-      this.newTicker})
+        required this.title,
+        required this.userService,
+        this.ticker,
+        this.date,
+        this.initialAmount,
+        this.finalAmount,
+        this.newTicker})
       : super(key: key);
 
   @override
@@ -58,7 +58,7 @@ class _IncorporationAddState extends State<IncorporationAdd> {
   final TextEditingController _tickerController = TextEditingController();
   final TextEditingController _newTickerController = TextEditingController();
   final TextEditingController _initialAmountController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _finalAmountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
@@ -269,8 +269,8 @@ class _IncorporationAddState extends State<IncorporationAdd> {
         problems.add("Data inválida.");
       }
       if (DateFormat('dd/MM/yyyy')
-              .parse(_dateController.text)
-              .compareTo(DateTime.now()) >
+          .parse(_dateController.text)
+          .compareTo(DateTime.now()) >
           0) {
         problems.add("Data inválida.");
       }
