@@ -41,12 +41,12 @@ class SplitAdd extends StatefulWidget {
 
   const SplitAdd(
       {Key? key,
-      required this.title,
-      required this.userService,
-      this.ticker,
-      this.date,
-      this.initialAmount,
-      this.finalAmount})
+        required this.title,
+        required this.userService,
+        this.ticker,
+        this.date,
+        this.initialAmount,
+        this.finalAmount})
       : super(key: key);
 
   @override
@@ -56,7 +56,7 @@ class SplitAdd extends StatefulWidget {
 class _SplitAddtate extends State<SplitAdd> {
   final TextEditingController _tickerController = TextEditingController();
   final TextEditingController _initialAmountController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _finalAmountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
@@ -156,6 +156,7 @@ class _SplitAddtate extends State<SplitAdd> {
                   setState(() {});
                 },
                 textInputAction: TextInputAction.next,
+                inputFormatters: [numberInputFormatter],
                 keyboardType: TextInputType.number,
                 prefix: Container(
                   width: 120,
@@ -177,6 +178,7 @@ class _SplitAddtate extends State<SplitAdd> {
                 },
                 decoration: _kDefaultRoundedBorderDecoration,
                 textInputAction: TextInputAction.next,
+                inputFormatters: [numberInputFormatter],
                 keyboardType: TextInputType.number,
                 prefix: Container(
                   width: 120,
@@ -237,8 +239,8 @@ class _SplitAddtate extends State<SplitAdd> {
         problems.add("Data inválida.");
       }
       if (DateFormat('dd/MM/yyyy')
-              .parse(_dateController.text)
-              .compareTo(DateTime.now()) >
+          .parse(_dateController.text)
+          .compareTo(DateTime.now()) >
           0) {
         problems.add("Data inválida.");
       }

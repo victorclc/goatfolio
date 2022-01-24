@@ -201,6 +201,7 @@ class _StockAddState extends State<StockAdd> {
                   setState(() {});
                 },
                 decoration: _kDefaultRoundedBorderDecoration,
+                inputFormatters: [numberInputFormatter],
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
                 prefix: Container(

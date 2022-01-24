@@ -18,7 +18,7 @@ jobs:
         uses: subosito/flutter-action@v1
         with:
           flutter-version: '2.5.2'
-        
+
       # Checkout gallery code and get packages.
       - name: Checkout gallery code
         uses: actions/checkout@v2
@@ -29,7 +29,7 @@ jobs:
         with:
           ruby-version: '2.6'
           bundler-cache: true
-          working-directory: android
+          working-directory: mobile/android
 
       - name: Configure Keystore
         run: |
@@ -43,14 +43,17 @@ jobs:
           KEYSTORE_KEY_ALIAS: ${{ secrets.KEYSTORE_KEY_ALIAS }}
           KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
           KEYSTORE_STORE_PASSWORD: ${{ secrets.KEYSTORE_STORE_PASSWORD }}
-        working-directory: android
+        working-directory: mobile/android
+
+      - name: Install Flutter Dependencies
+        run: flutter pub get
 
       - name: build appbundle
-        run: flutter build appbundle
-      
+        run: flutter build appbundle --flavor prod -t lib/main-prod.dart
+
       # deploy with Fastlane 🚀.
       - name: Deploy
         run: bundle exec fastlane deploy
         env:
           PLAY_STORE_CONFIG_JSON: ${{ secrets.PLAY_STORE_CONFIG_JSON }}
-        working-directory: android
+        working-directory: mobile/android

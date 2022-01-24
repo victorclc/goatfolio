@@ -51,3 +51,6 @@ final cpfInputFormatter = new MaskTextInputFormatter(
 final moneyInputFormatter = CurrencyPtBrInputFormatter();
 final dateInputFormatter = new MaskTextInputFormatter(
     mask: '##/##/####', filter: {"#": RegExp(r'[0-9]')});
+
+final numberInputFormatter = new MaskTextInputFormatter(
+    mask: '##########', filter: {"#": RegExp(r'[0-9]')});

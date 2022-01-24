@@ -3,7 +3,6 @@ import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/corporate_events/client/client.dart';
 import 'package:goatfolio/services/corporate_events/model/group_event.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
-import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
 import 'package:goatfolio/utils/dialog.dart' as dialog;
 import 'package:goatfolio/utils/formatters.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
@@ -43,12 +42,12 @@ class GroupingAdd extends StatefulWidget {
 
   const GroupingAdd(
       {Key? key,
-      required this.title,
-      required this.userService,
-      this.ticker,
-      this.date,
-      this.initialAmount,
-      this.finalAmount})
+        required this.title,
+        required this.userService,
+        this.ticker,
+        this.date,
+        this.initialAmount,
+        this.finalAmount})
       : super(key: key);
 
   @override
@@ -58,7 +57,7 @@ class GroupingAdd extends StatefulWidget {
 class _GroupingAddState extends State<GroupingAdd> {
   final TextEditingController _tickerController = TextEditingController();
   final TextEditingController _initialAmountController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _finalAmountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
@@ -159,6 +158,7 @@ class _GroupingAddState extends State<GroupingAdd> {
                 },
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
+                inputFormatters: [numberInputFormatter],
                 prefix: Container(
                   width: 120,
                   padding: EdgeInsets.all(16),
@@ -180,6 +180,7 @@ class _GroupingAddState extends State<GroupingAdd> {
                 decoration: _kDefaultRoundedBorderDecoration,
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
+                inputFormatters: [numberInputFormatter],
                 prefix: Container(
                   width: 120,
                   padding: EdgeInsets.all(16),
@@ -239,8 +240,8 @@ class _GroupingAddState extends State<GroupingAdd> {
         problems.add("Data inválida.");
       }
       if (DateFormat('dd/MM/yyyy')
-              .parse(_dateController.text)
-              .compareTo(DateTime.now()) >
+          .parse(_dateController.text)
+          .compareTo(DateTime.now()) >
           0) {
         problems.add("Data inválida.");
       }
