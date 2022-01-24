@@ -8,5 +8,5 @@ Resources:
         - AttributeName: "topic"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "type"
+        - AttributeName: "topic"
           KeyType: "HASH"
