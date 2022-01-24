@@ -1,12 +1,11 @@
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:goatfolio/pages/help/help_page.dart';
 import 'package:goatfolio/services/stock/divergence_model.dart';
 import 'package:goatfolio/services/stock/stock_divergence_cubit.dart';
 import 'package:goatfolio/utils/formatters.dart';
-import 'package:goatfolio/utils/modal.dart' as modal;
 
 class CeiPendency extends StatelessWidget {
   final Map<Divergence, TextEditingController> tickerController = Map();
@@ -41,6 +40,7 @@ class CeiPendency extends StatelessWidget {
 
   Widget buildIos(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
+    final cubit = BlocProvider.of<StockDivergenceCubit>(context);
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         border: null,
@@ -57,22 +57,6 @@ class CeiPendency extends StatelessWidget {
             ),
           ),
           onPressed: () => Navigator.of(context).pop(),
-        ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.all(0),
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
-            widthFactor: 1.0,
-            child: Text(
-              'Ajuda',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          onPressed: () => modal.showDraggableModalBottomSheet(
-            context,
-            HelpPage(),
-          ),
         ),
         middle: Text(
           "Pêndencias",
@@ -100,6 +84,7 @@ class CeiPendency extends StatelessWidget {
     return BlocBuilder<StockDivergenceCubit, DivergenceState>(
       builder: (context, state) {
         final cubit = BlocProvider.of<StockDivergenceCubit>(context);
+        final textTheme = CupertinoTheme.of(context).textTheme;
 
         return SingleChildScrollView(
           child: Column(
