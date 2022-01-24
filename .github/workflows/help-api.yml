@@ -1,4 +1,4 @@
-name: ticker-api
+name: help-api
 
 on:
   push:
