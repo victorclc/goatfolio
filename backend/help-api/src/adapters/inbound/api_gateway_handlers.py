@@ -19,5 +19,4 @@ def get_faq_handler(event, context):
     data = faq.get_faq(topic, DynamoFaqRepository())
 
     return {"statusCode": HTTPStatus.OK,
-            "body": jsonutils.dump(list(map(lambda f: asdict(f), data))) if type(data) == list else asdict(data)}
-
+            "body": jsonutils.dump(list(map(lambda f: asdict(f), data)) if type(data) == list else asdict(data))}
