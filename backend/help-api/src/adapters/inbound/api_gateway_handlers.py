@@ -20,3 +20,4 @@ def get_faq_handler(event, context):
 
     return {"statusCode": HTTPStatus.OK,
             "body": jsonutils.dump(list(map(lambda f: asdict(f), data))) if type(data) == list else asdict(data)}
+
