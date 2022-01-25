@@ -41,7 +41,7 @@ custom:
     endpointType: 'regional'
 
 functions:
-  getCoporateEvents:
+  getFaq:
     handler: src/adapters/inbound/api_gateway_handlers.get_faq_handler
     events:
       - http:
