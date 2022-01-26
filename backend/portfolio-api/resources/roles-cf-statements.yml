@@ -15,7 +15,8 @@
     - sqs:SendMessage
     - sqs:GetQueueUrl
   Resource:
-    'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    - 'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    - Fn::GetAtt: [ ConsolidateApplicableCorporateEventQueue, Arn ]
 - Effect: Allow
   Action:
     - dynamodb:Query

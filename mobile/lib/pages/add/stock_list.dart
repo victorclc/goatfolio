@@ -16,13 +16,16 @@ import 'package:goatfolio/widgets/platform_aware_progress_indicator.dart';
 
 import 'package:settings_ui/settings_ui.dart';
 
-void goToInvestmentList(
-    BuildContext context, bool buyOperation, UserService userService) async {
+void goToInvestmentList(BuildContext context, bool buyOperation,
+    UserService userService, Function(String) onStockPressed,
+    {String? title}) async {
   Navigator.of(context).push(
     MaterialPageRoute(
       builder: (context) => InvestmentsList(
         buyOperation: buyOperation,
         userService: userService,
+        onStockPressed: onStockPressed,
+        title: title,
       ),
     ),
   );
@@ -32,8 +35,15 @@ class InvestmentsList extends StatelessWidget {
   final bool buyOperation;
   final UserService userService;
   final StockInvestmentService service;
+  final Function(String) onStockPressed;
+  final String? title;
 
-  InvestmentsList({Key? key, required this.buyOperation, required this.userService})
+  InvestmentsList(
+      {Key? key,
+      required this.buyOperation,
+      required this.userService,
+      required this.onStockPressed,
+      this.title})
       : this.service = StockInvestmentService(userService),
         super(key: key);
 
@@ -56,8 +66,7 @@ class InvestmentsList extends StatelessWidget {
           context, "Erro ao adicionar operação, tente novamente.");
       return;
     }
-    await dialog.showSuccessDialog(
-        context, "Operação adicionada com sucesso!");
+    await dialog.showSuccessDialog(context, "Operação adicionada com sucesso!");
   }
 
   List<SettingsSection> buildAlphabetSections(PortfolioPerformance portfolio) {
@@ -82,14 +91,7 @@ class InvestmentsList extends StatelessWidget {
                 (ticker) => SettingsTile(
                   title: ticker,
                   iosLikeTile: true,
-                  onPressed: (context) =>
-                      modal.showDraggableModalBottomSheet(
-                          context,
-                          StockAdd(
-                            ticker: ticker,
-                            buyOperation: buyOperation,
-                            userService: userService,
-                          )),
+                  onPressed: (context) => onStockPressed(ticker),
                 ),
               )
               .toList(),
@@ -131,7 +133,7 @@ class InvestmentsList extends StatelessWidget {
               ]
             : null,
         title: Text(
-          buyOperation ? "Compra" : "Venda",
+          title ?? (buyOperation ? "Compra" : "Venda"),
           style: TextStyle(color: textColor),
         ),
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
@@ -159,7 +161,7 @@ class InvestmentsList extends StatelessWidget {
                       ),
                     ))
             : null,
-        middle: Text(buyOperation ? "Compra" : "Venda"),
+        middle: Text(title ?? (buyOperation ? "Compra" : "Venda")),
       ),
       child: buildContent(context),
     );

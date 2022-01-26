@@ -24,8 +24,11 @@ class DynamoTickerInfoRepository(TickerInfoRepository):
             KeyConditionExpression=Key("isin").eq(isin_code),
         )
         if result["Items"]:
+            if len(result["Items"]) > 0:
+                for item in result["Items"]:
+                    if "asset_type" in item and item["asset_type"]:
+                        return item["ticker"]
             return result["Items"][0]["ticker"]
-
 
     def find_by_code(self, code: str) -> List[TickerInfo]:
         result = self.__table.query(

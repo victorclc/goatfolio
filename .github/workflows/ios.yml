@@ -1,10 +1,10 @@
 name: Deploy to App Store Connect
 
 on:
-  push:
-    branches: [ master, develop ]
-    paths:
-      - 'mobile/**'
+  # push:
+  #  branches: [ master, develop ]
+  #  paths:
+  #    - 'mobile/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

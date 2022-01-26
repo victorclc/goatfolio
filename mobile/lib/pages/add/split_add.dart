@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
-import 'package:goatfolio/services/investment/model/stock.dart';
-import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
+import 'package:goatfolio/services/corporate_events/client/client.dart';
+import 'package:goatfolio/services/corporate_events/model/split_event.dart';
 import 'package:goatfolio/utils/dialog.dart' as dialog;
 import 'package:goatfolio/utils/formatters.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
@@ -31,76 +31,51 @@ const BoxDecoration _kDefaultRoundedBorderDecoration = BoxDecoration(
   // borderRadius: BorderRadius.all(Radius.circular(5.0)),
 );
 
-class StockAdd extends StatefulWidget {
-  final bool buyOperation;
+class SplitAdd extends StatefulWidget {
+  final String title;
+  final DateTime? date;
+  final int? initialAmount;
+  final int? finalAmount;
   final UserService userService;
   final String? ticker;
-  final String? broker;
-  final int? amount;
-  final double? price;
-  final DateTime? date;
-  final double? costs;
-  final String? id;
-  final StockInvestment? origInvestment;
 
-  const StockAdd(
+  const SplitAdd(
       {Key? key,
-      this.buyOperation = true,
-      required this.userService,
-      this.ticker,
-      this.broker,
-      this.amount,
-      this.price,
-      this.date,
-      this.costs,
-      this.id,
-      this.origInvestment})
+        required this.title,
+        required this.userService,
+        this.ticker,
+        this.date,
+        this.initialAmount,
+        this.finalAmount})
       : super(key: key);
 
-  StockAdd.fromStockInvestment(this.origInvestment,
-      {required UserService userService})
-      : buyOperation = origInvestment!.operation == 'BUY',
-        ticker = origInvestment.ticker,
-        broker = origInvestment.broker,
-        amount = origInvestment.amount,
-        price = origInvestment.price,
-        date = origInvestment.date,
-        costs = origInvestment.costs,
-        id = origInvestment.id,
-        userService = userService;
-
   @override
-  _StockAddState createState() => _StockAddState();
+  _SplitAddtate createState() => _SplitAddtate();
 }
 
-class _StockAddState extends State<StockAdd> {
+class _SplitAddtate extends State<SplitAdd> {
   final TextEditingController _tickerController = TextEditingController();
-  final TextEditingController _brokerController = TextEditingController();
-  final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _initialAmountController =
+  TextEditingController();
+  final TextEditingController _finalAmountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _costsController = TextEditingController();
-  late StockInvestmentService service;
+
+  late CorporateEventsClient service;
   late Future _future;
 
   @override
   void initState() {
     super.initState();
-    service = StockInvestmentService(widget.userService);
+    service = CorporateEventsClient(widget.userService);
     _tickerController.text = widget.ticker ?? '';
-    _brokerController.text = widget.broker ?? '';
-    if (widget.amount != null) {
-      _amountController.text = '${widget.amount}';
+    if (widget.initialAmount != null) {
+      _initialAmountController.text = '${widget.initialAmount}';
     }
-    if (widget.price != null) {
-      _priceController.text =
-          moneyInputFormatter.format(widget.price!.toStringAsFixed(2));
+    if (widget.finalAmount != null) {
+      _finalAmountController.text = '${widget.finalAmount}';
     }
     if (widget.date != null) {
       _dateController.text = DateFormat('dd/MM/yyyy').format(widget.date!);
-    }
-    if (widget.costs != null) {
-      _costsController.text = moneyInputFormatter.format("${widget.costs}");
     }
   }
 
@@ -125,7 +100,7 @@ class _StockAddState extends State<StockAdd> {
             onPressed: () => Navigator.of(context).pop(),
           ),
           middle: Text(
-            widget.buyOperation ? 'Nova compra' : 'Nova venda',
+            widget.title,
             style: textTheme.navTitleTextStyle,
           ),
           trailing: CupertinoButton(
@@ -172,69 +147,50 @@ class _StockAddState extends State<StockAdd> {
                 autocorrect: false,
               ),
               CupertinoTextField(
-                controller: _brokerController,
+                controller: _initialAmountController,
                 decoration: _kDefaultRoundedBorderDecoration,
-                autofocus: widget.ticker != null && widget.broker == null
+                autofocus: widget.ticker != null && widget.initialAmount == null
                     ? true
                     : false,
                 onChanged: (something) {
                   setState(() {});
                 },
                 textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
-                prefix: Container(
-                  width: 120,
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    'Corretora',
-                    style: textTheme.textStyle
-                        .copyWith(fontWeight: FontWeight.w400),
-                  ),
-                ),
-                placeholder: "Corretora",
-                enableSuggestions: false,
-                autocorrect: false,
-              ),
-              CupertinoTextField(
-                controller: _amountController,
-                onChanged: (something) {
-                  setState(() {});
-                },
-                decoration: _kDefaultRoundedBorderDecoration,
                 inputFormatters: [numberInputFormatter],
-                textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
                 prefix: Container(
                   width: 120,
                   padding: EdgeInsets.all(16),
                   child: Text(
-                    'Quantidade',
+                    'De',
+                    style: textTheme.textStyle
+                        .copyWith(fontWeight: FontWeight.w400),
+                  ),
+                ),
+                placeholder: "Ex. 1",
+                enableSuggestions: false,
+                autocorrect: false,
+              ),
+              CupertinoTextField(
+                controller: _finalAmountController,
+                onChanged: (something) {
+                  setState(() {});
+                },
+                decoration: _kDefaultRoundedBorderDecoration,
+                textInputAction: TextInputAction.next,
+                inputFormatters: [numberInputFormatter],
+                keyboardType: TextInputType.number,
+                prefix: Container(
+                  width: 120,
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    'Para',
                     overflow: TextOverflow.ellipsis,
                     style: textTheme.textStyle
                         .copyWith(fontWeight: FontWeight.w400),
                   ),
                 ),
-                placeholder: "Quantidade",
-              ),
-              CupertinoTextField(
-                controller: _priceController,
-                decoration: _kDefaultRoundedBorderDecoration,
-                onChanged: (something) {
-                  setState(() {});
-                },
-                textInputAction: TextInputAction.next,
-                inputFormatters: [moneyInputFormatter],
-                keyboardType: TextInputType.number,
-                prefix: Container(
-                  width: 118,
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    'Preço ',
-                    style: textTheme.textStyle
-                        .copyWith(fontWeight: FontWeight.w400),
-                  ),
-                ),
-                placeholder: "Preço",
+                placeholder: "Ex. 2",
               ),
               CupertinoTextField(
                 controller: _dateController,
@@ -256,26 +212,6 @@ class _StockAddState extends State<StockAdd> {
                 ),
                 placeholder: "dd/mm/aaaa",
               ),
-              // CupertinoTextField(
-              //   controller: _costsController,
-              //   decoration: _kDefaultRoundedBorderDecoration,
-              //   onChanged: (something) {
-              //     setState(() {});
-              //   },
-              //   textInputAction: TextInputAction.next,
-              //   inputFormatters: [moneyInputFormatter],
-              //   keyboardType: TextInputType.numberWithOptions(decimal: true),
-              //   prefix: Container(
-              //     width: 120,
-              //     padding: EdgeInsets.all(16),
-              //     child: Text(
-              //       'Custos',
-              //       style: textTheme.textStyle
-              //           .copyWith(fontWeight: FontWeight.w400),
-              //     ),
-              //   ),
-              //   placeholder: "Custos (opcional)",
-              // ),
             ],
           ),
         ));
@@ -287,16 +223,11 @@ class _StockAddState extends State<StockAdd> {
         _tickerController.text.length > 6) {
       problems.add("Código do ativo inválido.");
     }
-    if (int.parse(_amountController.text) <= 0) {
+    if (int.parse(_finalAmountController.text) <= 0) {
       problems.add("Quantidade não pode ser 0.");
     }
-    if (getDoubleFromMoneyFormat(_priceController.text) <= 0) {
-      problems.add("O preço não pode ser R\$ 0,00.");
-    }
-    if (getDoubleFromMoneyFormat(
-            _costsController.text.isNotEmpty ? _costsController.text : '0.0') <
-        0) {
-      problems.add("O custo não pode ser negativo.");
+    if (int.parse(_initialAmountController.text) <= 0) {
+      problems.add("Quantidade não pode ser 0.");
     }
     if (_dateController.text.length != 10) {
       problems.add("Data inválida.");
@@ -308,8 +239,8 @@ class _StockAddState extends State<StockAdd> {
         problems.add("Data inválida.");
       }
       if (DateFormat('dd/MM/yyyy')
-              .parse(_dateController.text)
-              .compareTo(DateTime.now()) >
+          .parse(_dateController.text)
+          .compareTo(DateTime.now()) >
           0) {
         problems.add("Data inválida.");
       }
@@ -337,66 +268,37 @@ class _StockAddState extends State<StockAdd> {
       return;
     }
 
-    final investment = StockInvestment(
-        id: widget.id,
-        ticker: _tickerController.text,
-        amount: int.parse(_amountController.text),
-        price: getDoubleFromMoneyFormat(_priceController.text),
-        type: 'STOCK',
-        operation: widget.buyOperation ? 'BUY' : 'SELL',
-        date: DateFormat('dd/MM/yyyy').parse(_dateController.text, true),
-        broker: _brokerController.text,
-        costs: getDoubleFromMoneyFormat(
-            _costsController.text.isNotEmpty ? _costsController.text : '0.0'));
+    final event = SplitEvent(
+      ticker: _tickerController.text,
+      groupingFactor: int.parse(_finalAmountController.text) /
+          int.parse(_initialAmountController.text),
+      lastDatePrior: DateFormat('dd/MM/yyyy').parse(_dateController.text, true),
+    );
 
-    if (widget.id != null) {
-      _future = service.editInvestment(investment);
-    } else {
-      _future = service.addInvestment(investment);
-    }
+    _future = service.addSplitEvent(event);
 
     modal.showUnDismissibleModalBottomSheet(
       context,
       ProgressIndicatorScaffold(
-          message: widget.id != null
-              ? 'Editando investimento...'
-              : 'Adicionando investimento...',
+          message: "Adicionando evento corporativo",
           future: _future,
           onFinish: () async {
             try {
-              await _future;
-              if (widget.origInvestment != null) {
-                widget.origInvestment!.copy(investment);
-              }
-              await dialog.showSuccessDialog(
-                  context, "Investimento adicionado com sucesso");
-            } catch (e) {
+              final String message = await _future;
+              await dialog.showSuccessDialog(context, message);
+              Navigator.of(context).pop();
+            } on Exception catch (e) {
               await dialog.showErrorDialog(
-                  context, "Erro ao adicionar investimento.");
+                  context, e.toString().replaceAll("Exception: ", ""));
             }
-            Navigator.of(context).pop();
           }),
     );
   }
 
   bool canSubmit() {
     return _tickerController.text.isNotEmpty &&
-        _brokerController.text.isNotEmpty &&
-        _amountController.text.isNotEmpty &&
-        _priceController.text.isNotEmpty &&
+        _initialAmountController.text.isNotEmpty &&
+        _finalAmountController.text.isNotEmpty &&
         _dateController.text.isNotEmpty;
-  }
-
-  Future<void> submitRequest(StockInvestment investment) async {
-    _future = service.addInvestment(investment);
-    return _future;
-  }
-
-  double getDoubleFromMoneyFormat(String formatted) {
-    double value =
-        double.parse(formatted.replaceAllMapped(RegExp(r'\D'), (match) {
-      return '';
-    }));
-    return value / 100;
   }
 }

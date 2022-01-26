@@ -1,11 +1,9 @@
 name: Deploy to Play Store
 on:
-  push:
-    branches: [ master ]
-    paths:
-      - 'mobile/**'
-      
-  # Allows you to run this workflow manually from the Actions tab
+  #push:
+  # Sequence of patterns matched against refs/tags
+  #  branches:
+  #  - master
   workflow_dispatch:
 
 jobs:
@@ -46,7 +44,7 @@ jobs:
           KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
           KEYSTORE_STORE_PASSWORD: ${{ secrets.KEYSTORE_STORE_PASSWORD }}
         working-directory: mobile/android
-        
+
       - name: Install Flutter Dependencies
         run: flutter pub get
 

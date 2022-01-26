@@ -16,6 +16,7 @@ provider:
     CORPORATE_BUCKET: ${self:provider.stage}-b3-corporate-events
     CURL_CA_BUNDLE: '/var/task/cacert.pem'
     TICKER_BASE_API_URL: https://${env:DOMAIN_NAME}/ticker
+    NEW_APPLICABLE_QUEUE: NewApplicableCorporateEvents.fifo
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
   tracing:
@@ -91,8 +92,43 @@ functions:
               querystrings:
                 ticker: true
                 dateFrom: true
+                subject: false
           method: get
           private: true
 
+  addGroupEvent:
+    handler: src/adapters/inbound/api_gateway_handlers.add_group_corporate_event_handler
+    events:
+      - http:
+          path: events/group
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  addSplitEvent:
+    handler: src/adapters/inbound/api_gateway_handlers.add_split_corporate_event_handler
+    events:
+      - http:
+          path: events/split
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  addIncorporationEvent:
+    handler: src/adapters/inbound/api_gateway_handlers.add_incorporation_corporate_event_handler
+    events:
+      - http:
+          path: events/incorporation
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
 resources:
+  - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/dynamo-cf-resources.yml)}

@@ -1,7 +1,10 @@
+from itertools import groupby
 from typing import List, Optional
 
-from adapters.inbound import portfolio_core, events_consolidated, stock_core
+from adapters.inbound import portfolio_core, events_consolidated, stock_core, investment_repo, ticker_client
 import goatcommons.utils.json as jsonutils
+from adapters.outbound.sqs_consolidate_applicable_corporate_event_notifier import \
+    SQSConsolidateApplicableCorporateEventNotifier
 from domain.common.investment_loader import load_model_by_type
 from domain.common.investments import (
     InvestmentType,
@@ -12,13 +15,14 @@ from domain.common.investments import (
 from aws_lambda_powertools import Logger, Tracer
 
 import domain.corporate_events.events_consolidation_strategies as strategy
+from domain.corporate_events.earnings_in_assets_event import EarningsInAssetCorporateEvent
 
 logger = Logger()
 tracer = Tracer()
 
 
 def parse_subject_new_and_old_investments_from_message(
-    message: dict,
+        message: dict,
 ) -> (str, Investment, Investment):
     subject = message["attributes"]["MessageGroupId"]
     body = jsonutils.load(message["body"])
@@ -54,7 +58,7 @@ def check_for_applicable_corporate_events_handler(event, context):
     for message in event["Records"]:
         logger.info(f"Processing message: {message}")
         subject, new, old = parse_subject_new_and_old_investments_from_message(message)
-        if new and new.type in OperationType.corporate_events_types():
+        if new is not None and new.operation in OperationType.corporate_events_types():
             logger.info(f"Corporate event type, skiping message.")
             continue
 
@@ -77,8 +81,42 @@ def persist_cei_asset_quantities_handler(event, context):
         stock_core.save_asset_quantities(**jsonutils.load(message["body"]))
 
 
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
+def new_applicable_corporate_event_handler(event, context):
+    for message in event["Records"]:
+        logger.info(f"Processing message: {message}")
+        new_event = EarningsInAssetCorporateEvent(**jsonutils.load(message["body"]))
+
+        logger.info(f"EarningsAssetCorporateEvent: {new_event}")
+        ticker = ticker_client.get_ticker_from_isin_code(new_event.isin_code)
+        if new_event.subject:
+            investments = investment_repo.find_by_subject_and_ticker(new_event.subject, ticker, new_event.with_date)
+            logger.info(f"Subject {new_event.subject} has {len(investments)} applicable investments")
+        else:
+            investments = investment_repo.find_by_ticker_until_date(ticker, new_event.with_date)
+            logger.info(f"Total of {len(investments)} applicable investments")
+
+        notifier = SQSConsolidateApplicableCorporateEventNotifier()
+        for subject, sub_investments in groupby(sorted(investments, key=lambda i: i.subject), key=lambda i: i.subject):
+            notifier.notify(subject, min(list(sub_investments), key=lambda i: i.date))
+
+
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
+def process_applicable_corporate_event_handler(event, context):
+    for message in event["Records"]:
+        logger.info(f"Processing message: {message}")
+        message = jsonutils.load(message["body"])
+        subject = message["subject"]
+        investment = StockInvestment(**message["investment"])
+
+        events_consolidated.check_for_applicable_corporate_events(subject, [investment],
+                                                                  strategy.handle_earning_in_assets_event)
+
+
 def get_investments_differences(
-    inv_1: Optional[StockInvestment], inv_2: Optional[StockInvestment]
+        inv_1: Optional[StockInvestment], inv_2: Optional[StockInvestment]
 ) -> List[str]:
     diffs = []
     if not inv_1 or not inv_2:

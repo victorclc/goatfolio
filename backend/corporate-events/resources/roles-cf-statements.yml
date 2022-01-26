@@ -32,10 +32,23 @@
     - sqs:SendMessage
     - sqs:GetQueueUrl
   Resource:
-    'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    - 'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    - 'Fn::ImportValue': ${self:provider.stage}-NewApplicableCorporateEventsQueueArnOutput
 - Effect: Allow
   Action:
     - ssm:GetParameter
     - ssm:GetParameters
     - ssm:DescribeParameters
   Resource: arn:aws:ssm:${self:provider.region}:*:parameter/ticker-api-key
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:BatchWriteItem
+    - dynamodb:PutItem
+    - dynamodb:DeleteItem
+  Resource:
+    - Fn::GetAtt: [ ManualCorporateEventsTable, Arn ]
+    - Fn::Join:
+        - ''
+        - - Fn::GetAtt: [ ManualCorporateEventsTable, Arn ]
+          - '/index/*'

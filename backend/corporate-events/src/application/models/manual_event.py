@@ -9,6 +9,10 @@ class BonificacaoEvent:
     base_value: Decimal
     last_date_prior: datetime.date
 
+    def __post_init__(self):
+        if isinstance(self.last_date_prior, str):
+            self.last_date_prior = datetime.datetime.strptime(self.last_date_prior, "%Y%m%d").date()
+
 
 @dataclass
 class IncorporationEvent:
@@ -17,12 +21,20 @@ class IncorporationEvent:
     grouping_factor: Decimal
     last_date_prior: datetime.date
 
+    def __post_init__(self):
+        if isinstance(self.last_date_prior, str):
+            self.last_date_prior = datetime.datetime.strptime(self.last_date_prior, "%Y%m%d").date()
+
 
 @dataclass
 class GroupEvent:
     ticker: str
     grouping_factor: Decimal
     last_date_prior: datetime.date
+
+    def __post_init__(self):
+        if isinstance(self.last_date_prior, str):
+            self.last_date_prior = datetime.datetime.strptime(self.last_date_prior, "%Y%m%d").date()
 
 
 @dataclass
@@ -31,3 +43,6 @@ class SplitEvent:
     grouping_factor: Decimal
     last_date_prior: datetime.date
 
+    def __post_init__(self):
+        if isinstance(self.last_date_prior, str):
+            self.last_date_prior = datetime.datetime.strptime(self.last_date_prior, "%Y%m%d").date()
