@@ -1,8 +1,31 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/services/help/model/faq.dart';
+
+void goToHelpPage(BuildContext context, Faq faq) {
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => HelpPage(
+        faq: faq,
+      ),
+    ),
+  );
+}
 
 class HelpPage extends StatelessWidget {
-  const HelpPage({Key? key}) : super(key: key);
+  final Faq faq;
+
+  const HelpPage({Key? key, required this.faq}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return buildIos(context);
+    }
+    return buildAndroid(context);
+  }
 
   Widget buildAndroid(BuildContext context) {
     final textColor =
@@ -13,7 +36,7 @@ class HelpPage extends StatelessWidget {
           color: textColor,
         ),
         title: Text(
-          "Pêndencias",
+          faq.topic,
           style: TextStyle(color: textColor),
         ),
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
@@ -24,63 +47,33 @@ class HelpPage extends StatelessWidget {
   }
 
   Widget buildIos(BuildContext context) {
-    final textTheme = CupertinoTheme.of(context).textTheme;
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        border: null,
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
-        leading: CupertinoButton(
-          padding: EdgeInsets.all(0),
-          child: Align(
-            alignment: AlignmentDirectional.centerStart,
-            widthFactor: 1.0,
-            child: Text(
-              'Voltar',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        middle: Text(
-          "Ajuda",
-          style: textTheme.navTitleTextStyle,
-        ),
+        previousPageTitle: "",
+        middle: Text(faq.topic),
       ),
       child: buildContent(context),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return buildIos(context);
-  }
-
   Widget buildContent(BuildContext context) {
     return Container(
       child: Column(
-        children: [
-          ExpansionTile(
-            title: Text("O que é uma pêndencia de importacão?"),
-            children: [
-              Container(
-                padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                alignment: Alignment.centerLeft,
-                child: Text("É uma pendencia drr"),
+        children: faq.questions
+            .map(
+              (question) => ExpansionTile(
+                title: Text(question.question),
+                children: [
+                  Container(
+                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                    alignment: Alignment.centerLeft,
+                    child: Text(question.answer),
+                  ),
+                ],
               ),
-            ],
-          ),
-          ExpansionTile(
-            title: Text("Por que preciso fornecer o preco médio"),
-            children: [
-              Container(
-                padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                alignment: Alignment.centerLeft,
-                child: Text("Por que sim zéquinha."),
-              ),
-            ],
-          ),
-        ],
+            )
+            .toList(),
       ),
     );
   }

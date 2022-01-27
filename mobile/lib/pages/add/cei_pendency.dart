@@ -69,10 +69,8 @@ class CeiPendency extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          onPressed: () => modal.showDraggableModalBottomSheet(
-            context,
-            HelpPage(),
-          ),
+          onPressed: () =>
+              1
         ),
         middle: Text(
           "Pêndencias",
