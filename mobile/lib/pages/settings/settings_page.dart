@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/navigation.dart';
+import 'package:goatfolio/pages/help/topics_page.dart';
 import 'package:goatfolio/pages/login/login.dart';
 import 'package:goatfolio/pages/settings/theme_page.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
@@ -56,6 +57,8 @@ class SettingsPage extends StatelessWidget {
   }
 
   Widget buildContent(BuildContext context) {
+    final userService = Provider.of<UserService>(context, listen: false);
+
     return SettingsList(
       sections: [
         SettingsSection(
@@ -73,6 +76,10 @@ class SettingsPage extends StatelessWidget {
                   ? 'Controle como você recebe as notificações'
                   : null,
               onPressed: (_) => AppSettings.openNotificationSettings(),
+            ),
+            SettingsTile(
+              title: 'FAQ',
+              onPressed: (context) => goToFaqTopicsPage(context, userService),
             ),
             SettingsTile(
               title: 'Sobre',
@@ -95,8 +102,6 @@ class SettingsPage extends StatelessWidget {
               ),
               titleTextStyle: TextStyle(fontSize: 16, color: Colors.redAccent),
               onPressed: (BuildContext context) async {
-                final userService =
-                    Provider.of<UserService>(context, listen: false);
                 await deleteInvestmentsDatabase();
                 await NotificationClient(userService).unregisterToken(
                     (await FirebaseMessaging.instance.getToken())!);

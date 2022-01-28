@@ -11,4 +11,5 @@ class Question:
 @dataclass
 class Faq:
     topic: str
+    description: str
     questions: List[Question]
