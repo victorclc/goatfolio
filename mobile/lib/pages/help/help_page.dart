@@ -58,22 +58,24 @@ class HelpPage extends StatelessWidget {
   }
 
   Widget buildContent(BuildContext context) {
-    return Container(
-      child: Column(
-        children: faq.questions
-            .map(
-              (question) => ExpansionTile(
-                title: Text(question.question),
-                children: [
-                  Container(
-                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                    alignment: Alignment.centerLeft,
-                    child: Text(question.answer),
-                  ),
-                ],
-              ),
-            )
-            .toList(),
+    return SingleChildScrollView(
+      child: Container(
+        child: Column(
+          children: faq.questions
+              .map(
+                (question) => ExpansionTile(
+                  title: Text(question.question),
+                  children: [
+                    Container(
+                      padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                      alignment: Alignment.centerLeft,
+                      child: Text(question.answer),
+                    ),
+                  ],
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }
