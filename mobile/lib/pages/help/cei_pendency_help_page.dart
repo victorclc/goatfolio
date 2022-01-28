@@ -2,44 +2,43 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/pages/help/help_page.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/help/client/client.dart';
 import 'package:goatfolio/services/help/model/faq.dart';
+import 'package:goatfolio/services/help/model/faq_topic.dart';
 import 'package:goatfolio/widgets/loading_error.dart';
 import 'package:goatfolio/widgets/platform_aware_progress_indicator.dart';
-import 'package:settings_ui/settings_ui.dart';
 
-void goToFaqTopicsPage(BuildContext context, UserService userService) {
+void goCeiPendencyHelpPage(BuildContext context, UserService userService) {
   Navigator.of(context).push(
     MaterialPageRoute(
-      builder: (context) => FaqTopicsPage(
+      builder: (context) => CeiPendencyHelpPage(
         userService: userService,
       ),
     ),
   );
 }
 
-class FaqTopicsPage extends StatefulWidget {
+class CeiPendencyHelpPage extends StatefulWidget {
   final UserService userService;
 
-  const FaqTopicsPage({Key? key, required this.userService}) : super(key: key);
+  const CeiPendencyHelpPage({Key? key, required this.userService})
+      : super(key: key);
 
   @override
-  _FaqTopicsPageState createState() => _FaqTopicsPageState();
+  _CeiPendencyHelpPageState createState() => _CeiPendencyHelpPageState();
 }
 
-class _FaqTopicsPageState extends State<FaqTopicsPage> {
+class _CeiPendencyHelpPageState extends State<CeiPendencyHelpPage> {
   late HelpClient client;
-  late Future<List<Faq>> _future;
+  late Future<Faq> _future;
 
   @override
   void initState() {
     client = HelpClient(widget.userService);
-    _future = client.getFaq();
+    _future = client.getTopicFaq(FaqTopic.CEI_PENDENCY);
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +47,6 @@ class _FaqTopicsPageState extends State<FaqTopicsPage> {
     }
     return buildAndroid(context);
   }
-
 
   Widget buildAndroid(BuildContext context) {
     final textColor =
@@ -59,7 +57,7 @@ class _FaqTopicsPageState extends State<FaqTopicsPage> {
           color: textColor,
         ),
         title: Text(
-          "FAQ",
+          "Pêndencias",
           style: TextStyle(color: textColor),
         ),
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
@@ -74,7 +72,7 @@ class _FaqTopicsPageState extends State<FaqTopicsPage> {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         previousPageTitle: "",
-        middle: Text("FAQ"),
+        middle: Text("Pêndencias"),
       ),
       child: buildContent(context),
     );
@@ -108,26 +106,32 @@ class _FaqTopicsPageState extends State<FaqTopicsPage> {
                 ],
               );
             }
-            List<Faq> faqs = snapshot.data! as List<Faq>;
+            Faq faq = snapshot.data! as Faq;
 
-            return SettingsList(
-              sections: [
-                SettingsSection(
-                  tiles: faqs
-                      .map(
-                        (faq) => SettingsTile(
-                          title: faq.description,
-                          iosLikeTile: true,
-                          onPressed: (context) => goToHelpPage(context, faq),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ],
+            return Container(
+              child: Column(
+                children: faq.questions
+                    .map(
+                      (question) => ExpansionTile(
+                        title: Text(question.question),
+                        children: [
+                          Container(
+                            padding: EdgeInsets.only(
+                                left: 16, right: 16, bottom: 16),
+                            alignment: Alignment.centerLeft,
+                            child: Text(question.answer),
+                          ),
+                        ],
+                      ),
+                    )
+                    .toList(),
+              ),
             );
         }
         return LoadingError(
-          onRefreshPressed: () => _future = client.getFaq(),
+          onRefreshPressed: () => _future = client.getTopicFaq(
+            FaqTopic.CEI_PENDENCY,
+          ),
         );
       },
     );

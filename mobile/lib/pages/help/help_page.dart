@@ -36,7 +36,7 @@ class HelpPage extends StatelessWidget {
           color: textColor,
         ),
         title: Text(
-          faq.topic,
+          faq.description,
           style: TextStyle(color: textColor),
         ),
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
@@ -51,29 +51,31 @@ class HelpPage extends StatelessWidget {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         previousPageTitle: "",
-        middle: Text(faq.topic),
+        middle: Text(faq.description),
       ),
       child: buildContent(context),
     );
   }
 
   Widget buildContent(BuildContext context) {
-    return Container(
-      child: Column(
-        children: faq.questions
-            .map(
-              (question) => ExpansionTile(
-                title: Text(question.question),
-                children: [
-                  Container(
-                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                    alignment: Alignment.centerLeft,
-                    child: Text(question.answer),
-                  ),
-                ],
-              ),
-            )
-            .toList(),
+    return SingleChildScrollView(
+      child: Container(
+        child: Column(
+          children: faq.questions
+              .map(
+                (question) => ExpansionTile(
+                  title: Text(question.question),
+                  children: [
+                    Container(
+                      padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                      alignment: Alignment.centerLeft,
+                      child: Text(question.answer),
+                    ),
+                  ],
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }

@@ -1,12 +1,12 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:goatfolio/pages/help/help_page.dart';
+import 'package:goatfolio/pages/help/cei_pendency_help_page.dart';
+import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/stock/divergence_model.dart';
 import 'package:goatfolio/services/stock/stock_divergence_cubit.dart';
 import 'package:goatfolio/utils/formatters.dart';
-import 'package:goatfolio/utils/modal.dart' as modal;
+import 'package:provider/provider.dart';
 
 class CeiPendency extends StatelessWidget {
   final Map<Divergence, TextEditingController> tickerController = Map();
@@ -69,8 +69,10 @@ class CeiPendency extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          onPressed: () =>
-              1
+          onPressed: () => goCeiPendencyHelpPage(
+            context,
+            Provider.of<UserService>(context, listen: false),
+          ),
         ),
         middle: Text(
           "Pêndencias",
