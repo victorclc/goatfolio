@@ -116,7 +116,7 @@ class _FaqTopicsPageState extends State<FaqTopicsPage> {
                   tiles: faqs
                       .map(
                         (faq) => SettingsTile(
-                          title: faq.topic,
+                          title: faq.description,
                           iosLikeTile: true,
                           onPressed: (context) => goToHelpPage(context, faq),
                         ),

@@ -36,7 +36,7 @@ class HelpPage extends StatelessWidget {
           color: textColor,
         ),
         title: Text(
-          faq.topic,
+          faq.description,
           style: TextStyle(color: textColor),
         ),
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
@@ -51,7 +51,7 @@ class HelpPage extends StatelessWidget {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         previousPageTitle: "",
-        middle: Text(faq.topic),
+        middle: Text(faq.description),
       ),
       child: buildContent(context),
     );
