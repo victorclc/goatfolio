@@ -13,17 +13,18 @@ logger = Logger()
 
 class CorporateEventsConsolidationCore:
     def __init__(
-        self, investments: InvestmentRepository, events: CorporateEventsClient
+            self, investments: InvestmentRepository, events: CorporateEventsClient
     ):
         self.investments = investments
         self.events_client = events
 
     def check_for_applicable_corporate_events(
-        self,
-        subject: str,
-        investments: List[Investment],
-        handle_event_strategy: HandleEventStrategy,
+            self,
+            subject: str,
+            investments: List[Investment],
+            handle_event_strategy: HandleEventStrategy,
     ):
+        # TODO PRECISA DAR UM JEITO DE PASSAR PELO TICKER E ALIAS TICKER
         investments_map = groupby(
             sorted(investments, key=lambda i: i.ticker), key=lambda i: i.ticker
         )
@@ -34,9 +35,7 @@ class CorporateEventsConsolidationCore:
 
             events = self.events_client.corporate_events_from_date(subject, ticker, oldest)
             if not events:
-                logger.info(
-                    f"No applicable event for {ticker} on {oldest.strftime('%Y-%m-%d')}"
-                )
+                logger.info(f"No applicable event for {ticker} on {oldest.strftime('%Y-%m-%d')}")
                 continue
 
             all_ticker_investments = self.investments.find_by_subject_and_ticker(
