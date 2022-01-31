@@ -118,3 +118,4 @@ class InvestmentRequest:
 class CEIInfo:
     subject: str
     asset_quantities: dict
+    date: str
