@@ -81,6 +81,7 @@ class CEICore:
                                 for k, v in result.payload["assets_quantities"].items()
                                 if self.is_valid_ticker_name(k)
                             },
+                            date=result.payload["date"]
                         )
                     )
                 metrics.add_metric(name="CEI_IMPORT_SUCCESS", unit=MetricUnit.Count, value=1)
