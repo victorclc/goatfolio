@@ -36,8 +36,8 @@ class StockCore:
         self.investments = investments
         self.transformation_client = transformation_client
 
-    def save_asset_quantities(self, subject: str, asset_quantities: dict):
-        asset = AssetQuantities(subject=subject, asset_quantities=asset_quantities)
+    def save_asset_quantities(self, subject: str, asset_quantities: dict, date: datetime.date):
+        asset = AssetQuantities(subject=subject, asset_quantities=asset_quantities, date=date)
         self.portfolio.save(asset)
 
     def get_stock_divergences(self, subject: str) -> List[dict]:
