@@ -57,6 +57,7 @@ class CEICrawlerCore:
             response.payload = {
                 "investments": [i.to_dict() for i in investments],
                 "assets_quantities": assets_quantity,
+                "date": datetime.now().strftime("%Y%m%d")
             }
         except LoginError as e:
             logger.exception("Invalid login credentials")
