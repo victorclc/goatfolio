@@ -1,3 +1,4 @@
+from datetime import datetime
 from itertools import groupby
 from typing import List, Optional
 
@@ -78,7 +79,9 @@ def check_for_applicable_corporate_events_handler(event, context):
 def persist_cei_asset_quantities_handler(event, context):
     for message in event["Records"]:
         logger.info(f"Processing message: {message}")
-        stock_core.save_asset_quantities(**jsonutils.load(message["body"]))
+        body = jsonutils.load(message["body"])
+        stock_core.save_asset_quantities(body["subject"], body["asset_quantities"],
+                                         datetime.strptime(body["date"], "%Y%m%d"))
 
 
 @logger.inject_lambda_context(log_event=True)
