@@ -27,10 +27,10 @@ class StockCore:
     """Stock only specific endpoints"""
 
     def __init__(
-        self,
-        portfolio: PortfolioRepository,
-        investments: InvestmentRepository,
-        transformation_client: CorporateEventsClient,
+            self,
+            portfolio: PortfolioRepository,
+            investments: InvestmentRepository,
+            transformation_client: CorporateEventsClient,
     ):
         self.portfolio = portfolio
         self.investments = investments
@@ -44,51 +44,40 @@ class StockCore:
         asset = self.portfolio.find_asset_quantities(subject)
         if not asset:
             return []
+
+        pendency = []
         portfolio = self.portfolio.find(subject)
 
-        pendencies = []
         for ticker, expected_amount in asset.asset_quantities.items():
-            if ticker.endswith("12"):
+            summary = self.get_stock_summary_of_ticker(ticker, portfolio)
+            if summary and summary.latest_position.amount == expected_amount or ticker.endswith("12"):
                 continue
+
             transformation = self.transformation_client.get_ticker_transformation(
                 subject, ticker, (datetime.datetime.now() - relativedelta(months=18)).date()
             )
-            summary = self.get_stock_summary_of_ticker(
-                ticker, portfolio, transformation
-            )
             if not summary:
-                pendencies.append(
-                    {
-                        "ticker": ticker,
-                        "expected_amount": expected_amount,
-                        "actual_amount": 0,
-                        "missing_amount": self.calculate_missing_amount(
-                            expected_amount,
-                            0,
-                            transformation.grouping_factor,
-                        ),
-                    }
-                )
-            else:
-                if expected_amount != summary.latest_position.amount:
-                    pendencies.append(
-                        {
-                            "ticker": ticker,
-                            "expected_amount": expected_amount,
-                            "actual_amount": summary.latest_position.amount,
-                            "missing_amount": self.calculate_missing_amount(
-                                expected_amount,
-                                summary.latest_position.amount,
-                                transformation.grouping_factor,
-                            ),
-                        }
-                    )
+                if transformation.ticker in portfolio.stocks:
+                    summary = portfolio.get_stock_summary(transformation.ticker)
 
-        return pendencies
+            actual_amount = summary.latest_position.amount if summary else 0
+            pendency.append(
+                {
+                    "ticker": ticker,
+                    "expected_amount": expected_amount,
+                    "actual_amount": actual_amount,
+                    "missing_amount": self.calculate_missing_amount(
+                        expected_amount,
+                        actual_amount,
+                        transformation.grouping_factor,
+                    ),
+                }
+            )
+        return pendency
 
     @staticmethod
     def calculate_missing_amount(
-        expected_amount, actual_amount, grouping_factor
+            expected_amount, actual_amount, grouping_factor
     ) -> Decimal:
         if grouping_factor == 0:
             return expected_amount - actual_amount
@@ -97,26 +86,21 @@ class StockCore:
         return (expected_amount - actual_amount) / (grouping_factor + 1)
 
     @staticmethod
-    def get_stock_summary_of_ticker(
-        ticker: str, portfolio: Portfolio, transformation: TickerTransformation
-    ) -> Optional[StockSummary]:
+    def get_stock_summary_of_ticker(ticker: str, portfolio: Portfolio) -> Optional[StockSummary]:
         if ticker in portfolio.stocks:
             return portfolio.get_stock_summary(ticker)
         for _, summary in portfolio.stocks.items():
             if ticker == summary.alias_ticker:
                 return summary
 
-        if transformation.ticker in portfolio.stocks:
-            return portfolio.get_stock_summary(transformation.ticker)
-
     def average_price_fix(
-        self,
-        subject: str,
-        ticker: str,
-        date: dt.date,
-        broker: str,
-        amount: Decimal,
-        average_price: Decimal,
+            self,
+            subject: str,
+            ticker: str,
+            date: dt.date,
+            broker: str,
+            amount: Decimal,
+            average_price: Decimal,
     ):
         # TODO VALIDAR PRECO NEGATIVO
         consolidated = self.get_stock_consolidated(subject, ticker)
@@ -181,12 +165,12 @@ class StockCore:
         )
 
     def calculate_new_investment_price(
-        self,
-        consolidated: StockConsolidated,
-        amount: Decimal,
-        average_price: Decimal,
-        date: datetime.date,
-        transformation: TickerTransformation,
+            self,
+            consolidated: StockConsolidated,
+            amount: Decimal,
+            average_price: Decimal,
+            date: datetime.date,
+            transformation: TickerTransformation,
     ) -> Decimal:
         wrappers = consolidated.monthly_stock_position_wrapper_linked_list()
         if not wrappers.tail:
@@ -196,8 +180,8 @@ class StockCore:
             self.create_dummy_buy_investment(
                 amount
                 + (
-                    amount
-                    + (wrappers.tail.amount if wrappers.tail.amount < 0 else Decimal(0))
+                        amount
+                        + (wrappers.tail.amount if wrappers.tail.amount < 0 else Decimal(0))
                 )
                 * transformation.grouping_factor,
                 date,
