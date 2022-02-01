@@ -86,7 +86,7 @@ def get_stock_divergences_handler(event, context):
 
 
 def main():
-    subject = "327e7878-8666-43a2-b9fb-b425cb9d0d82"
+    subject = "41e4a793-3ef5-4413-82e2-80919bce7c1a"
     # subject = "0ed5d1af-9ae8-402a-898f-6a90633081b8"
     # result = stock_core.average_price_fix(
     #     subject,
