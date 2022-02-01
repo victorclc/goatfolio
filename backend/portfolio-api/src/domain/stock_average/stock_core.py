@@ -61,6 +61,11 @@ class StockCore:
             if not summary:
                 if transformation.ticker in portfolio.stocks:
                     summary = portfolio.get_stock_summary(transformation.ticker)
+            if transformation.ticker != ticker:
+                transformation = self.transformation_client.get_ticker_transformation(
+                    subject, transformation.ticker,
+                    ((asset.date if asset.date else datetime.datetime.now()) - relativedelta(months=18)).date()
+                )
 
             actual_amount = summary.latest_position.amount if summary else 0
             missing_amount = self.calculate_missing_amount(
