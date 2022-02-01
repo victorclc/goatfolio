@@ -53,6 +53,7 @@ class StockCore:
             if summary and summary.latest_position.amount == expected_amount or ticker.endswith("12"):
                 continue
 
+            logger.info(f"Ticker: {ticker} has divergence")
             transformation = self.transformation_client.get_ticker_transformation(
                 subject, ticker,
                 ((asset.date if asset.date else datetime.datetime.now()) - relativedelta(months=18)).date()
@@ -67,6 +68,7 @@ class StockCore:
                 actual_amount,
                 transformation.grouping_factor,
             )
+            logger.info(f"missing_amount={missing_amount}")
             if missing_amount < 0:  # TODO review how to "fix" negative missing amount
                 continue
             pendency.append(
@@ -83,11 +85,17 @@ class StockCore:
     def calculate_missing_amount(
             expected_amount, actual_amount, grouping_factor
     ) -> Decimal:
+        logger.info(
+            f"Calculating missing amount. expected_amount={expected_amount}, actual_amount={actual_amount}, grouping_factor={grouping_factor}")
         if grouping_factor == 0:
             return expected_amount - actual_amount
+        if grouping_factor < 1:
+            divider = grouping_factor
+        else:
+            divider = grouping_factor + 1
         if actual_amount < 0:
-            return (expected_amount / (grouping_factor + 1)) - actual_amount
-        return (expected_amount - actual_amount) / (grouping_factor + 1)
+            return (expected_amount / divider) - actual_amount
+        return (expected_amount - actual_amount) / divider
 
     @staticmethod
     def get_stock_summary_of_ticker(ticker: str, portfolio: Portfolio) -> Optional[StockSummary]:
