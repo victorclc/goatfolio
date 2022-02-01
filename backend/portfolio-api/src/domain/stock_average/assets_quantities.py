@@ -1,5 +1,6 @@
 import datetime
 from dataclasses import dataclass
+from typing import Optional
 
 from domain.common.portfolio_item import PortfolioItem
 
@@ -7,7 +8,7 @@ from domain.common.portfolio_item import PortfolioItem
 @dataclass
 class AssetQuantities(PortfolioItem):
     asset_quantities: dict
-    date: datetime.date
+    date: Optional[datetime.date] = None
 
     def __post_init__(self):
         if isinstance(self.date, str):

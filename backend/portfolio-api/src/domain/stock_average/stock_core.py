@@ -54,23 +54,27 @@ class StockCore:
                 continue
 
             transformation = self.transformation_client.get_ticker_transformation(
-                subject, ticker, (datetime.datetime.now() - relativedelta(months=18)).date()
+                subject, ticker,
+                ((asset.date if asset.date else datetime.datetime.now()) - relativedelta(months=18)).date()
             )
             if not summary:
                 if transformation.ticker in portfolio.stocks:
                     summary = portfolio.get_stock_summary(transformation.ticker)
 
             actual_amount = summary.latest_position.amount if summary else 0
+            missing_amount = self.calculate_missing_amount(
+                expected_amount,
+                actual_amount,
+                transformation.grouping_factor,
+            )
+            if missing_amount < 0:  # TODO review how to "fix" negative missing amount
+                continue
             pendency.append(
                 {
                     "ticker": ticker,
                     "expected_amount": expected_amount,
                     "actual_amount": actual_amount,
-                    "missing_amount": self.calculate_missing_amount(
-                        expected_amount,
-                        actual_amount,
-                        transformation.grouping_factor,
-                    ),
+                    "missing_amount": missing_amount
                 }
             )
         return pendency
