@@ -184,6 +184,9 @@ class StockCore:
             date: datetime.date,
             transformation: TickerTransformation,
     ) -> Decimal:
+        # TODO O PRECO PRECISA SER DIFERENTE, TEM Q CONSIDERAR O GROUPING FACTOR
+        # TODO SE GRUPAMENTO PRECO DE VE SER MENOR SE FOR DESDOBRAMENTO PRECO TEM Q SER MAIOR
+        # TODO REESCREVER ESSE METODO
         wrappers = consolidated.monthly_stock_position_wrapper_linked_list()
         if not wrappers.tail:
             return Decimal(average_price).quantize(Decimal("0.01"))
