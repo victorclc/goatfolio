@@ -67,7 +67,7 @@ class StockCore:
                 actual_amount,
                 transformation.grouping_factor,
             )
-            if missing_amount < 0:
+            if missing_amount < 0:  # TODO review how to "fix" negative missing amount
                 continue
             pendency.append(
                 {
