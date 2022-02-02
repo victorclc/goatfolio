@@ -99,4 +99,4 @@ def transformations_in_ticker(current_ticker: str,
         for event in events_list:
             factor *= event.factor
 
-    return TickerTransformation(ticker, factor)
+    return TickerTransformation(ticker, factor, events_list)
