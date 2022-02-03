@@ -11,7 +11,7 @@ from domain.common.investment_summary import StockSummary
 from domain.common.investments import OperationType, StockInvestment, InvestmentType
 from domain.common.portfolio import Portfolio
 from domain.performance.ticker_transformation import TickerTransformation
-from domain.stock_average.assets_quantities import AssetQuantities
+from application.models.assets_quantities import AssetQuantities
 from ports.outbound.investment_repository import InvestmentRepository
 from ports.outbound.portfolio_repository import PortfolioRepository
 from ports.outbound.corporate_events_client import (
@@ -210,3 +210,10 @@ class StockCore:
         return ((new_bought - wrappers.tail.bought_value) / amount).quantize(
             Decimal("0.01")
         )
+
+    def calculate_new_investment_price_v2(self, consolidated: StockConsolidated,
+                                          amount: Decimal,
+                                          average_price: Decimal,
+                                          date: datetime.date,
+                                          transformation: TickerTransformation):
+        pass
