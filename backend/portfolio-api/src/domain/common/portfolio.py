@@ -1,6 +1,6 @@
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from domain.common.investment_consolidated import (
     InvestmentConsolidated,
@@ -46,7 +46,7 @@ class Portfolio(PortfolioItem):
 
         if isinstance(consolidated, StockConsolidated):
             if not summary:
-                if consolidated.current_ticker_name() in self.stocks: # TODO ENTENDER MELHOR
+                if consolidated.current_ticker_name() in self.stocks:  # TODO ENTENDER MELHOR
                     self.stocks.pop(consolidated.current_ticker_name())
                 return
             if consolidated.alias_ticker and self.stocks.get(consolidated.ticker):
@@ -65,5 +65,10 @@ class Portfolio(PortfolioItem):
             ticker for ticker, summary in self.stocks.items() if summary.is_active()
         ]
 
-    def get_stock_summary(self, ticker) -> StockSummary:
-        return self.stocks[ticker]
+    def get_stock_summary(self, ticker: str) -> Optional[StockSummary]:
+        summary = self.stocks.get(ticker)
+        if summary:
+            return summary
+        for _, item in self.stocks.items():
+            if ticker == item.alias_ticker:
+                return item

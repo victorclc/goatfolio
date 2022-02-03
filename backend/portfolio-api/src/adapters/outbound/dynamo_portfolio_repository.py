@@ -10,7 +10,7 @@ from domain.common.portfolio import (
     PortfolioItem,
     InvestmentConsolidated,
 )
-from domain.stock_average.assets_quantities import AssetQuantities
+from application.models.assets_quantities import AssetQuantities
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s | %(funcName)s %(levelname)-s: %(message)s"

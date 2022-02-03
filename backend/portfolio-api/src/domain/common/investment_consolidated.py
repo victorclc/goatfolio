@@ -90,8 +90,8 @@ class StockPositionWrapper:
     def invested_sold_value(self):
         if self.prev:
             return (
-                self.prev.current_invested_sold_value
-                + self.data.sold_amount * self.average_price
+                    self.prev.current_invested_sold_value
+                    + self.data.sold_amount * self.average_price
             )
         return self.data.sold_amount * self.average_price
 
@@ -99,8 +99,8 @@ class StockPositionWrapper:
     def current_invested_sold_value(self):
         if self.prev and self.prev.amount > 0:
             return (
-                self.prev.current_invested_sold_value
-                + self.data.sold_amount * self.average_price
+                    self.prev.current_invested_sold_value
+                    + self.data.sold_amount * self.average_price
             )
         return self.data.sold_amount * self.average_price
 
@@ -291,6 +291,10 @@ class StockConsolidated(InvestmentConsolidated):
         if position.is_empty():
             self.history.remove(position)
 
+    def add_investments(self, investments: List[StockInvestment]):
+        for investment in investments:
+            self.add_investment(investment)
+
     def export_investment_summary(self) -> Optional[StockSummary]:
         wrapper = self.monthly_stock_position_wrapper_linked_list()
         if not wrapper.tail:
@@ -325,8 +329,8 @@ class StockConsolidated(InvestmentConsolidated):
     def grouped_by_month_stock_position(self) -> List[StockPosition]:
         grouped_positions = []
         for date, positions in groupby(
-            sorted(self.history, key=lambda h: h.date),
-            key=lambda p: p.date.replace(day=1),
+                sorted(self.history, key=lambda h: h.date),
+                key=lambda p: p.date.replace(day=1),
         ):
             grouped = StockPosition(date)
             for position in positions:
@@ -335,8 +339,8 @@ class StockConsolidated(InvestmentConsolidated):
         return grouped_positions
 
     def monthly_stock_position_wrapper_linked_list(
-        self,
-        to_date: dt.date = None,
+            self,
+            to_date: dt.date = None,
     ) -> StockPositionWrapperLinkedList:
         doubly = StockPositionWrapperLinkedList()
 

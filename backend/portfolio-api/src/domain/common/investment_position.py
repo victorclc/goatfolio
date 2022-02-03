@@ -68,7 +68,7 @@ class StockPosition(InvestmentPosition):
         elif investment.operation in [OperationType.SPLIT, OperationType.INCORP_ADD]:
             bought_amount = investment.amount
         elif investment.operation in [OperationType.GROUP, OperationType.INCORP_SUB]:
-            sold_amount = investment.amount
+            bought_amount = investment.amount * -1
 
         self.sold_amount += sold_amount
         self.sold_value += sold_value

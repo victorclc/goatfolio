@@ -2,7 +2,7 @@ from typing import Protocol, Optional, List, Type, ClassVar
 
 from domain.common.investment_consolidated import InvestmentConsolidated
 from domain.common.portfolio import Portfolio, StockConsolidated, PortfolioItem
-from domain.stock_average.assets_quantities import AssetQuantities
+from application.models.assets_quantities import AssetQuantities
 
 
 class PortfolioRepository(Protocol):

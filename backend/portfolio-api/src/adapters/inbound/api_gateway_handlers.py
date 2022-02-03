@@ -7,6 +7,12 @@ from aws_lambda_powertools import Logger, Tracer
 import goatcommons.utils.aws as awsutils
 import goatcommons.utils.json as jsonutils
 from adapters.inbound import performance_core, stock_core
+from adapters.outbound.dynamo_investment_repository import DynamoInvestmentRepository
+from adapters.outbound.dynamo_portfolio_repository import DynamoPortfolioRepository
+from adapters.outbound.rest_corporate_events_client import RESTCorporateEventsClient
+from adapters.outbound.rest_ticker_info_client import RestTickerInfoClient
+from domain.stock_average import get_stock_divergences
+from domain.stock_average.quick_fix_average_price import average_price_quick_fix
 
 logger = Logger()
 tracer = Tracer()
@@ -65,13 +71,15 @@ def fix_average_price_handler(event, context):
     subject = awsutils.get_event_subject(event)
     body = jsonutils.load(event["body"])
 
-    investment = stock_core.average_price_fix(
+    investment = average_price_quick_fix(
         subject,
         body["ticker"],
         datetime.datetime.strptime(body["date_from"], "%Y%m%d").date(),
         body["broker"],
         Decimal(body["amount"]),
         Decimal(body["average_price"]),
+        DynamoInvestmentRepository(),
+        RESTCorporateEventsClient()
     )
     return {"statusCode": 200, "body": jsonutils.dump(investment.to_json())}
 
@@ -80,8 +88,9 @@ def fix_average_price_handler(event, context):
 @tracer.capture_lambda_handler
 def get_stock_divergences_handler(event, context):
     subject = awsutils.get_event_subject(event)
-
-    divergences = stock_core.get_stock_divergences(subject)
+    portfolio_repo = DynamoPortfolioRepository()
+    client = RESTCorporateEventsClient()
+    divergences = get_stock_divergences.get_stock_divergences(subject, portfolio_repo, portfolio_repo, client)
     return {"statusCode": 200, "body": jsonutils.dump(divergences)}
 
 
@@ -106,7 +115,10 @@ def main():
     #     portfolio_core.consolidate_investments(subject, investment, None)
 
     # print(performance_core.calculate_portfolio_detailed_summary(subject))
-    print(jsonutils.dump(stock_core.get_stock_divergences(subject)))
+    portfolio_repo = DynamoPortfolioRepository()
+    client = RESTCorporateEventsClient()
+    divergences = get_stock_divergences.get_stock_divergences(subject, portfolio_repo, portfolio_repo, client)
+    print(divergences)
     # print(jsonutils.dump(performance_core.ticker_history_chart(subject, "BIDI11").to_json()))
 
 
