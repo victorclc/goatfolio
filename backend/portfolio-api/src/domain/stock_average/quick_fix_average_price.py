@@ -85,7 +85,8 @@ def average_price_quick_fix(subject: str, ticker: str, date: datetime.date, brok
         logger.info(f"len(affected_investment) is {len(affected_investments)}")
 
         new_investments = handle_earning_in_assets_event(subject, ticker, event, affected_investments)
-        consolidated.add_investments(new_investments)
+        consolidated.add_investments(
+            list(filter(lambda i: i.operation not in [OperationType.BUY, OperationType.SELL], new_investments)))
 
     wrappers = consolidated.monthly_stock_position_wrapper_linked_list()
 

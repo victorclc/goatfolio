@@ -117,8 +117,23 @@ def main():
     # print(performance_core.calculate_portfolio_detailed_summary(subject))
     portfolio_repo = DynamoPortfolioRepository()
     client = RESTCorporateEventsClient()
-    divergences = get_stock_divergences.get_stock_divergences(subject, portfolio_repo, portfolio_repo, client)
-    print(divergences)
+    event = {
+        "body": "{\"ticker\":\"AESB3\",\"date_from\":\"20200803\",\"broker\":\"\",\"amount\":2100,\"average_price\":11.2}"}
+
+    body = jsonutils.load(event["body"])
+
+    investment = average_price_quick_fix(
+        subject,
+        body["ticker"],
+        datetime.datetime.strptime(body["date_from"], "%Y%m%d").date(),
+        body["broker"],
+        Decimal(body["amount"]),
+        Decimal(body["average_price"]),
+        DynamoInvestmentRepository(),
+        RESTCorporateEventsClient()
+    )
+    # divergences = get_stock_divergences.get_stock_divergences(subject, portfolio_repo, portfolio_repo, client)
+    # print(divergences)
     # print(jsonutils.dump(performance_core.ticker_history_chart(subject, "BIDI11").to_json()))
 
 
