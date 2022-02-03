@@ -29,7 +29,7 @@ def get_ticker_transformations_handler(event, context):
 
     return {
         "statusCode": HTTPStatus.OK,
-        "body": jsonutils.dump(asdict(response)),
+        "body": jsonutils.dump(response.to_dict()),
     }
 
 
@@ -49,7 +49,7 @@ def get_corporate_events_handler(event, context):
     }
 
 
-if __name__ == '__main__':
+def main():
     subject = None
     ticker = "AESB3"
     date_from = datetime.datetime.strptime(
