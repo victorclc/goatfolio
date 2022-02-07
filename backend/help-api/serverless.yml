@@ -1,0 +1,61 @@
+service: help-api
+
+provider:
+  name: aws
+  memorySize: 256
+  region: sa-east-1
+  stage: ${env:STAGE, 'dev'}
+  runtime: python3.8
+  timeout: 30
+  environment:
+    LOG_LEVEL: DEBUG
+    PYTHONPATH: "src:shared/libs"
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  endpointType: regional
+  tracing:
+    lambda: true
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+    - test-env/**
+    - node_modules/**
+    - resources/**
+  include:
+    - ../shared/libs/goatcommons/**
+
+plugins:
+  - serverless-domain-manager
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3.8
+    cacheLocation: '.cache/'
+  customDomain:
+    basePath: help
+    domainName: ${env:DOMAIN_NAME}
+    stage: ${self:provider.stage}
+    createRoute53Record: false
+    endpointType: 'regional'
+
+functions:
+  getFaq:
+    handler: src/adapters/inbound/api_gateway_handlers.get_faq_handler
+    events:
+      - http:
+          path: faq
+          request:
+            parameters:
+              querystrings:
+                topic: false
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+resources:
+  - ${file(resources/authorizer-cf-resources.yml)}
+  - ${file(resources/dynamo-cf-resources.yml)}

@@ -9,7 +9,7 @@ class PlatformAwareProgressIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Platform.isIOS
-        ? CupertinoActivityIndicator()
+        ? Center(child: CupertinoActivityIndicator())
         : Center(
             child: Center(
               child: CircularProgressIndicator(),

@@ -15,7 +15,7 @@ def get_path_param(event: dict, param_name: str):
 def get_query_param(event: dict, param_name: str):
     try:
         return event["queryStringParameters"][param_name]
-    except KeyError:
+    except (KeyError, TypeError):
         return ""
 
 

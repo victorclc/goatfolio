@@ -147,7 +147,7 @@ class _RentabilityChartState extends State<RentabilityChart> {
               );
             }
         }
-        return Text("deu algum erro");
+        return Text("Aconteceu um erro");
       },
     );
   }
