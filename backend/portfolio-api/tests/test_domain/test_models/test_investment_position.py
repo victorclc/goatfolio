@@ -66,9 +66,9 @@ class TestStockPosition(unittest.TestCase):
         position.add_investment(group_investment)
 
         self.assertEqual(position.bought_value, Decimal(0))
-        self.assertEqual(position.bought_amount, Decimal(0))
+        self.assertEqual(position.bought_amount, Decimal(-100))
         self.assertEqual(position.sold_value, Decimal(0))
-        self.assertEqual(position.sold_amount, Decimal(100))
+        self.assertEqual(position.sold_amount, Decimal(0))
 
     def test_add_incorp_sub_investment(self):
         """Price should be unconsidered in incorp_sub type investments"""
@@ -79,9 +79,9 @@ class TestStockPosition(unittest.TestCase):
         position.add_investment(incorp_sub_investment)
 
         self.assertEqual(position.bought_value, Decimal(0))
-        self.assertEqual(position.bought_amount, Decimal(0))
+        self.assertEqual(position.bought_amount, Decimal(-100))
         self.assertEqual(position.sold_value, Decimal(0))
-        self.assertEqual(position.sold_amount, Decimal(100))
+        self.assertEqual(position.sold_amount, Decimal(0))
 
     def test_add_one_of_each_investment(self):
         buy_investment = self.create_buy_investment(
@@ -112,9 +112,9 @@ class TestStockPosition(unittest.TestCase):
         position.add_investment(incorp_sub_investment)
 
         self.assertEqual(position.bought_value, Decimal(150000))
-        self.assertEqual(position.bought_amount, Decimal(2500))
+        self.assertEqual(position.bought_amount, Decimal(1500))
         self.assertEqual(position.sold_value, Decimal(100000))
-        self.assertEqual(position.sold_amount, Decimal(1500))
+        self.assertEqual(position.sold_amount, Decimal(500))
 
     def create_buy_investment(self, amount: Decimal, price: Decimal) -> StockInvestment:
         return self.create_investment(OperationType.BUY, amount, price)

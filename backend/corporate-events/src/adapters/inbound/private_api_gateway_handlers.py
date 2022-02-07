@@ -29,7 +29,7 @@ def get_ticker_transformations_handler(event, context):
 
     return {
         "statusCode": HTTPStatus.OK,
-        "body": jsonutils.dump(asdict(response)),
+        "body": jsonutils.dump(response.to_dict()),
     }
 
 
@@ -47,3 +47,13 @@ def get_corporate_events_handler(event, context):
         "statusCode": HTTPStatus.OK,
         "body": jsonutils.dump([e.to_dict() for e in events]),
     }
+
+
+def main():
+    subject = None
+    ticker = "AESB3"
+    date_from = datetime.datetime.strptime(
+        "20200731", "%Y%m%d"
+    ).date()
+    manual_repo = DynamoManualCorporateEventsRepository()
+    response = transformations_in_ticker(ticker, date_from, ticker_client, events_repo, manual_repo, subject)

@@ -141,6 +141,7 @@ class TestCEICore(unittest.TestCase):
                 map(lambda _: asdict(self._create_stock_investment()), range(10))
             ),
             "assets_quantities": {"BIDI11": 100},
+            "date": "20220131"
         }
         import_result = CEIImportResult(
             subject="1111-2222-333-4444",

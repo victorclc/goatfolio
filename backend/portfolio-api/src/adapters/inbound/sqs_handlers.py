@@ -1,8 +1,10 @@
+from datetime import datetime
 from itertools import groupby
 from typing import List, Optional
 
 from adapters.inbound import portfolio_core, events_consolidated, stock_core, investment_repo, ticker_client
 import goatcommons.utils.json as jsonutils
+from adapters.outbound.dynamo_portfolio_repository import DynamoPortfolioRepository
 from adapters.outbound.sqs_consolidate_applicable_corporate_event_notifier import \
     SQSConsolidateApplicableCorporateEventNotifier
 from domain.common.investment_loader import load_model_by_type
@@ -16,6 +18,7 @@ from aws_lambda_powertools import Logger, Tracer
 
 import domain.corporate_events.events_consolidation_strategies as strategy
 from domain.corporate_events.earnings_in_assets_event import EarningsInAssetCorporateEvent
+from domain.stock_average import save_asset_quantities
 
 logger = Logger()
 tracer = Tracer()
@@ -78,7 +81,10 @@ def check_for_applicable_corporate_events_handler(event, context):
 def persist_cei_asset_quantities_handler(event, context):
     for message in event["Records"]:
         logger.info(f"Processing message: {message}")
-        stock_core.save_asset_quantities(**jsonutils.load(message["body"]))
+        body = jsonutils.load(message["body"])
+        save_asset_quantities.save_asset_quantities(body["subject"], body["asset_quantities"],
+                                                    datetime.strptime(body["date"], "%Y%m%d"),
+                                                    DynamoPortfolioRepository())
 
 
 @logger.inject_lambda_context(log_event=True)
