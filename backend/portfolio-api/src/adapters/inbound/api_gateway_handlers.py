@@ -118,7 +118,7 @@ def main():
     portfolio_repo = DynamoPortfolioRepository()
     client = RESTCorporateEventsClient()
     event = {
-        "body": "{\"ticker\":\"AESB3\",\"date_from\":\"20200803\",\"broker\":\"\",\"amount\":2100,\"average_price\":11.2}"}
+        "body": "{\"ticker\":\"MGLU3\",\"date_from\":\"20200807\",\"broker\":\"\",\"amount\":65,\"average_price\":15.53}"}
 
     body = jsonutils.load(event["body"])
 
