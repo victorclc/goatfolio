@@ -66,6 +66,8 @@ def average_price_quick_fix(subject: str, ticker: str, date: datetime.date, brok
     investments = investments_repo.find_by_subject_and_ticker(subject, ticker)
     if transformation.ticker != ticker:
         investments += investments_repo.find_by_subject_and_ticker(subject, transformation.ticker)
+
+    investments = list(filter(lambda i: i.operation in [OperationType.BUY, OperationType.SELL], investments))
     oldest_investment = min(investments, key=lambda i: i.date, default=datetime.max.date())
     if date > oldest_investment.date:
         transformation = transformation_client.get_ticker_transformation(subject, ticker, oldest_investment)
