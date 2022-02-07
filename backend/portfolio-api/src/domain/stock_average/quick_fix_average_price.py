@@ -67,7 +67,7 @@ def average_price_quick_fix(subject: str, ticker: str, date: datetime.date, brok
     if transformation.ticker != ticker:
         investments += investments_repo.find_by_subject_and_ticker(subject, transformation.ticker)
     oldest_investment = min(investments, key=lambda i: i.date, default=datetime.max.date())
-    if date > oldest_investment:
+    if date > oldest_investment.date:
         transformation = transformation_client.get_ticker_transformation(subject, ticker, oldest_investment)
 
     investments.append(_create_dummy_buy_investment(amount, date))
