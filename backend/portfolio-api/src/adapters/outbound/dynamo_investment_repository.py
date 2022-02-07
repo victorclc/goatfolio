@@ -28,7 +28,7 @@ class DynamoInvestmentRepository:
     ]:
         query = {
             "KeyConditionExpression": Key("subject").eq(subject),
-            "FilterExpression": Attr("ticker").eq(ticker)
+            "FilterExpression": Attr("ticker").eq(ticker) | Attr("alias_ticker").eq(ticker)
         }
         if until_date:
             query["FilterExpression"] = query["FilterExpression"] & Attr("date").lte(int(until_date.strftime("%Y%m%d")))

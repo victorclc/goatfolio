@@ -1,7 +1,7 @@
 from itertools import groupby
 from typing import List
 
-from domain.common.investments import Investment
+from domain.common.investments import Investment, StockInvestment
 from domain.corporate_events.events_consolidation_strategies import HandleEventStrategy
 from ports.outbound.corporate_events_client import CorporateEventsClient
 from ports.outbound.investment_repository import InvestmentRepository
@@ -13,17 +13,24 @@ logger = Logger()
 
 class CorporateEventsConsolidationCore:
     def __init__(
-        self, investments: InvestmentRepository, events: CorporateEventsClient
+            self, investments: InvestmentRepository, events: CorporateEventsClient
     ):
         self.investments = investments
         self.events_client = events
 
+    @staticmethod
+    def get_alias_ticker(investments: List[StockInvestment]):
+        for investment in investments:
+            if investment.alias_ticker:
+                return investment.alias_ticker
+
     def check_for_applicable_corporate_events(
-        self,
-        subject: str,
-        investments: List[Investment],
-        handle_event_strategy: HandleEventStrategy,
+            self,
+            subject: str,
+            investments: List[StockInvestment],
+            handle_event_strategy: HandleEventStrategy,
     ):
+        # TODO PRECISA DAR UM JEITO DE PASSAR PELO TICKER E ALIAS TICKER
         investments_map = groupby(
             sorted(investments, key=lambda i: i.ticker), key=lambda i: i.ticker
         )
@@ -33,10 +40,12 @@ class CorporateEventsConsolidationCore:
             logger.info(f"Processing {ticker}: {investments}")
 
             events = self.events_client.corporate_events_from_date(subject, ticker, oldest)
+            alias_ticker = self.get_alias_ticker(investments)
+            if alias_ticker:
+                logger.info(f"Searching events for alias_ticker {alias_ticker}.")
+                events += self.events_client.corporate_events_from_date(subject, alias_ticker, oldest)
             if not events:
-                logger.info(
-                    f"No applicable event for {ticker} on {oldest.strftime('%Y-%m-%d')}"
-                )
+                logger.info(f"No applicable event for {ticker} on {oldest.strftime('%Y-%m-%d')}")
                 continue
 
             all_ticker_investments = self.investments.find_by_subject_and_ticker(
