@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goatfolio/bloc/loading/loading_state.dart';
 import 'package:goatfolio/global.dart' as global;
+import 'package:goatfolio/pages/share/share_page.dart';
 import 'package:goatfolio/pages/summary/highest_highs_card.dart';
 import 'package:goatfolio/pages/summary/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/rentability_card.dart';
@@ -66,6 +67,10 @@ class SummaryPage extends StatelessWidget {
           heroTag: 'summaryNavBar',
           largeTitle: Text(SummaryPage.title),
           border: null,
+          trailing: IconButton(
+            icon: Icon(Icons.people),
+            onPressed: () => goToSharePage(context),
+          ),
           backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         ),
         if (Platform.isIOS)

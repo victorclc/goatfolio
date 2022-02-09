@@ -1,0 +1,54 @@
+service: friends-api
+
+provider:
+  name: aws
+  region: sa-east-1
+  stage: ${env:STAGE, 'dev'}
+  runtime: python3.8
+  environment:
+    PYTHONPATH: "src:shared/libs"
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  endpointType: regional
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+    - node_modules/**
+    - resources/**
+  include:
+    - ../shared/libs/goatcommons/**
+    - ../shared/libs/event_notifier/**
+
+plugins:
+  - serverless-domain-manager
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3.8
+    cacheLocation: '.cache/'
+  customDomain:
+    basePath: friends
+    domainName: ${env:DOMAIN_NAME}
+    stage: ${self:provider.stage}
+    createRoute53Record: false
+    endpointType: 'regional'
+
+functions:
+  addInvestment:
+    handler: src/adapters/inbound/api_gateway_handlers.add_friend_handler
+    events:
+      - http:
+          path: add/
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+
+resources:
+  - ${file(resources/authorizer-cf-resources.yml)}
+  - ${file(resources/queue-cf-resources.yml)}
+  - ${file(resources/dynamo-cf-resources.yml)}
