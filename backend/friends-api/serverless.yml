@@ -29,80 +29,23 @@ custom:
     pythonBin: python3.8
     cacheLocation: '.cache/'
   customDomain:
-    basePath: investments
+    basePath: friends
     domainName: ${env:DOMAIN_NAME}
     stage: ${self:provider.stage}
     createRoute53Record: false
     endpointType: 'regional'
 
 functions:
-  # Investments Start
-  getInvestments:
-    handler: src/adapters/inbound/api_gateway_handlers.get_investments_handler
-    events:
-      - http:
-          endpointType: private
-          path: investments/
-          method: get
-          request:
-            parameters:
-              querystrings:
-                date: false
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
   addInvestment:
-    handler: src/adapters/inbound/api_gateway_handlers.add_investment_handler
+    handler: src/adapters/inbound/api_gateway_handlers.add_friend_handler
     events:
       - http:
-          path: investments/
+          path: add/
           method: post
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
-  editInvestment:
-    handler: src/adapters/inbound/api_gateway_handlers.edit_investment_handler
-    events:
-      - http:
-          path: investments/
-          method: put
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
-  deleteInvestments:
-    handler: src/adapters/inbound/api_gateway_handlers.delete_investment_handler
-    events:
-      - http:
-          path: investments/
-          method: delete
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
-  batchAddInvestments:
-    handler: src/adapters/inbound/private_api_gateway_handlers.batch_add_investments_handler
-    events:
-      - http:
-          path: investments/batch
-          method: post
-          private: true
-  asyncAddInvestment:
-    handler: src/adapters/inbound/sqs_handlers.async_add_investment_handler
-    events:
-      - sqs:
-          arn:
-            Fn::GetAtt: [ AddInvestmentQueue, Arn ]
-
-  investmentsChangesPublisher:
-    handler: src/adapters/inbound/dynamo_stream_handlers.publish_investment_update_handler
-    events:
-      - stream:
-          type: dynamodb
-          arn:
-            Fn::GetAtt: [ InvestmentsTable, StreamArn ]
 
 
 resources:
