@@ -15,5 +15,11 @@ def publish_friend_request(
     if to_user.email == from_.email:
         raise InvalidRequest("Não é possivel adicionar você como amigo de você mesmo.")
 
+    # TODO CRIAR ADAPTER DO BANCO
+    # BUSCAR FRIEND LIST DO TO E DO FROM
+    # ADICIONAR CARAS LA
+    # SALVAR OS 2 NO BANCO
+    # MANDAR PRA FILA PRA MANDAR NOTIFICACAO
+
     friend_request = FriendRequest(from_=from_, to=to_user)
     publisher.send(friend_request)
