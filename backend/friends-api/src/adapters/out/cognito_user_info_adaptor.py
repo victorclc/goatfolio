@@ -30,5 +30,4 @@ if __name__ == "__main__":
     adapter = CognitoUserInfoAdapter()
     user = adapter.get_user_info("victorcortelc@gmail.com")
     user_list = [user, user, user, user ,user]
-    print(user_list)
     print(list(set(user_list)))
