@@ -36,8 +36,8 @@ custom:
     endpointType: 'regional'
 
 functions:
-  addInvestment:
-    handler: src/adapters/inbound/api_gateway_handlers.new_friend_request_handler
+  newFriendRequest:
+    handler: src/adapters/in/api_gateway_handlers.new_friend_request_handler
     events:
       - http:
           path: add/
