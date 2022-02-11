@@ -1,7 +1,10 @@
+from datetime import datetime
 from typing import List, Optional
 
 import boto3
+from dateutil.relativedelta import relativedelta
 
+from application.models.friend import Friend
 from application.models.user import User
 from application.ports.user_info import UserInfoPort
 
@@ -30,4 +33,8 @@ if __name__ == "__main__":
     adapter = CognitoUserInfoAdapter()
     user = adapter.get_user_info("victorcortelc@gmail.com")
     user_list = [user, user, user, user ,user]
-    print(list(set(user_list)))
+    friend = [Friend(user, datetime.now().date()), Friend(user, datetime.now().date() + relativedelta(days=2)), Friend(user, datetime.now().date())]
+
+    print(user in friend)
+    print(friend)
+    print(list(set(friend)))

@@ -1,0 +1,20 @@
+Resources:
+  FriendRequestQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "FriendRequestQueueDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+      FifoQueue: true
+      QueueName: FriendRequest.fifo
+      ContentBasedDeduplication: true
+      VisibilityTimeout: 300
+  FriendRequestQueueDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: FriendRequestQueueDLQ.fifo
+      ContentBasedDeduplication: true
+      FifoQueue: true
