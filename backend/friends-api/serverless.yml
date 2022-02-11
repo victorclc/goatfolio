@@ -37,7 +37,7 @@ custom:
 
 functions:
   addInvestment:
-    handler: src/adapters/inbound/api_gateway_handlers.add_friend_handler
+    handler: src/adapters/inbound/api_gateway_handlers.new_friend_request_handler
     events:
       - http:
           path: add/

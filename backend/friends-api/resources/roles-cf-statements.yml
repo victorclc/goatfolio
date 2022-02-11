@@ -16,3 +16,9 @@
   Resource:
     - 'Fn::ImportValue': ${self:provider.stage}-GoatfolioAppUserPoolArnOutput
     - 'Fn::ImportValue': ${self:provider.stage}-NewGoatfolioAppUserPoolArnOutput
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    - !GetAtt FriendRequestQueue.Arn
