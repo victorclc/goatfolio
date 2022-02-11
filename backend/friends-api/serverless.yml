@@ -51,3 +51,4 @@ functions:
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/dynamo-cf-resources.yml)}
+  - ${file(resources/sqs-cf-resources.yml)}
