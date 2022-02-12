@@ -23,18 +23,3 @@ def publish_friend_request(
 
     publisher.send(to_request)
     publisher.send(from_request)
-
-    # from_list = repository.find_by_subject(from_user.sub) or FriendsList(from_user.sub)
-    # from_list.add_friend_invite(to_user)
-    #
-    # to_list = repository.find_by_subject(to_user.sub) or FriendsList(to_user.sub)
-    # to_list.add_friend_request(from_user)
-    #
-    # repository.save(from_list)
-    # repository.save(to_list)
-    #
-    # # TODO CRIAR ADAPTER DO BANCO
-    # # BUSCAR FRIEND LIST DO TO E DO FROM
-    # # ADICIONAR CARAS LA
-    # # SALVAR OS 2 NO BANCO
-    # # MANDAR PRA FILA PRA MANDAR NOTIFICACAO
