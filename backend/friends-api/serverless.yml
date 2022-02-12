@@ -47,6 +47,13 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  friendRequestListener:
+    handler: src/adapters/in/sqs_handlers.friend_request_listener
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ FriendRequestQueue, Arn ]
+
 
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
