@@ -16,7 +16,7 @@ def publish_friend_request(
     if not to_user:
         raise UserNotFound("Usuário não encontrado.")
     if to_user.email == from_user.email:
-        raise InvalidRequest("Não é possivel adicionar você como amigo de você mesmo.")
+        raise InvalidRequest("Não é possivel compartilhar com você mesmo.")
 
     to_request = FriendRequest(from_=from_user, to=to_user, type_=RequestType.TO)
     from_request = FriendRequest(from_=from_user, to=to_user, type_=RequestType.FROM)
