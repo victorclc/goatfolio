@@ -14,6 +14,6 @@ def friend_request_listener(event, context):
     for message in event["Records"]:
         logger.info(f"Processing message: {message}")
         body = jsonutils.load(message["body"])
-        request = FriendRequest(**body)
+        request = FriendRequest(from_=body["from"], to=body["to"], type_=body["type"])
         repository = DynamoFriendsRepository()
         friend_request_handler.friend_request_handler(request, repository)
