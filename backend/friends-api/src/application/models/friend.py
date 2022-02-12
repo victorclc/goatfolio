@@ -82,7 +82,10 @@ class FriendsList:
 
     def add_friend_invite(self, user: User):
         if user not in self.invites:
-            self.requests.append(Friend(user, datetime.now().date()))
+            self.invites.append(Friend(user, datetime.now().date()))
+
+    def user_exists_on_list(self, user: User) -> bool:
+        return user in self.friends or user in self.requests or user in self.invites
 
     def to_dict(self):
         return {
