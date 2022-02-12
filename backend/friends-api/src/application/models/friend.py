@@ -21,6 +21,12 @@ class Friend:
             return self.user.__eq__(other.user)
         return False
 
+    def __post_init__(self):
+        if isinstance(self.user, dict):
+            self.user = User(**self.user)
+        if isinstance(self.date, str):
+            self.date = datetime.strptime(self.date, "%Y%m%d")
+
     def to_dict(self):
         return {
             "user": asdict(self.user),
@@ -38,6 +44,14 @@ class FriendRequest:
     from_: User
     to: User
     type_: RequestType
+
+    def __post_init__(self):
+        if isinstance(self.from_, dict):
+            self.from_ = User(**self.from_)
+        if isinstance(self.to, dict):
+            self.to = User(**self.to)
+        if isinstance(self.type_, str):
+            self.type_ = RequestType(self.type_)
 
     def to_dict(self):
         return {
