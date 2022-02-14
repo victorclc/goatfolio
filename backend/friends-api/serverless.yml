@@ -47,6 +47,17 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  getFriendsList:
+    handler: src/adapters/in/api_gateway_handlers.get_friends_list_handler
+    events:
+      - http:
+          path: list/
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
   friendRequestListener:
     handler: src/adapters/in/sqs_handlers.friend_request_listener
     events:
