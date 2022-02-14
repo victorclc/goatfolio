@@ -3,6 +3,7 @@ import goatcommons.utils.json as jsonutils
 from adapters.out.dynamo_friend_list_repository import DynamoFriendsRepository
 from application.models.friend import FriendRequest
 from core import friend_request_handler
+from goatcommons.notifications.client import PushNotificationsClient
 
 logger = Logger()
 tracer = Tracer()
@@ -16,4 +17,4 @@ def friend_request_listener(event, context):
         body = jsonutils.load(message["body"])
         request = FriendRequest(from_=body["from"], to=body["to"], type_=body["type"])
         repository = DynamoFriendsRepository()
-        friend_request_handler.friend_request_handler(request, repository)
+        friend_request_handler.friend_request_handler(request, repository, PushNotificationsClient())

@@ -22,3 +22,9 @@
     - sqs:GetQueueUrl
   Resource:
     - !GetAtt FriendRequestQueue.Arn
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    'Fn::ImportValue': ${self:provider.stage}-PushNotificationRequestArnOutput
