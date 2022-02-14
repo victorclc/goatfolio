@@ -1,10 +1,13 @@
 from application.models.friend import FriendRequest, RequestType, FriendsList
 from application.ports.friend_list_repository import FriendsListRepository
+from goatcommons.notifications.client import PushNotificationsClient
+from goatcommons.notifications.models import NotificationRequest
 
 
 def friend_request_handler(
         request: FriendRequest,
-        repository: FriendsListRepository
+        repository: FriendsListRepository,
+        push_client: PushNotificationsClient
 ):
     friends_list = None
     if request.type_ == RequestType.FROM:
@@ -15,7 +18,13 @@ def friend_request_handler(
         friends_list = repository.find_by_subject(request.to.sub) or FriendsList(request.to.sub)
         if not friends_list.user_exists_on_list(request.from_):
             friends_list.add_friend_request(request.from_)
-            # SEND TO PUSH NOTIFICATIONS
+            push_client.send(
+                NotificationRequest(
+                    subject=request.to.sub,
+                    title="Pedido de compartilhamento",
+                    message=f"{request.from_.name} te convidou para compartilhar dados da rentabilidade."
+                )
+            )
 
     if friends_list:
         repository.save(friends_list)
