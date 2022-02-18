@@ -35,6 +35,12 @@ class Friend:
 
 
 class RequestType(Enum):
+    DECLINE_TO = "DECLINE_TO"
+    DECLINE_FROM = "DECLINE_FROM"
+    CANCEL_TO = "CANCEL_TO"
+    CANCEL_FROM = "CANCEL_FROM"
+    ACCEPT_TO = "ACCEPT_TO"
+    ACCEPT_FROM = "ACCEPT_FROM"
     TO = "TO"
     FROM = "FROM"
 
