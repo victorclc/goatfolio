@@ -69,26 +69,54 @@ def request_accept_to_type_handler(request: FriendRequest,
 
 def request_decline_from_type_handler(request: FriendRequest,
                                       repository: FriendsListRepository,
-                                      push_client: PushNotificationsClient) -> FriendsList:
-    ...
+                                      _) -> FriendsList:
+    from_list = repository.find_by_subject(request.from_.sub)
+
+    if from_list.user_exists_on_requests(request.to):
+        from_list.decline_request(request.to)
+    else:
+        logger.info(f"Invalid request, user not exists on requests list. from_list={from_list}")
+
+    return from_list
 
 
 def request_decline_to_type_handler(request: FriendRequest,
                                     repository: FriendsListRepository,
-                                    push_client: PushNotificationsClient) -> FriendsList:
-    ...
+                                    _) -> FriendsList:
+    to_list = repository.find_by_subject(request.to.sub)
+
+    if to_list.user_exists_on_invites(request.from_):
+        to_list.invite_declined(request.from_)
+    else:
+        logger.info(f"Invalid request, user not exists on invites list. to_list={to_list}")
+
+    return to_list
 
 
 def request_cancel_from_type_handler(request: FriendRequest,
                                      repository: FriendsListRepository,
                                      push_client: PushNotificationsClient) -> FriendsList:
-    ...
+    from_list = repository.find_by_subject(request.from_.sub)
+
+    if from_list.user_exists_on_invites(request.to):
+        from_list.cancel_invite(request.to)
+    else:
+        logger.info(f"Invalid request, user not exists on invites list. to_list={from_list}")
+
+    return from_list
 
 
 def request_cancel_to_type_handler(request: FriendRequest,
                                    repository: FriendsListRepository,
                                    push_client: PushNotificationsClient) -> FriendsList:
-    ...
+    to_list = repository.find_by_subject(request.to.sub)
+
+    if to_list.user_exists_on_requests(request.from_):
+        to_list.request_canceled(request.from_)
+    else:
+        logger.info(f"Invalid request, user not exists on invites list. to_list={to_list}")
+
+    return to_list
 
 
 HANDLERS: Dict[RequestType, RequestTypeHandler] = {
@@ -109,6 +137,4 @@ def friend_request_handler(
         push_client: PushNotificationsClient
 ):
     friends_list = HANDLERS[request.type_](request, repository, push_client)
-
-    if friends_list:
-        repository.save(friends_list)
+    repository.save(friends_list)
