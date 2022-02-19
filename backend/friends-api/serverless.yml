@@ -47,6 +47,40 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  acceptFriendRequest:
+    handler: src/adapters/in/api_gateway_handlers.accept_friend_request_handler
+    events:
+      - http:
+          path: accept/
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+
+  declineFriendRequest:
+    handler: src/adapters/in/api_gateway_handlers.decline_friend_request_handler
+    events:
+      - http:
+          path: decline/
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  cancelFriendRequest:
+    handler: src/adapters/in/api_gateway_handlers.cancel_friend_request_handler
+    events:
+      - http:
+          path: cancel/
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
   getFriendsList:
     handler: src/adapters/in/api_gateway_handlers.get_friends_list_handler
     events:
