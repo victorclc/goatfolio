@@ -86,9 +86,21 @@ class FriendsList:
         self.requests.remove(user)
         self.add_friend(user)
 
+    def decline_request(self, user: User):
+        self.requests.remove(user)
+
     def invite_accepted(self, user: User):
         self.invites.remove(user)
         self.add_friend(user)
+
+    def invite_declined(self, user: User):
+        self.invites.remove(user)
+
+    def request_canceled(self, user: User):
+        self.requests.remove(user)
+
+    def cancel_invite(self, user: User):
+        self.invites.remove(user)
 
     def add_friend(self, user: User):
         if user not in self.friends:
