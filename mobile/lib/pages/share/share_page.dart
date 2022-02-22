@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/pages/share/friend_add.dart';
+import 'package:goatfolio/pages/share/friends_list.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
 import 'package:provider/provider.dart';
@@ -45,7 +46,7 @@ class SharePage extends StatelessWidget {
             color: CupertinoColors.activeBlue,
             onPressed: () => modal.showDraggableModalBottomSheet(
               context,
-              FriendAdd(
+              FriendsListPage(
                 userService: Provider.of<UserService>(context, listen: false),
               ),
             ),

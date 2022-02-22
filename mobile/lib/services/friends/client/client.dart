@@ -24,7 +24,7 @@ class FriendsClient {
 
 
 
-  Future<FriendsList> getFriendsLIst() async {
+  Future<FriendsList> getFriendsList() async {
     final response = await _client.get(
       Uri.parse(F.baseUrl + "friends/list"),
       headers: {
