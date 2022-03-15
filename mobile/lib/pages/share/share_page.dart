@@ -65,13 +65,13 @@ class SharePage extends StatelessWidget {
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         previousPageTitle: "",
         middle: Text("Compartilhar"),
-        leading: IconButton(
+        trailing: IconButton(
           alignment: Alignment.centerRight,
           padding: EdgeInsets.all(0),
           icon: Icon(CupertinoIcons.person_add_solid),
           onPressed: () => modal.showDraggableModalBottomSheet(
             context,
-            FriendAdd(
+            FriendsListPage(
               userService: Provider.of<UserService>(context, listen: false),
             ),
           ),

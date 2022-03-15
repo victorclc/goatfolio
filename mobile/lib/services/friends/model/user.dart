@@ -1,14 +1,20 @@
 
 
-class User {
+class FriendUser {
   final String sub;
   final String name;
   final String email;
 
-  User(this.sub, this.name, this.email);
+  FriendUser(this.sub, this.name, this.email);
 
-  User.fromJson(Map<String, dynamic> json)
+  FriendUser.fromJson(Map<String, dynamic> json)
       : sub = json['sub'],
         name = json['name'],
         email = json['email'];
+
+  Map<String, dynamic> toJson() => {
+    'sub': sub,
+    'name': name,
+    'email': email,
+  };
 }

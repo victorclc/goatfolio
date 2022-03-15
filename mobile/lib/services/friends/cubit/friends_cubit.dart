@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goatfolio/bloc/loading/loading_state.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/friends/client/client.dart';
+import 'package:goatfolio/services/friends/model/friend.dart';
 import 'package:goatfolio/services/friends/model/friends_list.dart';
+import 'package:goatfolio/utils/dialog.dart';
 
 class FriendsCubit extends Cubit<LoadingState> {
   final FriendsClient _client;
@@ -22,6 +25,52 @@ class FriendsCubit extends Cubit<LoadingState> {
       emit(LoadingState.LOADED);
     } on Exception catch (e) {
       if (friendsList == null) emit(LoadingState.ERROR);
+    }
+  }
+
+  Future<void> cancel(BuildContext context, Friend friend) async {
+    try {
+      final message = await _client.cancelFriendRequest(friend.user);
+      showSuccessDialog(context, message);
+      emit(LoadingState.LOADING);
+      friendsList!.invites.remove(friend);
+      emit(LoadingState.LOADED);
+    } on Exception catch (e) {
+      showErrorDialog(
+        context,
+        e.toString().replaceAll("Exception: ", ""),
+      );
+    }
+  }
+
+  Future<void> accept(BuildContext context, Friend friend) async {
+    try {
+      final message = await _client.acceptFriendRequest(friend.user);
+      showSuccessDialog(context, message);
+      emit(LoadingState.LOADING);
+      friendsList!.requests.remove(friend);
+      friendsList!.friends.add(friend);
+      emit(LoadingState.LOADED);
+    } on Exception catch (e) {
+      showErrorDialog(
+        context,
+        e.toString().replaceAll("Exception: ", ""),
+      );
+    }
+  }
+
+  Future<void> decline(BuildContext context, Friend friend) async {
+    try {
+      final message = await _client.declineFriendRequest(friend.user);
+      showSuccessDialog(context, message);
+      emit(LoadingState.LOADING);
+      friendsList!.requests.remove(friend);
+      emit(LoadingState.LOADED);
+    } on Exception catch (e) {
+      showErrorDialog(
+        context,
+        e.toString().replaceAll("Exception: ", ""),
+      );
     }
   }
 }
