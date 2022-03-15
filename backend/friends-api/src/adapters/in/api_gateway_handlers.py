@@ -9,7 +9,7 @@ from application.exceptions.invalid_request import InvalidRequest
 from application.exceptions.user_not_found import UserNotFound
 from application.models.user import User
 from core import publish_friend_request, get_friends_list, accept_friend_request, \
-    decline_friend_request, cancel_friend_request
+    decline_friend_request, cancel_friend_request, remove_friend_request
 from goatcommons.utils import aws as awsutilss
 from goatcommons.utils import json as jsonutils
 
@@ -97,4 +97,18 @@ def get_friends_list_handler(event, _):
     return {
         "statusCode": HTTPStatus.OK,
         "body": jsonutils.dump(result.to_dict())
+    }
+
+
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
+def remove_friend_handler(event, _):
+    from_user = parse_user_from_event(event)
+    to_user = User(**jsonutils.load(event["body"]))
+    publisher = SQSFriendRequestPublisher()
+    remove_friend_request.remove_friend_request(from_user, to_user, publisher)
+    return {
+        "statusCode": HTTPStatus.OK,
+        "body": jsonutils.dump(
+            {"message": "Amigo removido do seu compartilhamento."})
     }
