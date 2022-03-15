@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/friends/cubit/friends_cubit.dart';
 import 'package:goatfolio/services/performance/cubit/performance_cubit.dart';
 import 'package:goatfolio/services/performance/cubit/summary_cubit.dart';
 import 'package:goatfolio/services/performance/observer/refresh_performance_observer.dart';
-
 import 'package:goatfolio/services/stock/divergence_refresh_observer.dart';
 import 'package:goatfolio/services/stock/stock_divergence_cubit.dart';
 
@@ -17,6 +17,10 @@ List<BlocProvider> buildGlobalProviders(UserService userService) {
     ),
     BlocProvider<StockDivergenceCubit>(
       create: (_) => StockDivergenceCubit(userService),
+    ),
+    BlocProvider<FriendsCubit>(
+      create: (_) => FriendsCubit(userService),
+      lazy: true,
     ),
   ];
 }

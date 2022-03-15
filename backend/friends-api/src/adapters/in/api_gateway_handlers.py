@@ -27,7 +27,7 @@ def parse_user_from_event(event: dict) -> User:
 def new_friend_request_handler(event, _):
     from_user = parse_user_from_event(event)
     body = jsonutils.load(event["body"])
-    to_email = body["email"]
+    to_email = body["email"].lower()
     user_info = CognitoUserInfoAdapter()
     publisher = SQSFriendRequestPublisher()
 
