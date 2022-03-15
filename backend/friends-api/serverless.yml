@@ -92,6 +92,17 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  removeFriend:
+    handler: src/adapters/in/api_gateway_handlers.remove_friend_handler
+    events:
+      - http:
+          path: remove/
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
   friendRequestListener:
     handler: src/adapters/in/sqs_handlers.friend_request_listener
     events:

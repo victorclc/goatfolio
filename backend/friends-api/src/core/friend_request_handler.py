@@ -119,6 +119,23 @@ def request_cancel_to_type_handler(request: FriendRequest,
     return to_list
 
 
+def request_remove_from_type_handler(request: FriendRequest, repository: FriendsListRepository, _) -> FriendsList:
+    friends_list = repository.find_by_subject(request.from_.sub) or FriendsList(request.from_.sub)
+    if friends_list.user_exists_on_friends(request.to):
+        friends_list.remove_friend(request.to)
+    return friends_list
+
+
+def request_remove_to_type_handler(request: FriendRequest,
+                                   repository: FriendsListRepository,
+                                   push_client: PushNotificationsClient) -> FriendsList:
+    friends_list = repository.find_by_subject(request.to.sub) or FriendsList(request.to.sub)
+    if friends_list.user_exists_on_friends(request.from_):
+        friends_list.remove_friend(request.from_)
+
+    return friends_list
+
+
 HANDLERS: Dict[RequestType, RequestTypeHandler] = {
     RequestType.FROM: request_from_type_handler,
     RequestType.TO: request_to_type_handler,
@@ -127,7 +144,9 @@ HANDLERS: Dict[RequestType, RequestTypeHandler] = {
     RequestType.DECLINE_FROM: request_decline_from_type_handler,
     RequestType.DECLINE_TO: request_decline_to_type_handler,
     RequestType.CANCEL_FROM: request_cancel_from_type_handler,
-    RequestType.CANCEL_TO: request_cancel_to_type_handler
+    RequestType.CANCEL_TO: request_cancel_to_type_handler,
+    RequestType.REMOVE_FROM: request_remove_from_type_handler,
+    RequestType.REMOVE_TO: request_remove_to_type_handler
 }
 
 

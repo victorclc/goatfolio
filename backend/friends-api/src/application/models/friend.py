@@ -43,6 +43,8 @@ class RequestType(Enum):
     ACCEPT_FROM = "ACCEPT_FROM"
     TO = "TO"
     FROM = "FROM"
+    REMOVE_TO = "REMOVE_TO"
+    REMOVE_FROM = "REMOVE_FROM"
 
 
 @dataclass
@@ -105,6 +107,10 @@ class FriendsList:
     def add_friend(self, user: User):
         if user not in self.friends:
             self.friends.append(Friend(user))
+
+    def remove_friend(self, user: User):
+        if user in self.friends:
+            self.friends.remove(user)
 
     def add_friend_request(self, user: User):
         if user not in self.requests:
