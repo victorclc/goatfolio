@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goatfolio/bloc/loading/loading_state.dart';
 import 'package:goatfolio/pages/share/friend_add.dart';
+import 'package:goatfolio/pages/share/friend_details.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/friends/cubit/friends_cubit.dart';
 import 'package:goatfolio/services/friends/model/friend.dart';
@@ -28,6 +29,12 @@ class FriendsListPage extends StatefulWidget {
 }
 
 class _FriendsListPageState extends State<FriendsListPage> {
+  @override
+  void initState() {
+    BlocProvider.of<FriendsCubit>(context).refresh();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
@@ -74,7 +81,7 @@ class _FriendsListPageState extends State<FriendsListPage> {
                     return PlatformAwareProgressIndicator();
                   } else if (state == LoadingState.LOADED) {
                     return buildFriendsList(
-                        BlocProvider.of<FriendsCubit>(context).friendsList!,
+                        BlocProvider.of<FriendsCubit>(context, listen: true).friendsList!,
                         textTheme);
                   } else {
                     return Container();
@@ -115,36 +122,40 @@ class _FriendsListPageState extends State<FriendsListPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                child: Text(
-                  "COMPARTILHANDO COM",
-                  style: textTheme.tabLabelTextStyle.copyWith(fontSize: 12),
+              if (friendsList.requests.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      child: Text(
+                        "AGUARDANDO SUA RESPOSTA",
+                        style:
+                            textTheme.tabLabelTextStyle.copyWith(fontSize: 12),
+                      ),
+                    ),
+                  ]..addAll(buildRequests(friendsList.requests, textTheme)),
                 ),
-              ),
+              if (friendsList.friends.isNotEmpty)
+                Container(
+                  child: Text(
+                    "COMPARTILHANDO COM",
+                    style: textTheme.tabLabelTextStyle.copyWith(fontSize: 12),
+                  ),
+                ),
             ]..addAll(buildFriends(friendsList.friends, textTheme)),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                child: Text(
-                  "CONVITES",
-                  style: textTheme.tabLabelTextStyle.copyWith(fontSize: 12),
+          if (friendsList.invites.isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  child: Text(
+                    "CONVIDADO(A)",
+                    style: textTheme.tabLabelTextStyle.copyWith(fontSize: 12),
+                  ),
                 ),
-              ),
-            ]..addAll(buildFriends(friendsList.requests, textTheme)),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                child: Text(
-                  "CONVIDADO(A)",
-                  style: textTheme.tabLabelTextStyle.copyWith(fontSize: 12),
-                ),
-              ),
-            ]..addAll(buildFriends(friendsList.invites, textTheme)),
-          ),
+              ]..addAll(buildInvites(friendsList.invites, textTheme)),
+            ),
         ],
       ),
     );
@@ -175,7 +186,107 @@ class _FriendsListPageState extends State<FriendsListPage> {
                 Divider()
               ],
             ),
-            onPressed: () => 1,
+            onPressed: () => goToFriendsDetails(context, element),
+          ),
+        ),
+      );
+    });
+    return friendsWidget;
+  }
+
+  List<Container> buildInvites(
+      List<Friend> friends, CupertinoTextThemeData textTheme) {
+    List<Container> friendsWidget = [];
+
+    friends.forEach((element) {
+      friendsWidget.add(
+        Container(
+          padding: EdgeInsets.only(top: 8),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    element.user.email,
+                    style: textTheme.textStyle,
+                  ),
+                  CupertinoButton(
+                      padding: EdgeInsets.all(0),
+                      onPressed: () => BlocProvider.of<FriendsCubit>(context)
+                          .cancel(context, element),
+                      child: Text(
+                        "Cancelar",
+                        style: textTheme.textStyle
+                            .copyWith(color: CupertinoColors.systemOrange),
+                      )),
+                ],
+              ),
+              // Divider(),
+            ],
+          ),
+        ),
+      );
+    });
+    return friendsWidget;
+  }
+
+  List<Container> buildRequests(
+      List<Friend> friends, CupertinoTextThemeData textTheme) {
+    List<Container> friendsWidget = [];
+
+    friends.forEach((element) {
+      friendsWidget.add(
+        Container(
+          padding: EdgeInsets.only(top: 8, bottom: 8),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    flex: 5,
+                    child: Text(
+                      element.user.email + "",
+                      style: textTheme.textStyle,
+                    ),
+                  ),
+                  Flexible(
+                    flex: 3,
+                    child: Row(
+                      children: [
+                        CupertinoButton(
+                          padding: EdgeInsets.all(0),
+                          onPressed: () =>
+                              BlocProvider.of<FriendsCubit>(context)
+                                  .decline(context, element),
+                          child: Text(
+                            "Recusar",
+                            style: textTheme.textStyle
+                                .copyWith(color: CupertinoColors.systemRed),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 16,
+                        ),
+                        CupertinoButton(
+                          padding: EdgeInsets.all(0),
+                          onPressed: () =>
+                              BlocProvider.of<FriendsCubit>(context)
+                                  .accept(context, element),
+                          child: Text(
+                            "Aceitar",
+                            style: textTheme.textStyle
+                                .copyWith(color: CupertinoColors.systemGreen),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              // Divider(),
+            ],
           ),
         ),
       );
