@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goatfolio/bloc/loading/loading_state.dart';
 import 'package:goatfolio/pages/share/friend_add.dart';
+import 'package:goatfolio/pages/share/friend_details.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/friends/cubit/friends_cubit.dart';
 import 'package:goatfolio/services/friends/model/friend.dart';
@@ -80,7 +81,7 @@ class _FriendsListPageState extends State<FriendsListPage> {
                     return PlatformAwareProgressIndicator();
                   } else if (state == LoadingState.LOADED) {
                     return buildFriendsList(
-                        BlocProvider.of<FriendsCubit>(context).friendsList!,
+                        BlocProvider.of<FriendsCubit>(context, listen: true).friendsList!,
                         textTheme);
                   } else {
                     return Container();
@@ -134,12 +135,13 @@ class _FriendsListPageState extends State<FriendsListPage> {
                     ),
                   ]..addAll(buildRequests(friendsList.requests, textTheme)),
                 ),
-              Container(
-                child: Text(
-                  "COMPARTILHANDO COM",
-                  style: textTheme.tabLabelTextStyle.copyWith(fontSize: 12),
+              if (friendsList.friends.isNotEmpty)
+                Container(
+                  child: Text(
+                    "COMPARTILHANDO COM",
+                    style: textTheme.tabLabelTextStyle.copyWith(fontSize: 12),
+                  ),
                 ),
-              ),
             ]..addAll(buildFriends(friendsList.friends, textTheme)),
           ),
           if (friendsList.invites.isNotEmpty)
@@ -184,7 +186,7 @@ class _FriendsListPageState extends State<FriendsListPage> {
                 Divider()
               ],
             ),
-            onPressed: () => 1,
+            onPressed: () => goToFriendsDetails(context, element),
           ),
         ),
       );

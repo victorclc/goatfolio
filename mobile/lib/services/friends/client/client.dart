@@ -111,4 +111,23 @@ class FriendsClient {
     }
     throw Exception("Erro ao cancelar convite, tente novamente mais tarde.");
   }
+
+  Future<String> removeFriend(FriendUser user) async {
+    final response = await _client.post(
+      Uri.parse(F.baseUrl + "friends/remove"),
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': await accessToken
+      },
+      body: jsonEncode(user),
+    );
+
+    if (response.statusCode == HttpStatus.badRequest) {
+      throw Exception(jsonDecode(response.body)["message"] as String);
+    }
+    if (response.statusCode == HttpStatus.ok) {
+      return jsonDecode(response.body)["message"] as String;
+    }
+    throw Exception("Erro ao tentar remover amigo, tente novamente mais tarde.");
+  }
 }

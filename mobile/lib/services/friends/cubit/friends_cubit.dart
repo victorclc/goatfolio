@@ -73,4 +73,20 @@ class FriendsCubit extends Cubit<LoadingState> {
       );
     }
   }
+
+  Future<void> remove(BuildContext context, Friend friend) async {
+    try {
+      final message = await _client.removeFriend(friend.user);
+      await showSuccessDialog(context, message);
+      emit(LoadingState.LOADING);
+      friendsList!.friends.remove(friend);
+      emit(LoadingState.LOADED);
+      Navigator.of(context).pop();
+    } on Exception catch (e) {
+      showErrorDialog(
+        context,
+        e.toString().replaceAll("Exception: ", ""),
+      );
+    }
+  }
 }

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/pages/share/friend_add.dart';
 import 'package:goatfolio/pages/share/friends_list.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
