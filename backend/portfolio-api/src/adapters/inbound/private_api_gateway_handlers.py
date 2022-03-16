@@ -30,5 +30,7 @@ def get_performance_summary_for_subjects_handler(event, context):
     return {
         "statusCode": HTTPStatus.OK,
         "body": jsonutils.dump(
-            get_performance_summary_for_subjects(subjects, performance_core.calculate_portfolio_summary))
+            {k: v.to_json() for k, v in
+             get_performance_summary_for_subjects(subjects, performance_core.calculate_portfolio_summary).items()}
+        )
     }
