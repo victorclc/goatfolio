@@ -1,11 +1,11 @@
-from typing import List, Callable, Dict
+from typing import List, Callable, Dict, Set
 
 from domain.performance.performance import PerformanceSummary
 
 PerformanceSummaryCalculator = Callable[[str], PerformanceSummary]
 
 
-def get_performance_summary_for_subjects(subjects: List[str], calculator: PerformanceSummaryCalculator) \
+def get_performance_summary_for_subjects(subjects: Set[str], calculator: PerformanceSummaryCalculator) \
         -> Dict[str, PerformanceSummary]:
     summaries = {}
     for subject in subjects:
