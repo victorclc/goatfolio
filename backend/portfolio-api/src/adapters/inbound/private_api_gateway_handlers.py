@@ -25,7 +25,7 @@ def invalidate_cache_handler(event, context):
 
 
 def get_performance_summary_for_subjects_handler(event, context):
-    subjects = jsonutils.load(event["body"])["subjects"]
+    subjects = set(jsonutils.load(event["body"])["subjects"])
 
     return {
         "statusCode": HTTPStatus.OK,
