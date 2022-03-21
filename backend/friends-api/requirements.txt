@@ -10,3 +10,4 @@ mock~=4.0.3
 pip~=21.0
 setuptools~=52.0.0
 aws-lambda-powertools==1.21.1
+requests~=2.27.1
