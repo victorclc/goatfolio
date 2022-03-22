@@ -118,10 +118,10 @@ def remove_friend_handler(event, _):
 @logger.inject_lambda_context(log_event=True)
 @tracer.capture_lambda_handler
 def get_friends_rentability_handler(event, _):
-    subject = awsutilss.get_event_subject(event)
+    from_user = parse_user_from_event(event)
     repository = DynamoFriendsRepository()
     calculator = RESTRentabilityCalculator()
-    rentability = get_friends_rentability.get_friends_rentability(subject, repository, calculator)
+    rentability = get_friends_rentability.get_friends_rentability(from_user, repository, calculator)
 
     return {
         "statusCode": HTTPStatus.OK,
