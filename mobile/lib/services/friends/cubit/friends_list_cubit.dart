@@ -7,11 +7,11 @@ import 'package:goatfolio/services/friends/model/friend.dart';
 import 'package:goatfolio/services/friends/model/friends_list.dart';
 import 'package:goatfolio/utils/dialog.dart';
 
-class FriendsCubit extends Cubit<LoadingState> {
+class FriendsListCubit extends Cubit<LoadingState> {
   final FriendsClient _client;
   FriendsList? friendsList;
 
-  FriendsCubit(UserService userService)
+  FriendsListCubit(UserService userService)
       : _client = FriendsClient(userService),
         super(LoadingState.LOADING) {
     refresh();

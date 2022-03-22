@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/friends/client/client.dart';
-import 'package:goatfolio/services/friends/cubit/friends_cubit.dart';
+import 'package:goatfolio/services/friends/cubit/friends_list_cubit.dart';
 import 'package:goatfolio/utils/dialog.dart' as dialog;
 import 'package:goatfolio/utils/formatters.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
@@ -158,7 +158,7 @@ class _FriendAddState extends State<FriendAdd> {
             try {
               final message = await _future;
               await dialog.showSuccessDialog(context, message);
-              BlocProvider.of<FriendsCubit>(context).refresh();
+              BlocProvider.of<FriendsListCubit>(context).refresh();
               Navigator.of(context).pop();
             } on Exception catch (e) {
               await dialog.showErrorDialog(
