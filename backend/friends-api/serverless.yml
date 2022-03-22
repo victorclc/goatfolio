@@ -104,6 +104,17 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  friendsRenbatility:
+    handler: src/adapters/in/api_gateway_handlers.get_friends_rentability_handler
+    events:
+      - http:
+          path: rentability/
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
   friendRequestListener:
     handler: src/adapters/in/sqs_handlers.friend_request_listener
     events:
