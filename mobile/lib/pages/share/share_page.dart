@@ -226,7 +226,7 @@ class RankingLine extends StatelessWidget {
           children: [
             Text(
               "$rank°",
-              style: TextStyle(fontSize: 20),
+              style: TextStyle(fontSize: 22),
             ),
             VerticalDivider(width: 16),
             Expanded(
@@ -242,7 +242,7 @@ class RankingLine extends StatelessWidget {
                         "${percentFormatter.format(variationPerc / 100)}",
                     style: textTheme.textStyle.copyWith(
                         color: variationPerc >= 0 ? Colors.green : Colors.red,
-                        fontSize: 18),
+                        fontSize: 20),
                   ),
                 ],
               ),
