@@ -4,12 +4,13 @@ from aws_lambda_powertools import Logger, Tracer
 
 from adapters.out.cognito_user_info_adaptor import CognitoUserInfoAdapter
 from adapters.out.dynamo_friend_list_repository import DynamoFriendsRepository
+from adapters.out.rest_friends_rentability_adaptor import RESTRentabilityCalculator
 from adapters.out.sqs_friend_request_publisher import SQSFriendRequestPublisher
 from application.exceptions.invalid_request import InvalidRequest
 from application.exceptions.user_not_found import UserNotFound
 from application.models.user import User
 from core import publish_friend_request, get_friends_list, accept_friend_request, \
-    decline_friend_request, cancel_friend_request, remove_friend_request
+    decline_friend_request, cancel_friend_request, remove_friend_request, get_friends_rentability
 from goatcommons.utils import aws as awsutilss
 from goatcommons.utils import json as jsonutils
 
@@ -111,4 +112,18 @@ def remove_friend_handler(event, _):
         "statusCode": HTTPStatus.OK,
         "body": jsonutils.dump(
             {"message": "Amigo removido do seu compartilhamento."})
+    }
+
+
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
+def get_friends_rentability_handler(event, _):
+    subject = awsutilss.get_event_subject(event)
+    repository = DynamoFriendsRepository()
+    calculator = RESTRentabilityCalculator()
+    rentability = get_friends_rentability.get_friends_rentability(subject, repository, calculator)
+
+    return {
+        "statusCode": HTTPStatus.OK,
+        "body": jsonutils.dump([r.to_dict() for r in rentability])
     }
