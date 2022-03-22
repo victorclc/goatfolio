@@ -28,3 +28,9 @@
     - sqs:GetQueueUrl
   Resource:
     'Fn::ImportValue': ${self:provider.stage}-PushNotificationRequestArnOutput
+- Effect: Allow
+  Action:
+    - ssm:GetParameter
+    - ssm:GetParameters
+    - ssm:DescribeParameters
+  Resource: arn:aws:ssm:${self:provider.region}:*:parameter/portfolio-api-key
