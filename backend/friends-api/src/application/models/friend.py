@@ -84,10 +84,10 @@ class FriendsList:
         if not all(isinstance(elem, Friend) for elem in self.invites):
             self.invites = [Friend(**f) for f in self.invites]
 
-    def get_friend_from_subject(self, subject: str) -> Optional[Friend]:
+    def get_user_from_subject(self, subject: str) -> Optional[User]:
         for friend in self.friends:
             if friend.user.sub == subject:
-                return friend
+                return friend.user
 
     def accept_request(self, user: User):
         self.requests.remove(user)

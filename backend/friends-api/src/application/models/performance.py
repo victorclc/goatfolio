@@ -1,8 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from decimal import Decimal
 from typing import List
 
-from application.models.friend import Friend
+from application.models.user import User
 
 
 @dataclass
@@ -38,12 +38,12 @@ class PerformancePercentageSummary:
 
 
 @dataclass
-class FriendRentability:
-    friend: Friend
+class UserRentability:
+    user: User
     summary: PerformancePercentageSummary
 
     def to_dict(self):
         return {
-            "friend": self.friend.to_dict(),
+            "user": asdict(self.user),
             "summary": self.summary.to_dict()
         }
