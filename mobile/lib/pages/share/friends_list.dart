@@ -5,7 +5,7 @@ import 'package:goatfolio/bloc/loading/loading_state.dart';
 import 'package:goatfolio/pages/share/friend_add.dart';
 import 'package:goatfolio/pages/share/friend_details.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
-import 'package:goatfolio/services/friends/cubit/friends_cubit.dart';
+import 'package:goatfolio/services/friends/cubit/friends_list_cubit.dart';
 import 'package:goatfolio/services/friends/model/friend.dart';
 import 'package:goatfolio/services/friends/model/friends_list.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
@@ -31,7 +31,7 @@ class FriendsListPage extends StatefulWidget {
 class _FriendsListPageState extends State<FriendsListPage> {
   @override
   void initState() {
-    BlocProvider.of<FriendsCubit>(context).refresh();
+    BlocProvider.of<FriendsListCubit>(context).refresh();
     super.initState();
   }
 
@@ -75,13 +75,13 @@ class _FriendsListPageState extends State<FriendsListPage> {
         child: Container(
           child: Column(
             children: [
-              BlocBuilder<FriendsCubit, LoadingState>(
+              BlocBuilder<FriendsListCubit, LoadingState>(
                 builder: (context, state) {
                   if (state == LoadingState.LOADING) {
                     return PlatformAwareProgressIndicator();
                   } else if (state == LoadingState.LOADED) {
                     return buildFriendsList(
-                        BlocProvider.of<FriendsCubit>(context, listen: true).friendsList!,
+                        BlocProvider.of<FriendsListCubit>(context, listen: true).friendsList!,
                         textTheme);
                   } else {
                     return Container();
@@ -213,7 +213,7 @@ class _FriendsListPageState extends State<FriendsListPage> {
                   ),
                   CupertinoButton(
                       padding: EdgeInsets.all(0),
-                      onPressed: () => BlocProvider.of<FriendsCubit>(context)
+                      onPressed: () => BlocProvider.of<FriendsListCubit>(context)
                           .cancel(context, element),
                       child: Text(
                         "Cancelar",
@@ -258,7 +258,7 @@ class _FriendsListPageState extends State<FriendsListPage> {
                         CupertinoButton(
                           padding: EdgeInsets.all(0),
                           onPressed: () =>
-                              BlocProvider.of<FriendsCubit>(context)
+                              BlocProvider.of<FriendsListCubit>(context)
                                   .decline(context, element),
                           child: Text(
                             "Recusar",
@@ -272,7 +272,7 @@ class _FriendsListPageState extends State<FriendsListPage> {
                         CupertinoButton(
                           padding: EdgeInsets.all(0),
                           onPressed: () =>
-                              BlocProvider.of<FriendsCubit>(context)
+                              BlocProvider.of<FriendsListCubit>(context)
                                   .accept(context, element),
                           child: Text(
                             "Aceitar",

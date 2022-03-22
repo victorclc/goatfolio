@@ -2,9 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:goatfolio/bloc/loading/loading_state.dart';
 import 'package:goatfolio/pages/share/friends_list.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/friends/cubit/friends_rentability_cubit.dart';
+import 'package:goatfolio/services/friends/model/friend_rentability.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
+import 'package:goatfolio/widgets/platform_aware_progress_indicator.dart';
 import 'package:provider/provider.dart';
 
 void goToSharePage(BuildContext context) {
@@ -15,8 +20,19 @@ void goToSharePage(BuildContext context) {
   );
 }
 
-class SharePage extends StatelessWidget {
+class SharePage extends StatefulWidget {
   const SharePage({Key? key}) : super(key: key);
+
+  @override
+  State<SharePage> createState() => _SharePageState();
+}
+
+class _SharePageState extends State<SharePage> {
+  @override
+  void initState() {
+    BlocProvider.of<FriendsRentabilityCubit>(context).refresh();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +97,33 @@ class SharePage extends StatelessWidget {
   }
 
   Widget buildContent(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        child: Column(
+          children: [
+            BlocBuilder<FriendsRentabilityCubit, LoadingState>(
+              builder: (context, state) {
+                if (state == LoadingState.LOADING) {
+                  return PlatformAwareProgressIndicator();
+                } else if (state == LoadingState.LOADED) {
+                  return buildDayRanking(
+                      context,
+                      BlocProvider.of<FriendsRentabilityCubit>(context,
+                              listen: true)
+                          .rentabilityList!);
+                } else {
+                  return Container();
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildDayRanking(
+      BuildContext context, List<FriendRentability> friendsRentability) {
     return Container();
   }
 }

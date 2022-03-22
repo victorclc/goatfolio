@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:goatfolio/flavors.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
+import 'package:goatfolio/services/friends/model/friend_rentability.dart';
 import 'package:goatfolio/services/friends/model/friends_list.dart';
 import 'package:goatfolio/services/friends/model/user.dart';
 import 'package:goatfolio/utils/logging_interceptor.dart';
@@ -46,7 +47,8 @@ class FriendsClient {
       body: jsonEncode({"email": email}),
     );
 
-    if (response.statusCode == HttpStatus.badRequest) { // TODO validar se eh bad request q retorna
+    if (response.statusCode == HttpStatus.badRequest) {
+      // TODO validar se eh bad request q retorna
       throw Exception(jsonDecode(response.body)["message"] as String);
     }
     if (response.statusCode == HttpStatus.ok) {
@@ -65,7 +67,8 @@ class FriendsClient {
       body: jsonEncode(user),
     );
 
-    if (response.statusCode == HttpStatus.badRequest) { // TODO validar se eh bad request q retorna
+    if (response.statusCode == HttpStatus.badRequest) {
+      // TODO validar se eh bad request q retorna
       throw Exception(jsonDecode(response.body)["message"] as String);
     }
     if (response.statusCode == HttpStatus.ok) {
@@ -128,6 +131,24 @@ class FriendsClient {
     if (response.statusCode == HttpStatus.ok) {
       return jsonDecode(response.body)["message"] as String;
     }
-    throw Exception("Erro ao tentar remover amigo, tente novamente mais tarde.");
+    throw Exception(
+        "Erro ao tentar remover amigo, tente novamente mais tarde.");
+  }
+
+  Future<List<FriendRentability>> getFriendsRentability() async {
+    final response = await _client.get(
+      Uri.parse(F.baseUrl + "friends/rentability"),
+      headers: {
+        'Content-type': 'application/json',
+        'Authorization': await accessToken
+      },
+    );
+
+    if (response.statusCode == HttpStatus.ok) {
+      return (jsonDecode(response.body) as List<dynamic>)
+          .map<FriendRentability>((json) => FriendRentability.fromJson(json))
+          .toList();
+    }
+    throw Exception("Erro ao buscar dados de compartilhamento.");
   }
 }

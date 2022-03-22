@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:goatfolio/services/friends/cubit/friends_cubit.dart';
+import 'package:goatfolio/services/friends/cubit/friends_list_cubit.dart';
 import 'package:goatfolio/services/friends/model/friend.dart';
 
 void goToFriendsDetails(BuildContext context, Friend friend) {
@@ -70,7 +70,7 @@ class _FriendDetailsState extends State<FriendDetails> {
             "Remover Amigo",
             style: TextStyle(color: CupertinoColors.systemRed),
           ),
-          onPressed: () => BlocProvider.of<FriendsCubit>(context)
+          onPressed: () => BlocProvider.of<FriendsListCubit>(context)
               .remove(context, widget.friend),
         )
       ],
