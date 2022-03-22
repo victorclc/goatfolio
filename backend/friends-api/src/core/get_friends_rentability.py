@@ -17,6 +17,7 @@ def get_friends_rentability(from_user: User, repository: FriendsListRepository, 
     rentability = []
     for subject, performance in performance.items():
         if subject == from_user.sub:
+            from_user.name = "Eu"
             rentability.append(UserRentability(from_user, performance))
         else:
             rentability.append(UserRentability(friends_list.get_user_from_subject(subject), performance))
