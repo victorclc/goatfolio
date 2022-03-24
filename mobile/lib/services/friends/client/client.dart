@@ -49,7 +49,6 @@ class FriendsClient {
 
     if (response.statusCode == HttpStatus.notFound ||
         response.statusCode == HttpStatus.badRequest) {
-      // TODO validar se eh bad request q retorna
       throw Exception(jsonDecode(response.body)["message"] as String);
     }
     if (response.statusCode == HttpStatus.ok) {
