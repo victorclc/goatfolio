@@ -103,7 +103,7 @@ class _FriendAddState extends State<FriendAdd> {
                 decoration: _kDefaultRoundedBorderDecoration,
                 textInputAction: TextInputAction.next,
                 inputFormatters: [],
-                keyboardType: TextInputType.text,
+                keyboardType: TextInputType.emailAddress,
                 prefix: Container(
                   width: 80,
                   padding: EdgeInsets.all(16),
