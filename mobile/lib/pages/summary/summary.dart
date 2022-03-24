@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,10 +10,10 @@ import 'package:goatfolio/pages/share/share_page.dart';
 import 'package:goatfolio/pages/summary/highest_highs_card.dart';
 import 'package:goatfolio/pages/summary/lowest_lows_card.dart';
 import 'package:goatfolio/pages/summary/rentability_card.dart';
+import 'package:goatfolio/services/friends/cubit/friends_list_cubit.dart';
 import 'package:goatfolio/services/performance/cubit/summary_cubit.dart';
 import 'package:goatfolio/theme/theme_changer.dart';
 import 'package:goatfolio/widgets/loading_error.dart';
-
 import 'package:goatfolio/widgets/platform_aware_progress_indicator.dart';
 import 'package:provider/provider.dart';
 
@@ -67,10 +68,21 @@ class SummaryPage extends StatelessWidget {
           heroTag: 'summaryNavBar',
           largeTitle: Text(SummaryPage.title),
           border: null,
-          trailing: IconButton(
-            icon: Icon(Icons.people),
-            onPressed: () => goToSharePage(context),
-          ),
+          trailing: BlocBuilder<FriendsListCubit, LoadingState>(
+              builder: (context, state) {
+            final cubit = BlocProvider.of<FriendsListCubit>(context);
+            return Badge(
+              padding: state == LoadingState.LOADED &&
+                      cubit.friendsList!.requests.isNotEmpty
+                  ? EdgeInsets.all(5)
+                  : EdgeInsets.zero,
+              position: BadgePosition.topEnd(top: 5, end: 5),
+              child: IconButton(
+                icon: Icon(Icons.people),
+                onPressed: () => goToSharePage(context),
+              ),
+            );
+          }),
           backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         ),
         if (Platform.isIOS)
