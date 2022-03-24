@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from typing import List, Optional
 
@@ -12,7 +13,7 @@ from application.ports.user_info import UserInfoPort
 class CognitoUserInfoAdapter(UserInfoPort):
     def __init__(self):
         self._client = boto3.client("cognito-idp")
-        self._user_pool = "sa-east-1_PhDIztXK0"  # TODO environment variable this up
+        self._user_pool = os.getenv("COGNITO_USER_POOL")
 
     def get_user_info(self, email: str) -> Optional[User]:
         response = self._client.list_users(

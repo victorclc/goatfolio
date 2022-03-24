@@ -28,11 +28,13 @@ jobs:
             echo "DOMAIN_NAME=api.goatfolio.com.br" >> "$GITHUB_ENV"
             echo "AWS_ACCESS_KEY_ID=${{secrets.AWS_ACCESS_KEY_ID}}" >> "$GITHUB_ENV"
             echo "AWS_SECRET_ACCESS_KEY=${{secrets.AWS_SECRET_ACCESS_KEY}}" >> "$GITHUB_ENV"
+            echo "COGNITO_USER_POOL=${{secrets.GOATFOLIO_USER_POOL}}" >> "$GITHUB_ENV"
           else
             echo "STAGE=dev" >> "$GITHUB_ENV"
             echo "DOMAIN_NAME=dev.goatfolio.com.br" >> "$GITHUB_ENV"
             echo "AWS_ACCESS_KEY_ID=${{secrets.DEV_AWS_ACCESS_KEY_ID}}" >> "$GITHUB_ENV"
             echo "AWS_SECRET_ACCESS_KEY=${{secrets.DEV_AWS_SECRET_ACCESS_KEY}}" >> "$GITHUB_ENV"
+            echo "COGNITO_USER_POOL=${{secrets.DEV_GOATFOLIO_USER_POOL}}" >> "$GITHUB_ENV"
           fi
       - uses: actions/setup-python@v2
         with:

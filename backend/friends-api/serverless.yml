@@ -8,6 +8,7 @@ provider:
   environment:
     PYTHONPATH: "src:shared/libs"
     RENTABILITY_BASE_API_URL: https://${env:DOMAIN_NAME}/portfolio
+    COGNITO_USER_POOL: ${env:COGNITO_USER_POOL}
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
 
