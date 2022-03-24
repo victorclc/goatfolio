@@ -21,7 +21,6 @@ List<BlocProvider> buildGlobalProviders(UserService userService) {
     ),
     BlocProvider<FriendsListCubit>(
       create: (_) => FriendsListCubit(userService),
-      lazy: true,
     ),
     BlocProvider<FriendsRentabilityCubit>(
       create: (_) => FriendsRentabilityCubit(userService),
