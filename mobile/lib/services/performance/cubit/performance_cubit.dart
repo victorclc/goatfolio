@@ -4,7 +4,6 @@ import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/performance/client/performance_client.dart';
 import 'package:goatfolio/services/performance/model/portfolio_performance.dart';
 
-
 class PerformanceCubit extends Cubit<LoadingState> {
   final PerformanceClient _client;
   PortfolioPerformance? portfolioPerformance;
@@ -18,14 +17,14 @@ class PerformanceCubit extends Cubit<LoadingState> {
   Future<void> refresh() async {
     emit(LoadingState.LOADING);
     // try {
-      final performance = await _client.getPortfolioPerformance();
+    final performance = await _client.getPortfolioPerformance();
 
-      if (portfolioPerformance != null) {
-        portfolioPerformance!.copy(performance);
-      } else {
-        portfolioPerformance = performance;
-      }
-      emit(LoadingState.LOADED);
+    if (portfolioPerformance != null) {
+      portfolioPerformance!.copy(performance);
+    } else {
+      portfolioPerformance = performance;
+    }
+    emit(LoadingState.LOADED);
     // }
     // catch (e) {
     //   if (portfolioPerformance == null) {

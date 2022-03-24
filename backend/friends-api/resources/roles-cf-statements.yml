@@ -1,0 +1,36 @@
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:GetItem
+    - dynamodb:PutItem
+    - dynamodb:BatchWriteItem
+  Resource:
+    - !GetAtt FriendsTable.Arn
+    - Fn::Join:
+        - ''
+        - - !GetAtt FriendsTable.Arn
+          - '/index/*'
+- Effect: Allow
+  Action:
+    - cognito-idp:ListUsers
+  Resource:
+    - 'Fn::ImportValue': ${self:provider.stage}-GoatfolioAppUserPoolArnOutput
+    - 'Fn::ImportValue': ${self:provider.stage}-NewGoatfolioAppUserPoolArnOutput
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    - !GetAtt FriendRequestQueue.Arn
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    'Fn::ImportValue': ${self:provider.stage}-PushNotificationRequestArnOutput
+- Effect: Allow
+  Action:
+    - ssm:GetParameter
+    - ssm:GetParameters
+    - ssm:DescribeParameters
+  Resource: arn:aws:ssm:${self:provider.region}:*:parameter/portfolio-api-key

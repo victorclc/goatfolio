@@ -10,6 +10,9 @@ import goatcommons.utils.json as jsonutils
 class PushNotificationsClient:
     def __init__(self):
         self._queue = boto3.resource('sqs').get_queue_by_name(QueueName='PushNotificationRequest')
+        self.__table = None
+
+    def init_table(self):
         self.__table = boto3.resource('dynamodb').Table('NotificationMessagesConfig')
 
     def send_message(self, subject, message_key):
@@ -21,6 +24,8 @@ class PushNotificationsClient:
         self._queue.send_message(MessageBody=jsonutils.dump(asdict(request)))
 
     def fetch_notification_message_config(self, message_key):
+        if not self.__table:
+            self.init_table()
         result = self.__table.query(KeyConditionExpression=Key('message_key').eq(message_key))
         if result['Items']:
             return NotificationMessageRequest(**result['Items'][0])

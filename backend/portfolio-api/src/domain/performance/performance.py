@@ -36,6 +36,19 @@ class TickerVariation:
 
 
 @dataclass
+class PerformancePercentageSummary:
+    day_variation_perc: Decimal = field(default_factory=lambda: Decimal(0))
+    month_variation_perc: Decimal = field(default_factory=lambda: Decimal(0))
+    ticker_variation: List[TickerVariation] = field(default_factory=list)
+
+    def to_json(self):
+        return {
+            **self.__dict__,
+            "ticker_variation": [h.to_json() for h in self.ticker_variation],
+        }
+
+
+@dataclass
 class PerformanceSummary:
     invested_amount: Decimal = field(default_factory=lambda: Decimal(0))
     gross_amount: Decimal = field(default_factory=lambda: Decimal(0))
@@ -63,6 +76,14 @@ class PerformanceSummary:
             **self.__dict__,
             "ticker_variation": [h.to_json() for h in self.ticker_variation],
         }
+
+    def to_percentage_summary(self) -> PerformancePercentageSummary:
+        day_variation_perc = ((self.day_variation * 100) / self.gross_amount).quantize(
+            Decimal("0.01")) if self.gross_amount else Decimal(0)
+        month_variation_perc = ((self.month_variation * 100) / self.gross_amount).quantize(
+            Decimal("0.01")) if self.gross_amount else Decimal(0)
+
+        return PerformancePercentageSummary(day_variation_perc, month_variation_perc, self.ticker_variation)
 
 
 @dataclass

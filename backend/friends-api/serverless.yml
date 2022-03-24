@@ -1,0 +1,129 @@
+service: friends-api
+
+provider:
+  name: aws
+  region: sa-east-1
+  stage: ${env:STAGE, 'dev'}
+  runtime: python3.8
+  environment:
+    PYTHONPATH: "src:shared/libs"
+    RENTABILITY_BASE_API_URL: https://${env:DOMAIN_NAME}/portfolio
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  endpointType: regional
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+    - node_modules/**
+    - resources/**
+  include:
+    - ../shared/libs/goatcommons/**
+    - ../shared/libs/event_notifier/**
+
+plugins:
+  - serverless-domain-manager
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3.8
+    cacheLocation: '.cache/'
+  customDomain:
+    basePath: friends
+    domainName: ${env:DOMAIN_NAME}
+    stage: ${self:provider.stage}
+    createRoute53Record: false
+    endpointType: 'regional'
+
+functions:
+  newFriendRequest:
+    handler: src/adapters/in/api_gateway_handlers.new_friend_request_handler
+    events:
+      - http:
+          path: add/
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  acceptFriendRequest:
+    handler: src/adapters/in/api_gateway_handlers.accept_friend_request_handler
+    events:
+      - http:
+          path: accept/
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+
+  declineFriendRequest:
+    handler: src/adapters/in/api_gateway_handlers.decline_friend_request_handler
+    events:
+      - http:
+          path: decline/
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  cancelFriendRequest:
+    handler: src/adapters/in/api_gateway_handlers.cancel_friend_request_handler
+    events:
+      - http:
+          path: cancel/
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  getFriendsList:
+    handler: src/adapters/in/api_gateway_handlers.get_friends_list_handler
+    events:
+      - http:
+          path: list/
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  removeFriend:
+    handler: src/adapters/in/api_gateway_handlers.remove_friend_handler
+    events:
+      - http:
+          path: remove/
+          method: post
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  friendsRenbatility:
+    handler: src/adapters/in/api_gateway_handlers.get_friends_rentability_handler
+    events:
+      - http:
+          path: rentability/
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  friendRequestListener:
+    handler: src/adapters/in/sqs_handlers.friend_request_listener
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ FriendRequestQueue, Arn ]
+
+
+resources:
+  - ${file(resources/authorizer-cf-resources.yml)}
+  - ${file(resources/dynamo-cf-resources.yml)}
+  - ${file(resources/sqs-cf-resources.yml)}

@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>394544786033-nkv1n468ukunlrp3kuhtitovcn65jjb3.apps.googleusercontent.com</string>
+	<string>394544786033-b21db2lgimcsd0gqo1c5g6qmemn5g7ba.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.394544786033-nkv1n468ukunlrp3kuhtitovcn65jjb3</string>
+	<string>com.googleusercontent.apps.394544786033-b21db2lgimcsd0gqo1c5g6qmemn5g7ba</string>
 	<key>API_KEY</key>
 	<string>AIzaSyC2ak1O5L6pBnEtmodC5lsdfIF1yFAKwNQ</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>br.com.majestysolutions.dev</string>
+	<string>br.com.majestysolutions.goatfolio.dev</string>
 	<key>PROJECT_ID</key>
 	<string>goatfolio-8380e</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:394544786033:ios:269018b666d10ddae209d0</string>
+	<string>1:394544786033:ios:79657c79be0d87b9e209d0</string>
 </dict>
 </plist>

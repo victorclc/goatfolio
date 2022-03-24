@@ -170,6 +170,14 @@ functions:
           method: post
           private: true
 
+  performanceSummaryForSubjects:
+    handler: src/adapters/inbound/private_api_gateway_handlers.get_performance_summary_for_subjects_handler
+    events:
+      - http:
+          path: summaries
+          method: post
+          private: true
+
   newApplicableCorporateEventListener:
     handler: src/adapters/inbound/sqs_handlers.new_applicable_corporate_event_handler
     events:
