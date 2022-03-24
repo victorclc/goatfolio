@@ -67,7 +67,8 @@ class _FriendsListPageState extends State<FriendsListPage> {
               alignment: Alignment.centerRight,
               icon: Icon(CupertinoIcons.refresh),
               color: CupertinoColors.activeBlue,
-              onPressed: () => BlocProvider.of<FriendsListCubit>(context).refresh(),
+              onPressed: () =>
+                  BlocProvider.of<FriendsListCubit>(context).refresh(),
             ),
             IconButton(
               alignment: Alignment.centerRight,
@@ -131,7 +132,7 @@ class _FriendsListPageState extends State<FriendsListPage> {
                           padding: EdgeInsets.only(left: 16, right: 16, top: 8),
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            "\t- Variação no dia (em %)\n\t- Variação mensal (em %)\n\t- Endereço de e-mail associado à sua conta.",
+                            "\t- Variação no dia (em %).\n\t- Variação mensal (em %).\n\t- Endereço de e-mail associado à sua conta.",
                             style: textTheme.textStyle.copyWith(fontSize: 14),
                           ),
                         )
@@ -290,62 +291,112 @@ class _FriendsListPageState extends State<FriendsListPage> {
       List<Friend> friends, CupertinoTextThemeData textTheme) {
     List<Container> friendsWidget = [];
 
-    friends.forEach((element) {
-      friendsWidget.add(
-        Container(
-          padding: EdgeInsets.only(top: 8, bottom: 8),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    flex: 5,
-                    child: Text(
-                      element.user.email + "",
-                      style: textTheme.textStyle,
+    friends.forEach(
+      (element) {
+        friendsWidget.add(
+          Container(
+            padding: EdgeInsets.only(top: 8, bottom: 8),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      flex: 5,
+                      child: Text(
+                        element.user.email + "",
+                        style: textTheme.textStyle,
+                      ),
                     ),
-                  ),
-                  Flexible(
-                    flex: 3,
-                    child: Row(
-                      children: [
-                        CupertinoButton(
-                          padding: EdgeInsets.all(0),
-                          onPressed: () =>
-                              BlocProvider.of<FriendsListCubit>(context)
-                                  .decline(context, element),
-                          child: Text(
-                            "Recusar",
-                            style: textTheme.textStyle
-                                .copyWith(color: CupertinoColors.systemRed),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 16,
-                        ),
-                        CupertinoButton(
-                          padding: EdgeInsets.all(0),
-                          onPressed: () =>
+                    Flexible(
+                        flex: 3,
+                        child: AcceptDeclineTextButton(
+                          onAcceptCb: () async =>
                               BlocProvider.of<FriendsListCubit>(context)
                                   .accept(context, element),
-                          child: Text(
-                            "Aceitar",
-                            style: textTheme.textStyle
-                                .copyWith(color: CupertinoColors.systemGreen),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              // Divider(),
-            ],
+                          onDeclineCb: () async =>
+                              BlocProvider.of<FriendsListCubit>(context)
+                                  .decline(context, element),
+                        )),
+                  ],
+                ),
+                // Divider(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    return friendsWidget;
+  }
+}
+
+class AcceptDeclineTextButton extends StatefulWidget {
+  final Future<void> Function() onAcceptCb;
+  final Future<void> Function() onDeclineCb;
+
+  const AcceptDeclineTextButton({
+    Key? key,
+    required this.onAcceptCb,
+    required this.onDeclineCb,
+  }) : super(key: key);
+
+  @override
+  _AcceptDeclineTextButtonState createState() =>
+      _AcceptDeclineTextButtonState();
+}
+
+class _AcceptDeclineTextButtonState extends State<AcceptDeclineTextButton> {
+  bool processing = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = CupertinoTheme.of(context).textTheme;
+
+    return Row(
+      children: [
+        CupertinoButton(
+          padding: EdgeInsets.all(0),
+          onPressed: processing ? () => 1 : onDeclinePress,
+          child: Text(
+            "Recusar",
+            style:
+                textTheme.textStyle.copyWith(color: CupertinoColors.systemRed),
           ),
         ),
-      );
+        SizedBox(
+          width: 16,
+        ),
+        CupertinoButton(
+          padding: EdgeInsets.all(0),
+          onPressed: processing ? () => 1 : onAcceptPress,
+          child: Text(
+            "Aceitar",
+            style: textTheme.textStyle
+                .copyWith(color: CupertinoColors.systemGreen),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void onAcceptPress() async {
+    setState(() {
+      processing = true;
     });
-    return friendsWidget;
+    await widget.onAcceptCb();
+    setState(() {
+      processing = false;
+    });
+  }
+
+  void onDeclinePress() async {
+    setState(() {
+      processing = true;
+    });
+    await widget.onDeclineCb();
+    setState(() {
+      processing = false;
+    });
   }
 }
