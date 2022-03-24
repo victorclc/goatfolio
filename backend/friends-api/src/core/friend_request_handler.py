@@ -58,7 +58,7 @@ def request_accept_to_type_handler(request: FriendRequest,
             NotificationRequest(
                 subject=request.to.sub,
                 title=f"{request.from_.name} aceitou seu convite.",
-                message=f"Venha conferir."
+                message=f"Vem conferir."
             )
         )
     else:
