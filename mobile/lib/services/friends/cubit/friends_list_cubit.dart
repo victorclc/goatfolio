@@ -43,6 +43,11 @@ class FriendsListCubit extends Cubit<LoadingState> {
     }
   }
 
+  Future<String> add(String email) async {
+    final message = await _client.addFriendRequest(email);
+    return message;
+  }
+
   Future<void> accept(BuildContext context, Friend friend) async {
     try {
       final message = await _client.acceptFriendRequest(friend.user);

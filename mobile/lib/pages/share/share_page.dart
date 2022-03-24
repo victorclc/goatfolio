@@ -8,7 +8,7 @@ import 'package:goatfolio/pages/share/friends_list.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/friends/cubit/friends_rentability_cubit.dart';
 import 'package:goatfolio/services/friends/model/friend_rentability.dart';
-import 'package:goatfolio/utils/extensions.dart';
+import 'package:goatfolio/theme/helper.dart' as theme;
 import 'package:goatfolio/utils/formatters.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
 import 'package:goatfolio/widgets/platform_aware_progress_indicator.dart';
@@ -73,13 +73,20 @@ class _SharePageState extends State<SharePage> {
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
       ),
       backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
-      body: buildContent(context),
+      body: RefreshIndicator(
+        onRefresh: BlocProvider.of<FriendsRentabilityCubit>(context).refresh,
+        child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: buildContent(context)),
+      ),
     );
   }
 
   Widget buildIos(BuildContext context) {
     return CupertinoPageScaffold(
-      // backgroundColor: CupertinoTheme.of(context).barBackgroundColor,
+      backgroundColor: theme.currentBrightness(context) == Brightness.light
+          ? CupertinoTheme.of(context).barBackgroundColor
+          : CupertinoTheme.of(context).scaffoldBackgroundColor,
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         previousPageTitle: "",
@@ -96,7 +103,17 @@ class _SharePageState extends State<SharePage> {
           ),
         ),
       ),
-      child: buildContent(context),
+      child: CustomScrollView(
+        slivers: [
+          CupertinoSliverRefreshControl(
+            onRefresh:
+                BlocProvider.of<FriendsRentabilityCubit>(context).refresh,
+          ),
+          SliverToBoxAdapter(
+            child: buildContent(context),
+          ),
+        ],
+      ),
     );
   }
 
@@ -107,21 +124,27 @@ class _SharePageState extends State<SharePage> {
           children: [
             BlocBuilder<FriendsRentabilityCubit, LoadingState>(
               builder: (context, state) {
-                if (state == LoadingState.LOADING) {
-                  return PlatformAwareProgressIndicator();
-                } else if (state == LoadingState.LOADED) {
+                final rentabilityList =
+                    BlocProvider.of<FriendsRentabilityCubit>(context,
+                            listen: true)
+                        .rentabilityList;
+                if (state == LoadingState.LOADING && rentabilityList == null) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: PlatformAwareProgressIndicator(),
+                  );
+                } else if (state == LoadingState.LOADED ||
+                    rentabilityList != null) {
                   return Column(
                     children: [
                       buildDayRanking(
-                          context,
-                          BlocProvider.of<FriendsRentabilityCubit>(context,
-                                  listen: true)
-                              .rentabilityList!),
-                      buildMonthRanking(
-                          context,
-                          BlocProvider.of<FriendsRentabilityCubit>(context,
-                                  listen: true)
-                              .rentabilityList!),
+                        context,
+                        rentabilityList!,
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      buildMonthRanking(context, rentabilityList),
                     ],
                   );
                 } else {
@@ -136,9 +159,10 @@ class _SharePageState extends State<SharePage> {
   }
 
   Widget buildDayRanking(
-      BuildContext context, List<FriendRentability> friendsRentability) {
+      BuildContext context, List<FriendRentability> pFriendsRentability) {
     final textTheme = CupertinoTheme.of(context).textTheme;
 
+    final friendsRentability = [...pFriendsRentability];
     friendsRentability.sort((a, b) =>
         b.summary.dayVariationPerc.compareTo(a.summary.dayVariationPerc));
     int ranking = 1;
@@ -147,15 +171,19 @@ class _SharePageState extends State<SharePage> {
         rankingLines.add(RankingLine(rentability: element, rank: ranking++)));
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            DateFormat("'Hoje,' dd 'de' MMMM 'de' yyyy", "pt-BR").format(
-              DateTime.now(),
+          Padding(
+            padding: EdgeInsets.only(left: 8, right: 8, top: 8),
+            child: Text(
+              DateFormat("'Variação hoje,' dd 'de' MMMM 'de' yyyy", "pt-BR")
+                  .format(
+                DateTime.now(),
+              ),
+              style: textTheme.navTitleTextStyle,
             ),
-            style: textTheme.navTitleTextStyle,
           ),
           SizedBox(
             height: 16,
@@ -166,11 +194,12 @@ class _SharePageState extends State<SharePage> {
   }
 
   Widget buildMonthRanking(
-      BuildContext context, List<FriendRentability> friendsRentability) {
+      BuildContext context, List<FriendRentability> pFriendsRentability) {
     final textTheme = CupertinoTheme.of(context).textTheme;
-
+    final friendsRentability = [...pFriendsRentability];
     friendsRentability.sort((a, b) =>
         b.summary.monthVariationPerc.compareTo(a.summary.monthVariationPerc));
+
     int ranking = 1;
     List<Widget> rankingLines = [];
     friendsRentability.forEach((element) => rankingLines.add(RankingLine(
@@ -180,22 +209,26 @@ class _SharePageState extends State<SharePage> {
         )));
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            DateFormat("MMMM 'de' yyyy", "pt-BR")
-                .format(
-                  DateTime.now(),
-                )
-                .capitalizeWords(),
-            style: textTheme.navTitleTextStyle,
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+            child: Text(
+              DateFormat("'Variação em 'MMMM 'de' yyyy", "pt-BR").format(
+                DateTime.now(),
+              ),
+              style: textTheme.navTitleTextStyle,
+            ),
           ),
           SizedBox(
             height: 16,
           ),
-        ]..addAll(rankingLines),
+          Column(
+            children: rankingLines,
+          )
+        ],
       ),
     );
   }
@@ -219,38 +252,55 @@ class RankingLine extends StatelessWidget {
     final variationPerc = monthLine
         ? rentability.summary.monthVariationPerc
         : rentability.summary.dayVariationPerc;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Row(
-          children: [
-            Text(
-              "$rank°",
-              style: TextStyle(fontSize: 20),
-            ),
-            VerticalDivider(width: 16),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Card(
+      color: theme.currentBrightness(context) == Brightness.light
+          ? CupertinoTheme.of(context).scaffoldBackgroundColor
+          : CupertinoTheme.of(context).barBackgroundColor,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+        child: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => 1, //goToFriendsDetailsNew(context, rentability),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
                 children: [
-                  Text(
-                    rentability.user.name,
-                    style: textTheme.textStyle,
+                  SizedBox(
+                    width: 4,
                   ),
                   Text(
-                    (variationPerc >= 0 ? "+" : "") +
-                        "${percentFormatter.format(variationPerc / 100)}",
-                    style: textTheme.textStyle.copyWith(
-                        color: variationPerc >= 0 ? Colors.green : Colors.red,
-                        fontSize: 18),
+                    "$rank°",
+                    style: textTheme.textStyle.copyWith(fontSize: 20),
+                  ),
+                  VerticalDivider(width: 16),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          rentability.user.name,
+                          style: textTheme.textStyle,
+                        ),
+                        Text(
+                          (variationPerc >= 0 ? "+" : "") +
+                              "${percentFormatter.format(variationPerc / 100)}",
+                          style: textTheme.textStyle.copyWith(
+                              color: variationPerc >= 0
+                                  ? Colors.green
+                                  : Colors.red,
+                              fontSize: 18),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
+              // Divider()
+            ],
+          ),
         ),
-        Divider()
-      ],
+      ),
     );
   }
 }

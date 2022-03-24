@@ -59,16 +59,28 @@ class _FriendsListPageState extends State<FriendsListPage> {
           "Compartilhar",
           style: textTheme.navTitleTextStyle,
         ),
-        trailing: IconButton(
-          alignment: Alignment.centerRight,
-          icon: Icon(CupertinoIcons.add),
-          color: CupertinoColors.activeBlue,
-          onPressed: () => modal.showDraggableModalBottomSheet(
-            context,
-            FriendAdd(
-              userService: widget.userService,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IconButton(
+              alignment: Alignment.centerRight,
+              icon: Icon(CupertinoIcons.refresh),
+              color: CupertinoColors.activeBlue,
+              onPressed: () => BlocProvider.of<FriendsListCubit>(context).refresh(),
             ),
-          ),
+            IconButton(
+              alignment: Alignment.centerRight,
+              icon: Icon(CupertinoIcons.add),
+              color: CupertinoColors.activeBlue,
+              onPressed: () => modal.showDraggableModalBottomSheet(
+                context,
+                FriendAdd(
+                  userService: widget.userService,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       child: SafeArea(
@@ -78,11 +90,53 @@ class _FriendsListPageState extends State<FriendsListPage> {
               BlocBuilder<FriendsListCubit, LoadingState>(
                 builder: (context, state) {
                   if (state == LoadingState.LOADING) {
-                    return PlatformAwareProgressIndicator();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: PlatformAwareProgressIndicator(),
+                    );
                   } else if (state == LoadingState.LOADED) {
-                    return buildFriendsList(
-                        BlocProvider.of<FriendsListCubit>(context, listen: true).friendsList!,
-                        textTheme);
+                    final friendsList =
+                        BlocProvider.of<FriendsListCubit>(context, listen: true)
+                            .friendsList!;
+                    return Column(
+                      children: [
+                        if (friendsList.isEmpty())
+                          Center(
+                            child: Container(
+                              padding:
+                                  EdgeInsets.only(left: 64, right: 64, top: 16),
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Você ainda não compartilha a rentabilidade com ninguém.",
+                                textAlign: TextAlign.center,
+                                style: textTheme.tabLabelTextStyle
+                                    .copyWith(fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        buildFriendsList(friendsList, textTheme),
+                        SizedBox(
+                          height: 32,
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(left: 16, right: 16),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Dados que são compartilhados com seus amigos:",
+                            style: textTheme.navTitleTextStyle
+                                .copyWith(fontSize: 14),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(left: 16, right: 16, top: 8),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "\t- Variação no dia (em %)\n\t- Variação mensal (em %)\n\t- Endereço de e-mail associado à sua conta.",
+                            style: textTheme.textStyle.copyWith(fontSize: 14),
+                          ),
+                        )
+                      ],
+                    );
                   } else {
                     return Container();
                   }
@@ -213,8 +267,9 @@ class _FriendsListPageState extends State<FriendsListPage> {
                   ),
                   CupertinoButton(
                       padding: EdgeInsets.all(0),
-                      onPressed: () => BlocProvider.of<FriendsListCubit>(context)
-                          .cancel(context, element),
+                      onPressed: () =>
+                          BlocProvider.of<FriendsListCubit>(context)
+                              .cancel(context, element),
                       child: Text(
                         "Cancelar",
                         style: textTheme.textStyle

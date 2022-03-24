@@ -2,31 +2,31 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:goatfolio/services/friends/cubit/friends_list_cubit.dart';
-import 'package:goatfolio/services/friends/model/friend.dart';
-import 'package:intl/intl.dart';
+import 'package:goatfolio/services/friends/model/friend_rentability.dart';
+import 'package:goatfolio/utils/formatters.dart';
 
-void goToFriendsDetails(BuildContext context, Friend friend) {
+void goToFriendsDetailsNew(
+    BuildContext context, FriendRentability rentability) {
   Navigator.of(context).push(
     MaterialPageRoute(
-      builder: (context) => FriendDetails(
-        friend: friend,
+      builder: (context) => FriendDetailsNew(
+        rentability: rentability,
       ),
     ),
   );
 }
 
-class FriendDetails extends StatefulWidget {
-  final Friend friend;
+class FriendDetailsNew extends StatefulWidget {
+  final FriendRentability rentability;
 
-  const FriendDetails({Key? key, required this.friend}) : super(key: key);
+  const FriendDetailsNew({Key? key, required this.rentability})
+      : super(key: key);
 
   @override
-  _FriendDetailsState createState() => _FriendDetailsState();
+  _FriendDetailsNewState createState() => _FriendDetailsNewState();
 }
 
-class _FriendDetailsState extends State<FriendDetails> {
+class _FriendDetailsNewState extends State<FriendDetailsNew> {
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
@@ -60,7 +60,7 @@ class _FriendDetailsState extends State<FriendDetails> {
       navigationBar: CupertinoNavigationBar(
         backgroundColor: CupertinoTheme.of(context).scaffoldBackgroundColor,
         previousPageTitle: "",
-        middle: Text("Detalhes"),
+        middle: Text(widget.rentability.user.name),
       ),
       child: buildContent(context),
     );
@@ -73,41 +73,46 @@ class _FriendDetailsState extends State<FriendDetails> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Nome',
-            style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
-          ),
-          Text(
-            widget.friend.user.name,
-            style: textTheme.textStyle
-                .copyWith(fontSize: 22),
+          Container(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Valorização em",
+              style: textTheme.navTitleTextStyle,
+            ),
           ),
           SizedBox(
             height: 8,
           ),
           Text(
-            'Email',
+            'março de 2022',
             style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
           ),
           Text(
-            widget.friend.user.email,
+            percentFormatter
+                .format(widget.rentability.summary.monthVariationPerc / 100),
             style: textTheme.textStyle
-                .copyWith(fontSize: 22),
+                .copyWith(fontSize: 28, fontWeight: FontWeight.w500),
           ),
-          SizedBox(
-            height: 32,
-          ),
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            child: Text(
-              "Parar compartilhamento",
-              style: TextStyle(color: CupertinoColors.systemRed),
-            ),
-            onPressed: () => BlocProvider.of<FriendsListCubit>(context)
-                .remove(context, widget.friend),
+          Divider(),
+          Text(
+            '22 de março de 2022',
+            style: textTheme.tabLabelTextStyle.copyWith(fontSize: 16),
           ),
           Text(
-              "Você compartilha sua rentabilidade com ${widget.friend.user.name} desde ${DateFormat("EEEE, dd 'de' MMMM 'de' yyyy", "pt-BR").format(widget.friend.date)}."),
+            percentFormatter
+                .format(widget.rentability.summary.dayVariationPerc / 100),
+            style: textTheme.textStyle
+                .copyWith(fontSize: 28, fontWeight: FontWeight.w500),
+          ),
+          Divider(),
+          CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: Text(
+                "Remover Amigo",
+                style: TextStyle(color: CupertinoColors.systemRed),
+              ),
+              onPressed: () => 1),
+          Text("Você compartilha sua rentabilidade com ${widget.rentability.user.name} desde domingo, 6 de março de 2022")
         ],
       ),
     );

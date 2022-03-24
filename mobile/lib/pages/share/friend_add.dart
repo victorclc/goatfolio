@@ -4,7 +4,6 @@ import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/friends/client/client.dart';
 import 'package:goatfolio/services/friends/cubit/friends_list_cubit.dart';
 import 'package:goatfolio/utils/dialog.dart' as dialog;
-import 'package:goatfolio/utils/formatters.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
 import 'package:goatfolio/widgets/progress_indicator_scaffold.dart';
 
@@ -147,7 +146,8 @@ class _FriendAddState extends State<FriendAdd> {
       return;
     }
 
-    _future = service.addFriendRequest(_emailController.text);
+    _future = BlocProvider.of<FriendsListCubit>(context)
+        .add(_emailController.text);
 
     modal.showUnDismissibleModalBottomSheet(
       context,
