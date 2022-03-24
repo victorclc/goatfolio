@@ -8,6 +8,8 @@ class FriendsList {
 
   FriendsList(this.subject, this.friends, this.requests, this.invites);
 
+  bool isEmpty() => friends.isEmpty && requests.isEmpty && invites.isEmpty;
+
   FriendsList.fromJson(Map<String, dynamic> json)
       : subject = json['subject'],
         friends = json['friends']

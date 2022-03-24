@@ -31,9 +31,10 @@ def new_friend_request_handler(event, _):
     to_email = body["email"].lower()
     user_info = CognitoUserInfoAdapter()
     publisher = SQSFriendRequestPublisher()
+    repository = DynamoFriendsRepository()
 
     try:
-        publish_friend_request.publish_friend_request(from_user, to_email, user_info, publisher)
+        publish_friend_request.publish_friend_request(from_user, to_email, user_info, publisher, repository)
         return {
             "statusCode": HTTPStatus.OK,
             "body": jsonutils.dump(
