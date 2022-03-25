@@ -47,8 +47,8 @@ class FriendsClient {
       body: jsonEncode({"email": email}),
     );
 
-    if (response.statusCode == HttpStatus.notFound) {
-      // TODO validar se eh bad request q retorna
+    if (response.statusCode == HttpStatus.notFound ||
+        response.statusCode == HttpStatus.badRequest) {
       throw Exception(jsonDecode(response.body)["message"] as String);
     }
     if (response.statusCode == HttpStatus.ok) {
