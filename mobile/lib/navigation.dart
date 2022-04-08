@@ -38,8 +38,10 @@ class _NavigationWidgetState extends State<NavigationWidget>
     with SingleTickerProviderStateMixin {
   RateMyApp rateMyApp = RateMyApp(
     preferencesPrefix: 'rateMyApp_',
-    minDays: 0, // Show rate popup on first day of install.
-    minLaunches: 1, // Show rate popup after 5 launches of app after minDays is passed.
+    minDays: 0,
+    minLaunches: 1,
+    googlePlayIdentifier: "br.com.majestysolutions.goatfolio.prod",
+    appStoreIdentifier: "1582652897"
   );
 
   late CupertinoTabController controller;
@@ -60,7 +62,13 @@ class _NavigationWidgetState extends State<NavigationWidget>
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
       await rateMyApp.init();
       if (mounted && rateMyApp.shouldOpenDialog) {
-        rateMyApp.showRateDialog(context);
+        rateMyApp.showRateDialog(context,
+            title: "Você está gostando do Goatfolio?",
+            message:
+                "Deixe sua avaliação e nos ajude a melhorar. Não vai demorar mais que um minuto.",
+            rateButton: "AVALIAR",
+            laterButton: "DEPOIS",
+            noButton: "NÃO, OBRIGADO");
       }
     });
   }
