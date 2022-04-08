@@ -11,6 +11,8 @@ provider:
     COGNITO_USER_POOL: ${env:COGNITO_USER_POOL}
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
+  tracing:
+    lambda: true
 
 package:
   exclude:
