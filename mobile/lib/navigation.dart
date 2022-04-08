@@ -12,6 +12,7 @@ import 'package:goatfolio/pages/summary/summary.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/notification/firebase.dart';
 import 'package:goatfolio/services/stock/stock_divergence_cubit.dart';
+import 'package:rate_my_app/rate_my_app.dart';
 
 Widget buildNavigationPage(UserService userService) {
   //TODO VER ONDE POR ISSO
@@ -35,6 +36,14 @@ class NavigationWidget extends StatefulWidget {
 
 class _NavigationWidgetState extends State<NavigationWidget>
     with SingleTickerProviderStateMixin {
+  RateMyApp rateMyApp = RateMyApp(
+    preferencesPrefix: 'rateMyApp_',
+    minDays: 0,
+    minLaunches: 1,
+    googlePlayIdentifier: "br.com.majestysolutions.goatfolio.prod",
+    appStoreIdentifier: "1582652897"
+  );
+
   late CupertinoTabController controller;
   int currentIndex = 0;
   late List<CupertinoTabView> iosTabViews;
@@ -49,6 +58,19 @@ class _NavigationWidgetState extends State<NavigationWidget>
     } else {
       initStateAndroid();
     }
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      await rateMyApp.init();
+      if (mounted && rateMyApp.shouldOpenDialog) {
+        rateMyApp.showRateDialog(context,
+            title: "Você está gostando do Goatfolio?",
+            message:
+                "Deixe sua avaliação e nos ajude a melhorar. Não vai demorar mais que um minuto.",
+            rateButton: "AVALIAR",
+            laterButton: "DEPOIS",
+            noButton: "NÃO, OBRIGADO");
+      }
+    });
   }
 
   void initStateAndroid() {
