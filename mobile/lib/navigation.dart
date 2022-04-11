@@ -38,10 +38,8 @@ class _NavigationWidgetState extends State<NavigationWidget>
     with SingleTickerProviderStateMixin {
   RateMyApp rateMyApp = RateMyApp(
     preferencesPrefix: 'rateMyApp_',
-    minDays: 0,
-    minLaunches: 1,
-    googlePlayIdentifier: "br.com.majestysolutions.goatfolio.prod",
-    appStoreIdentifier: "1582652897"
+    minDays: 2,
+    minLaunches: 5
   );
 
   late CupertinoTabController controller;
