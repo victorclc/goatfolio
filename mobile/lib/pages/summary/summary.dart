@@ -7,9 +7,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goatfolio/bloc/loading/loading_state.dart';
 import 'package:goatfolio/global.dart' as global;
 import 'package:goatfolio/pages/share/share_page.dart';
-import 'package:goatfolio/pages/summary/highest_highs_card.dart';
-import 'package:goatfolio/pages/summary/lowest_lows_card.dart';
-import 'package:goatfolio/pages/summary/rentability_card.dart';
+import 'package:goatfolio/pages/summary/friends/friends_rantability_card.dart';
+import 'package:goatfolio/pages/summary/high_low/highest_highs_card.dart';
+import 'package:goatfolio/pages/summary/high_low/lowest_lows_card.dart';
+import 'package:goatfolio/pages/summary/rentability/rentability_card.dart';
 import 'package:goatfolio/services/friends/cubit/friends_list_cubit.dart';
 import 'package:goatfolio/services/performance/cubit/summary_cubit.dart';
 import 'package:goatfolio/theme/theme_changer.dart';
@@ -113,6 +114,12 @@ class SummaryPage extends StatelessWidget {
                                 Expanded(
                                     child: LowestLowsCard(cubit
                                         .portfolioSummary!.tickerVariation)),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Expanded(child: FriendsRentabilityCard()),
+                                Expanded(child: Container())
                               ],
                             ),
                           ],
