@@ -45,5 +45,5 @@ functions:
     handler: src/adapters/inbound/cognito_triggers.post_confirmation_trigger
 
 resources:
-  - ${file(resources/authorizer-cf-resources.yml)}
-#  - ${file(resources/functions-cf-outputs.yml)}
+#  - ${file(resources/authorizer-cf-resources.yml)}
+  - ${file(resources/functions-cf-outputs.yml)}
