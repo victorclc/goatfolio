@@ -6,6 +6,7 @@ provider:
   stage: ${env:STAGE, 'dev'}
   timeout: 300
   runtime: python3.8
+  memorySize: 256
   environment:
     PYTHONPATH: "src:shared/libs"
     DEFAULT_WEBHOOK_URL: ${env:DEFAULT_WEBHOOK_URL, 'https://discord.com/api/webhooks/836095821765541909/61ZRaWHqunwfwmxlggGlv1ytEQXTJ2P6Jo-G8u8FvFREMphxS3zF7b_ypbU-CP-AcRKv'}
