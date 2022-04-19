@@ -36,8 +36,8 @@ jobs:
             echo "DOMAIN_NAME=dev.goatfolio.com.br" >> "$GITHUB_ENV"
             echo "AWS_ACCESS_KEY_ID=${{secrets.DEV_AWS_ACCESS_KEY_ID}}" >> "$GITHUB_ENV"
             echo "AWS_SECRET_ACCESS_KEY=${{secrets.DEV_AWS_SECRET_ACCESS_KEY}}" >> "$GITHUB_ENV"
-            echo "DEFAULT_WEBHOOK_URL=https://discord.com/api/webhooks/836095821765541909/61ZRaWHqunwfwmxlggGlv1ytEQXTJ2P6Jo-G8u8FvFREMphxS3zF7b_ypbU-CP-AcRKvr" >> "$GITHUB_ENV"
-            echo "COGNITO_WEBHOOK_URL=https://discord.com/api/webhooks/965932774068461608/3Boxrq6-tAbRT04UDYyXnniBAxEMvYHKU0EfT8aL88xp-mbRlEpDziV0avmbVCe9T7Yqr" >> "$GITHUB_ENV"
+            echo "DEFAULT_WEBHOOK_URL=https://discord.com/api/webhooks/836095821765541909/61ZRaWHqunwfwmxlggGlv1ytEQXTJ2P6Jo-G8u8FvFREMphxS3zF7b_ypbU-CP-AcRKv" >> "$GITHUB_ENV"
+            echo "COGNITO_WEBHOOK_URL=https://discord.com/api/webhooks/965932774068461608/3Boxrq6-tAbRT04UDYyXnniBAxEMvYHKU0EfT8aL88xp-mbRlEpDziV0avmbVCe9T7Yq" >> "$GITHUB_ENV"
           fi
       - uses: actions/setup-python@v2
         with:
