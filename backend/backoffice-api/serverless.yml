@@ -48,7 +48,7 @@ resources:
   Outputs:
     postConfirmationLambdaTriggerArn:
       Value:
-        Fn::GetAtt: [ postConfirmationTrigger, Arn ]
+        Fn::GetAtt: [ PostConfirmationTriggerLambdaFunction, Arn ]
       Export:
         Name: ${self:provider.stage}-postConfirmationLambdaTriggerArn
 
