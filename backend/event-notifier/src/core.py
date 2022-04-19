@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Dict
 
@@ -5,6 +6,8 @@ import requests
 
 from models import NotifyRequest
 from src.models import NotificationTopic
+
+logger = logging.getLogger()
 
 WEBHOOK_CONFIG: Dict[str, str] = {
     NotificationTopic.DEFAULT.name: os.getenv("DEFAULT_WEBHOOK_URL"),
@@ -47,4 +50,5 @@ def notify(request: NotifyRequest):
             }
         ]
     }
-    requests.post(WEBHOOK_CONFIG[request.topic.name], json=payload)
+    response = requests.post(WEBHOOK_CONFIG[request.topic.name], json=payload)
+    logger.info(f"Response: {response.content}")
