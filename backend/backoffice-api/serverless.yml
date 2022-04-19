@@ -46,11 +46,6 @@ functions:
 
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
+  - ${file(resources/functions-cf-outputs.yml)}
 
-  Outputs:
-    postConfirmationLambdaTriggerArn:
-      Value:
-        Fn::GetAtt: [ postConfirmationTrigger, Arn ]
-      Export:
-        Name: ${self:provider.stage}-EventsToNotifyQueueArn
 

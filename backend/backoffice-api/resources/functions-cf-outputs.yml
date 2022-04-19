@@ -1,0 +1,6 @@
+Outputs:
+  postConfirmationLambdaTriggerArn:
+    Value:
+      Fn::GetAtt: [ postConfirmationTrigger, Arn ]
+    Export:
+      Name: ${self:provider.stage}-EventsToNotifyQueueArn
