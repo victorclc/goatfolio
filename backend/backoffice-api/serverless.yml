@@ -46,6 +46,4 @@ functions:
 
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
-  - ${file(resources/functions-cf-outputs.yml)}
-
-
+#  - ${file(resources/functions-cf-outputs.yml)}
