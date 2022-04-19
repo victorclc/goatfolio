@@ -241,7 +241,8 @@ resources:
           CaseSensitive: false
         UserPoolName: GoatfolioPool
         LambdaConfig:
-          PostConfirmation: 'Fn::ImportValue': ${self:provider.stage}-postConfirmationLambdaTriggerArn 
+          PostConfirmation: 
+            'Fn::ImportValue': ${self:provider.stage}-postConfirmationLambdaTriggerArn 
 
     MobilePoolClient:
       Type: AWS::Cognito::UserPoolClient
