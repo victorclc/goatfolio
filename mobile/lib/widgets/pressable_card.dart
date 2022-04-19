@@ -80,7 +80,7 @@ class _PressableCardState extends State<PressableCard>
                         flatten,
                 child: PhysicalModel(
                   elevation:
-                      ((1 - elevationAnimation.value) * 10 + 10) * flatten,
+                      ((1 - elevationAnimation.value) * 10 + 1) * flatten,
                   borderRadius: BorderRadius.circular(12 * flatten),
                   clipBehavior: Clip.antiAlias,
                   color: theme.currentBrightness(context) ==

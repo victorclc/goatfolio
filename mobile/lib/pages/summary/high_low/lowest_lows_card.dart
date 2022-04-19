@@ -1,35 +1,33 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/pages/summary/highest.dart';
+import 'package:goatfolio/pages/summary/high_low/highest.dart';
 import 'package:goatfolio/services/performance/model/stock_variation.dart';
 import 'package:goatfolio/utils/formatters.dart';
 import 'package:goatfolio/widgets/pressable_card.dart';
 
 
-class HighestHighsCard extends StatefulWidget {
+class LowestLowsCard extends StatefulWidget {
   final List<StockVariation> stocksVariation;
 
-  const HighestHighsCard(this.stocksVariation, {Key? key}) : super(key: key);
+  const LowestLowsCard(this.stocksVariation, {Key? key}) : super(key: key);
 
   @override
-  _HighestHighsState createState() => _HighestHighsState();
+  _LowestLowsCardState createState() => _LowestLowsCardState();
 }
 
-class _HighestHighsState extends State<HighestHighsCard> {
-  late List<StockVariation> highs;
+class _LowestLowsCardState extends State<LowestLowsCard> {
+  late List<StockVariation> lows;
 
   @override
   void initState() {
     super.initState();
   }
 
-  Widget buildTopFive() {
+  Widget buildTopFive(BuildContext context) {
     final textTheme = CupertinoTheme.of(context).textTheme;
-    highs = widget.stocksVariation
-        .where((stock) => stock.variation >= 0)
-        .toList()
-          ..sort((b, a) => a.variation.compareTo(b.variation));
-    if (highs.length == 0) {
+    lows = widget.stocksVariation.where((stock) => stock.variation < 0).toList()
+      ..sort((a, b) => a.variation.compareTo(b.variation));
+    if (lows.length == 0) {
       return Expanded(
         child: Center(
           child: Padding(
@@ -39,7 +37,7 @@ class _HighestHighsState extends State<HighestHighsCard> {
         ),
       );
     }
-    int listSize = highs.length > 3 ? 3 : highs.length;
+    int listSize = lows.length > 3 ? 3 : lows.length;
     List<Widget> list = [];
     list.add(
       Column(
@@ -68,16 +66,18 @@ class _HighestHighsState extends State<HighestHighsCard> {
       ),
     );
     for (int i = 0; i < listSize; i++) {
-      StockVariation stock = highs[i];
+      StockVariation stock = lows[i];
       list.add(Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(stock.ticker, style: textTheme.textStyle.copyWith(fontSize: 14)),
-          // Text(moneyFormatter.format(stock.currentStockPrice)),
+          Text(
+            stock.ticker,
+            style: textTheme.textStyle.copyWith(fontSize: 14),
+          ),
           Text(
             percentFormatter.format(stock.variation / 100),
             style:
-                textTheme.textStyle.copyWith(fontSize: 14, color: Colors.green),
+                textTheme.textStyle.copyWith(fontSize: 14, color: Colors.red),
           ),
         ],
       ));
@@ -97,10 +97,11 @@ class _HighestHighsState extends State<HighestHighsCard> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 226,
+      height: 210,
       child: PressableCard(
-        cardPadding: EdgeInsets.only(left: 16, right: 4, top: 16, bottom: 16),
-        onPressed: () => goToHighestPage(context, widget.stocksVariation),
+        cardPadding: EdgeInsets.only(left: 4, right: 16, top: 0, bottom: 16),
+        onPressed: () => goToHighestPage(context, widget.stocksVariation,
+            sortAscending: true),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -108,14 +109,14 @@ class _HighestHighsState extends State<HighestHighsCard> {
               Container(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "Maiores Altas",
+                  "Maiores Baixas",
                   style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
                 ),
               ),
               SizedBox(
                 height: 16,
               ),
-            ]..add(buildTopFive()),
+            ]..add(buildTopFive(context)),
           ),
         ),
       ),
