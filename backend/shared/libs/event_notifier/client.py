@@ -12,4 +12,4 @@ class ShitNotifierClient:
 
     def send(self, level, service, message):
         request = NotifyRequest(level, service, message)
-        self._queue.send_message(MessageBody=jsonutils.dump(asdict(request)))
+        self._queue.send_message(MessageBody=jsonutils.dump(request.to_dict()))
