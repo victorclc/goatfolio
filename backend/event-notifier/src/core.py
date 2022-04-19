@@ -6,9 +6,9 @@ import requests
 from models import NotifyRequest
 from src.models import NotificationTopic
 
-WEBHOOK_CONFIG: Dict[NotificationTopic, str] = {
-    NotificationTopic.DEFAULT: os.getenv("DEFAULT_WEBHOOK_URL"),
-    NotificationTopic.COGNITO: os.getenv("COGNITO_WEBHOOK_URL"),
+WEBHOOK_CONFIG: Dict[str, str] = {
+    NotificationTopic.DEFAULT.name: os.getenv("DEFAULT_WEBHOOK_URL"),
+    NotificationTopic.COGNITO.name: os.getenv("COGNITO_WEBHOOK_URL")
 }
 
 LEVEL_COLOR_MAP = {
@@ -47,4 +47,4 @@ def notify(request: NotifyRequest):
             }
         ]
     }
-    requests.post(WEBHOOK_CONFIG[request.topic], json=payload)
+    requests.post(WEBHOOK_CONFIG[request.topic.name], json=payload)

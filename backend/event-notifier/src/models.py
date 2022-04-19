@@ -8,11 +8,8 @@ class NotificationTopic(Enum):
 
     @classmethod
     def value_of(cls, value: str):
-        for k, v in cls.__members__.items():
-            if k == value.upper():
-                return v
-        else:
-            raise ValueError(f"'{cls.__name__}' enum not found for '{value}'")
+        return cls[value.upper()]
+
 
 
 @dataclass
