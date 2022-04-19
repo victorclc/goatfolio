@@ -67,7 +67,7 @@ class _FriendsRentabilityCardState extends State<FriendsRentabilityCard> {
               percentFormatter
                   .format(friendRentability.summary.dayVariationPerc / 100),
               style: textTheme.textStyle
-                  .copyWith(fontSize: 14, color: Colors.green),
+                  .copyWith(fontSize: 14, color: friendRentability.summary.dayVariationPerc >= 0 ? Colors.green: Colors.red),
             ),
           ),
         ],
