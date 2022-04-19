@@ -26,19 +26,19 @@ package:
     - ../shared/libs/goatcommons/**
 
 plugins:
-  - serverless-domain-manager
+#  - serverless-domain-manager
   - serverless-python-requirements
 
 custom:
   pythonRequirements:
     pythonBin: python3.8
     cacheLocation: '.cache/'
-  customDomain:
-    basePath: backoffice
-    domainName: ${env:DOMAIN_NAME}
-    stage: ${self:provider.stage}
-    createRoute53Record: false
-    endpointType: 'regional'
+#  customDomain:
+#    basePath: backoffice
+#    domainName: ${env:DOMAIN_NAME}
+#    stage: ${self:provider.stage}
+#    createRoute53Record: false
+#    endpointType: 'regional'
 
 functions:
   postConfirmationTrigger:
