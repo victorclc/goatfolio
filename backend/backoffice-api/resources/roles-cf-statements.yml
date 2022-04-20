@@ -1,0 +1,6 @@
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    - 'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
