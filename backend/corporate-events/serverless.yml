@@ -96,6 +96,18 @@ functions:
           method: get
           private: true
 
+  getCashDividends:
+    handler: src/adapters/inbound/private_api_gateway_handlers.get_cash_dividends_handler
+    events:
+      - http:
+          path: cash-dividends
+          request:
+            parameters:
+              querystrings:
+                date: true
+          method: get
+          private: true
+
   addGroupEvent:
     handler: src/adapters/inbound/api_gateway_handlers.add_group_corporate_event_handler
     events:
