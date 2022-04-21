@@ -6,8 +6,9 @@ import goatcommons.utils.aws as awsutils
 import goatcommons.utils.json as jsonutils
 from adapters.inbound import ticker_client, events_repo
 from adapters.outbound.dynamo_cash_dividends_repository import DynamoCashDividendsRepository
+from adapters.outbound.dynamo_corporate_events_repository import DynamoCorporateEventsRepository
 from adapters.outbound.dynamo_manual_corporate_events_repository import DynamoManualCorporateEventsRepository
-from core import cash_dividends_for_date
+from core import cash_dividends_for_date, get_all_previous_symbols
 from core.get_corporate_events import get_corporate_events
 from core.ticker_transformations import transformations_in_ticker
 
@@ -64,6 +65,16 @@ def get_cash_dividends_handler(event, context):
     return {
         "statusCode": HTTPStatus.OK,
         "body": jsonutils.dump([d.to_dict() for d in dividends]),
+    }
+
+
+def get_all_previous_symbols_handler(event, context):
+    isin_code = awsutils.get_query_param(event, "isin_code")
+    symbols = get_all_previous_symbols.get_all_previous_symbols(isin_code, DynamoCorporateEventsRepository())
+
+    return {
+        "statusCode": HTTPStatus.OK,
+        "body": jsonutils.dump(symbols),
     }
 
 
