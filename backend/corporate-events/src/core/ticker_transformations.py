@@ -72,13 +72,15 @@ def transformations_in_ticker(current_ticker: str,
                               manual_events_repo: ManualCorporateEventsRepository,
                               subject: Optional[str]):
     ticker = current_ticker
+    previous_tickers = []
     isin = ticker_info.get_isin_code_from_ticker(current_ticker)
     events_list = get_events_list(subject, ticker, isin, date_from, repository, manual_events_repo, ticker_info)
 
     emitted_events = get_emitted_ticker_events(subject, current_ticker, isin, date_from, ticker_info, repository,
                                                manual_events_repo)
     if emitted_events:
-        ticker = ticker_info.get_ticker_from_isin_code(emitted_events[-1].isin_code)  # TODO MUDAR PRA PEGAR O PRIMEIRO
+        previous_tickers = list(map(lambda e: ticker_info.get_ticker_from_isin_code(e.isin_code), emitted_events))
+        ticker = previous_tickers[-1]
         events_list += get_events_list(subject, ticker, emitted_events[-1].isin_code, date_from, repository,
                                        manual_events_repo, ticker_info)
 
@@ -99,4 +101,4 @@ def transformations_in_ticker(current_ticker: str,
         for event in events_list:
             factor *= event.factor
 
-    return TickerTransformation(ticker, factor, events_list)
+    return TickerTransformation(ticker, factor, events_list, previous_tickers)
