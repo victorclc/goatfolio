@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import List
 
@@ -10,6 +10,7 @@ class TickerTransformation:
     ticker: str
     grouping_factor: Decimal
     events: List[EarningsInAssetCorporateEvent]
+    previous_tickers: List[str] = field(default_factory=list)
 
     def to_dict(self):
         return {
