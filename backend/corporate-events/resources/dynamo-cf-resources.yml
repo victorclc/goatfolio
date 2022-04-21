@@ -71,8 +71,6 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "asset_issued"
           AttributeType: "S"
-        - AttributeName: "isin_code"
-          AttributeType: "S"
         - AttributeName: "payment_date"
           AttributeType: "S"
         - AttributeName: "last_date_prior"
