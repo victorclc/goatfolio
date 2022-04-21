@@ -15,3 +15,10 @@
         - ''
         - - 'Fn::ImportValue': ${self:provider.stage}-InvestmentsTableArnOutput
           - '/index/*'
+- Effect: Allow
+  Action:
+    - sqs:SendMessage
+    - sqs:GetQueueUrl
+  Resource:
+    - 'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
+    - 'Fn::ImportValue': ${self:provider.stage}-PushNotificationRequestArnOutput
