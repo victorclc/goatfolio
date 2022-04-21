@@ -90,7 +90,8 @@ functions:
           request:
             parameters:
               querystrings:
-                ticker: true
+                ticker: false
+                isin_code: false
                 dateFrom: true
                 subject: false
           method: get

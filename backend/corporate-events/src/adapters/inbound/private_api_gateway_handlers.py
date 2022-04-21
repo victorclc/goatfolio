@@ -37,12 +37,16 @@ def get_ticker_transformations_handler(event, context):
 def get_corporate_events_handler(event, context):
     subject = awsutils.get_query_param(event, "subject")
     ticker = awsutils.get_query_param(event, "ticker")
+    isin_code = awsutils.get_query_param(event, "isin_code")
     date_from = datetime.datetime.strptime(
         awsutils.get_query_param(event, "dateFrom"), "%Y%m%d"
     ).date()
     manual_repo = DynamoManualCorporateEventsRepository()
 
-    events = get_corporate_events(ticker, date_from, ticker_client, events_repo, manual_repo, subject)
+    if not ticker and not isin_code:
+        return {"statusCode": HTTPStatus.BAD_REQUEST, "body": "Ticker and isin_code can be both null"}
+
+    events = get_corporate_events(ticker, isin_code, date_from, ticker_client, events_repo, manual_repo, subject)
 
     return {
         "statusCode": HTTPStatus.OK,
