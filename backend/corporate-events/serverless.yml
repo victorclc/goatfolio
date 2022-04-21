@@ -109,6 +109,18 @@ functions:
           method: get
           private: true
 
+  getAllPreviousSymbols:
+    handler: src/adapters/inbound/private_api_gateway_handlers.get_all_previous_symbols_handler
+    events:
+      - http:
+          path: previous-symbols
+          request:
+            parameters:
+              querystrings:
+                isin_code: true
+          method: get
+          private: true
+
   addGroupEvent:
     handler: src/adapters/inbound/api_gateway_handlers.add_group_corporate_event_handler
     events:
