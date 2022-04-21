@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from domain.investment_type import InvestmentType
+from application.investment_type import InvestmentType
 
 
 @dataclass

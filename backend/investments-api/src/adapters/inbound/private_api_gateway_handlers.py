@@ -3,7 +3,7 @@ from http import HTTPStatus
 from aws_lambda_powertools import Logger, Tracer
 
 from adapters.inbound import investment_core
-from domain.investment_request import InvestmentRequest
+from application.investment_request import InvestmentRequest
 import goatcommons.utils.json as jsonutils
 
 logger = Logger()

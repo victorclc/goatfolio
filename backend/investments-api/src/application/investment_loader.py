@@ -1,7 +1,7 @@
 from uuid import uuid4
 
-from domain.investment import Investment, StockInvestment
-from domain.investment_type import InvestmentType
+from application.investment import Investment, StockInvestment
+from application.investment_type import InvestmentType
 
 
 class MissingRequiredFields(Exception):
