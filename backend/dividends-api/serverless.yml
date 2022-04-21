@@ -26,6 +26,7 @@ package:
     - resources/**
   include:
     - ../shared/libs/goatcommons/**
+    - ../shared/libs/event_notifier/**
 
 plugins:
   #  - serverless-domain-manager
