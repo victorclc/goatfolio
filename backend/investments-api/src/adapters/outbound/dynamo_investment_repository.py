@@ -3,9 +3,9 @@ from typing import List
 import boto3
 from boto3.dynamodb.conditions import Key
 
-from domain.investment_type import InvestmentType
-from domain.investment import Investment
-import domain.investment_loader as il
+from application.investment_type import InvestmentType
+from application.investment import Investment
+import application.investment_loader as il
 
 
 class DynamoInvestmentRepository:

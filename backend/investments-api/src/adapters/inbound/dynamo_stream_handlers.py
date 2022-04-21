@@ -2,8 +2,8 @@ from aws_lambda_powertools import Logger, Tracer
 from boto3.dynamodb.types import TypeDeserializer
 
 from adapters.inbound import investment_core
-from domain.investment_loader import load_model_by_type
-from domain.investment_type import InvestmentType
+from application.investment_loader import load_model_by_type
+from application.investment_type import InvestmentType
 from event_notifier.decorators import notify_exception
 from event_notifier.models import NotifyLevel
 

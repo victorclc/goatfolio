@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import List
 
+from application.entities.cash_dividends import CashDividendsEntity
+
 DATE_FORMAT = "%d/%m/%Y"
 
 
@@ -35,14 +37,17 @@ class CashDividends:
     remarks: str = ""
 
     def __post_init__(self):
-        if type(self.payment_date) == str:
+        if isinstance(self.payment_date, str):
             self.payment_date = datetime.datetime.strptime(self.payment_date, DATE_FORMAT).date()
-        if type(self.approved_on) == str:
+        if isinstance(self.approved_on, str):
             self.approved_on = datetime.datetime.strptime(self.approved_on, DATE_FORMAT).date()
-        if type(self.last_date_prior) == str:
+        if isinstance(self.last_date_prior, str):
             self.last_date_prior = datetime.datetime.strptime(self.last_date_prior, DATE_FORMAT).date()
-        if type(self.rate) == str:
-            self.rate = Decimal(self.rate.replace(".", "").replace(",", "."))
+        if isinstance(self.rate, str):
+            self.rate = Decimal(self.rate.replace(".", "").replace(",", ".")).quantize(Decimal("0.00000000001"))
+
+    def to_entity(self) -> CashDividendsEntity:
+        return CashDividendsEntity(**self.__dict__)
 
 
 @dataclass

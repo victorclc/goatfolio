@@ -1,12 +1,13 @@
 import datetime
 import logging
-from dataclasses import asdict
 from http import HTTPStatus
 
 import goatcommons.utils.aws as awsutils
 import goatcommons.utils.json as jsonutils
 from adapters.inbound import ticker_client, events_repo
+from adapters.outbound.dynamo_cash_dividends_repository import DynamoCashDividendsRepository
 from adapters.outbound.dynamo_manual_corporate_events_repository import DynamoManualCorporateEventsRepository
+from core import cash_dividends_for_date
 from core.get_corporate_events import get_corporate_events
 from core.ticker_transformations import transformations_in_ticker
 
@@ -46,6 +47,19 @@ def get_corporate_events_handler(event, context):
     return {
         "statusCode": HTTPStatus.OK,
         "body": jsonutils.dump([e.to_dict() for e in events]),
+    }
+
+
+def get_cash_dividends_handler(event, context):
+    date = datetime.datetime.strptime(
+        awsutils.get_query_param(event, "date"), "%Y%m%d"
+    ).date()
+
+    dividends = cash_dividends_for_date.get_cash_dividends(date, DynamoCashDividendsRepository())
+
+    return {
+        "statusCode": HTTPStatus.OK,
+        "body": jsonutils.dump([e.to_dict() for d in dividends]),
     }
 
 

@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 import requests
 
-from domain.exceptions import TickerValidationError
+from application.exceptions import TickerValidationError
 from goatcommons.configuration.system_manager import ConfigurationClient
 
 

@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from decimal import Decimal
 
-from domain.investment_type import InvestmentType
-from domain.operation_type import OperationType
+from application.investment_type import InvestmentType
+from application.operation_type import OperationType
 
 DATE_FORMAT = "%Y%m%d"
 

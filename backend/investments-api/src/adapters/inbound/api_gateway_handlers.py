@@ -6,9 +6,9 @@ from adapters.inbound import investment_core
 
 from aws_lambda_powertools import Logger, Tracer
 
-from domain.exceptions import FieldMissingError, InvalidTicker
-from domain.investment_loader import MissingRequiredFields
-from domain.investment_request import InvestmentRequest
+from application.exceptions import FieldMissingError, InvalidTicker
+from application.investment_loader import MissingRequiredFields
+from application.investment_request import InvestmentRequest
 
 logger = Logger()
 tracer = Tracer()
