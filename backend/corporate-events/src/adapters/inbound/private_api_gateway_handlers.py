@@ -59,7 +59,7 @@ def get_cash_dividends_handler(event, context):
 
     return {
         "statusCode": HTTPStatus.OK,
-        "body": jsonutils.dump([e.to_dict() for d in dividends]),
+        "body": jsonutils.dump([d.to_dict() for d in dividends]),
     }
 
 
