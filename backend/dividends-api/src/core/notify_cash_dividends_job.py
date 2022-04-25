@@ -58,7 +58,9 @@ def notify_cash_dividends_job(
         logger.info(f"Processing dividend: {dividend}")
         all_isin_symbols = corporate_events_client.get_all_previous_symbols(dividend.asset_issued) \
                            + [dividend.asset_issued]
-        tickers = list(map(lambda i: ticker_info_client.get_ticker_from_isin_code(i), all_isin_symbols))
+        tickers = list(
+            filter(lambda i: i, map(lambda i: ticker_info_client.get_ticker_from_isin_code(i), all_isin_symbols))
+        )
         logger.info(f"Tickers: {tickers}")
 
         investments = []
@@ -83,7 +85,8 @@ def notify_cash_dividends_job(
 
 def main():
     repo = DynamoInvestmentRepository()
-    notify_cash_dividends_job(datetime.date(2022, 4, 22), repo, PushNotificationsClient(), RESTCorporateEventsClient(), RestTickerInfoClient())
+    notify_cash_dividends_job(datetime.date(2022, 4, 22), repo, PushNotificationsClient(), RESTCorporateEventsClient(),
+                              RestTickerInfoClient())
 
 
 if __name__ == "__main__":
