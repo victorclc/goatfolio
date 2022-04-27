@@ -1,4 +1,5 @@
 import datetime
+import json
 import locale
 from decimal import Decimal
 from itertools import groupby
@@ -15,7 +16,7 @@ from application.models.invesments import StockInvestment, OperationType
 from goatcommons.notifications.client import PushNotificationsClient
 from goatcommons.notifications.models import NotificationRequest
 
-metrics = Metrics(namespace="CorporateEvents", service="TodayCorporateEvents")
+metrics = Metrics(namespace="DividendsApi", service="NotifyDividends")
 
 logger = Logger()
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
@@ -48,7 +49,6 @@ def calculate_amount(investments: List[StockInvestment]) -> Decimal:
     return amount
 
 
-@metrics.log_metrics
 def notify_cash_dividends_job(
         processing_date: datetime.date,
         investments_repository: DynamoInvestmentRepository,
@@ -87,7 +87,14 @@ def notify_cash_dividends_job(
                 )
                 metrics.add_metric(name="DividendNotifiedCount", unit=MetricUnit.Count, value=1)
     metrics.add_metric(name="ApplicableCashDividendsCount", unit=MetricUnit.Count, value=len(cash_dividends))
+    dump_metrics()
     logger.info(f"Notify cash dividends job - END")
+
+
+def dump_metrics():
+    your_metrics_object = metrics.serialize_metric_set()
+    metrics.clear_metrics()
+    print(json.dumps(your_metrics_object))
 
 
 def main():
