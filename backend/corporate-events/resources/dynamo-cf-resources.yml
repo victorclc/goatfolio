@@ -62,3 +62,41 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: ALL
+
+  CashDividendsTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: "CashDividends"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: "asset_issued"
+          AttributeType: "S"
+        - AttributeName: "payment_date"
+          AttributeType: "S"
+        - AttributeName: "last_date_prior"
+          AttributeType: "S"
+        - AttributeName: "id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "asset_issued"
+          KeyType: "HASH"
+        - AttributeName: "id"
+          KeyType: "RANGE"
+      LocalSecondaryIndexes:
+        - IndexName: assetIssueLastDatePriorLocalIndex
+          KeySchema:
+            - AttributeName: "asset_issued"
+              KeyType: "HASH"
+            - AttributeName: "last_date_prior"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL
+      GlobalSecondaryIndexes:
+        - IndexName: paymentDateAssetIssuedGlobalIndex
+          KeySchema:
+            - AttributeName: "payment_date"
+              KeyType: "HASH"
+            - AttributeName: "asset_issued"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: ALL

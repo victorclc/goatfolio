@@ -3,12 +3,12 @@ from decimal import Decimal
 from unittest.mock import MagicMock
 from uuid import uuid4
 
-from domain.core import InvestmentCore
-from domain.exceptions import FieldMissingError
-from domain.investment_loader import MissingRequiredFields
-from domain.investment_request import InvestmentRequest
-from domain.investment_type import InvestmentType
-from domain.operation_type import OperationType
+from core.crud import InvestmentCore
+from application.exceptions import FieldMissingError
+from application.investment_loader import MissingRequiredFields
+from application.investment_request import InvestmentRequest
+from application.investment_type import InvestmentType
+from application.operation_type import OperationType
 
 
 class TestInvestmentCore(unittest.TestCase):

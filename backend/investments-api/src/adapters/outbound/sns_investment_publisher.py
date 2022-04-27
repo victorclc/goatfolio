@@ -5,7 +5,7 @@ from typing import Optional
 import boto3
 from aws_lambda_powertools import Logger
 import goatcommons.utils.json as jsonutils
-from domain.investment import Investment
+from application.investment import Investment
 
 logger = Logger()
 

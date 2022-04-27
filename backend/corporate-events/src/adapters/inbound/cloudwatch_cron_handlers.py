@@ -3,7 +3,7 @@ import logging
 
 from dateutil.relativedelta import relativedelta
 
-from adapters.inbound import ticker_client, events_repo, events_client
+from adapters.inbound import ticker_client, events_repo, events_client, cash_dividends_repo
 from adapters.outbound.sqs_new_applicable_events_notifier import SQSNewApplicableEventsNotifier
 from application.enums.event_type import EventType
 from core.fetch_today_corporate_events import fetch_today_corporate_events
@@ -20,7 +20,7 @@ logger.setLevel(logging.INFO)
 
 @notify_exception(Exception, NotifyLevel.CRITICAL)
 def craw_today_corporate_events_handler(event, context):
-    fetch_today_corporate_events(events_client, ticker_client, events_repo)
+    fetch_today_corporate_events(events_client, ticker_client, events_repo, cash_dividends_repo)
 
 
 @notify_exception(Exception, NotifyLevel.CRITICAL)

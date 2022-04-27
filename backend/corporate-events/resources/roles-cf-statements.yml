@@ -52,3 +52,15 @@
         - ''
         - - Fn::GetAtt: [ ManualCorporateEventsTable, Arn ]
           - '/index/*'
+- Effect: Allow
+  Action:
+    - dynamodb:Query
+    - dynamodb:BatchWriteItem
+    - dynamodb:PutItem
+    - dynamodb:DeleteItem
+  Resource:
+    - Fn::GetAtt: [ CashDividendsTable, Arn ]
+    - Fn::Join:
+        - ''
+        - - Fn::GetAtt: [ CashDividendsTable, Arn ]
+          - '/index/*'

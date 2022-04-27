@@ -2,7 +2,7 @@ from typing import Optional
 
 from typing import Protocol
 
-from domain.investment import Investment
+from application.investment import Investment
 
 
 class InvestmentPublisher(Protocol):

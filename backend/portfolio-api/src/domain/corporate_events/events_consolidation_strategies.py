@@ -138,7 +138,7 @@ def create_id_from_corp_event(ticker, event):
     return f"STOCK#{ticker}#{event.type.value}{event.deliberate_on.strftime('%Y%m%d')}{event.with_date.strftime('%Y%m%d')}{event.emitted_asset}"
 
 
-def affected_investments_amount(affected_investments):
+def affected_investments_amount(affected_investments) -> Decimal:
     amount = Decimal(0)
     for inv in affected_investments:
         if inv.operation in [

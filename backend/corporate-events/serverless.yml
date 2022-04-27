@@ -90,9 +90,34 @@ functions:
           request:
             parameters:
               querystrings:
-                ticker: true
+                ticker: false
+                isin_code: false
                 dateFrom: true
                 subject: false
+          method: get
+          private: true
+
+  getCashDividends:
+    handler: src/adapters/inbound/private_api_gateway_handlers.get_cash_dividends_handler
+    events:
+      - http:
+          path: cash-dividends
+          request:
+            parameters:
+              querystrings:
+                date: true
+          method: get
+          private: true
+
+  getAllPreviousSymbols:
+    handler: src/adapters/inbound/private_api_gateway_handlers.get_all_previous_symbols_handler
+    events:
+      - http:
+          path: previous-symbols
+          request:
+            parameters:
+              querystrings:
+                isin_code: true
           method: get
           private: true
 

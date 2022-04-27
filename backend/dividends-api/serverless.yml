@@ -1,0 +1,53 @@
+service: dividends-api
+
+provider:
+  name: aws
+  memorySize: 1024
+  region: sa-east-1
+  stage: ${env:STAGE, 'dev'}
+  runtime: python3.8
+  timeout: 900
+  environment:
+    LOG_LEVEL: DEBUG
+    PYTHONPATH: "src:shared/libs"
+    CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
+    TICKER_BASE_API_URL: https://${env:DOMAIN_NAME}/ticker
+  iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
+  endpointType: regional
+  tracing:
+    lambda: true
+
+package:
+  exclude:
+    - .cache/**
+    - tests/**
+    - test-env/**
+    - node_modules/**
+    - resources/**
+  include:
+    - ../shared/libs/goatcommons/**
+    - ../shared/libs/event_notifier/**
+
+plugins:
+  #  - serverless-domain-manager
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    pythonBin: python3.8
+    cacheLocation: '.cache/'
+#  customDomain:
+#    basePath: templatep
+#    domainName: ${env:DOMAIN_NAME}
+#    stage: ${self:provider.stage}
+#    createRoute53Record: false
+#    endpointType: 'regional'
+
+functions:
+  notifyTodayCashDividends:
+    handler: src/adapters/inbound/cloudwatch_cron_handlers.notify_today_cash_dividends_handler
+    events:
+      - schedule: cron(0 11 ? * MON-FRI *)
+
+#resources:
+#  - ${file(resources/authorizer-cf-resources.yml)}

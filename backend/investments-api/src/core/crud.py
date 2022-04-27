@@ -2,17 +2,17 @@ from datetime import datetime
 
 from aws_lambda_powertools import Logger
 
-from domain.exceptions import (
+from application.exceptions import (
     InvalidInvestmentDateError,
     FieldNotPermittedError,
     FieldMissingError, InvalidTicker,
 )
-from domain.investment import Investment, StockInvestment
-from domain.investment_loader import load_model_by_type
-from domain.investment_request import InvestmentRequest
-from ports.outbound.investment_publisher import InvestmentPublisher
-from ports.outbound.investment_repository import InvestmentRepository
-from ports.outbound.ticker_info_client import TickerInfoClient
+from application.investment import Investment, StockInvestment
+from application.investment_loader import load_model_by_type
+from application.investment_request import InvestmentRequest
+from application.ports.outbound.investment_publisher import InvestmentPublisher
+from application.ports.outbound.investment_repository import InvestmentRepository
+from application.ports.outbound.ticker_info_client import TickerInfoClient
 
 logger = Logger()
 

@@ -1,3 +1,4 @@
+from adapters.outbound.dynamo_cash_dividends_repository import DynamoCashDividendsRepository
 from adapters.outbound.dynamo_corporate_events_repository import (
     DynamoCorporateEventsRepository,
 )
@@ -9,6 +10,7 @@ from adapters.outbound.s3_coporate_events_file_storage import (
 )
 
 events_repo = DynamoCorporateEventsRepository()
+cash_dividends_repo = DynamoCashDividendsRepository()
 investment_repo = DynamoInvestmentRepository()
 ticker_client = RESTTickerInfoClient()
 file_storage = S3CorporateEventsFileStorage()

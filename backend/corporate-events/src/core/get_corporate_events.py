@@ -21,13 +21,15 @@ class ManualCorporateEventsRepository(Protocol):
 
 def get_corporate_events(
         ticker: str,
+        isin_code: str,
         date: datetime.date,
         ticker_info: TickerInfoClient,
         repository: CorporateEventsRepository,
         manual_events_repo: ManualCorporateEventsRepository,
         subject: Optional[str] = None
 ) -> List[EarningsInAssetCorporateEvent]:
-    isin_code = ticker_info.get_isin_code_from_ticker(ticker)
+    if not isin_code:
+        isin_code = ticker_info.get_isin_code_from_ticker(ticker)
     events = repository.find_by_isin_from_date(isin_code, date)
 
     for event in events:
