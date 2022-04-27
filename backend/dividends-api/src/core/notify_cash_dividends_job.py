@@ -4,7 +4,8 @@ from decimal import Decimal
 from itertools import groupby
 from typing import List, Protocol
 
-from aws_lambda_powertools import Logger
+from aws_lambda_powertools import Logger, Metrics
+from aws_lambda_powertools.metrics import MetricUnit
 
 from adapters.outbound.dynamo_investments_repository import DynamoInvestmentRepository
 from adapters.outbound.rest_corporate_events_client import RESTCorporateEventsClient
@@ -13,6 +14,8 @@ from application.models.dividends import CashDividends
 from application.models.invesments import StockInvestment, OperationType
 from goatcommons.notifications.client import PushNotificationsClient
 from goatcommons.notifications.models import NotificationRequest
+
+metrics = Metrics(namespace="CorporateEvents", service="TodayCorporateEvents")
 
 logger = Logger()
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
@@ -45,6 +48,7 @@ def calculate_amount(investments: List[StockInvestment]) -> Decimal:
     return amount
 
 
+@metrics.log_metrics
 def notify_cash_dividends_job(
         processing_date: datetime.date,
         investments_repository: DynamoInvestmentRepository,
@@ -54,7 +58,8 @@ def notify_cash_dividends_job(
 ):
     logger.info(f"Notify cash dividends job - START: {processing_date.strftime('%Y-%m-%d')}")
 
-    for dividend in corporate_events_client.get_cash_dividends(processing_date):
+    cash_dividends = corporate_events_client.get_cash_dividends(processing_date)
+    for dividend in cash_dividends:
         logger.info(f"Processing dividend: {dividend}")
         all_isin_symbols = corporate_events_client.get_all_previous_symbols(dividend.asset_issued) \
                            + [dividend.asset_issued]
@@ -80,6 +85,8 @@ def notify_cash_dividends_job(
                         message=f"Hoje, você vai receber R$ {locale.currency(dividend.rate * amount, grouping=True, symbol=False)} de rendimentos da ação {tickers[-1]}"
                     )
                 )
+                metrics.add_metric(name="DividendNotifiedCount", unit=MetricUnit.Count, value=1)
+    metrics.add_metric(name="ApplicableCashDividendsCount", unit=MetricUnit.Count, value=len(cash_dividends))
     logger.info(f"Notify cash dividends job - END")
 
 
