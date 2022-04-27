@@ -48,6 +48,7 @@ def calculate_amount(investments: List[StockInvestment]) -> Decimal:
     return amount
 
 
+@metrics.log_metrics
 def notify_cash_dividends_job(
         processing_date: datetime.date,
         investments_repository: DynamoInvestmentRepository,
