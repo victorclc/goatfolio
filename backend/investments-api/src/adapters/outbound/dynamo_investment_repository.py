@@ -24,6 +24,8 @@ class DynamoInvestmentRepository:
             pagination["ExclusiveStartKey"] = {"subject": subject, "id": last_evaluated_id}
 
         result = self.__investments_table.query(
+            IndexName="subjectDateGlobalIndex",
+            ScanIndexForward=False,
             KeyConditionExpression=Key("subject").eq(subject),
             **pagination
         )
@@ -55,9 +57,9 @@ def main():
     boto3.setup_default_session(profile_name='goatdev')
     subject = "38a883f0-686a-466e-99b3-44a9d0bbd55e"
     repo = DynamoInvestmentRepository()
-    last_evaluated_key = 'STOCK#BIDI11#CEI161818560045188011'
+    # last_evaluated_key = 'STOCK#BIDI11#CEI161818560045188011'
 
-    investments = repo.find_by_subject(subject, '20', last_evaluated_key)
+    investments = repo.find_by_subject(subject, 20, None)
     print(investments)
     print(len(investments))
 
