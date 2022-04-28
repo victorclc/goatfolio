@@ -15,5 +15,5 @@ class PaginatedInvestmentsResult:
         return {
             **self.__dict__,
             "investments": [i.to_json() for i in self.investments],
-            "last_evaluated_date": self.last_evaluated_date.strftime("%Y%m%d")
+            "last_evaluated_date": self.last_evaluated_date.strftime("%Y%m%d") if self.last_evaluated_date else None
         }
