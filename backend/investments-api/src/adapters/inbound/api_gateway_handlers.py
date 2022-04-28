@@ -1,4 +1,5 @@
 import traceback
+from datetime import datetime
 from http import HTTPStatus
 import goatcommons.utils.json as jsonutils
 import goatcommons.utils.aws as awsutils
@@ -22,7 +23,10 @@ def get_investments_handler(event, context):
     if limit:
         limit = int(limit)
     last_evaluated_id = awsutils.get_query_param(event, "last_evaluated_id")
-    investments = investment_core.get(subject, limit, last_evaluated_id)
+    last_evaluated_date = awsutils.get_query_param(event, "last_evaluated_date")
+    if last_evaluated_date:
+        last_evaluated_date = datetime.strptime(last_evaluated_date, "%Y%m%d").date()
+    investments = investment_core.get(subject, limit, last_evaluated_id, last_evaluated_date)
 
     if isinstance(investments, list):
         return {
