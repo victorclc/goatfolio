@@ -33,12 +33,12 @@ class InvestmentCore:
                 raise InvalidTicker(f"Ativo {investment.ticker} invalido.")
 
     def get(self, subject: str, limit: Optional[int], last_evaluated_id: Optional[str]):
-        investments, last_id = self.repo.find_by_subject(subject, limit, last_evaluated_id)
-        if limit is None:
+        investments, new_last_evaluated_id = self.repo.find_by_subject(subject, limit, last_evaluated_id)
+        if not limit:
             return investments
         return PaginatedInvestmentsResult(
             investments=investments,
-            last_evaluated_id=last_evaluated_id
+            last_evaluated_id=new_last_evaluated_id
         )
 
     def add(self, subject: str, request: InvestmentRequest):
