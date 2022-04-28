@@ -1,3 +1,4 @@
+import datetime
 from typing import Protocol, List, Optional, Tuple
 
 from application.investment import Investment
@@ -7,8 +8,9 @@ class InvestmentRepository(Protocol):
     def find_by_subject(
             self, subject: str,
             limit: Optional[int],
-            last_evaluated_id: Optional[str]
-    ) -> Tuple[List[Investment], Optional[str]]:
+            last_evaluated_id: Optional[str],
+            last_evaluated_date: Optional[datetime.date]
+    ) -> Tuple[List[Investment], Optional[str], Optional[datetime.date]]:
         """Finds all Investments of given subject."""
 
     def save(self, investment: Investment):

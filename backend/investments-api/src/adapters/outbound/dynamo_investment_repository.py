@@ -1,3 +1,4 @@
+import datetime
 from typing import List, Optional, Tuple, Any
 
 import boto3
@@ -15,13 +16,18 @@ class DynamoInvestmentRepository:
     def find_by_subject(
             self, subject: str,
             limit: Optional[int],
-            last_evaluated_id: Optional[str]
-    ) -> Tuple[List[Investment], Optional[str]]:
+            last_evaluated_id: Optional[str],
+            last_evaluated_date: Optional[datetime.date]
+    ) -> Tuple[List[Investment], Optional[str], Optional[datetime.date]]:
         pagination = {}
         if limit:
             pagination["Limit"] = limit
         if last_evaluated_id:
-            pagination["ExclusiveStartKey"] = {"subject": subject, "id": last_evaluated_id}
+            pagination["ExclusiveStartKey"] = {
+                "subject": subject,
+                "id": last_evaluated_id,
+                "date": int(last_evaluated_date.strftime("%Y%m%d"))
+            }
 
         result = self.__investments_table.query(
             IndexName="subjectDateGlobalIndex",
@@ -36,7 +42,9 @@ class DynamoInvestmentRepository:
                 lambda i: il.load_model_by_type(InvestmentType(i["type"]), i),
                 result["Items"],
             )
-        ), last_evaluated_key["id"] if last_evaluated_key else None
+        ), last_evaluated_key["id"] if last_evaluated_key else None, datetime.datetime.strptime(str(last_evaluated_key[
+                                                                                                        "date"]),
+                                                                                                "%Y%m%d").date() if last_evaluated_key else None
 
     def save(self, investment: Investment):
         self.__investments_table.put_item(Item=investment.to_json())
@@ -57,9 +65,9 @@ def main():
     boto3.setup_default_session(profile_name='goatdev')
     subject = "38a883f0-686a-466e-99b3-44a9d0bbd55e"
     repo = DynamoInvestmentRepository()
-    # last_evaluated_key = 'STOCK#BIDI11#CEI161818560045188011'
+    last_evaluated_key = 'STOCK#BIDI11#CEI16048800004060061'
 
-    investments = repo.find_by_subject(subject, 20, None)
+    investments = repo.find_by_subject(subject, 20, last_evaluated_key, datetime.date(2020, 11, 9))
     print(investments)
     print(len(investments))
 
