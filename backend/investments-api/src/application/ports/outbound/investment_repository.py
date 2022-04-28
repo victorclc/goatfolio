@@ -1,10 +1,14 @@
-from typing import Protocol, List
+from typing import Protocol, List, Optional, Tuple
 
 from application.investment import Investment
 
 
 class InvestmentRepository(Protocol):
-    def find_by_subject(self, subject: str) -> List[Investment]:
+    def find_by_subject(
+            self, subject: str,
+            limit: Optional[int],
+            last_evaluated_id: Optional[str]
+    ) -> Tuple[List[Investment], Optional[str]]:
         """Finds all Investments of given subject."""
 
     def save(self, investment: Investment):

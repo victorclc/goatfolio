@@ -18,11 +18,20 @@ tracer = Tracer()
 @tracer.capture_lambda_handler
 def get_investments_handler(event, context):
     subject = awsutils.get_event_subject(event)
-    investments = investment_core.get(subject)
+    limit = awsutils.get_query_param(event, "limit")
+    if limit:
+        limit = int(limit)
+    last_evaluated_id = awsutils.get_query_param(event, "last_evaluated_id")
+    investments = investment_core.get(subject, limit, last_evaluated_id)
 
+    if isinstance(investments, list):
+        return {
+            "statusCode": HTTPStatus.OK,
+            "body": jsonutils.dump([i.to_json() for i in investments]),
+        }
     return {
         "statusCode": HTTPStatus.OK,
-        "body": jsonutils.dump([i.to_json() for i in investments]),
+        "body": jsonutils.dump(investments.to_dict()),
     }
 
 
