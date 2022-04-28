@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from aws_lambda_powertools import Logger
 
@@ -10,6 +11,7 @@ from application.exceptions import (
 from application.investment import Investment, StockInvestment
 from application.investment_loader import load_model_by_type
 from application.investment_request import InvestmentRequest
+from application.paginated_investments_result import PaginatedInvestmentsResult
 from application.ports.outbound.investment_publisher import InvestmentPublisher
 from application.ports.outbound.investment_repository import InvestmentRepository
 from application.ports.outbound.ticker_info_client import TickerInfoClient
@@ -30,8 +32,14 @@ class InvestmentCore:
             if not self.ticker_client.is_ticker_valid(investment.ticker):
                 raise InvalidTicker(f"Ativo {investment.ticker} invalido.")
 
-    def get(self, subject: str):
-        return self.repo.find_by_subject(subject)
+    def get(self, subject: str, limit: Optional[int], last_evaluated_id: Optional[str]):
+        investments, last_id = self.repo.find_by_subject(subject, limit, last_evaluated_id)
+        if limit is None:
+            return investments
+        return PaginatedInvestmentsResult(
+            investments=investments,
+            last_evaluated_id=last_evaluated_id
+        )
 
     def add(self, subject: str, request: InvestmentRequest):
         if request.investment.get("id"):
@@ -77,11 +85,11 @@ class InvestmentCore:
         self.repo.batch_save(investments)
 
     def publish_investment_update(
-        self,
-        subject: str,
-        updated_timestamp: int,
-        new_investment: Investment,
-        old_investment: Investment
+            self,
+            subject: str,
+            updated_timestamp: int,
+            new_investment: Investment,
+            old_investment: Investment
     ):
         logger.info(
             f"Publishing: subject={subject}, new_investment={new_investment}, old_investment{old_investment}"
