@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from uuid import uuid4
 
 from core.crud import InvestmentCore
-from application.exceptions import FieldMissingError
+from application.exceptions import FieldMissingError, FieldNotPermittedError
 from application.investment_loader import MissingRequiredFields
 from application.investment_request import InvestmentRequest
 from application.investment_type import InvestmentType
@@ -163,3 +163,41 @@ class TestInvestmentCore(unittest.TestCase):
             },
         )
         return request
+
+    def test_add_stock_investment_with_an_id_should_not_save_in_database_and_raise_exception(
+        self,
+    ):
+        request = InvestmentRequest(
+            type=InvestmentType.STOCK,
+            investment={
+                "ticker": "BIDI11",
+                "broker": "INTER",
+                "date": "123456",
+                "amount": Decimal(100),
+                "price": Decimal(50.5),
+                "id": "1234"
+            },
+        )
+
+        with self.assertRaises(FieldNotPermittedError):
+            self.core.add(subject="1111-2222-333-4444", request=request)
+        self.core.repo.save.assert_not_called()
+
+
+    def test_add_not_mapped_investment_type_should_raise_exception(
+        self,
+    ):
+        request = InvestmentRequest(
+            type=InvestmentType.POST_FIXED,
+            investment={
+                "ticker": "BIDI11",
+                "broker": "INTER",
+                "date": "123456",
+                "amount": Decimal(100),
+                "price": Decimal(50.5)
+            },
+        )
+
+        with self.assertRaises(TypeError):
+            self.core.add(subject="1111-2222-333-4444", request=request)
+        self.core.repo.save.assert_not_called()
