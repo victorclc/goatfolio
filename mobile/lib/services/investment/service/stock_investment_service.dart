@@ -31,7 +31,6 @@ class StockInvestmentService {
   }
 
   Future<List<StockInvestment>> getByTicker(String ticker) async {
-    return [];
-    // return storage.getByTicker(ticker);
+    return await portfolioClient.getInvestmentsByTicker(ticker);
   }
 }

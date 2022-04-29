@@ -14,6 +14,13 @@ class PerformanceCubit extends Cubit<LoadingState> {
     refresh();
   }
 
+  List<String> get tickers {
+    if (portfolioPerformance != null) {
+      return portfolioPerformance!.allTickers;
+    }
+    return [];
+  }
+
   Future<void> refresh() async {
     emit(LoadingState.LOADING);
     // try {
