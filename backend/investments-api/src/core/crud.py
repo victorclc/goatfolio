@@ -37,10 +37,12 @@ class InvestmentCore:
             subject: str,
             limit: Optional[int],
             last_evaluated_id: Optional[str],
-            last_evaluated_date: Optional[datetime.date]
+            last_evaluated_date: Optional[datetime.date],
+            ticker: Optional[str]
     ):
         investments, new_last_evaluated_id, new_last_evaluated_date = self.repo.find_by_subject(
             subject,
+            ticker,
             limit,
             last_evaluated_id,
             last_evaluated_date

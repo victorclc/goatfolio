@@ -6,7 +6,9 @@ from application.investment import Investment
 
 class InvestmentRepository(Protocol):
     def find_by_subject(
-            self, subject: str,
+            self,
+            subject: str,
+            ticker: Optional[str],
             limit: Optional[int],
             last_evaluated_id: Optional[str],
             last_evaluated_date: Optional[datetime.date]
