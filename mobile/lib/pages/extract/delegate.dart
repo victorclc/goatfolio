@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goatfolio/search/cupertino_search_delegate.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
+import 'package:goatfolio/services/performance/cubit/performance_cubit.dart';
 
 class ExtractSearchDelegate extends SearchCupertinoDelegate {
   final Function searchFunction;
@@ -12,6 +14,7 @@ class ExtractSearchDelegate extends SearchCupertinoDelegate {
   ScrollController controller = ScrollController();
   String lastQuery = "";
   late Future _future;
+  late Future _suggestionFuture;
 
   ExtractSearchDelegate(this.searchFunction, this.buildFunction) {
     controller.addListener(() {
@@ -67,6 +70,19 @@ class ExtractSearchDelegate extends SearchCupertinoDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return Container();
+    var suggestions = BlocProvider.of<PerformanceCubit>(context).tickers;
+    if (query.isNotEmpty) {
+      suggestions = suggestions.where((element) => element.startsWith(query.toUpperCase())).toList();
+    }
+    return ListView.builder(
+      itemCount: suggestions.length,
+      itemBuilder: (content, int index) => ListTile(
+        title: Text(suggestions[index]),
+        onTap: () {
+          query = suggestions[index];
+          showResults(context);
+        },
+      ),
+    );
   }
 }

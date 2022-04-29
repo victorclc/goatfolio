@@ -24,7 +24,8 @@ class PortfolioClient {
       (await this.userService.getSessionToken())!;
 
   Future<PaginatedInvestmentResult> getInvestments(
-      int limit, String? lastEvaluatedId, DateTime? lastEvaluatedDate) async {
+      int limit, String? lastEvaluatedId, DateTime? lastEvaluatedDate,
+      {String? ticker}) async {
     String url = F.baseUrl + "investments/investments?limit=$limit";
     if (lastEvaluatedId != null && lastEvaluatedDate != null) {
       url +=
@@ -80,5 +81,18 @@ class PortfolioClient {
     if (response.statusCode != 200) {
       throw Exception("Delete failed");
     }
+  }
+
+  Future<List<StockInvestment>> getInvestmentsByTicker(
+      String ticker) async {
+    String url = F.baseUrl + "investments/investments?ticker=${ticker.trim()}";
+
+    final Response response = await _client
+        .get(Uri.parse(url), headers: {'Authorization': await accessToken});
+
+    return jsonDecode(response.body)
+        .map<StockInvestment>(
+            (investment) => StockInvestment.fromJson(investment))
+        .toList();
   }
 }
