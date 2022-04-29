@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:goatfolio/search/cupertino_search_delegate.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
 
-
 class ExtractSearchDelegate extends SearchCupertinoDelegate {
   final Function searchFunction;
   final Function buildFunction;
@@ -51,67 +50,6 @@ class ExtractSearchDelegate extends SearchCupertinoDelegate {
                 child: Platform.isIOS
                     ? CupertinoActivityIndicator()
                     : Center(child: CircularProgressIndicator()));
-          case ConnectionState.done:
-            if (snapshot.hasData) {
-              return SingleChildScrollView(
-                  controller: controller,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: buildFunction(context, snapshot.data),
-                  ));
-            }
-        }
-        return Container();
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return Container();
-  }
-}
-
-class ExtractAndroidSearchDelegate extends SearchDelegate {
-  final Function searchFunction;
-  final Function buildFunction;
-  List<StockInvestment> results = [];
-  ScrollController controller = ScrollController();
-  String lastQuery = "";
-  late Future _future;
-
-  ExtractAndroidSearchDelegate(this.searchFunction, this.buildFunction);
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    final textColor =
-        CupertinoTheme.of(context).textTheme.navTitleTextStyle.color;
-    return BackButton(color: textColor,);
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    if (query.isEmpty) {
-      return Container();
-    }
-    if (lastQuery != query) {
-      _future = searchFunction(query);
-    }
-    lastQuery = query;
-    return FutureBuilder(
-      future: _future,
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-          case ConnectionState.active:
-            break;
-          case ConnectionState.waiting:
-            return Center(child: CircularProgressIndicator());
           case ConnectionState.done:
             if (snapshot.hasData) {
               return SingleChildScrollView(
