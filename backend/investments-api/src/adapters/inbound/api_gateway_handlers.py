@@ -20,13 +20,14 @@ tracer = Tracer()
 def get_investments_handler(event, context):
     subject = awsutils.get_event_subject(event)
     limit = awsutils.get_query_param(event, "limit")
+    ticker = awsutils.get_query_param(event, "ticker")
     if limit:
         limit = int(limit)
     last_evaluated_id = awsutils.get_query_param(event, "last_evaluated_id")
     last_evaluated_date = awsutils.get_query_param(event, "last_evaluated_date")
     if last_evaluated_date:
         last_evaluated_date = datetime.strptime(last_evaluated_date, "%Y%m%d").date()
-    investments = investment_core.get(subject, limit, last_evaluated_id, last_evaluated_date)
+    investments = investment_core.get(subject, limit, last_evaluated_id, last_evaluated_date, ticker)
 
     if isinstance(investments, list):
         return {

@@ -2,7 +2,7 @@ import datetime
 from typing import List, Optional, Tuple, Any
 
 import boto3
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, Attr
 
 from application.investment_type import InvestmentType
 from application.investment import Investment
@@ -15,25 +15,29 @@ class DynamoInvestmentRepository:
 
     def find_by_subject(
             self, subject: str,
+            ticker: Optional[str],
             limit: Optional[int],
             last_evaluated_id: Optional[str],
             last_evaluated_date: Optional[datetime.date]
     ) -> Tuple[List[Investment], Optional[str], Optional[datetime.date]]:
-        pagination = {}
+        extra_params = {}
         if limit:
-            pagination["Limit"] = limit
+            extra_params["Limit"] = limit
         if last_evaluated_id:
-            pagination["ExclusiveStartKey"] = {
+            extra_params["ExclusiveStartKey"] = {
                 "subject": subject,
                 "id": last_evaluated_id,
                 "date": int(last_evaluated_date.strftime("%Y%m%d"))
             }
+        if ticker:
+            extra_params["FilterExpression"] = Attr("ticker").eq(ticker.upper()) | Attr("alias_ticker").eq(
+                ticker.upper())
 
         result = self.__investments_table.query(
             IndexName="subjectDateGlobalIndex",
             ScanIndexForward=False,
             KeyConditionExpression=Key("subject").eq(subject),
-            **pagination
+            **extra_params
         )
         last_evaluated_key = result.get("LastEvaluatedKey", None)
 
@@ -67,7 +71,7 @@ def main():
     repo = DynamoInvestmentRepository()
     last_evaluated_key = 'STOCK#BIDI11#CEI16048800004060061'
 
-    investments = repo.find_by_subject(subject, 20, last_evaluated_key, datetime.date(2020, 11, 9))
+    investments = repo.find_by_subject(subject, "BIDI11", None, None, None)
     print(investments)
     print(len(investments))
 

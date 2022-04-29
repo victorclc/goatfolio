@@ -547,7 +547,7 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
               onSubmitted: (String _) {
                 widget.delegate.showResults(context);
               },
-              onChanged: (String _) => widget.delegate.showResults(context),
+              onChanged: (String _) => widget.delegate.showSuggestions(context),
             ),
           ),
         ),
@@ -616,7 +616,7 @@ class _SearchPageState<T> extends State<_SearchPage<T>> {
             onSubmitted: (String _) {
               widget.delegate.showResults(context);
             },
-            onChanged: (String _) => widget.delegate.showResults(context),
+            onChanged: (String _) => widget.delegate.showSuggestions(context),
           ),
         ),
         // navigationBar: CupertinoNavigationBar(
