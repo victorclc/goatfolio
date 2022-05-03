@@ -42,7 +42,7 @@ class DynamoPortfolioRepository:
         stock_consolidated = []
         if not result["Items"]:
             logger.info(f"No Portfolio yet for subject: {subject}")
-            return
+            return portfolio, stock_consolidated
         for item in result["Items"]:
             sk = item.pop("sk")
             if sk == "PORTFOLIO#":
