@@ -35,10 +35,10 @@ class InvestmentCore:
     def get(
             self,
             subject: str,
-            limit: Optional[int],
-            last_evaluated_id: Optional[str],
-            last_evaluated_date: Optional[datetime.date],
-            ticker: Optional[str]
+            limit: Optional[int] = None,
+            last_evaluated_id: Optional[str] = None,
+            last_evaluated_date: Optional[datetime.date] = None,
+            ticker: Optional[str] = None
     ):
         investments, new_last_evaluated_id, new_last_evaluated_date = self.repo.find_by_subject(
             subject,
@@ -92,9 +92,6 @@ class InvestmentCore:
             investment = load_model_by_type(
                 request.type, request.investment, generate_id=False
             )
-            if not investment.subject:
-                raise FieldMissingError("Subject is missing.")
-
             investments.append(investment)
         self.repo.batch_save(investments)
 
