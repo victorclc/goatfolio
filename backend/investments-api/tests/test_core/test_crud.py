@@ -1,10 +1,12 @@
+import datetime
 import unittest
 from decimal import Decimal
 from unittest.mock import MagicMock
 from uuid import uuid4
 
+from application.paginated_investments_result import PaginatedInvestmentsResult
 from core.crud import InvestmentCore
-from application.exceptions import FieldMissingError, FieldNotPermittedError
+from application.exceptions import FieldMissingError, FieldNotPermittedError, InvalidTicker, InvalidInvestmentDateError
 from application.investment_loader import MissingRequiredFields
 from application.investment_request import InvestmentRequest
 from application.investment_type import InvestmentType
@@ -20,7 +22,7 @@ class TestInvestmentCore(unittest.TestCase):
         self.core.ticker_client.is_ticker_valid = MagicMock(return_value=True)
 
     def test_add_stock_investment_with_required_fields_should_save_in_database_and_return_the_updated_investment(
-        self,
+            self,
     ):
         request = InvestmentRequest(
             type=InvestmentType.STOCK,
@@ -40,7 +42,7 @@ class TestInvestmentCore(unittest.TestCase):
         self.assertTrue(result.id)
 
     def test_add_stock_investment_with_missing_required_fields_should_not_save_in_database_and_raise_exception(
-        self,
+            self,
     ):
         request = InvestmentRequest(
             type=InvestmentType.STOCK,
@@ -58,7 +60,7 @@ class TestInvestmentCore(unittest.TestCase):
         self.core.repo.save.assert_not_called()
 
     def test_edit_stock_investment_with_all_required_fields_plus_id_should_save_in_database(
-        self,
+            self,
     ):
         request = InvestmentRequest(
             type=InvestmentType.STOCK,
@@ -80,7 +82,7 @@ class TestInvestmentCore(unittest.TestCase):
         self.assertEqual(result.id, request.investment["id"])
 
     def test_edit_stock_investment_with_all_required_fields_minus_id_should_not_save_and_raise_exception(
-        self,
+            self,
     ):
         request = InvestmentRequest(
             type=InvestmentType.STOCK,
@@ -99,7 +101,7 @@ class TestInvestmentCore(unittest.TestCase):
         self.core.repo.save.assert_not_called()
 
     def test_delete_investment_with_investment_id_not_blank_should_delete_from_database(
-        self,
+            self,
     ):
         self.core.delete(subject="1111-2222-333-4444", investment_id="123456")
         self.core.repo.delete.assert_called_once()
@@ -122,7 +124,7 @@ class TestInvestmentCore(unittest.TestCase):
         self.core.repo.batch_save.assert_called_once()
 
     def test_batch_add_with_invalid_investments_should_raise_assertion_error_and_not_save_in_database(
-        self,
+            self,
     ):
         requests = [
             self._create_valid_investment_request_with_subject_and_id(None, None),
@@ -135,7 +137,7 @@ class TestInvestmentCore(unittest.TestCase):
         self.core.repo.batch_save.assert_not_called()
 
     def test_batch_add_with_valid_and_invalid_investments_should_raise_assertion_error_and_not_save_in_database(
-        self,
+            self,
     ):
         subject = "1111-2222-3333-4444"
         requests = [
@@ -165,7 +167,7 @@ class TestInvestmentCore(unittest.TestCase):
         return request
 
     def test_add_stock_investment_with_an_id_should_not_save_in_database_and_raise_exception(
-        self,
+            self,
     ):
         request = InvestmentRequest(
             type=InvestmentType.STOCK,
@@ -183,9 +185,8 @@ class TestInvestmentCore(unittest.TestCase):
             self.core.add(subject="1111-2222-333-4444", request=request)
         self.core.repo.save.assert_not_called()
 
-
     def test_add_not_mapped_investment_type_should_raise_exception(
-        self,
+            self,
     ):
         request = InvestmentRequest(
             type=InvestmentType.POST_FIXED,
@@ -201,3 +202,80 @@ class TestInvestmentCore(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.core.add(subject="1111-2222-333-4444", request=request)
         self.core.repo.save.assert_not_called()
+
+    def test_get_investments_without_pagination_data_should_return_a_list_of_investments(self):
+        self.core.repo.find_by_subject = MagicMock(return_value=([], None, None))
+
+        response = self.core.get("1111-2222-3333-444")
+
+        self.assertTrue(isinstance(response, list))
+
+
+    def test_get_investments_with_pagination_data_should_return_a_paginated_investments_result(self):
+        self.core.repo.find_by_subject = MagicMock(return_value=([], None, None))
+
+        response = self.core.get("1111-2222-3333-444", limit=20)
+
+        self.assertTrue(isinstance(response, PaginatedInvestmentsResult))
+
+
+    def test_add_invalid_ticker_should_raise_exception(
+            self,
+    ):
+        self.core.ticker_client.is_ticker_valid = MagicMock(return_value=False)
+        request = InvestmentRequest(
+            type=InvestmentType.STOCK,
+            investment={
+                "operation": OperationType.BUY,
+                "ticker": "BIDI11X",
+                "broker": "INTER",
+                "date": "123456",
+                "amount": Decimal(100),
+                "price": Decimal(50.5)
+            },
+        )
+
+        with self.assertRaises(InvalidTicker):
+            self.core.add(subject="1111-2222-333-4444", request=request)
+        self.core.repo.save.assert_not_called()
+
+    def test_add_invalid_ticker_should_raise_exception(
+            self,
+    ):
+        self.core.ticker_client.is_ticker_valid = MagicMock(return_value=False)
+        request = InvestmentRequest(
+            type=InvestmentType.STOCK,
+            investment={
+                "operation": OperationType.BUY,
+                "ticker": "BIDI11X",
+                "broker": "INTER",
+                "date": "123456",
+                "amount": Decimal(100),
+                "price": Decimal(50.5)
+            },
+        )
+
+        with self.assertRaises(InvalidTicker):
+            self.core.add(subject="1111-2222-333-4444", request=request)
+        self.core.repo.save.assert_not_called()
+
+    def test_add_future_date_should_raise_exception(
+            self,
+    ):
+        self.core.ticker_client.is_ticker_valid = MagicMock(return_value=False)
+        request = InvestmentRequest(
+            type=InvestmentType.STOCK,
+            investment={
+                "operation": OperationType.BUY,
+                "ticker": "BIDI11X",
+                "broker": "INTER",
+                "date": datetime.date.max,
+                "amount": Decimal(100),
+                "price": Decimal(50.5)
+            },
+        )
+
+        with self.assertRaises(InvalidInvestmentDateError):
+            self.core.add(subject="1111-2222-333-4444", request=request)
+        self.core.repo.save.assert_not_called()
+
