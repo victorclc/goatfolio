@@ -154,6 +154,21 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+
+  getCashDividendsForTicker:
+    handler: src/adapters/inbound/private_api_gateway_handlers.get_ticker_cash_dividends_handler
+    events:
+      - http:
+          path: cash-dividends/{ticker}
+          request:
+            parameters:
+              paths:
+                ticker: true
+              querystrings:
+                from_date: true
+          method: get
+          private: true
+
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/dynamo-cf-resources.yml)}

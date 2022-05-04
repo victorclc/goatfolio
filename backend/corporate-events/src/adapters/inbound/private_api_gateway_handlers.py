@@ -8,7 +8,8 @@ from adapters.inbound import ticker_client, events_repo
 from adapters.outbound.dynamo_cash_dividends_repository import DynamoCashDividendsRepository
 from adapters.outbound.dynamo_corporate_events_repository import DynamoCorporateEventsRepository
 from adapters.outbound.dynamo_manual_corporate_events_repository import DynamoManualCorporateEventsRepository
-from core import cash_dividends_for_date, get_all_previous_symbols
+from adapters.outbound.rest_ticker_info_client import RESTTickerInfoClient
+from core import cash_dividends_for_date, get_all_previous_symbols, cash_dividends_for_ticker
 from core.get_corporate_events import get_corporate_events
 from core.ticker_transformations import transformations_in_ticker
 
@@ -75,6 +76,24 @@ def get_all_previous_symbols_handler(event, context):
     return {
         "statusCode": HTTPStatus.OK,
         "body": jsonutils.dump(symbols),
+    }
+
+
+def get_ticker_cash_dividends_handler(event, context):
+    from_date = datetime.datetime.strptime(
+        awsutils.get_query_param(event, "from_date"), "%Y%m%d"
+    ).date()
+    ticker = awsutils.get_path_param(event, "ticker")
+
+    dividends = cash_dividends_for_ticker.get_cash_dividends(
+        ticker,
+        from_date,
+        DynamoCashDividendsRepository(),
+        RESTTickerInfoClient()
+    )
+    return {
+        "statusCode": HTTPStatus.OK,
+        "body": jsonutils.dump([d.to_dict() for d in dividends]),
     }
 
 
