@@ -15,7 +15,7 @@ from application.operation_type import OperationType
 
 class TestInvestmentCore(unittest.TestCase):
     def setUp(self):
-        self.core = InvestmentCore(repo=MagicMock(), publisher=MagicMock(), ticker=MagicMock())
+        self.core = InvestmentCore(repo=MagicMock(), ticker=MagicMock())
         self.core.repo.save = MagicMock(return_value=None)
         self.core.repo.batch_save = MagicMock(return_value=None)
         self.core.repo.delete = MagicMock(return_value=None)
@@ -210,14 +210,12 @@ class TestInvestmentCore(unittest.TestCase):
 
         self.assertTrue(isinstance(response, list))
 
-
     def test_get_investments_with_pagination_data_should_return_a_paginated_investments_result(self):
         self.core.repo.find_by_subject = MagicMock(return_value=([], None, None))
 
         response = self.core.get("1111-2222-3333-444", limit=20)
 
         self.assertTrue(isinstance(response, PaginatedInvestmentsResult))
-
 
     def test_add_invalid_ticker_should_raise_exception(
             self,
@@ -278,4 +276,3 @@ class TestInvestmentCore(unittest.TestCase):
         with self.assertRaises(InvalidInvestmentDateError):
             self.core.add(subject="1111-2222-333-4444", request=request)
         self.core.repo.save.assert_not_called()
-

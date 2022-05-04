@@ -7,4 +7,4 @@ repo = DynamoInvestmentRepository()
 publisher = SNSInvestmentPublisher()
 ticker_info = RestTickerInfoClient()
 
-investment_core = InvestmentCore(repo=DynamoInvestmentRepository(), publisher=publisher, ticker=ticker_info)
+investment_core = InvestmentCore(repo=DynamoInvestmentRepository(), ticker=ticker_info)
