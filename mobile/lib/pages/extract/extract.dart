@@ -10,15 +10,13 @@ import 'package:goatfolio/services/investment/model/operation_type.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/services/investment/service/stock_investment_service.dart';
 import 'package:goatfolio/utils/extensions.dart';
+import 'package:goatfolio/utils/focus.dart' as focus;
 import 'package:goatfolio/utils/formatters.dart';
-
+import 'package:goatfolio/utils/modal.dart' as modal;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'details.dart';
-
-import 'package:goatfolio/utils/modal.dart' as modal;
-import 'package:goatfolio/utils/focus.dart' as focus;
 
 class ExtractPage extends StatefulWidget {
   static const title = 'Extrato';
@@ -29,16 +27,17 @@ class ExtractPage extends StatefulWidget {
 }
 
 class _ExtractPageState extends State<ExtractPage> {
-  static const int limit = 20;
+  static const int limit = 15;
   final DateFormat monthFormatter = DateFormat('MMMM', 'pt_BR');
   TextEditingController searchController = TextEditingController();
   late StockInvestmentService stockService;
   List<StockInvestment>? investments;
   late Future<List<StockInvestment>?> _future;
-  int offset = 0;
+  String? lastEvaluatedId;
+  DateTime? lastEvaluatedDate;
   bool scrollLoading = false;
   late bool fetchingContent;
-
+  bool hasFinished = false;
 
   @override
   void initState() {
@@ -59,12 +58,16 @@ class _ExtractPageState extends State<ExtractPage> {
   }
 
   Future<List<StockInvestment>?> getInvestments() async {
-    final data =
-        await stockService.getInvestments(limit: limit, offset: offset);
-    if (data != null && data.isNotEmpty) {
-      offset += data.length;
+    final data = await stockService.getInvestments(
+        limit: limit, lastEvaluatedId: lastEvaluatedId, lastEvaluatedDate: lastEvaluatedDate);
+    if (data != null) {
+      lastEvaluatedId = data.lastEvaluatedId;
+      lastEvaluatedDate = data.lastEvaluatedDate;
+      if (lastEvaluatedId == null) {
+        hasFinished = true;
+      }
     }
-    return data;
+    return data.investments;
   }
 
   Future<List<StockInvestment>> getInvestmentsTicker(String ticker) async {
@@ -72,6 +75,7 @@ class _ExtractPageState extends State<ExtractPage> {
   }
 
   void loadMoreInvestments() async {
+    if (hasFinished) return;
     setState(() {
       scrollLoading = true;
     });
@@ -87,8 +91,9 @@ class _ExtractPageState extends State<ExtractPage> {
 
   Future<void> onRefresh() async {
     if (!fetchingContent) {
-      await stockService.refreshInvestments();
-      offset = 0;
+      lastEvaluatedId = null;
+      lastEvaluatedDate = null;
+      hasFinished = false;
       _future = getInvestments();
       await _future;
       setState(() {});
@@ -171,8 +176,10 @@ class _ExtractPageState extends State<ExtractPage> {
                             case ConnectionState.done:
                               if (snapshot.hasData) {
                                 fetchingContent = false;
-                                investments = snapshot.data as List<StockInvestment>;
-                                return buildExtractList(context, snapshot.data as List<StockInvestment>);
+                                investments =
+                                    snapshot.data as List<StockInvestment>;
+                                return buildExtractList(context,
+                                    snapshot.data as List<StockInvestment>);
                               }
                           }
                           return _LoadingError(
@@ -244,9 +251,11 @@ class _ExtractPageState extends State<ExtractPage> {
             },
           ),
         ),
-        scrollLoading ? Platform.isIOS
-            ? CupertinoActivityIndicator()
-            : Center(child: CircularProgressIndicator()) : Container(),
+        scrollLoading
+            ? Platform.isIOS
+                ? CupertinoActivityIndicator()
+                : Center(child: CircularProgressIndicator())
+            : Container(),
       ],
     );
   }
@@ -266,7 +275,6 @@ class _ExtractPageState extends State<ExtractPage> {
     stockService.deleteInvestment(investment);
     setState(() {
       investments!.remove(investment);
-      offset--;
     });
     final data = await getInvestments();
     if (data != null && data.isNotEmpty) {

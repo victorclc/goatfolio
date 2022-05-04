@@ -4,10 +4,12 @@ import 'dart:io';
 import 'package:goatfolio/flavors.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/investment/model/investment_request.dart';
+import 'package:goatfolio/services/investment/model/paginated_investments_result.dart';
 import 'package:goatfolio/services/investment/model/stock.dart';
 import 'package:goatfolio/utils/logging_interceptor.dart';
 import 'package:http/http.dart';
 import 'package:http_interceptor/http_interceptor.dart';
+import 'package:intl/intl.dart';
 
 class PortfolioClient {
   final UserService userService;
@@ -21,18 +23,18 @@ class PortfolioClient {
   Future<String> get accessToken async =>
       (await this.userService.getSessionToken())!;
 
-  Future<List<StockInvestment>> getInvestments() async {
-    String url = F.baseUrl + "investments/investments";
+  Future<PaginatedInvestmentResult> getInvestments(
+      int limit, String? lastEvaluatedId, DateTime? lastEvaluatedDate,
+      {String? ticker}) async {
+    String url = F.baseUrl + "investments/investments?limit=$limit";
+    if (lastEvaluatedId != null && lastEvaluatedDate != null) {
+      url +=
+          "&last_evaluated_id=${lastEvaluatedId.replaceAll("#", "%23")}&last_evaluated_date=${DateFormat("yyyyMMdd").format(lastEvaluatedDate)}";
+    }
     final Response response = await _client
         .get(Uri.parse(url), headers: {'Authorization': await accessToken});
 
-    var stockInvestments = jsonDecode(response.body)
-        .map<StockInvestment>((json) => StockInvestment.fromJson(json))
-        .toList();
-
-    List<StockInvestment> result =
-        new List<StockInvestment>.from(stockInvestments);
-    return result;
+    return PaginatedInvestmentResult.fromJson(jsonDecode(response.body));
   }
 
   Future<StockInvestment> addStockInvestment(StockInvestment investment) async {
@@ -79,5 +81,18 @@ class PortfolioClient {
     if (response.statusCode != 200) {
       throw Exception("Delete failed");
     }
+  }
+
+  Future<List<StockInvestment>> getInvestmentsByTicker(
+      String ticker) async {
+    String url = F.baseUrl + "investments/investments?ticker=${ticker.trim()}";
+
+    final Response response = await _client
+        .get(Uri.parse(url), headers: {'Authorization': await accessToken});
+
+    return jsonDecode(response.body)
+        .map<StockInvestment>(
+            (investment) => StockInvestment.fromJson(investment))
+        .toList();
   }
 }

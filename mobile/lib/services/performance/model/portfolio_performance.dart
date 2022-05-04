@@ -1,5 +1,3 @@
-
-
 import 'package:goatfolio/services/performance/model/stock_summary.dart';
 
 import 'group_position_summary.dart';
@@ -17,6 +15,9 @@ class PortfolioPerformance {
 
     return grossAmount;
   }
+
+  List<String> get allTickers =>
+      allStocks.map<String>((e) => e.currentTickerName).toList();
 
   List<StockSummary> get allStocks {
     List<StockSummary> stocks = [];

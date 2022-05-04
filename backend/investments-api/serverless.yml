@@ -56,6 +56,9 @@ functions:
             parameters:
               querystrings:
                 date: false
+                limit: false
+                last_evaluated_id: false
+                ticker: false
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:

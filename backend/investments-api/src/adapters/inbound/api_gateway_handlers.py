@@ -1,4 +1,5 @@
 import traceback
+from datetime import datetime
 from http import HTTPStatus
 import goatcommons.utils.json as jsonutils
 import goatcommons.utils.aws as awsutils
@@ -18,11 +19,24 @@ tracer = Tracer()
 @tracer.capture_lambda_handler
 def get_investments_handler(event, context):
     subject = awsutils.get_event_subject(event)
-    investments = investment_core.get(subject)
+    limit = awsutils.get_query_param(event, "limit")
+    ticker = awsutils.get_query_param(event, "ticker")
+    if limit:
+        limit = int(limit)
+    last_evaluated_id = awsutils.get_query_param(event, "last_evaluated_id")
+    last_evaluated_date = awsutils.get_query_param(event, "last_evaluated_date")
+    if last_evaluated_date:
+        last_evaluated_date = datetime.strptime(last_evaluated_date, "%Y%m%d").date()
+    investments = investment_core.get(subject, limit, last_evaluated_id, last_evaluated_date, ticker)
 
+    if isinstance(investments, list):
+        return {
+            "statusCode": HTTPStatus.OK,
+            "body": jsonutils.dump([i.to_json() for i in investments]),
+        }
     return {
         "statusCode": HTTPStatus.OK,
-        "body": jsonutils.dump([i.to_json() for i in investments]),
+        "body": jsonutils.dump(investments.to_dict()),
     }
 
 
