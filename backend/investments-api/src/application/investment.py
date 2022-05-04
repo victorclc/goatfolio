@@ -20,6 +20,12 @@ class Investment(ABC):
     def to_json(self):
         """Json representation of the data"""
 
+    def __post_init__(self):
+        if not isinstance(self.date, dt.date):
+            self.date = dt.datetime.strptime(str(self.date), DATE_FORMAT).date()
+        if isinstance(self.type, str):
+            self.type = InvestmentType(self.type)
+
 
 @dataclass
 class StockInvestment(Investment):
@@ -33,12 +39,9 @@ class StockInvestment(Investment):
     external_system: str = ""
 
     def __post_init__(self):
-        if not isinstance(self.date, dt.date):
-            self.date = dt.datetime.strptime(str(self.date), DATE_FORMAT).date()
+        super().__post_init__()
         if isinstance(self.operation, str):
             self.operation = OperationType.from_string(self.operation)
-        if isinstance(self.type, str):
-            self.type = InvestmentType.from_string(self.type)
         if not isinstance(self.amount, Decimal):
             self.amount = Decimal(self.amount).quantize(Decimal("0.01"))
         if not isinstance(self.price, Decimal):
@@ -55,5 +58,26 @@ class StockInvestment(Investment):
             **self.__dict__,
             "date": int(self.date.strftime(DATE_FORMAT)),
             "operation": self.operation.value,
+            "type": self.type.value,
+        }
+
+
+@dataclass
+class StockDividend(Investment):
+    ticker: str
+    label: str  # DIVIDENDO, RENDIMENTO, JCP
+    amount: Decimal
+
+    # alias_ticker: str = "" # sera q precisa?
+
+    def __post_init__(self):
+        super().__post_init__()
+        if not isinstance(self.amount, Decimal):
+            self.amount = Decimal(self.amount).quantize(Decimal("0.01"))
+
+    def to_json(self):
+        return {
+            **self.__dict__,
+            "date": int(self.date.strftime(DATE_FORMAT)),
             "type": self.type.value,
         }

@@ -1,9 +1,10 @@
 from aws_lambda_powertools import Logger, Tracer
 from boto3.dynamodb.types import TypeDeserializer
 
-from adapters.inbound import investment_core
+from adapters.outbound.sns_investment_publisher import SNSInvestmentPublisher
 from application.investment_loader import load_model_by_type
 from application.investment_type import InvestmentType
+from core import changes_publisher
 from event_notifier.decorators import notify_exception
 from event_notifier.models import NotifyLevel
 
@@ -14,7 +15,7 @@ tracer = Tracer()
 @notify_exception(Exception, NotifyLevel.CRITICAL)
 @logger.inject_lambda_context(log_event=True)
 @tracer.capture_lambda_handler
-def publish_investment_update_handler(event, context):
+def publish_investment_update_handler(event, _):
     deserializer = TypeDeserializer()
     for record in event["Records"]:
         dynamo_record = record["dynamodb"]
@@ -28,7 +29,8 @@ def publish_investment_update_handler(event, context):
             i = deserializer.deserialize({"M": dynamo_record["OldImage"]})
             old = load_model_by_type(InvestmentType(i["type"]), i, generate_id=False)
 
-        investment_core.publish_investment_update(
+        changes_publisher.publish_investment_update(
+            SNSInvestmentPublisher(),
             dynamo_record["Keys"]["subject"]["S"],
             int(dynamo_record["ApproximateCreationDateTime"]),
             new,
@@ -36,7 +38,7 @@ def publish_investment_update_handler(event, context):
         )
 
 
-if __name__ == "__main__":
+def main():
     event = {
         "Records": [
             {

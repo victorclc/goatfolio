@@ -49,5 +49,5 @@ functions:
     events:
       - schedule: cron(0 11 ? * MON-FRI *)
 
-#resources:
-#  - ${file(resources/authorizer-cf-resources.yml)}
+resources:
+  - ${file(resources/sqs-cf-resources.yml)}

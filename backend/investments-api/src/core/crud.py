@@ -8,11 +8,10 @@ from application.exceptions import (
     FieldNotPermittedError,
     FieldMissingError, InvalidTicker,
 )
-from application.investment import Investment, StockInvestment
+from application.investment import StockInvestment
 from application.investment_loader import load_model_by_type
 from application.investment_request import InvestmentRequest
 from application.paginated_investments_result import PaginatedInvestmentsResult
-from application.ports.outbound.investment_publisher import InvestmentPublisher
 from application.ports.outbound.investment_repository import InvestmentRepository
 from application.ports.outbound.ticker_info_client import TickerInfoClient
 
@@ -20,9 +19,8 @@ logger = Logger()
 
 
 class InvestmentCore:
-    def __init__(self, repo: InvestmentRepository, publisher: InvestmentPublisher, ticker: TickerInfoClient):
+    def __init__(self, repo: InvestmentRepository, ticker: TickerInfoClient):
         self.repo = repo
-        self.publisher = publisher
         self.ticker_client = ticker
 
     def validate_investment(self, investment):
@@ -94,17 +92,3 @@ class InvestmentCore:
             )
             investments.append(investment)
         self.repo.batch_save(investments)
-
-    def publish_investment_update(
-            self,
-            subject: str,
-            updated_timestamp: int,
-            new_investment: Investment,
-            old_investment: Investment
-    ):
-        logger.info(
-            f"Publishing: subject={subject}, new_investment={new_investment}, old_investment{old_investment}"
-        )
-        self.publisher.publish(
-            subject, updated_timestamp, new_investment=new_investment, old_investment=old_investment
-        )

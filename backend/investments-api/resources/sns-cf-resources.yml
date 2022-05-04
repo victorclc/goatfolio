@@ -5,8 +5,18 @@ Resources:
       TopicName: AddedOrUpdatedInvestment.fifo
       FifoTopic: true
 
+  AddedOrUpdatedStockDividendTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: AddedOrUpdatedStockDividend.fifo
+      FifoTopic: true
+
 Outputs:
   AddedOrUpdatedInvestmentTopicOutput:
     Value: !Ref AddedOrUpdatedInvestmentTopic
     Export:
       Name: ${self:provider.stage}-AddedOrUpdatedInvestmentTopic
+  AddedOrUpdatedStockDividendTopicOutput:
+    Value: !Ref AddedOrUpdatedStockDividendTopic
+    Export:
+      Name: ${self:provider.stage}-AddedOrUpdatedStockDividendTopic

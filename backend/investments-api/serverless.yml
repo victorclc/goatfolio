@@ -9,6 +9,7 @@ provider:
     PYTHONPATH: "src:shared/libs"
     TICKER_BASE_API_URL: https://${env:DOMAIN_NAME}/ticker
     ADDED_INVESTMENT_TOPIC: !Ref AddedOrUpdatedInvestmentTopic
+    ADDED_DIVIDEND_TOPIC: !Ref AddedOrUpdatedStockDividendTopic
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
   apiGateway:
