@@ -14,7 +14,8 @@ class DynamoInvestmentRepository:
 
     def find_by_subject(self, subject) -> List[Investment]:
         result = self.__investments_table.query(
-            KeyConditionExpression=Key("subject").eq(subject)
+            KeyConditionExpression=Key("subject").eq(subject),
+            FilterExpression=Attr("type").eq(InvestmentType.STOCK.value)
         )
         return list(
             map(
@@ -28,7 +29,8 @@ class DynamoInvestmentRepository:
     ]:
         query = {
             "KeyConditionExpression": Key("subject").eq(subject),
-            "FilterExpression": Attr("ticker").eq(ticker) | Attr("alias_ticker").eq(ticker)
+            "FilterExpression": Attr("type").eq(InvestmentType.STOCK.value) & (
+                    Attr("ticker").eq(ticker) | Attr("alias_ticker").eq(ticker))
         }
         if until_date:
             query["FilterExpression"] = query["FilterExpression"] & Attr("date").lte(int(until_date.strftime("%Y%m%d")))
@@ -55,6 +57,7 @@ class DynamoInvestmentRepository:
         result = self.__investments_table.query(
             IndexName="tickerSubjectGlobalIndex",
             KeyConditionExpression=Key("ticker").eq(ticker),
-            FilterExpression=Attr("date").lte(int(until_date.strftime("%Y%m%d"))),
+            FilterExpression=Attr("date").lte(int(until_date.strftime("%Y%m%d"))) & Attr("type").eq(
+                InvestmentType.STOCK.value),
         )
         return list(map(lambda i: StockInvestment(**i), result["Items"]))
