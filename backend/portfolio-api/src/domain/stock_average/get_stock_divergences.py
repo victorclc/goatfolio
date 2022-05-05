@@ -80,7 +80,8 @@ def get_stock_divergences(subject: str, asset_finder: AssetFinder, portfolio_fin
 
     for ticker, expected_amount in asset.asset_quantities.items():
         summary = portfolio.get_stock_summary(ticker)
-        if summary and summary.latest_position.amount == expected_amount or ticker.endswith("12"):
+        if summary and summary.latest_position.amount == expected_amount or ticker.endswith("12") or ticker.endswith(
+                "13"):
             continue
         logger.info(f"Ticker: {ticker} has divergence")
 
