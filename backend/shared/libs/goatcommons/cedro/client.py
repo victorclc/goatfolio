@@ -55,6 +55,7 @@ class CedroMarketDataClient:
         quotes = ''
         for ticker in tickers:
             quotes += f'{ticker}/'
+        logger.info(f"Quotes: {quotes}")
         response = self.session.get(self.__QUOTE_URL + quotes)
 
         if response.status_code == HTTPStatus.UNAUTHORIZED:
@@ -70,4 +71,5 @@ class CedroMarketDataClient:
         except Exception as e:
             metrics.add_metric(name="FailedAPIHits", unit=MetricUnit.Count, value=1)
             logger.exception(f'QUOTES ERROR: {response}', e)
+            logger.error(f"TICKER: {tickers}")
             raise e
