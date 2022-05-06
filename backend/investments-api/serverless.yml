@@ -116,6 +116,14 @@ functions:
           arn:
             Fn::GetAtt: [ InvestmentsTable, StreamArn ]
 
+  privateDeleteInvestment:
+    handler: src/adapters/inbound/private_api_gateway_handlers.delete_investment_handler
+    events:
+      - http:
+          path: private/delete
+          method: delete
+          private: true
+
 
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
