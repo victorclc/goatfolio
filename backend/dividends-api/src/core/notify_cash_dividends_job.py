@@ -70,7 +70,7 @@ def notify_cash_dividends_job(
 
         investments = []
         for ticker in tickers:
-            investments += investments_repository.find_by_ticker_until_date(ticker, processing_date)
+            investments += investments_repository.find_by_ticker_until_date(ticker, dividend.last_date_prior)
         logger.info(f"Found {len(investments)} applicable investments.")
 
         for subject, sub_investments in groupby(sorted(investments, key=lambda i: i.subject), key=lambda i: i.subject):
