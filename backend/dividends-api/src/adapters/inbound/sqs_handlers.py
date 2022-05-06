@@ -2,7 +2,7 @@ from aws_lambda_powertools import Logger, Tracer
 
 from application.models.invesments import StockInvestment
 import goatcommons.utils.json as jsonutils
-from core import new_investments_listener
+from core import new_investments_consumer
 
 logger = Logger()
 tracer = Tracer()
