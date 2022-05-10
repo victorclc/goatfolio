@@ -49,8 +49,9 @@ functions:
     events:
       - schedule: cron(0 11 ? * MON-FRI *)
 
-  consolidatePortfolio:
+  checkForApplicableDividend:
     handler: src/adapters/inbound/sqs_handlers.check_for_applicable_dividend_handler
+    timeout: 120
     events:
       - sqs:
           arn:
