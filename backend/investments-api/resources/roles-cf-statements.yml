@@ -15,7 +15,7 @@
     - sns:Publish
   Resource:
     - !Ref AddedOrUpdatedInvestmentTopic
-    - !Ref AddedOrUpdatedStockDividendTopicOutput
+    - !Ref AddedOrUpdatedStockDividendTopic
 - Effect: Allow
   Action:
     - sqs:SendMessage
