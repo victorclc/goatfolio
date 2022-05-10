@@ -35,7 +35,7 @@ def calculate_investments_amount(investments: List[StockInvestment]) -> Decimal:
     return amount
 
 
-class CashDividendsEarningsHelper:
+class CashDividendsEarningsCalculator:
     def __init__(
             self,
             events_client: CorporateEventsClient,
@@ -74,7 +74,7 @@ class CashDividendsEarningsHelper:
         logger.info(f"Found {len(investments)} applicable investments for {subject}.")
         amount = calculate_investments_amount(investments)
 
-        return ticker, (amount * dividend.rate if amount > 0 else Decimal(0.0))
+        return ticker, (amount * dividend.rate if amount > 0 else Decimal(0.0)).quantize(Decimal("0.01"))
 
     def calculate_earnings_of_cash_dividend_for_all_users(self, dividend: CashDividends) -> List[Dict[str, Any]]:
         investments = self.get_applicable_investments_for_cash_dividend(dividend)
@@ -87,7 +87,7 @@ class CashDividendsEarningsHelper:
             if amount > 0:
                 earnings.append({
                     "subject": subject,
-                    "payed_amount": dividend.rate * amount,
+                    "payed_amount": (dividend.rate * amount).quantize(Decimal("0.01")),
                     "ticker": ticker
                 })
         return earnings

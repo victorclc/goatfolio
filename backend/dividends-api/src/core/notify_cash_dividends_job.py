@@ -10,7 +10,7 @@ from adapters.outbound.dynamo_investments_repository import DynamoInvestmentRepo
 from adapters.outbound.rest_corporate_events_client import RESTCorporateEventsClient
 from adapters.outbound.rest_ticker_info_client import RestTickerInfoClient
 from application.models.dividends import CashDividends
-from core.helpers import TickerInfoClient, CashDividendsEarningsHelper
+from core.calculators import TickerInfoClient, CashDividendsEarningsCalculator
 from goatcommons.notifications.client import PushNotificationsClient
 from goatcommons.notifications.models import NotificationRequest
 
@@ -38,7 +38,7 @@ def notify_cash_dividends_job(
     logger.info(f"Notify cash dividends job - START: {processing_date.strftime('%Y-%m-%d')}")
 
     cash_dividends = corporate_events_client.get_cash_dividends(processing_date)
-    helper = CashDividendsEarningsHelper(corporate_events_client, ticker_info_client, investments_repository)
+    helper = CashDividendsEarningsCalculator(corporate_events_client, ticker_info_client, investments_repository)
 
     for dividend in cash_dividends:
         logger.info(f"Processing dividend: {dividend}")

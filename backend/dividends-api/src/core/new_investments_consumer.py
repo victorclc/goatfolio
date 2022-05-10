@@ -7,7 +7,7 @@ from adapters.outbound.dynamo_investments_repository import DynamoInvestmentRepo
 from application.models.add_investment_request import AddInvestmentRequest
 from application.models.dividends import CashDividends
 from application.models.invesments import StockInvestment, StockDividend, InvestmentType
-from core.helpers import CashDividendsEarningsHelper, CorporateEventsClient, TickerInfoClient
+from core.calculators import CashDividendsEarningsCalculator, CorporateEventsClient, TickerInfoClient
 
 logger = Logger()
 
@@ -41,7 +41,7 @@ class NewInvestmentsConsumer:
         self.ticker_info_client = ticker_info_client
         self.corporate_events_client = corporate_events_client
         self.dividends_client = dividends_client
-        self.helper = CashDividendsEarningsHelper(corporate_events_client, ticker_info_client, investments_repository)
+        self.helper = CashDividendsEarningsCalculator(corporate_events_client, ticker_info_client, investments_repository)
 
     def receive(
             self,
