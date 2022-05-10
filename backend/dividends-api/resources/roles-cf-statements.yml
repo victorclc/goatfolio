@@ -22,3 +22,11 @@
   Resource:
     - 'Fn::ImportValue': ${self:provider.stage}-EventsToNotifyQueueArn
     - 'Fn::ImportValue': ${self:provider.stage}-PushNotificationRequestArnOutput
+- Effect: Allow
+  Action:
+    - ssm:GetParameter
+    - ssm:GetParameters
+    - ssm:DescribeParameters
+  Resource:
+    - arn:aws:ssm:${self:provider.region}:*:parameter/investments-api-key
+    - arn:aws:ssm:${self:provider.region}:*:parameter/corporate-events-api-key
