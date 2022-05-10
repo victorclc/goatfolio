@@ -33,12 +33,13 @@ class RestInvestmentsClient:
     def delete(self, subject: str, _id: str):
         response = requests.delete(
             f"{self.BASE_URL}/private/delete",
-            data=jsonutils.dump({"investment_id": _id, "subject": subject})
+            data=jsonutils.dump({"investment_id": _id, "subject": subject}),
+            headers={'x-api-key': self.api_key}
         )
 
         if response.status_code != HTTPStatus.OK:
-            logger.error(f'Investment deletion error: {response.raw}')
-            raise DeleteException(f"Investment deletion error: {response.raw}")
+            logger.error(f'Investment deletion error: {response.text}')
+            raise DeleteException(f"Investment deletion error: {response.text}")
 
     def batch_save(self, add_requests: List[AddInvestmentRequest]):
         url = f'{self.BASE_URL}/investments/batch'
@@ -47,6 +48,6 @@ class RestInvestmentsClient:
         response = requests.post(url, data=jsonutils.dump(body), headers={'x-api-key': self.api_key})
 
         if response.status_code != HTTPStatus.OK:
-            logger.error(f'Batch save failed: {response}')
+            logger.error(f'Batch save failed: {response.text}')
             raise BatchSavingException()
         return response
