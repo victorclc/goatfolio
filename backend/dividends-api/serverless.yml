@@ -12,6 +12,7 @@ provider:
     PYTHONPATH: "src:shared/libs"
     CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
     TICKER_BASE_API_URL: https://${env:DOMAIN_NAME}/ticker
+    INVESTMENTS_BASE_API_URL: https://${env:DOMAIN_NAME}/investments
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
   tracing:
