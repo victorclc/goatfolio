@@ -83,7 +83,7 @@ def get_ticker_cash_dividends_handler(event, context):
     from_date = datetime.datetime.strptime(
         awsutils.get_query_param(event, "from_date"), "%Y%m%d"
     ).date()
-    ticker = awsutils.get_path_param(event, "ticker")
+    ticker = awsutils.get_path_param(event, "ticker").upper()
 
     dividends = cash_dividends_for_ticker.get_cash_dividends(
         ticker,

@@ -1,8 +1,13 @@
 from aws_lambda_powertools import Logger, Tracer
 
+from adapters.outbound.dynamo_investments_repository import DynamoInvestmentRepository
+from adapters.outbound.rest_corporate_events_client import RESTCorporateEventsClient
+from adapters.outbound.rest_investments_client import RestInvestmentsClient
+from adapters.outbound.rest_ticker_info_client import RestTickerInfoClient
 from application.models.invesments import StockInvestment
 import goatcommons.utils.json as jsonutils
-from core import new_investments_listener
+from core.calculators import CashDividendsEarningsCalculator
+from core.new_investments_consumer import NewInvestmentsConsumer
 
 logger = Logger()
 tracer = Tracer()
@@ -29,4 +34,14 @@ def check_for_applicable_dividend_handler(event, context):
     for message in event["Records"]:
         logger.info(f"Processing message: {message}")
         subject, new, old = parse_subject_new_and_old_investments_from_message(message)
-        new_investments_listener.check_for_applicable_cash_dividend(subject, new, old)
+        corp_client = RESTCorporateEventsClient()
+        consumer = NewInvestmentsConsumer(
+            corp_client,
+            RestInvestmentsClient(),
+            CashDividendsEarningsCalculator(
+                corp_client,
+                RestTickerInfoClient(),
+                DynamoInvestmentRepository()
+            )
+        )
+        consumer.receive(subject, new, old)
