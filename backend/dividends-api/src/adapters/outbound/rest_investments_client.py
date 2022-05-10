@@ -41,7 +41,7 @@ class RestInvestmentsClient:
             raise DeleteException(f"Investment deletion error: {response.raw}")
 
     def batch_save(self, add_requests: List[AddInvestmentRequest]):
-        url = f'https://{self.BASE_URL}/investments/batch'
+        url = f'{self.BASE_URL}/investments/batch'
 
         body = list(map(lambda i: i.to_dict(), add_requests))
         response = requests.post(url, data=jsonutils.dump(body), headers={'x-api-key': self.api_key})
