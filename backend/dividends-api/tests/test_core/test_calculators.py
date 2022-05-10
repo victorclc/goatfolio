@@ -130,6 +130,31 @@ class TestCashDividendsEarningsHelper(unittest.TestCase):
         self.assertTrue(earnings[1]["subject"] == "2")
         self.assertTrue(earnings[1]["payed_amount"] == Decimal("314.77"))
 
+    def test_calculate_payed_amount_of_jcp_should_deduze_tax(self):
+        dividend = CashDividends(
+            asset_issued="BRBIDICDAXX3",
+            label="JRS CAP PROPRIO",
+            last_date_prior=datetime.date(2021, 5, 7),
+            id="DIVIDENDID",
+            payment_date=datetime.date(2022, 5, 7),
+            related_to="1 Semestre",
+            approved_on=datetime.date(2021, 5, 5),
+            isin_code="BRBIDICDAXX3",
+            rate=Decimal(1.573833)
+        )
+        self.helper.events_client.get_all_previous_symbols.return_value = []
+        self.helper.ticker_client.get_ticker_from_isin_code.return_value = "BIDI11"
+        self.helper.investments_repository.find_by_ticker_until_date.return_value = [
+            self.create_stock_investment(
+                date=dividend.last_date_prior,
+                operation=OperationType.BUY,
+                amount=Decimal(100)
+            ),
+        ]
+        ticker, earnings = self.helper.calculate_earnings_of_cash_dividend_for_subject("1111", dividend)
+
+        self.assertEqual(earnings, Decimal("133.78"))
+
     @staticmethod
     def create_stock_investment(
             date: datetime.date,

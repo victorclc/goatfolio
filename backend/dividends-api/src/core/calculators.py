@@ -74,7 +74,9 @@ class CashDividendsEarningsCalculator:
         logger.info(f"Found {len(investments)} applicable investments for {subject}.")
         amount = calculate_investments_amount(investments)
 
-        return ticker, (amount * dividend.rate if amount > 0 else Decimal(0.0)).quantize(Decimal("0.01"))
+        return ticker, self.calculate_payed_amount(amount, dividend) if amount > 0 else Decimal(0.0).quantize(
+            Decimal("0.01")
+        )
 
     def calculate_earnings_of_cash_dividend_for_all_users(self, dividend: CashDividends) -> List[Dict[str, Any]]:
         investments = self.get_applicable_investments_for_cash_dividend(dividend)
@@ -87,7 +89,14 @@ class CashDividendsEarningsCalculator:
             if amount > 0:
                 earnings.append({
                     "subject": subject,
-                    "payed_amount": (dividend.rate * amount).quantize(Decimal("0.01")),
+                    "payed_amount": self.calculate_payed_amount(amount, dividend),
                     "ticker": ticker
                 })
         return earnings
+
+    @staticmethod
+    def calculate_payed_amount(amount: Decimal, dividend: CashDividends):
+        tax = Decimal(1)
+        if dividend.label == "JRS CAP PROPRIO":
+            tax = Decimal(0.85)
+        return (amount * dividend.rate * tax).quantize(Decimal("0.01"))
