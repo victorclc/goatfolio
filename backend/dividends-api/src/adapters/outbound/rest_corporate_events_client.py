@@ -32,7 +32,7 @@ class RESTCorporateEventsClient:
     def get_cash_dividends_for_ticker(
             self, ticker: str, from_date: datetime.date
     ) -> List[CashDividends]:
-        url = f"{self.BASE_URL}/cash-dividends/{ticker}?date={from_date.strftime('%Y%m%d')}"
+        url = f"{self.BASE_URL}/cash-dividends/{ticker}?from_date={from_date.strftime('%Y%m%d')}"
         response = requests.get(url, headers={"x-api-key": self.api_key})
 
         return [CashDividends(**d) for d in response.json()]
