@@ -21,6 +21,6 @@ class DynamoInvestmentRepository:
         result = self.__investments_table.query(
             IndexName="tickerSubjectGlobalIndex",
             KeyConditionExpression=key_condition,
-            FilterExpression=Attr("date").lte(int(until_date.strftime("%Y%m%d"))),
+            FilterExpression=Attr("date").lte(int(until_date.strftime("%Y%m%d"))) & Attr("id").begins_with("STOCK#"),
         )
         return list(map(lambda i: StockInvestment(**i), result["Items"]))
