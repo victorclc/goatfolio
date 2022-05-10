@@ -49,5 +49,12 @@ functions:
     events:
       - schedule: cron(0 11 ? * MON-FRI *)
 
+  consolidatePortfolio:
+    handler: src/adapters/inbound/sqs_handlers.check_for_applicable_dividend_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ DividendsAPIAddOrUpdatedInvestmentSubscriber, Arn ]
+
 resources:
   - ${file(resources/sqs-cf-resources.yml)}
