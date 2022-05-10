@@ -1,13 +1,12 @@
 from datetime import datetime
-from typing import Protocol, List, Set, Optional
+from typing import Protocol, List, Optional
 
 from aws_lambda_powertools import Logger
 
-from adapters.outbound.dynamo_investments_repository import DynamoInvestmentRepository
 from application.models.add_investment_request import AddInvestmentRequest
 from application.models.dividends import CashDividends
 from application.models.invesments import StockInvestment, StockDividend, InvestmentType
-from core.calculators import CashDividendsEarningsCalculator, CorporateEventsClient, TickerInfoClient
+from core.calculators import CashDividendsEarningsCalculator
 
 logger = Logger()
 
@@ -31,17 +30,12 @@ class NewInvestmentsConsumer:
     def __init__(
             self,
             dividends_client: CashDividendsClient,
-            corporate_events_client: CorporateEventsClient,
-            ticker_info_client: TickerInfoClient,
-            investments_repository: DynamoInvestmentRepository,
-            investments_client: InvestmentsClient
+            investments_client: InvestmentsClient,
+            earnings_calculator: CashDividendsEarningsCalculator
     ):
         self.investments_client = investments_client
-        self.investments_repository = investments_repository
-        self.ticker_info_client = ticker_info_client
-        self.corporate_events_client = corporate_events_client
         self.dividends_client = dividends_client
-        self.helper = CashDividendsEarningsCalculator(corporate_events_client, ticker_info_client, investments_repository)
+        self.earnings_calculator = earnings_calculator
 
     def receive(
             self,
@@ -69,7 +63,10 @@ class NewInvestmentsConsumer:
 
         payouts = []
         for dividend in dividends:
-            ticker, earnings = self.helper.calculate_earnings_of_cash_dividend_for_subject(subject, dividend)
+            ticker, earnings = self.earnings_calculator.calculate_earnings_of_cash_dividend_for_subject(
+                subject,
+                dividend
+            )
             _id = f"STOCK_DIVIDEND#{dividend.id}"
             if earnings > 0:
                 sd = StockDividend(ticker, dividend.label, earnings, subject, dividend.payment_date, _id)

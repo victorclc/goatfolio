@@ -6,6 +6,7 @@ from adapters.outbound.rest_investments_client import RestInvestmentsClient
 from adapters.outbound.rest_ticker_info_client import RestTickerInfoClient
 from application.models.invesments import StockInvestment
 import goatcommons.utils.json as jsonutils
+from core.calculators import CashDividendsEarningsCalculator
 from core.new_investments_consumer import NewInvestmentsConsumer
 
 logger = Logger()
@@ -34,6 +35,13 @@ def check_for_applicable_dividend_handler(event, context):
         logger.info(f"Processing message: {message}")
         subject, new, old = parse_subject_new_and_old_investments_from_message(message)
         corp_client = RESTCorporateEventsClient()
-        consumer = NewInvestmentsConsumer(corp_client, corp_client, RestTickerInfoClient(),
-                                          DynamoInvestmentRepository(), RestInvestmentsClient())
+        consumer = NewInvestmentsConsumer(
+            corp_client,
+            RestInvestmentsClient(),
+            CashDividendsEarningsCalculator(
+                corp_client,
+                RestTickerInfoClient(),
+                DynamoInvestmentRepository()
+            )
+        )
         consumer.receive(subject, new, old)
