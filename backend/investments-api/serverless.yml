@@ -64,6 +64,25 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
+  getInvestmentsV2:
+    handler: src/adapters/inbound/api_gateway_handlers.get_investments_v2_handler
+    events:
+      - http:
+          endpointType: private
+          path: v2/investments/
+          method: get
+          request:
+            parameters:
+              querystrings:
+                date: false
+                limit: false
+                last_evaluated_id: false
+                ticker: false
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
   addInvestment:
     handler: src/adapters/inbound/api_gateway_handlers.add_investment_handler
     events:

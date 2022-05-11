@@ -18,16 +18,7 @@ tracer = Tracer()
 @logger.inject_lambda_context(log_event=True)
 @tracer.capture_lambda_handler
 def get_investments_handler(event, context):
-    subject = awsutils.get_event_subject(event)
-    limit = awsutils.get_query_param(event, "limit")
-    ticker = awsutils.get_query_param(event, "ticker")
-    if limit:
-        limit = int(limit)
-    last_evaluated_id = awsutils.get_query_param(event, "last_evaluated_id")
-    last_evaluated_date = awsutils.get_query_param(event, "last_evaluated_date")
-    if last_evaluated_date:
-        last_evaluated_date = datetime.strptime(last_evaluated_date, "%Y%m%d").date()
-    investments = investment_core.get(subject, limit, last_evaluated_id, last_evaluated_date, ticker)
+    investments = _get_investments(event, True)
 
     if isinstance(investments, list):
         return {
@@ -38,6 +29,36 @@ def get_investments_handler(event, context):
         "statusCode": HTTPStatus.OK,
         "body": jsonutils.dump(investments.to_dict()),
     }
+
+
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
+def get_investments_v2_handler(event, context):
+    investments = _get_investments(event, False)
+
+    if isinstance(investments, list):
+        return {
+            "statusCode": HTTPStatus.OK,
+            "body": jsonutils.dump([i.to_json() for i in investments]),
+        }
+    return {
+        "statusCode": HTTPStatus.OK,
+        "body": jsonutils.dump(investments.to_dict()),
+    }
+
+
+def _get_investments(event, stock_only):
+    subject = awsutils.get_event_subject(event)
+    limit = awsutils.get_query_param(event, "limit")
+    ticker = awsutils.get_query_param(event, "ticker")
+    if limit:
+        limit = int(limit)
+    last_evaluated_id = awsutils.get_query_param(event, "last_evaluated_id")
+    last_evaluated_date = awsutils.get_query_param(event, "last_evaluated_date")
+    if last_evaluated_date:
+        last_evaluated_date = datetime.strptime(last_evaluated_date, "%Y%m%d").date()
+
+    return investment_core.get(subject, limit, last_evaluated_id, last_evaluated_date, ticker, stock_only)
 
 
 @logger.inject_lambda_context(log_event=True)
