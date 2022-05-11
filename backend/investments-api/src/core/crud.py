@@ -36,14 +36,16 @@ class InvestmentCore:
             limit: Optional[int] = None,
             last_evaluated_id: Optional[str] = None,
             last_evaluated_date: Optional[datetime.date] = None,
-            ticker: Optional[str] = None
+            ticker: Optional[str] = None,
+            stock_only: bool = False
     ):
         investments, new_last_evaluated_id, new_last_evaluated_date = self.repo.find_by_subject(
             subject,
             ticker,
             limit,
             last_evaluated_id,
-            last_evaluated_date
+            last_evaluated_date,
+            stock_only
         )
         if not limit:
             return investments

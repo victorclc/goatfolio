@@ -18,7 +18,8 @@ class DynamoInvestmentRepository:
             ticker: Optional[str],
             limit: Optional[int],
             last_evaluated_id: Optional[str],
-            last_evaluated_date: Optional[datetime.date]
+            last_evaluated_date: Optional[datetime.date],
+            stocks_only: bool = False
     ) -> Tuple[List[Investment], Optional[str], Optional[datetime.date]]:
         extra_params = {}
         if limit:
@@ -32,6 +33,9 @@ class DynamoInvestmentRepository:
         if ticker:
             extra_params["FilterExpression"] = Attr("ticker").eq(ticker.upper()) | Attr("alias_ticker").eq(
                 ticker.upper())
+
+        if stocks_only:
+            extra_params["FilterExpression"] &= Attr("id").begins_with("STOCK#")
 
         result = self.__investments_table.query(
             IndexName="subjectDateGlobalIndex",

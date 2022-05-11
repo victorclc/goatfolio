@@ -11,7 +11,8 @@ class InvestmentRepository(Protocol):
             ticker: Optional[str],
             limit: Optional[int],
             last_evaluated_id: Optional[str],
-            last_evaluated_date: Optional[datetime.date]
+            last_evaluated_date: Optional[datetime.date],
+            stock_only: bool
     ) -> Tuple[List[Investment], Optional[str], Optional[datetime.date]]:
         """Finds all Investments of given subject."""
 
