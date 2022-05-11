@@ -63,18 +63,16 @@ class NewInvestmentsConsumer:
 
         payouts = []
         for dividend in dividends:
-            ticker, earnings = self.earnings_calculator.calculate_earnings_of_cash_dividend_for_subject(
+            sd = self.earnings_calculator.calculate_earnings_of_cash_dividend_for_subject(
                 subject,
                 dividend
             )
-            _id = f"STOCK_DIVIDEND#{dividend.id}"
-            if earnings > 0:
-                sd = StockDividend(ticker, dividend.label, earnings, subject, dividend.payment_date, _id)
+            if sd.amount > 0:
                 logger.debug(f"Generated StockDividend: {sd}")
                 payouts.append(sd)
             else:
-                logger.info(f"Dividend not applicable, deleting. sub: {subject}, id: {_id}")
-                self.investments_client.delete(subject, _id)
+                logger.info(f"Dividend not applicable, deleting. sub: {subject}, id: {sd.id}")
+                self.investments_client.delete(subject, sd.id)
 
         if payouts:
             self.investments_client.batch_save(

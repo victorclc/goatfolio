@@ -4,7 +4,7 @@ from decimal import Decimal
 from unittest.mock import MagicMock
 
 from application.models.dividends import CashDividends
-from application.models.invesments import StockInvestment, InvestmentType, OperationType
+from application.models.invesments import StockInvestment, InvestmentType, OperationType, StockDividend
 from core.new_investments_consumer import NewInvestmentsConsumer
 
 
@@ -108,8 +108,9 @@ class TestNewInvestmentsConsumer(unittest.TestCase):
                 rate=Decimal(1.573833)
             )
         ])
+        stock_dividend = StockDividend("BIDI11", "DIVIDENDO", Decimal("55.33"), "1", date(2022, 5, 5), "id")
         self.consumer.earnings_calculator.calculate_earnings_of_cash_dividend_for_subject = MagicMock(
-            return_value=("BIDI11", Decimal("55.33"))
+            return_value=stock_dividend
         )
         self.consumer.handle_applicable_cash_dividends("1111", self.create_stock_investment(date=date(2020, 5, 6)))
 
@@ -142,8 +143,9 @@ class TestNewInvestmentsConsumer(unittest.TestCase):
                 rate=Decimal(1.573833)
             )
         ])
+        stock_dividend = StockDividend("BIDI11", "DIVIDENDO", Decimal("0.00"), "1", date(2022, 5, 5), "id")
         self.consumer.earnings_calculator.calculate_earnings_of_cash_dividend_for_subject = MagicMock(
-            return_value=("BIDI11", Decimal("0.00"))
+            return_value=stock_dividend
         )
         self.consumer.handle_applicable_cash_dividends("1111", self.create_stock_investment(date=date(2020, 5, 6)))
 

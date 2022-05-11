@@ -6,7 +6,7 @@ from aws_lambda_powertools import Logger
 
 from adapters.outbound.dynamo_investments_repository import DynamoInvestmentRepository
 from application.models.dividends import CashDividends
-from application.models.invesments import StockInvestment, OperationType
+from application.models.invesments import StockInvestment, OperationType, StockDividend
 
 logger = Logger()
 
@@ -68,17 +68,24 @@ class CashDividendsEarningsCalculator:
             self,
             subject: str,
             dividend: CashDividends
-    ) -> Tuple[str, Decimal]:
+    ) -> StockDividend:
         investments = self.get_applicable_investments_for_cash_dividend(dividend, subject)
         ticker = self.ticker_client.get_ticker_from_isin_code(dividend.asset_issued)
         logger.info(f"Found {len(investments)} applicable investments for {subject}.")
         amount = calculate_investments_amount(investments)
 
-        return ticker, self.calculate_payed_amount(amount, dividend) if amount > 0 else Decimal(0.0).quantize(
-            Decimal("0.01")
+        sd = StockDividend(
+            ticker,
+            dividend.label,
+            self.calculate_payed_amount(amount, dividend),
+            subject,
+            dividend.payment_date,
+            f"STOCK_DIVIDEND#{dividend.id}"
         )
 
-    def calculate_earnings_of_cash_dividend_for_all_users(self, dividend: CashDividends) -> List[Dict[str, Any]]:
+        return sd
+
+    def calculate_earnings_of_cash_dividend_for_all_users(self, dividend: CashDividends) -> List[StockDividend]:
         investments = self.get_applicable_investments_for_cash_dividend(dividend)
         ticker = self.ticker_client.get_ticker_from_isin_code(dividend.asset_issued)
         logger.info(f"Found {len(investments)} applicable investments.")
@@ -87,11 +94,16 @@ class CashDividendsEarningsCalculator:
         for subject, sub_investments in groupby(sorted(investments, key=lambda i: i.subject), key=lambda i: i.subject):
             amount = calculate_investments_amount(list(sub_investments))
             if amount > 0:
-                earnings.append({
-                    "subject": subject,
-                    "payed_amount": self.calculate_payed_amount(amount, dividend),
-                    "ticker": ticker
-                })
+                earnings.append(
+                    StockDividend(
+                        ticker,
+                        dividend.label,
+                        self.calculate_payed_amount(amount, dividend),
+                        subject,
+                        dividend.payment_date,
+                        f"STOCK_DIVIDEND#{dividend.id}"
+                    )
+                )
         return earnings
 
     @staticmethod
