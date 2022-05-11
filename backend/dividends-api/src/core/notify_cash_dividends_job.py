@@ -9,7 +9,9 @@ from aws_lambda_powertools.metrics import MetricUnit
 from adapters.outbound.dynamo_investments_repository import DynamoInvestmentRepository
 from adapters.outbound.rest_corporate_events_client import RESTCorporateEventsClient
 from adapters.outbound.rest_ticker_info_client import RestTickerInfoClient
+from application.models.add_investment_request import AddInvestmentRequest
 from application.models.dividends import CashDividends
+from application.models.invesments import InvestmentType
 from core.calculators import TickerInfoClient, CashDividendsEarningsCalculator
 from goatcommons.notifications.client import PushNotificationsClient
 from goatcommons.notifications.models import NotificationRequest
@@ -28,12 +30,18 @@ class CorporateEventsClient(Protocol):
         ...
 
 
+class InvestmentsClient(Protocol):
+    def batch_save(self, requests: List[AddInvestmentRequest]):
+        ...
+
+
 def notify_cash_dividends_job(
         processing_date: datetime.date,
         investments_repository: DynamoInvestmentRepository,
         push_client: PushNotificationsClient,
         corporate_events_client: CorporateEventsClient,
-        ticker_info_client: TickerInfoClient
+        ticker_info_client: TickerInfoClient,
+        investments_client: InvestmentsClient
 ):
     logger.info(f"Notify cash dividends job - START: {processing_date.strftime('%Y-%m-%d')}")
 
@@ -45,19 +53,25 @@ def notify_cash_dividends_job(
         payouts = helper.calculate_earnings_of_cash_dividend_for_all_users(dividend)
 
         for payout in payouts:
-            subject = payout["subject"]
-            ticker = payout["ticker"]
-            payed_amount = payout["payed_amount"]
-
-            logger.info(f"Sending push for {subject}.")
+            logger.info(f"Sending push for {payout.subject}.")
             push_client.send(
                 NotificationRequest(
-                    subject=subject,
+                    subject=payout.subject,
                     title="Tem dinheiro entrando! 🐐🎉",
-                    message=f"Hoje, você vai receber R$ {locale.currency(payed_amount, grouping=True, symbol=False)} de rendimentos da ação {ticker}"
+                    message=f"Hoje, você vai receber R$ {locale.currency(payout.amount, grouping=True, symbol=False)} de rendimentos da ação {payout.ticker}"
                 )
             )
             metrics.add_metric(name="DividendNotifiedCount", unit=MetricUnit.Count, value=1)
+        if payouts:
+            investments_client.batch_save(
+                [
+                    AddInvestmentRequest(
+                        type=InvestmentType.STOCK_DIVIDEND,
+                        investment=s.to_json(),
+                        subject=s.subject
+                    ) for s in payouts
+                ]
+            )
 
     metrics.add_metric(name="ApplicableCashDividendsCount", unit=MetricUnit.Count, value=len(cash_dividends))
     dump_metrics()

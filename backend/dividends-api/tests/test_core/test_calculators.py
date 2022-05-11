@@ -64,17 +64,17 @@ class TestCashDividendsEarningsHelper(unittest.TestCase):
                 amount=Decimal(100)
             ),
         ]
-        ticker, earnings = self.helper.calculate_earnings_of_cash_dividend_for_subject("1111", self.dividend)
+        earnings = self.helper.calculate_earnings_of_cash_dividend_for_subject("1111", self.dividend)
 
-        self.assertTrue(earnings == Decimal(0))
+        self.assertEqual(earnings.amount, 0)
 
     def test_calculate_earnings_for_subject_with_no_applicable_investment(self):
         self.helper.events_client.get_all_previous_symbols.return_value = []
         self.helper.ticker_client.get_ticker_from_isin_code.return_value = "BIDI11"
         self.helper.investments_repository.find_by_ticker_until_date.return_value = []
-        ticker, earnings = self.helper.calculate_earnings_of_cash_dividend_for_subject("1111", self.dividend)
+        earnings = self.helper.calculate_earnings_of_cash_dividend_for_subject("1111", self.dividend)
 
-        self.assertTrue(earnings == 0)
+        self.assertEqual(earnings.amount, 0)
 
     def test_calculate_earnings_for_subject_with_applicable_investment_amount_greater_than_zero(self):
         self.helper.events_client.get_all_previous_symbols.return_value = []
@@ -86,9 +86,9 @@ class TestCashDividendsEarningsHelper(unittest.TestCase):
                 amount=Decimal(100)
             ),
         ]
-        ticker, earnings = self.helper.calculate_earnings_of_cash_dividend_for_subject("1111", self.dividend)
+        earnings = self.helper.calculate_earnings_of_cash_dividend_for_subject("1111", self.dividend)
 
-        self.assertTrue(earnings == Decimal("157.38"))
+        self.assertTrue(earnings.amount == Decimal("157.38"))
 
     def test_calculate_earnings_of_cash_dividends_for_all_users_with_no_applicable_investments(self):
         self.helper.events_client.get_all_previous_symbols.return_value = []
@@ -125,10 +125,10 @@ class TestCashDividendsEarningsHelper(unittest.TestCase):
         earnings = self.helper.calculate_earnings_of_cash_dividend_for_all_users(self.dividend)
 
         self.assertTrue(len(earnings) == 2)
-        self.assertTrue(earnings[0]["subject"] == "1")
-        self.assertTrue(earnings[0]["payed_amount"] == Decimal("157.38"))
-        self.assertTrue(earnings[1]["subject"] == "2")
-        self.assertTrue(earnings[1]["payed_amount"] == Decimal("314.77"))
+        self.assertTrue(earnings[0].subject == "1")
+        self.assertTrue(earnings[0].amount == Decimal("157.38"))
+        self.assertTrue(earnings[1].subject == "2")
+        self.assertTrue(earnings[1].amount == Decimal("314.77"))
 
     def test_calculate_payed_amount_of_jcp_should_deduze_tax(self):
         dividend = CashDividends(
@@ -151,9 +151,9 @@ class TestCashDividendsEarningsHelper(unittest.TestCase):
                 amount=Decimal(100)
             ),
         ]
-        ticker, earnings = self.helper.calculate_earnings_of_cash_dividend_for_subject("1111", dividend)
+        earnings = self.helper.calculate_earnings_of_cash_dividend_for_subject("1111", dividend)
 
-        self.assertEqual(earnings, Decimal("133.78"))
+        self.assertEqual(earnings.amount, Decimal("133.78"))
 
     @staticmethod
     def create_stock_investment(

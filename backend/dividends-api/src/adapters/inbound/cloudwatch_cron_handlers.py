@@ -4,6 +4,7 @@ from aws_lambda_powertools import Logger, Tracer
 
 from adapters.outbound.dynamo_investments_repository import DynamoInvestmentRepository
 from adapters.outbound.rest_corporate_events_client import RESTCorporateEventsClient
+from adapters.outbound.rest_investments_client import RestInvestmentsClient
 from adapters.outbound.rest_ticker_info_client import RestTickerInfoClient
 from core import notify_cash_dividends_job
 from event_notifier.decorators import notify_exception
@@ -24,5 +25,6 @@ def notify_today_cash_dividends_handler(event, context):
         DynamoInvestmentRepository(),
         PushNotificationsClient(),
         RESTCorporateEventsClient(),
-        RestTickerInfoClient()
+        RestTickerInfoClient(),
+        RestInvestmentsClient()
     )
