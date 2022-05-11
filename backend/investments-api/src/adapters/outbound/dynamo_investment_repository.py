@@ -35,7 +35,10 @@ class DynamoInvestmentRepository:
                 ticker.upper())
 
         if stocks_only:
-            extra_params["FilterExpression"] &= Attr("id").begins_with("STOCK#")
+            if "FilterExpression" in extra_params:
+                extra_params["FilterExpression"] &= Attr("id").begins_with("STOCK#")
+            else:
+                extra_params["FilterExpression"] = Attr("id").begins_with("STOCK#")
 
         result = self.__investments_table.query(
             IndexName="subjectDateGlobalIndex",
