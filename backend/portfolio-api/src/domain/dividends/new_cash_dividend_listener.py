@@ -17,6 +17,7 @@ class NewCashDividendListener:
             self, subject: str, new: Optional[StockDividend], old: Optional[StockDividend]
     ):
         summary = self.portfolio_repository.find_dividends_summary(subject) or CashDividendsSummary(subject)
+        logger.info(f"Before consolidation summary: {summary}")
         if new:
             summary.add_dividend(new)
         if old:
