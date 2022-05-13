@@ -4,6 +4,7 @@ from typing import List, Optional, ClassVar, Type
 import boto3
 from boto3.dynamodb.conditions import Key, Attr
 
+from application.models.cash_dividends_summary import CashDividendsSummary
 from domain.common.investment_consolidated import StockConsolidated
 from domain.common.portfolio import (
     Portfolio,
@@ -79,6 +80,16 @@ class DynamoPortfolioRepository:
                 **{k: v for k, v in result["Items"][0].items() if k != "sk"}
             )
         logger.info(f"No Asset quantities for subject: {subject}")
+
+    def find_dividends_summary(self, subject: str) -> Optional[CashDividendsSummary]:
+        result = self._portfolio_table.query(
+            KeyConditionExpression=Key("subject").eq(subject) & Key("sk").begins_with(f"CASH_DIVIDENDS#")
+        )
+        if result["Items"]:
+            return CashDividendsSummary(
+                **{k: v for k, v in result["Items"][0].items() if k != "sk"}
+            )
+        logger.info(f"No Cash dividends summary for subject: {subject}")
 
     def find_alias_ticker(
         self,

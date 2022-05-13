@@ -18,6 +18,7 @@ from aws_lambda_powertools import Logger, Tracer
 
 import domain.corporate_events.events_consolidation_strategies as strategy
 from domain.corporate_events.earnings_in_assets_event import EarningsInAssetCorporateEvent
+from domain.dividends.new_cash_dividend_listener import NewCashDividendListener
 from domain.stock_average import save_asset_quantities
 
 logger = Logger()
@@ -119,6 +120,16 @@ def process_applicable_corporate_event_handler(event, context):
 
         events_consolidated.check_for_applicable_corporate_events(subject, [investment],
                                                                   strategy.handle_earning_in_assets_event)
+
+
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
+def consolidate_dividend_handler(event, context):
+    listener = NewCashDividendListener(DynamoPortfolioRepository())
+    for message in event["Records"]:
+        logger.info(f"Processing message: {message}")
+        subject, new, old = parse_subject_new_and_old_investments_from_message(message)
+        listener.receive(subject, new, old)
 
 
 def get_investments_differences(
