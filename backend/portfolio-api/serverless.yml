@@ -192,6 +192,14 @@ functions:
           arn:
             Fn::GetAtt: [ ConsolidateApplicableCorporateEventQueue, Arn ]
 
+  consolidateDividend:
+    handler: src/adapters/inbound/sqs_handlers.consolidate_dividend_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ PortfolioAddOrUpdatedDividendSubscriber, Arn ]
+
+
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/elasticache-cf-resources.yml)}
