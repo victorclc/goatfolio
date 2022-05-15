@@ -13,6 +13,10 @@ class CashDividendPosition:
     total: Decimal = Decimal(0)
     stocks: Dict = field(default_factory=dict)
 
+    def __post_init__(self):
+        if isinstance(self.date, str):
+            self.date = datetime.datetime.strptime(self.date, "%Y%m%d").date()
+
     def add_dividend(self, dividend: StockDividend):
         self.total += dividend.amount
         if dividend.ticker in self.stocks:
@@ -33,6 +37,8 @@ class CashDividendsSummary(PortfolioItem):
     _history_map: Dict[datetime.date, CashDividendPosition] = field(init=False, repr=False)
 
     def __post_init__(self):
+        if all(isinstance(h, dict) for h in self.history):
+            self.history = [CashDividendPosition(**c) for c in self.history]
         self._history_map = {c.date: c for c in self.history}
 
     def add_dividend(self, dividend: StockDividend):
