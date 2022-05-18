@@ -1,5 +1,5 @@
 
-import 'package:goatfolio/services/investment/model/stock.dart';
+import 'package:goatfolio/services/investment/model/stock_investment.dart';
 
 class InvestmentRequest {
   final String type;

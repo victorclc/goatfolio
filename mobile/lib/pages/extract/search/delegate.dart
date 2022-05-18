@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goatfolio/search/cupertino_search_delegate.dart';
-import 'package:goatfolio/services/investment/model/stock.dart';
+import 'package:goatfolio/services/investment/model/stock_investment.dart';
 import 'package:goatfolio/services/performance/cubit/performance_cubit.dart';
 
 class ExtractSearchDelegate extends SearchCupertinoDelegate {
