@@ -60,7 +60,7 @@ class ExtractLoaderCubit extends Cubit<LoadingState> {
   }
 
   Future<List<Investment>> geAllByTicker(String ticker) async {
-    return await _service.getByTicker(ticker);
+return [];
   }
 
   void deleteStock(StockInvestment investment) async {

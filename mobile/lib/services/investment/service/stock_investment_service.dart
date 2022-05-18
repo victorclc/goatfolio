@@ -31,7 +31,7 @@ class StockInvestmentService {
         limit, lastEvaluatedId, lastEvaluatedDate);
   }
 
-  Future<List<Investment>> getByTicker(String ticker) async {
-    return await portfolioClient.getInvestmentsByTicker(ticker);
-  }
+  // Future<List<Investment>> getByTicker(String ticker) async {
+  //   return await portfolioClient.getInvestmentsByTicker(ticker);
+  // }
 }
