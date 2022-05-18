@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/corporate_events/client/client.dart';
 import 'package:goatfolio/services/corporate_events/model/incorporation_event.dart';
-import 'package:goatfolio/services/investment/model/stock.dart';
+import 'package:goatfolio/services/investment/model/stock_investment.dart';
 import 'package:goatfolio/utils/dialog.dart' as dialog;
 import 'package:goatfolio/utils/formatters.dart';
 import 'package:goatfolio/widgets/progress_indicator_scaffold.dart';

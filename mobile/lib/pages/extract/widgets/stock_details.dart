@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/services/investment/model/operation_type.dart';
-import 'package:goatfolio/services/investment/model/stock.dart';
+import 'package:goatfolio/services/investment/model/stock_investment.dart';
 import 'package:goatfolio/utils/extensions.dart';
 import 'package:goatfolio/utils/formatters.dart';
 

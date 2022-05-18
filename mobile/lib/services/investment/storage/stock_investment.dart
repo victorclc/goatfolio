@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:goatfolio/services/investment/model/stock.dart';
+import 'package:goatfolio/services/investment/model/stock_investment.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
