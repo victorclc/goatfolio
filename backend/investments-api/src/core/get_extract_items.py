@@ -57,7 +57,7 @@ def get_label_for_investment(investment: Investment):
     if isinstance(investment, StockInvestment):
         return OPERATION_LABELS[investment.operation]
     if isinstance(investment, StockDividend):
-        return STOCK_DIVIDEND_LABELS.get(investment.label, default=investment.label)
+        return STOCK_DIVIDEND_LABELS.get(investment.label, investment.label)
     return ""
 
 
