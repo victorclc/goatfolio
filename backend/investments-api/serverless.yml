@@ -144,6 +144,25 @@ functions:
           private: true
 
 
+  getExtractItemsBFF:
+    handler: src/adapters/inbound/api_gateway_handlers.get_extract_items_handler
+    events:
+      - http:
+          path: /bff/extract
+          method: get
+          request:
+            parameters:
+              querystrings:
+                date: false
+                limit: false
+                last_evaluated_id: false
+                ticker: false
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
   - ${file(resources/queue-cf-resources.yml)}

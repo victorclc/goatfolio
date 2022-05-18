@@ -7,9 +7,11 @@ from adapters.inbound import investment_core
 
 from aws_lambda_powertools import Logger, Tracer
 
+from adapters.outbound.dynamo_investment_repository import DynamoInvestmentRepository
 from application.exceptions import FieldMissingError, InvalidTicker
 from application.investment_loader import MissingRequiredFields
 from application.investment_request import InvestmentRequest
+from core.get_extract_items import PaginationInfo, get_paginated_extract_items
 
 logger = Logger()
 tracer = Tracer()
@@ -122,3 +124,18 @@ def delete_investment_handler(event, context):
             "statusCode": HTTPStatus.BAD_REQUEST,
             "body": jsonutils.dump({"message": str(ex)}),
         }
+
+
+def get_extract_items_handler(event, context):
+    subject = awsutils.get_event_subject(event)
+    limit = awsutils.get_query_param(event, "limit")
+    ticker = awsutils.get_query_param(event, "ticker")
+    if limit:
+        limit = int(limit)
+    last_evaluated_id = awsutils.get_query_param(event, "last_evaluated_id")
+    last_evaluated_date = awsutils.get_query_param(event, "last_evaluated_date")
+    if last_evaluated_date:
+        last_evaluated_date = datetime.strptime(last_evaluated_date, "%Y%m%d").date()
+    pagination_info = PaginationInfo(limit, last_evaluated_id, last_evaluated_date)
+
+    return get_paginated_extract_items(subject, ticker, pagination_info, DynamoInvestmentRepository())
