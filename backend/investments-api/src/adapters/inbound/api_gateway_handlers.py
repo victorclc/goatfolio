@@ -138,4 +138,8 @@ def get_extract_items_handler(event, context):
         last_evaluated_date = datetime.strptime(last_evaluated_date, "%Y%m%d").date()
     pagination_info = PaginationInfo(limit, last_evaluated_id, last_evaluated_date)
 
-    return get_paginated_extract_items(subject, ticker, pagination_info, DynamoInvestmentRepository())
+    return {
+        "statusCode": HTTPStatus.OK,
+        "body": jsonutils.dump(
+            get_paginated_extract_items(subject, ticker, pagination_info, DynamoInvestmentRepository()).to_dict()),
+    }
