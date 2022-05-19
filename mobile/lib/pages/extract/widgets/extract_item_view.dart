@@ -1,12 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/pages/extract/widgets/extract_item_detailed_view.dart';
-import 'package:goatfolio/pages/extract/widgets/stock_details.dart';
-import 'package:goatfolio/services/investment/model/operation_type.dart';
 import 'package:goatfolio/services/investment/model/paginated_extract_result.dart';
-import 'package:goatfolio/services/investment/model/stock_investment.dart';
 import 'package:goatfolio/utils/extensions.dart';
-import 'package:goatfolio/utils/formatters.dart';
 import 'package:intl/intl.dart';
 import 'package:goatfolio/utils/modal.dart' as modal;
 

@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:goatfolio/pages/extract/cubit/extract_loader_cubit.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/friends/cubit/friends_list_cubit.dart';
 import 'package:goatfolio/services/friends/cubit/friends_rentability_cubit.dart';
@@ -26,10 +25,6 @@ List<BlocProvider> buildGlobalProviders(UserService userService) {
     ),
     BlocProvider<FriendsRentabilityCubit>(
       create: (_) => FriendsRentabilityCubit(userService),
-    ),
-    BlocProvider<ExtractLoaderCubit>(
-      create: (_) => ExtractLoaderCubit(userService),
-      lazy: true,
     ),
   ];
 }
