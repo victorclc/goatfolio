@@ -22,16 +22,4 @@ class StockInvestmentService {
   Future<void> deleteInvestment(StockInvestment investment) async {
     await portfolioClient.delete(investment);
   }
-
-  Future<PaginatedInvestmentResult> getInvestments(
-      {required int limit,
-      String? lastEvaluatedId,
-      DateTime? lastEvaluatedDate}) async {
-    return await portfolioClient.getInvestments(
-        limit, lastEvaluatedId, lastEvaluatedDate);
-  }
-
-  Future<List<Investment>> getByTicker(String ticker) async {
-    return await portfolioClient.getInvestmentsByTicker(ticker);
-  }
 }

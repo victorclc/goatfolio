@@ -30,8 +30,7 @@ class CashDividendsEntity:
         if not self.id:
             self.id = f"{self.payment_date.strftime(_DATE_FORMAT)}" \
                       f"#{self.label}#{self.approved_on.strftime(_DATE_FORMAT)}" \
-                      f"#{self.last_date_prior.strftime(_DATE_FORMAT)}" \
-                      f"#{self.rate}"
+                      f"#{self.last_date_prior.strftime(_DATE_FORMAT)}"
 
     def to_dict(self):
         return {
