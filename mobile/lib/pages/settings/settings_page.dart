@@ -11,12 +11,19 @@ import 'package:goatfolio/pages/settings/theme_page.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/investment/storage/stock_investment.dart';
 import 'package:goatfolio/services/notification/notification.dart';
-
 import 'package:launch_review/launch_review.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 import 'about_page.dart';
+
+void goToSettingsPage(BuildContext context) {
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => SettingsPage(),
+    ),
+  );
+}
 
 class SettingsPage extends StatelessWidget {
   static const String title = 'Configurações';
