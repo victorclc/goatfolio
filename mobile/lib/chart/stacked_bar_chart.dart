@@ -34,8 +34,7 @@ class _StackedBarChart extends State<StackedBarChart> {
             widget.seriesList,
             defaultRenderer: new charts.BarRendererConfig(
               groupingType: charts.BarGroupingType.stacked,
-              strokeWidthPx: 2.0,
-
+              // strokeWidthPx: 1.0,
             ),
             animate: widget.animate,
             customSeriesRenderers: [
@@ -55,22 +54,19 @@ class _StackedBarChart extends State<StackedBarChart> {
               ),
             ),
             domainAxis: new charts.OrdinalAxisSpec(
-                viewport: new charts.OrdinalViewport("Dec 2023", 5),showAxisLine: false
-                ),
+                viewport: new charts.OrdinalViewport(widget.seriesList.last.data.last.date, 6),
+                showAxisLine: false,renderSpec:  charts.SmallTickRendererSpec(labelRotation: 30, labelStyle: charts.TextStyleSpec(
+              fontFamily: textTheme.textStyle.fontFamily,
+              fontSize: 12,
+              fontWeight: textTheme.textStyle.fontWeight.toString(),
+              color: charts.ColorUtil.fromDartColor(
+                  textTheme.textStyle.color!),
+            ),)
+            ),
             behaviors: [
-              // charts.SeriesLegend(
-              //     entryTextStyle: charts.TextStyleSpec(
-              //       fontFamily: textTheme.textStyle.fontFamily,
-              //       fontSize: 14,
-              //       fontWeight: textTheme.textStyle.fontWeight.toString(),
-              //       color: charts.ColorUtil.fromDartColor(
-              //           textTheme.textStyle.color!),
-              //     ),
-              //     desiredMaxColumns: 2,
-              //     position: charts.BehaviorPosition.bottom),
               new charts.PanAndZoomBehavior(),
               new charts.SelectNearest(
-                  eventTrigger: charts.SelectionTrigger.tapAndDrag),
+                  eventTrigger: charts.SelectionTrigger.tap),
             ],
             selectionModels: [
               new charts.SelectionModelConfig(
@@ -78,13 +74,7 @@ class _StackedBarChart extends State<StackedBarChart> {
                 changedListener: (model) {
                   if (model.selectedDatum.isNotEmpty) {
                     final selectedDatum = model.selectedDatum;
-                    final index = model.selectedDatum.first.index;
-                    final Map<String, dynamic> result = Map();
-                    selectedDatum.forEach((element) {
-                      result[element.series.displayName!] =
-                          element.series.data[index!];
-                    });
-                    widget.onSelectionChanged(result);
+                    widget.onSelectionChanged(selectedDatum.first.datum.date);
                   }
                 },
               ),
