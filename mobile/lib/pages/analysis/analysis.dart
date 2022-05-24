@@ -1,6 +1,7 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:goatfolio/pages/analysis/earnings/earnings.dart';
 import 'package:goatfolio/pages/share/share_page.dart';
 import 'package:goatfolio/widgets/pressable_card.dart';
 
@@ -39,12 +40,12 @@ class _AnalysisPageState extends State<AnalysisPage> {
                   AnalysisCard(
                     title: "Proventos",
                     description: "Análise de todos os proventos recebidos.",
-                    onPressed: () => 1,
+                    onPressed: () => goToEarningsPage(context),
 
                   ),
                   AnalysisCard(
                     title: "Amigos",
-                    description: "Compartilhe e acompanhe a rentabilidade de seus amigos.",
+                    description: "Compartilhe e acompanhe a rentabilidade da carteira de seus amigos.",
                     onPressed: () => goToSharePage(context),
                   ),
                 ],
