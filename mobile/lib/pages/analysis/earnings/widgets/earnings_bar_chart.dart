@@ -5,28 +5,25 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/chart/stacked_bar_chart.dart';
 import 'package:goatfolio/pages/portfolio/rgb.dart';
-import 'package:goatfolio/services/authentication/cognito.dart';
-import 'package:goatfolio/services/performance/client/performance_client.dart';
 import 'package:goatfolio/services/performance/model/earnings_history.dart';
 import 'package:goatfolio/utils/extensions.dart';
 import 'package:goatfolio/utils/formatters.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class StockEarnings {
-  final String date;
+  final DateTime date;
   final double amount;
 
   StockEarnings(this.date, this.amount);
 }
 
 class EarningsBarChart extends StatefulWidget {
-  EarningsHistory earningsHistory;
+  final Future<List<charts.Series>> series;
+  final Future<EarningsHistory> earningsHistory;
 
-  EarningsBarChart({
-    Key? key,
-    required this.earningsHistory,
-  }) : super(key: key);
+  const EarningsBarChart(
+      {Key? key, required this.series, required this.earningsHistory})
+      : super(key: key);
 
   @override
   _EarningsBarChart createState() => _EarningsBarChart();
@@ -35,63 +32,19 @@ class EarningsBarChart extends StatefulWidget {
 class _EarningsBarChart extends State<EarningsBarChart> {
   final dateFormat = DateFormat('MMMM', 'pt_BR');
   EarningsDetails? selectedEarnings;
-  late final PerformanceClient _client;
-  late final Future<List<charts.Series>> _future;
+
   final Map<String, Rgb> colors = Map();
 
   @override
   void initState() {
-    final userService = Provider.of<UserService>(context, listen: false);
-    _client = PerformanceClient(userService);
-    _future = createChartSeries(widget.earningsHistory);
+    widget.earningsHistory
+        .then((value) => selectedEarnings = value.history.last);
     super.initState();
   }
 
-  Future<List<charts.Series>> createChartSeries(
-      EarningsHistory earningsHistory) async {
-    earningsHistory = await _client.getEarningsHistory();
-    earningsHistory.history.sort((a, b) => a.date.compareTo(b.date));
-    widget.earningsHistory = earningsHistory;
-    selectedEarnings = earningsHistory.history.last;
-
-    Map<String, List<StockEarnings>> series = {};
-    earningsHistory.history.forEach((element) {
-      element.stocks.entries.forEach((stock) {
-        final ticker = stock.key;
-        final amount = stock.value;
-        if (!series.containsKey(ticker)) {
-          series[ticker] = [];
-        }
-        if (!colors.containsKey(ticker)) {
-          colors[ticker] = Rgb.random();
-        }
-        series[ticker]!.add(StockEarnings(
-            DateFormat("MMM yyyy", "pt-BR")
-                .format(element.date)
-                .capitalizeWords(),
-            amount));
-      });
-    });
-
-    List<charts.Series<StockEarnings, String>> seriesList = [];
-
-    series.forEach(
-      (key, value) => seriesList.add(
-        charts.Series<StockEarnings, String>(
-            id: key,
-            data: value,
-            colorFn: (_, __) =>
-                charts.ColorUtil.fromDartColor(colors[key]!.toColor()),
-            domainFn: (StockEarnings s, _) => s.date,
-            measureFn: (StockEarnings s, _) => s.amount),
-      ),
-    );
-    return seriesList;
-  }
-
-  void onSelectionChanged(String newSelection) {
-    selectedEarnings = widget.earningsHistory
-        .map[DateFormat("MMM yyyy", "pt-BR").parse(newSelection.toLowerCase())];
+  void onSelectionChanged(DateTime newSelection) async {
+    selectedEarnings = (await widget.earningsHistory)
+        .map[newSelection];
     setState(() {});
   }
 
@@ -131,7 +84,7 @@ class _EarningsBarChart extends State<EarningsBarChart> {
     final textTheme = CupertinoTheme.of(context).textTheme;
 
     return FutureBuilder(
-      future: _future,
+      future: widget.series,
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
@@ -151,7 +104,7 @@ class _EarningsBarChart extends State<EarningsBarChart> {
           case ConnectionState.done:
             if (snapshot.hasData) {
               final data =
-                  snapshot.data as List<charts.Series<StockEarnings, String>>;
+                  snapshot.data as List<charts.Series<StockEarnings, DateTime>>;
               if (data.first.data.isEmpty || data.last.data.isEmpty) {
                 return SizedBox(
                   height: 240,
@@ -160,12 +113,6 @@ class _EarningsBarChart extends State<EarningsBarChart> {
                   ),
                 );
               }
-              // if (selectedGrossSeries == null) {
-              //   selectedGrossSeries = data.first.data.last;
-              // }
-              // if (selectedInvestedSeries == null) {
-              //   selectedInvestedSeries = data.last.data.last;
-              // }
               return Column(
                 children: [
                   buildHeader(),

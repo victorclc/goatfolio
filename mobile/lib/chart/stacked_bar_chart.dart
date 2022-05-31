@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class StackedBarChart extends StatefulWidget {
-  final List<charts.Series<dynamic, String>> seriesList;
+  final List<charts.Series<dynamic, DateTime>> seriesList;
   final bool? animate;
   final Function onSelectionChanged;
 
@@ -30,12 +30,14 @@ class _StackedBarChart extends State<StackedBarChart> {
     return Column(
       children: <Widget>[
         Expanded(
-          child: new charts.BarChart(
+          child: new charts.TimeSeriesChart(
             widget.seriesList,
-            defaultRenderer: new charts.BarRendererConfig(
+            defaultRenderer: new charts.BarRendererConfig<DateTime>(
+              // barRendererDecorator: charts.BarLabelDecorator<DateTime>(),
               groupingType: charts.BarGroupingType.stacked,
               // strokeWidthPx: 1.0,
             ),
+            defaultInteractions: false,
             animate: widget.animate,
             customSeriesRenderers: [
               // new charts.LineRendererConfig(includeArea: true, stacked: true),
@@ -53,20 +55,29 @@ class _StackedBarChart extends State<StackedBarChart> {
                 ),
               ),
             ),
-            domainAxis: new charts.OrdinalAxisSpec(
-                viewport: new charts.OrdinalViewport(widget.seriesList.last.data.last.date, 6),
-                showAxisLine: false,renderSpec:  charts.SmallTickRendererSpec(labelRotation: 30, labelStyle: charts.TextStyleSpec(
-              fontFamily: textTheme.textStyle.fontFamily,
-              fontSize: 12,
-              fontWeight: textTheme.textStyle.fontWeight.toString(),
-              color: charts.ColorUtil.fromDartColor(
-                  textTheme.textStyle.color!),
-            ),)
+            domainAxis: new charts.DateTimeAxisSpec(
+              viewport: charts.DateTimeExtents(
+                start: DateTime(DateTime.now().year, DateTime.now().month - 5, 1),
+                end: DateTime(DateTime.now().year, DateTime.now().month, 1),
+              ),
+              showAxisLine: false,
+              renderSpec: charts.SmallTickRendererSpec(
+                labelRotation: 30,
+                labelStyle: charts.TextStyleSpec(
+                  fontFamily: textTheme.textStyle.fontFamily,
+                  fontSize: 12,
+                  fontWeight: textTheme.textStyle.fontWeight.toString(),
+                  color: charts.ColorUtil.fromDartColor(
+                      textTheme.textStyle.color!),
+                ),
+              ),
             ),
             behaviors: [
+              new charts.SlidingViewport(charts.SelectionModelType.info),
               new charts.PanAndZoomBehavior(),
               new charts.SelectNearest(
                   eventTrigger: charts.SelectionTrigger.tap),
+              new charts.DomainHighlighter(),
             ],
             selectionModels: [
               new charts.SelectionModelConfig(
