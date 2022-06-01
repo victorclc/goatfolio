@@ -1,6 +1,7 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class StackedBarChart extends StatefulWidget {
   final List<charts.Series<dynamic, DateTime>> seriesList;
@@ -33,16 +34,15 @@ class _StackedBarChart extends State<StackedBarChart> {
           child: new charts.TimeSeriesChart(
             widget.seriesList,
             defaultRenderer: new charts.BarRendererConfig<DateTime>(
-              // barRendererDecorator: charts.BarLabelDecorator<DateTime>(),
               groupingType: charts.BarGroupingType.stacked,
               // strokeWidthPx: 1.0,
             ),
             defaultInteractions: false,
             animate: widget.animate,
             customSeriesRenderers: [
-              // new charts.LineRendererConfig(includeArea: true, stacked: true),
               new charts.SymbolAnnotationRendererConfig(
-                  customRendererId: 'customSymbolAnnotation')
+                customRendererId: 'customSymbolAnnotation',
+              )
             ],
             primaryMeasureAxis: new charts.NumericAxisSpec(
               renderSpec: new charts.GridlineRendererSpec(
@@ -56,8 +56,13 @@ class _StackedBarChart extends State<StackedBarChart> {
               ),
             ),
             domainAxis: new charts.DateTimeAxisSpec(
+              tickFormatterSpec:
+                  charts.BasicDateTimeTickFormatterSpec.fromDateFormat(
+                DateFormat("MMM yyyy", "pt-BR"),
+              ),
               viewport: charts.DateTimeExtents(
-                start: DateTime(DateTime.now().year, DateTime.now().month - 5, 1),
+                start:
+                    DateTime(DateTime.now().year, DateTime.now().month - 6, 1),
                 end: DateTime(DateTime.now().year, DateTime.now().month, 1),
               ),
               showAxisLine: false,
@@ -73,7 +78,7 @@ class _StackedBarChart extends State<StackedBarChart> {
               ),
             ),
             behaviors: [
-              new charts.SlidingViewport(charts.SelectionModelType.info),
+              new charts.SlidingViewport(charts.SelectionModelType.action),
               new charts.PanAndZoomBehavior(),
               new charts.SelectNearest(
                   eventTrigger: charts.SelectionTrigger.tap),
