@@ -23,6 +23,8 @@ class CashDividendPosition:
             self.stocks[dividend.ticker] += dividend.amount
         else:
             self.stocks[dividend.ticker] = dividend.amount
+        if self.stocks[dividend.ticker] <= 0:
+            self.stocks.pop(dividend.ticker)
 
     def to_dict(self):
         return {
