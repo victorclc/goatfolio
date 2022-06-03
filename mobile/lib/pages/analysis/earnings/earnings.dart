@@ -46,7 +46,6 @@ class _EarningsPageState extends State<EarningsPage> {
     final earningsHistory = await _future;
     earningsHistory.history
         .sort((a, b) => a.date.compareTo(b.date)); // tirar daqui
-    final formatter = DateFormat("MMM yyyy", "pt-BR");
 
     Map<String, List<StockEarnings>> series = {};
     earningsHistory.history.forEach((element) {
@@ -65,7 +64,7 @@ class _EarningsPageState extends State<EarningsPage> {
         );
       });
     });
-
+    earningsHistory.colors = colors;
     List<charts.Series<StockEarnings, DateTime>> seriesList = [];
     series.forEach(
       (key, value) => seriesList.add(

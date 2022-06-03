@@ -1,3 +1,5 @@
+import 'package:goatfolio/pages/portfolio/rgb.dart';
+
 class EarningsDetails {
   final DateTime date;
   final double total;
@@ -12,6 +14,7 @@ class EarningsDetails {
 class EarningsHistory {
   List<EarningsDetails> history;
   Map<DateTime, EarningsDetails> map;
+  late Map<String, Rgb> colors;
 
   EarningsHistory(this.history) : map = {for (var v in history) v.date: v};
 
