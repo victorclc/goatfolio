@@ -33,6 +33,5 @@ List<BlocProvider> buildGlobalProviders(UserService userService) {
 
 final loadingStateObservers = [
   RefreshPerformanceObserver(),
-  DivergenceRefreshObserver(),
-  RefreshFriendsRentabilityObserver()
+  DivergenceRefreshObserver()
 ];

@@ -108,7 +108,7 @@ class _EarningsBarChart extends State<EarningsBarChart> {
             if (snapshot.hasData) {
               final data =
                   snapshot.data as List<charts.Series<StockEarnings, DateTime>>;
-              if (data.first.data.isEmpty || data.last.data.isEmpty) {
+              if (data.isEmpty || data.first.data.isEmpty || data.last.data.isEmpty) {
                 return SizedBox(
                   height: 240,
                   child: Center(
