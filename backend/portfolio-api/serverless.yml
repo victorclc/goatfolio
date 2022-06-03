@@ -156,10 +156,6 @@ functions:
     events:
       - http:
           path: cash-dividends
-          request:
-            parameters:
-              paths:
-                ticker: true
           method: get
           authorizer:
             type: COGNITO_USER_POOLS
