@@ -5,9 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goatfolio/pages/add/add.dart';
+import 'package:goatfolio/pages/analysis/analysis.dart';
 import 'package:goatfolio/pages/extract/extract.dart';
 import 'package:goatfolio/pages/portfolio/portfolio.dart';
-import 'package:goatfolio/pages/settings/settings_page.dart';
 import 'package:goatfolio/pages/summary/summary.dart';
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/notification/firebase.dart';
@@ -76,8 +76,9 @@ class _NavigationWidgetState extends State<NavigationWidget>
       Builder(builder: (context) => SummaryPage()),
       Builder(builder: (context) => PortfolioPage()),
       Builder(builder: (context) => AddPage()),
+      Builder(builder: (context) => AnalysisPage()),
       Builder(builder: (context) => ExtractPage()),
-      Builder(builder: (context) => SettingsPage()),
+
     ];
   }
 
@@ -99,15 +100,15 @@ class _NavigationWidgetState extends State<NavigationWidget>
         navigatorKey: GlobalKey<NavigatorState>(),
       ),
       CupertinoTabView(
+        defaultTitle: AnalysisPage.title,
+        builder: (context) => AnalysisPage(),
+        navigatorKey: GlobalKey<NavigatorState>(),
+      ),
+      CupertinoTabView(
         defaultTitle: ExtractPage.title,
         builder: (context) => ExtractPage(),
         navigatorKey: GlobalKey<NavigatorState>(),
       ),
-      CupertinoTabView(
-        defaultTitle: SettingsPage.title,
-        builder: (context) => SettingsPage(),
-        navigatorKey: GlobalKey<NavigatorState>(),
-      )
     ];
   }
 
@@ -171,13 +172,13 @@ class _NavigationWidgetState extends State<NavigationWidget>
           ),
           BottomNavigationBarItem(
             backgroundColor: theme.barBackgroundColor,
-            label: ExtractPage.title,
-            icon: ExtractPage.icon,
+            label: AnalysisPage.title,
+            icon: AnalysisPage.icon,
           ),
           BottomNavigationBarItem(
             backgroundColor: theme.barBackgroundColor,
-            label: SettingsPage.title,
-            icon: SettingsPage.icon,
+            label: ExtractPage.title,
+            icon: ExtractPage.icon,
           ),
         ],
       ),
@@ -215,9 +216,10 @@ class _NavigationWidgetState extends State<NavigationWidget>
             }),
           ),
           BottomNavigationBarItem(
-              label: ExtractPage.title, icon: ExtractPage.icon),
+              label: AnalysisPage.title, icon: AnalysisPage.icon),
           BottomNavigationBarItem(
-              label: SettingsPage.title, icon: SettingsPage.icon),
+              label: ExtractPage.title, icon: ExtractPage.icon),
+
         ],
       ),
       tabBuilder: (context, index) {

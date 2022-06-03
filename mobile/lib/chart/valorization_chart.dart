@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:goatfolio/chart/linear_chart.dart';
 import 'package:goatfolio/utils/extensions.dart';
@@ -148,7 +148,7 @@ class _ValorizationChartState extends State<ValorizationChart> {
               );
             }
         }
-        return Text("deu algum erro");
+        return Text("Erro ao carregar gráfico.");
       },
     );
   }

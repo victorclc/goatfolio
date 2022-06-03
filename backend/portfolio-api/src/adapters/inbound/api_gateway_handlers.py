@@ -11,6 +11,7 @@ from adapters.outbound.dynamo_investment_repository import DynamoInvestmentRepos
 from adapters.outbound.dynamo_portfolio_repository import DynamoPortfolioRepository
 from adapters.outbound.rest_corporate_events_client import RESTCorporateEventsClient
 from adapters.outbound.rest_ticker_info_client import RestTickerInfoClient
+from domain.dividends.get_cash_dividends import get_cash_dividends
 from domain.stock_average import get_stock_divergences
 from domain.stock_average.quick_fix_average_price import average_price_quick_fix
 
@@ -94,6 +95,18 @@ def get_stock_divergences_handler(event, context):
     return {"statusCode": 200, "body": jsonutils.dump(divergences)}
 
 
+@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler
+def get_cash_dividends_handler(event, _):
+    subject = awsutils.get_event_subject(event)
+    portfolio_repo = DynamoPortfolioRepository()
+    result = get_cash_dividends(subject, portfolio_repo)
+    return {
+        "statusCode": HTTPStatus.OK,
+        "body": jsonutils.dump([i.to_dict() for i in result]),
+    }
+
+
 def main():
     subject = "41e4a793-3ef5-4413-82e2-80919bce7c1a"
     # subject = "0ed5d1af-9ae8-402a-898f-6a90633081b8"
@@ -116,22 +129,23 @@ def main():
 
     # print(performance_core.calculate_portfolio_detailed_summary(subject))
     portfolio_repo = DynamoPortfolioRepository()
-    client = RESTCorporateEventsClient()
-    event = {
-        "body": "{\"ticker\":\"MGLU3\",\"date_from\":\"20200807\",\"broker\":\"\",\"amount\":65,\"average_price\":15.53}"}
-
-    body = jsonutils.load(event["body"])
-
-    investment = average_price_quick_fix(
-        subject,
-        body["ticker"],
-        datetime.datetime.strptime(body["date_from"], "%Y%m%d").date(),
-        body["broker"],
-        Decimal(body["amount"]),
-        Decimal(body["average_price"]),
-        DynamoInvestmentRepository(),
-        RESTCorporateEventsClient()
-    )
+    print(portfolio_repo.find_dividends_summary("41e4a793-3ef5-4413-82e2-80919bce7c1a"))
+    # client = RESTCorporateEventsClient()
+    # event = {
+    #     "body": "{\"ticker\":\"MGLU3\",\"date_from\":\"20200807\",\"broker\":\"\",\"amount\":65,\"average_price\":15.53}"}
+    #
+    # body = jsonutils.load(event["body"])
+    #
+    # investment = average_price_quick_fix(
+    #     subject,
+    #     body["ticker"],
+    #     datetime.datetime.strptime(body["date_from"], "%Y%m%d").date(),
+    #     body["broker"],
+    #     Decimal(body["amount"]),
+    #     Decimal(body["average_price"]),
+    #     DynamoInvestmentRepository(),
+    #     RESTCorporateEventsClient()
+    # )
     # divergences = get_stock_divergences.get_stock_divergences(subject, portfolio_repo, portfolio_repo, client)
     # print(divergences)
     # print(jsonutils.dump(performance_core.ticker_history_chart(subject, "BIDI11").to_json()))
