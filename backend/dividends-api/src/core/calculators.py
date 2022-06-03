@@ -80,7 +80,7 @@ class CashDividendsEarningsCalculator:
             self.calculate_payed_amount(amount, dividend),
             subject,
             dividend.payment_date,
-            f"STOCK_DIVIDEND#{dividend.id}"
+            f"STOCK_DIVIDEND#{ticker}#{dividend.asset_issued}#{dividend.id}#{dividend.isin_code}"
         )
 
         return sd
@@ -101,7 +101,7 @@ class CashDividendsEarningsCalculator:
                         self.calculate_payed_amount(amount, dividend),
                         subject,
                         dividend.payment_date,
-                        f"STOCK_DIVIDEND#{dividend.id}"
+                        f"STOCK_DIVIDEND#{ticker}#{dividend.asset_issued}#{dividend.id}#{dividend.isin_code}"
                     )
                 )
         return earnings
