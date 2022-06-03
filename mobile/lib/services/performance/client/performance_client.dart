@@ -58,7 +58,7 @@ class PerformanceClient {
   }
 
   Future<EarningsHistory> getEarningsHistory() async {
-    String url = "http://localhost:3000/dividends";
+    String url = F.baseUrl + "portfolio/cash-dividends";
 
     final Response response = await _client
         .get(Uri.parse(url), headers: {'Authorization': await accessToken});

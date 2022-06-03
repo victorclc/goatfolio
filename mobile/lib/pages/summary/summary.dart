@@ -117,12 +117,6 @@ class SummaryPage extends StatelessWidget {
                                         .portfolioSummary!.tickerVariation)),
                               ],
                             ),
-                            Row(
-                              children: [
-                                Expanded(child: FriendsRentabilityCard()),
-                                Expanded(child: Container())
-                              ],
-                            ),
                           ],
                         );
                       } else {
