@@ -33,12 +33,15 @@ class _EarningsBarChart extends State<EarningsBarChart> {
   final dateFormat = DateFormat('MMMM', 'pt_BR');
   EarningsDetails? selectedEarnings;
 
-  final Map<String, Rgb> colors = Map();
+  Map<String, Rgb> colors = Map();
 
   @override
   void initState() {
     widget.earningsHistory
-        .then((value) => selectedEarnings = value.history.last);
+        .then((value) {
+          selectedEarnings = value.history.last;
+          colors = value.colors;
+        });
     super.initState();
   }
 
@@ -124,7 +127,7 @@ class _EarningsBarChart extends State<EarningsBarChart> {
                     ),
                   ),
                   SizedBox(
-                    height: 16,
+                    height: 32,
                   ),
                   Expanded(
                     child: ListView.builder(
