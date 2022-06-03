@@ -151,6 +151,20 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  getCashDividends:
+    handler: src/adapters/inbound/api_gateway_handlers.get_cash_dividends_handler
+    events:
+      - http:
+          path: cash-dividends
+          request:
+            parameters:
+              paths:
+                ticker: true
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
   # Performance End
 
   # MANAGEMENT AND METRICS ENDPOINTS
