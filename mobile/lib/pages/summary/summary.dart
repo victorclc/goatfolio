@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:goatfolio/bloc/loading/loading_state.dart';
 import 'package:goatfolio/global.dart' as global;
+import 'package:goatfolio/pages/settings/settings_page.dart';
 import 'package:goatfolio/pages/share/share_page.dart';
 import 'package:goatfolio/pages/summary/friends/friends_rantability_card.dart';
 import 'package:goatfolio/pages/summary/high_low/highest_highs_card.dart';
@@ -79,8 +80,8 @@ class SummaryPage extends StatelessWidget {
                   : EdgeInsets.zero,
               position: BadgePosition.topEnd(top: 5, end: 5),
               child: IconButton(
-                icon: Icon(Icons.people),
-                onPressed: () => goToSharePage(context),
+                icon: Icon(CupertinoIcons.settings),
+                onPressed: () => goToSettingsPage(context),
               ),
             );
           }),
@@ -114,12 +115,6 @@ class SummaryPage extends StatelessWidget {
                                 Expanded(
                                     child: LowestLowsCard(cubit
                                         .portfolioSummary!.tickerVariation)),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Expanded(child: FriendsRentabilityCard()),
-                                Expanded(child: Container())
                               ],
                             ),
                           ],

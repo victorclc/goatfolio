@@ -151,6 +151,16 @@ functions:
             authorizerId:
               Ref: ApiGatewayAuthorizer
 
+  getCashDividends:
+    handler: src/adapters/inbound/api_gateway_handlers.get_cash_dividends_handler
+    events:
+      - http:
+          path: cash-dividends
+          method: get
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
   # Performance End
 
   # MANAGEMENT AND METRICS ENDPOINTS
@@ -191,6 +201,14 @@ functions:
       - sqs:
           arn:
             Fn::GetAtt: [ ConsolidateApplicableCorporateEventQueue, Arn ]
+
+  consolidateDividend:
+    handler: src/adapters/inbound/sqs_handlers.consolidate_dividend_handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ PortfolioAddOrUpdatedDividendSubscriber, Arn ]
+
 
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}

@@ -9,6 +9,7 @@ DATE_FORMAT = "%Y%m%d"
 
 class InvestmentType(Enum):
     STOCK = "STOCK"
+    STOCK_DIVIDEND = "STOCK_DIVIDEND"
     US_STOCK = "US_STOCK"
     FIXED_INCOME = "FIXED_INCOME"
     PRE_FIXED = "PRE_FIXED"
@@ -49,14 +50,10 @@ class Investment:
     id: str
     date: dt.date
     type: InvestmentType
-    operation: OperationType
-    broker: str
 
     def __post_init__(self):
         if not isinstance(self.date, dt.date):
             self.date = dt.datetime.strptime(str(self.date), DATE_FORMAT).date()
-        if isinstance(self.operation, str):
-            self.operation = OperationType.from_string(self.operation)
         if isinstance(self.type, str):
             self.type = InvestmentType.from_string(self.type)
 
@@ -64,7 +61,6 @@ class Investment:
         return {
             **self.__dict__,
             "date": int(self.date.strftime(DATE_FORMAT)),
-            "operation": self.operation.value,
             "type": self.type.value,
         }
 
@@ -74,12 +70,16 @@ class StockInvestment(Investment):
     ticker: str
     amount: Decimal
     price: Decimal
+    operation: OperationType
+    broker: str
     costs: Decimal = field(default_factory=lambda: Decimal(0))
     alias_ticker: str = ""
     external_system: str = ""
 
     def __post_init__(self):
         super().__post_init__()
+        if isinstance(self.operation, str):
+            self.operation = OperationType.from_string(self.operation)
         if not isinstance(self.amount, Decimal):
             self.amount = Decimal(self.amount).quantize(Decimal("0.01"))
         if not isinstance(self.price, Decimal):
@@ -92,3 +92,30 @@ class StockInvestment(Investment):
     @property
     def current_ticker_name(self):
         return self.alias_ticker or self.ticker
+
+    def to_json(self):
+        return {
+            **super().to_json(),
+            "operation": self.operation.value,
+        }
+
+
+@dataclass
+class StockDividend(Investment):
+    ticker: str
+    label: str  # DIVIDENDO, RENDIMENTO, JCP
+    amount: Decimal
+
+    # alias_ticker: str = "" # sera q precisa?
+
+    def __post_init__(self):
+        super().__post_init__()
+        if not isinstance(self.amount, Decimal):
+            self.amount = Decimal(self.amount).quantize(Decimal("0.01"))
+
+    def to_json(self):
+        return {
+            **self.__dict__,
+            "date": int(self.date.strftime(DATE_FORMAT)),
+            "type": self.type.value,
+        }

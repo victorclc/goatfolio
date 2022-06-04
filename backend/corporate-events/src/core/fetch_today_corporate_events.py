@@ -73,12 +73,14 @@ def cash_dividends_entity_mapper(cash_dividends: List[CashDividends]):
     ids = {}
     for dividend in cash_dividends:
         entity = dividend.to_entity()
-        if entity.id in ids:
-            new_id = entity.id + str(ids[entity.id])
-            ids[entity.id] += 1
+        if entity.asset_issued not in ids:
+            ids[entity.asset_issued] = {}
+        if entity.id in ids[entity.asset_issued]:
+            new_id = entity.id + str(ids[entity.asset_issued][entity.id])
+            ids[entity.asset_issued][entity.id] += 1
             entity.id = new_id
         else:
-            ids[entity.id] = 0
+            ids[entity.asset_issued][entity.id] = 1
         _entities.append(entity)
     return _entities
 

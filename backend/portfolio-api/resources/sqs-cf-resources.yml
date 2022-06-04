@@ -143,6 +143,48 @@ Resources:
       FifoQueue: true
       ContentBasedDeduplication: true
 
+  PortfolioAddOrUpdatedDividendSubscriber:
+    Type: AWS::SQS::Queue
+    Properties:
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "PortfolioAddOrUpdatedDividendSubscriberDLQ"
+            - "Arn"
+        maxReceiveCount: 5
+      FifoQueue: true
+      QueueName: PortfolioAddOrUpdatedDividendSubscriber.fifo
+      VisibilityTimeout: 300
+  PortfolioAddOrUpdatedDividendSubscriberDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: PortfolioAddOrUpdatedDividendSubscriberDLQ.fifo
+      FifoQueue: true
+  DividendSubscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      TopicArn:
+        'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedStockDividendTopic
+      Endpoint: !GetAtt PortfolioAddOrUpdatedDividendSubscriber.Arn
+      Protocol: sqs
+      RawMessageDelivery: 'true'
+  DividendSNS2QueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref PortfolioAddOrUpdatedDividendSubscriber
+      PolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: sns.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt PortfolioAddOrUpdatedDividendSubscriber.Arn
+            Condition:
+              ArnEquals:
+                "aws:SourceArn":
+                  'Fn::ImportValue': ${self:provider.stage}-AddedOrUpdatedStockDividendTopic
+
 Outputs:
   CEIInfoIntegrationQueueArnOutput:
     Value:

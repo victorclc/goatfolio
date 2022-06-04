@@ -28,3 +28,11 @@ class DynamoCashDividendsRepository:
             KeyConditionExpression=Key("payment_date").eq(payment_date.strftime("%Y%m%d"))
         )
         return list(map(lambda i: CashDividendsEntity(**i), result["Items"]))
+
+    def find_by_from_last_date_prior(self, isin: str, from_date: datetime.date) -> List[CashDividendsEntity]:
+        result = self.__table.query(
+            IndexName="assetIssueLastDatePriorLocalIndex",
+            KeyConditionExpression=Key("asset_issued").eq(isin) & Key("last_date_prior").gte(
+                from_date.strftime("%Y%m%d"))
+        )
+        return list(map(lambda i: CashDividendsEntity(**i), result["Items"]))

@@ -1,44 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:goatfolio/services/investment/model/operation_type.dart';
-import 'package:goatfolio/services/investment/model/stock.dart';
+import 'package:goatfolio/services/investment/model/paginated_extract_result.dart';
+import 'package:goatfolio/utils/dialog.dart' as dialog;
 import 'package:goatfolio/utils/extensions.dart';
-import 'package:goatfolio/utils/formatters.dart';
-
 import 'package:intl/intl.dart';
 
-import 'package:goatfolio/utils/dialog.dart' as dialog;
-
-
-class ExtractDetails extends StatelessWidget {
+class ExtractItemDetailedView extends StatelessWidget {
   final DateFormat formatter = DateFormat('dd MMM yyyy', 'pt_BR');
-  final StockInvestment investment;
+  final ExtractItem item;
   final Function onEdited;
   final Function onDeleted;
 
-  ExtractDetails(this.investment, this.onEdited, this.onDeleted, {Key? key})
+  ExtractItemDetailedView(this.item, this.onEdited, this.onDeleted, {Key? key})
       : super(key: key);
 
-  Icon getIconFromOperation(String operation) {
-    switch (operation) {
-      case OperationType.BUY:
-        return Icon(Icons.trending_up, color: Colors.green);
-      case OperationType.SELL:
-        return Icon(Icons.trending_down, color: Colors.red);
-      case OperationType.SPLIT:
-      case OperationType.INCORP_ADD:
-        return Icon(Icons.call_split, color: Colors.brown);
-      case OperationType.GROUP:
-      case OperationType.INCORP_SUB:
-        return Icon(Icons.group_work_outlined, color: Colors.brown);
-      default:
-        return Icon(Icons.clear);
-    }
-  }
-
   bool isModifiable() {
-    return [OperationType.BUY, OperationType.SELL]
-        .contains(investment.operation);
+    return item.modifiable;
   }
 
   Widget build(BuildContext context) {
@@ -67,24 +44,24 @@ class ExtractDetails extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ClipOval(
-                      child: getIconFromOperation(investment.operation),
+                      child: item.icon.iconWidget,
                     ),
                     SizedBox(
                       height: 24,
                     ),
                     Text(
-                      formatter.format(investment.date).capitalizeWords(),
+                      formatter.format(item.date).capitalizeWords(),
                       style: textTheme.textStyle.copyWith(fontSize: 16),
                     ),
                     Text(
-                      investment.broker ?? "",
+                      item.additionalInfo1,
                       style: textTheme.textStyle.copyWith(fontSize: 16),
                     ),
                     SizedBox(
                       height: 16,
                     ),
                     Text(
-                      (investment).ticker.replaceAll('.SA', ''),
+                      item.key,
                       style: textTheme.textStyle
                           .copyWith(fontSize: 24, fontWeight: FontWeight.w400),
                     ),
@@ -92,26 +69,22 @@ class ExtractDetails extends StatelessWidget {
                       height: 16,
                     ),
                     Text(
-                      moneyFormatter
-                          .format((investment).amount * (investment).price),
+                      item.value,
                       style: textTheme.textStyle
                           .copyWith(fontSize: 24, fontWeight: FontWeight.w600),
                     ),
                     Text(
-                      "(${(investment).amount} x ${moneyFormatter.format((investment).price)})",
+                      item.additionalInfo2,
                       style: textTheme.textStyle.copyWith(fontSize: 14),
                     ),
                     SizedBox(
                       height: 32,
                     ),
-                    investment.id!.startsWith("CEI")
-                        ? Container(
-                            padding: EdgeInsets.only(right: 16),
-                            alignment: Alignment.topRight,
-                            child: Text("*Importado pelo CEI",
-                                style:
-                                    textTheme.textStyle.copyWith(fontSize: 14)))
-                        : Container(),
+                    Container(
+                        padding: EdgeInsets.only(right: 16),
+                        alignment: Alignment.topRight,
+                        child: Text(item.observation,
+                            style: textTheme.textStyle.copyWith(fontSize: 14)))
                   ],
                 ),
                 SizedBox(
@@ -130,7 +103,7 @@ class ExtractDetails extends StatelessWidget {
                           child: Text("Editar"),
                           onPressed: isModifiable()
                               ? () async {
-                                  await onEdited(investment);
+                                  await onEdited(item.investment);
                                   Navigator.of(context).pop();
                                 }
                               : null,
@@ -149,7 +122,7 @@ class ExtractDetails extends StatelessWidget {
                                       message:
                                           "Tem certeza que quer excluir a transação?",
                                       onYesPressed: () async {
-                                    await onDeleted(investment);
+                                    await onDeleted(item.investment);
                                     Navigator.pop(context);
                                   });
                                 }

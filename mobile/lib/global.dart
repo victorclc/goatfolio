@@ -22,15 +22,16 @@ List<BlocProvider> buildGlobalProviders(UserService userService) {
     ),
     BlocProvider<FriendsListCubit>(
       create: (_) => FriendsListCubit(userService),
+      lazy: true,
     ),
     BlocProvider<FriendsRentabilityCubit>(
-      create: (_) => FriendsRentabilityCubit(userService)
+      create: (_) => FriendsRentabilityCubit(userService),
+      lazy: true,
     ),
   ];
 }
 
 final loadingStateObservers = [
   RefreshPerformanceObserver(),
-  DivergenceRefreshObserver(),
-  RefreshFriendsRentabilityObserver()
+  DivergenceRefreshObserver()
 ];

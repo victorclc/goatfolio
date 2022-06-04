@@ -1,7 +1,8 @@
 import 'package:goatfolio/services/authentication/cognito.dart';
 import 'package:goatfolio/services/investment/client/portfolio.dart';
+import 'package:goatfolio/services/investment/model/investment.dart';
 import 'package:goatfolio/services/investment/model/paginated_investments_result.dart';
-import 'package:goatfolio/services/investment/model/stock.dart';
+import 'package:goatfolio/services/investment/model/stock_investment.dart';
 
 class StockInvestmentService {
   final UserService userService;
@@ -20,17 +21,5 @@ class StockInvestmentService {
 
   Future<void> deleteInvestment(StockInvestment investment) async {
     await portfolioClient.delete(investment);
-  }
-
-  Future<PaginatedInvestmentResult> getInvestments(
-      {required int limit,
-      String? lastEvaluatedId,
-      DateTime? lastEvaluatedDate}) async {
-    return await portfolioClient.getInvestments(
-        limit, lastEvaluatedId, lastEvaluatedDate);
-  }
-
-  Future<List<StockInvestment>> getByTicker(String ticker) async {
-    return await portfolioClient.getInvestmentsByTicker(ticker);
   }
 }

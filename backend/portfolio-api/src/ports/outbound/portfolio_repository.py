@@ -1,5 +1,6 @@
 from typing import Protocol, Optional, List, Type, ClassVar
 
+from application.models.cash_dividends_summary import CashDividendsSummary
 from domain.common.investment_consolidated import InvestmentConsolidated
 from domain.common.portfolio import Portfolio, StockConsolidated, PortfolioItem
 from application.models.assets_quantities import AssetQuantities
@@ -36,3 +37,6 @@ class PortfolioRepository(Protocol):
 
     def find_asset_quantities(self, subject: str) -> Optional[AssetQuantities]:
         """Finds the asset quantities object (if exists)"""
+
+    def find_dividends_summary(self, subject: str) -> Optional[CashDividendsSummary]:
+        ...

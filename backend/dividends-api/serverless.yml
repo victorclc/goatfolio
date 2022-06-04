@@ -12,6 +12,7 @@ provider:
     PYTHONPATH: "src:shared/libs"
     CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
     TICKER_BASE_API_URL: https://${env:DOMAIN_NAME}/ticker
+    INVESTMENTS_BASE_API_URL: https://${env:DOMAIN_NAME}/investments
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
   tracing:
@@ -49,5 +50,13 @@ functions:
     events:
       - schedule: cron(0 11 ? * MON-FRI *)
 
-#resources:
-#  - ${file(resources/authorizer-cf-resources.yml)}
+  checkForApplicableDividend:
+    handler: src/adapters/inbound/sqs_handlers.check_for_applicable_dividend_handler
+    timeout: 120
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [ DividendsAPIAddOrUpdatedInvestmentSubscriber, Arn ]
+
+resources:
+  - ${file(resources/sqs-cf-resources.yml)}

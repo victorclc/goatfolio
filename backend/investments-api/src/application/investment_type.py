@@ -3,10 +3,10 @@ from enum import Enum
 
 class InvestmentType(Enum):
     STOCK = "STOCK"
+    STOCK_DIVIDEND = "STOCK_DIVIDEND"
     US_STOCK = "US_STOCK"
     FIXED_INCOME = "FIXED_INCOME"
     PRE_FIXED = "PRE_FIXED"
     POST_FIXED = "POST_FIXED"
     CHECKING_ACCOUNT = "CHECKING_ACCOUNT"
     CRYPTO = "CRYPTO"
-

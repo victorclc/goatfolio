@@ -8,6 +8,7 @@ _DATE_FORMAT = "%Y%m%d"
 
 class InvestmentType(Enum):
     STOCK = "STOCK"
+    STOCK_DIVIDEND = "STOCK_DIVIDEND"
     US_STOCK = "US_STOCK"
     FIXED_INCOME = "FIXED_INCOME"
     PRE_FIXED = "PRE_FIXED"
@@ -63,3 +64,26 @@ class StockInvestment:
             self.costs = Decimal(self.costs).quantize(Decimal("0.01"))
         if not self.type:
             self.type = InvestmentType.STOCK
+
+
+@dataclass
+class StockDividend:
+    ticker: str
+    label: str  # DIVIDENDO, RENDIMENTO, JCP
+    amount: Decimal
+    subject: str
+    date: dt.date
+    id: str
+    type: InvestmentType = field(init=False)
+
+    def __post_init__(self):
+        if not isinstance(self.amount, Decimal):
+            self.amount = Decimal(self.amount).quantize(Decimal("0.01"))
+        self.type = InvestmentType.STOCK_DIVIDEND
+
+    def to_json(self):
+        return {
+            **self.__dict__,
+            "date": int(self.date.strftime("%Y%m%d")),
+            "type": self.type.value,
+        }
