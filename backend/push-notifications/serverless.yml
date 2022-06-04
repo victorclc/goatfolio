@@ -62,6 +62,7 @@ functions:
 
   sendNotification:
     handler: src/handlers.send_notification_handler
+    timeout: 300
     events:
       - sqs:
           arn:

@@ -1,4 +1,5 @@
 import logging
+import re
 from itertools import groupby
 from typing import List, Dict, Set, Optional
 
@@ -18,29 +19,39 @@ logging.basicConfig(
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+TICKERS_TO_IGNORE = ["12", "13", "14", "1", "2", "9", "10"]
+
 
 class InvestmentConsolidationCore:
     def __init__(
-        self,
-        repo: PortfolioRepository,
-        ticker_client: TickerInfoClient,
-        strategies: Dict[InvestmentType, InvestmentsConsolidationStrategy],
+            self,
+            repo: PortfolioRepository,
+            ticker_client: TickerInfoClient,
+            strategies: Dict[InvestmentType, InvestmentsConsolidationStrategy],
     ):
         self.repo = repo
         self.strategies = strategies
         self.ticker_client = ticker_client
 
     def consolidate_investments(
-        self, subject: str, new: Optional[Investment], old: Optional[Investment]
+            self, subject: str, new: Optional[Investment], old: Optional[Investment]
     ):
         portfolio = self.get_portfolio(subject)
         if new:
             if not self.ticker_client.is_ticker_valid(new.ticker):
                 logger.warning(f"NEW TICKER IS NOT VALID: {new.ticker}")
                 new = None
+            codes = re.findall(r'\d+', new.ticker)
+            if not codes or codes[0] in TICKERS_TO_IGNORE:
+                logger.warning(f"TICKERS OF SUBSCRIPTION NOT CONSOLIDATING")
+                new = None
         if old:
             if not self.ticker_client.is_ticker_valid(old.ticker):
                 logger.warning(f"OLD TICKER IS NOT VALID: {old.ticker}")
+                old = None
+            codes = re.findall(r'\d+', old.ticker)
+            if not codes or codes[0] in TICKERS_TO_IGNORE:
+                logger.warning(f"TICKERS OF SUBSCRIPTION NOT CONSOLIDATING")
                 old = None
 
         if not new and not old:
