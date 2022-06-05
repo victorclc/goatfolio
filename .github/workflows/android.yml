@@ -49,7 +49,7 @@ jobs:
         run: flutter pub get
 
       - name: build appbundle
-        run: flutter build appbundle --flavor prod -t lib/main-prod.dart
+        run: flutter build appbundle --no-tree-shake-icons --flavor prod -t lib/main-prod.dart
       
       # deploy with Fastlane 🚀.
       - name: Deploy
