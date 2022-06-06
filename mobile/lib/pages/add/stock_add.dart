@@ -284,7 +284,7 @@ class _StockAddState extends State<StockAdd> {
   List<String> validateForm() {
     final List<String> problems = [];
     if (_tickerController.text.length < 5 ||
-        _tickerController.text.length > 6) {
+        _tickerController.text.length > 7) {
       problems.add("Código do ativo inválido.");
     }
     if (int.parse(_amountController.text) <= 0) {
