@@ -54,7 +54,8 @@ def _get_investments(event, stock_only):
     limit = awsutils.get_query_param(event, "limit")
     ticker = awsutils.get_query_param(event, "ticker")
     if limit:
-        limit = int(limit)
+        # limit = int(limit)
+        limit = 250
     last_evaluated_id = awsutils.get_query_param(event, "last_evaluated_id")
     last_evaluated_date = awsutils.get_query_param(event, "last_evaluated_date")
     if last_evaluated_date:

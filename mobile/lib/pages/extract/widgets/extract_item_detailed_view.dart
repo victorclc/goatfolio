@@ -122,7 +122,7 @@ class ExtractItemDetailedView extends StatelessWidget {
                                       message:
                                           "Tem certeza que quer excluir a transação?",
                                       onYesPressed: () async {
-                                    await onDeleted(item.investment);
+                                    await onDeleted(item);
                                     Navigator.pop(context);
                                   });
                                 }
