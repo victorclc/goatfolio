@@ -59,9 +59,32 @@ class StockConsolidationStrategy(InvestmentsConsolidationStrategy):
             None,
         )
 
+    @staticmethod
+    def find_alias_ticker_consolidated(
+        ticker: str, consolidated_list: List[StockConsolidated]
+    ) -> Optional[StockConsolidated]:
+        return next(
+            (
+                stock
+                for stock in consolidated_list
+                if stock.alias_ticker == ticker
+            ),
+            None,
+        )
+
+    def append_if_needed(self, investment: StockInvestment, consolidated_list: List[StockConsolidated]):
+        consolidated = self.find_alias_ticker_consolidated(investment.ticker, consolidated_list)
+        if not consolidated:
+            alias_list = self.repo.find_alias_ticker(
+                investment.subject, investment.ticker, StockConsolidated
+            )
+            if alias_list:
+                consolidated_list += alias_list
+
     def append_alias_consolidated_list_if_needed(
         self, investment: StockInvestment, consolidated_list: List[StockConsolidated]
     ):
+        self.append_if_needed(investment, consolidated_list)
         alias_consolidated = self.find_ticker_consolidated(
             investment.alias_ticker, consolidated_list
         )
@@ -77,6 +100,7 @@ class StockConsolidationStrategy(InvestmentsConsolidationStrategy):
     ) -> List[StockConsolidated]:
         consolidated_copy = consolidated_list.copy()
 
+        self.append_if_needed(investment, consolidated_copy)
         if investment.alias_ticker:
             self.append_alias_consolidated_list_if_needed(investment, consolidated_copy)
 
