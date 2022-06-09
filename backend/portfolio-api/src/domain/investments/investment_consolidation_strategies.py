@@ -76,7 +76,7 @@ class StockConsolidationStrategy(InvestmentsConsolidationStrategy):
         consolidated = self.find_alias_ticker_consolidated(investment.ticker, consolidated_list)
         if not consolidated:
             alias_list = self.repo.find_alias_ticker(
-                investment.subject, investment.alias_ticker, StockConsolidated
+                investment.subject, investment.ticker, StockConsolidated
             )
             if alias_list:
                 consolidated_list += alias_list
@@ -100,6 +100,7 @@ class StockConsolidationStrategy(InvestmentsConsolidationStrategy):
     ) -> List[StockConsolidated]:
         consolidated_copy = consolidated_list.copy()
 
+        self.append_if_needed(investment, consolidated_copy)
         if investment.alias_ticker:
             self.append_alias_consolidated_list_if_needed(investment, consolidated_copy)
 
