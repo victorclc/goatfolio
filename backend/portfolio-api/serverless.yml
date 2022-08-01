@@ -6,16 +6,10 @@ provider:
   stage: ${env:STAGE, 'dev'}
   runtime: python3.8
   memorySize: 512
-  vpc:
-    securityGroupIds:
-      - !GetAtt RedisSecurityGroup.GroupId
-    subnetIds:
-      - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet1ID
-      - Fn::ImportValue: serverless-goatfolio-${self:provider.stage}-PrivateSubnet2ID
   environment:
     PYTHONPATH: "src:shared/libs"
     CORPORATE_EVENTS_URL: https://${env:DOMAIN_NAME}/corporate-events
-    REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
+#    REDIS_HOST: !GetAtt RedisElasticacheCluster.RedisEndpoint.Address
     TICKER_BASE_API_URL: https://${env:DOMAIN_NAME}/ticker
   iamRoleStatements: ${file(resources/roles-cf-statements.yml)}
   endpointType: regional
@@ -212,6 +206,6 @@ functions:
 
 resources:
   - ${file(resources/authorizer-cf-resources.yml)}
-  - ${file(resources/elasticache-cf-resources.yml)}
+  #- ${file(resources/elasticache-cf-resources.yml)}
   - ${file(resources/dynamo-cf-resources.yml)}
   - ${file(resources/sqs-cf-resources.yml)}
