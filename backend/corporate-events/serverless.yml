@@ -51,23 +51,23 @@ custom:
 functions:
   downloadTodayCorporateEvents:
     handler: src/adapters/inbound/cloudwatch_cron_handlers.craw_today_corporate_events_handler
-    events:
-      - schedule: cron(0 23 ? * MON-FRI *)
+    #events:
+    #  - schedule: cron(0 23 ? * MON-FRI *)
 
   yesterdaySplitEvents:
     handler: src/adapters/inbound/cloudwatch_cron_handlers.handle_yesterday_split_events_handler
-    events:
-      - schedule: cron(0 13 ? * * *)
+    #events:
+    #  - schedule: cron(0 13 ? * * *)
 
   yesterdayGroupEvents:
     handler: src/adapters/inbound/cloudwatch_cron_handlers.handle_yesterday_group_events_handler
-    events:
-      - schedule: cron(0 13 ? * * *)
+    #events:
+    #  - schedule: cron(0 13 ? * * *)
 
   yesterdayIncorporationEvents:
     handler: src/adapters/inbound/cloudwatch_cron_handlers.handle_yesterday_incorporation_events_handler
-    events:
-      - schedule: cron(0 13 ? * * *)
+    #events:
+    #  - schedule: cron(0 13 ? * * *)
 
   getTickerTransformation:
     handler: src/adapters/inbound/private_api_gateway_handlers.get_ticker_transformations_handler
