@@ -46,13 +46,13 @@ functions:
             - suffix: .TXT
   ibovHistory:
     handler: handlers.ibov_history_handler
-    events:
-      - schedule: cron(0 22 L * ? *)
+    # events:
+    #  - schedule: cron(0 22 L * ? *)
 
   monthlyCotaHistDownloader:
     handler: handlers.download_current_monthly_cotahist_file
-    events:
-      - schedule: cron(0 22 L * ? *)
+    # events:
+    #  - schedule: cron(0 22 L * ? *)
 
   manualCotaHistDownloader:
     handler: handlers.download_monthly_cotahist_file
